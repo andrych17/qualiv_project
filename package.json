@@ -4,7 +4,9 @@
     "type": "module",
     "scripts": {
         "build": "vue-tsc && vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "dev:next": "npm run dev --prefix next-fe",
+        "build:next": "npm run build --prefix next-fe"
     },
     "devDependencies": {
         "@inertiajs/vue3": "^2.0.0",
