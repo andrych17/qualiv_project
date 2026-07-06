@@ -25,3 +25,6 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+// Load Inventory Module Routes
+require app_path('Modules/Inventory/Routes/web.php');
