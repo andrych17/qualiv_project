@@ -40,8 +40,8 @@ A **SaaS ERP platform**, architected as a **modular monolith** (Odoo-like), with
 
 | Layer | Choice |
 |---|---|
-| Backend | Laravel (PHP) |
-| Frontend | Vue.js |
+| Backend | Laravel 11/12 |
+| Frontend | Vue 3 (Inertia.js, Vite, Tailwind CSS, Lucide Icons) |
 | Database | PostgreSQL |
 | Cache / Queue broker | Redis |
 | Web server | Nginx |
@@ -108,7 +108,7 @@ When working on a task, Claude should check whether it belongs in **Core** (reus
 - [ ] Per-tenant infrastructure limits/monitoring approach
 - [x] `DESIGN.md` — design tokens, component inventory, and design principles (to be created alongside the first components)
 
-## 9. Content of OLD claude.md aka Architecture
+## 9. Development
 
 ## Build & Run Commands
 
@@ -134,8 +134,8 @@ As the local host does not have PHP/Composer installed globally, all PHP and art
 - **Run PHPUnit tests**: `docker run --rm -v $(pwd):/app -w /app composer:latest php artisan test`
 
 ---
-
-## Codebase Guidelines & Conventions
+ 
+## 10. Codebase Guidelines & Conventions
 
 ### 1. Modular Monolith Architecture
 - Business modules live in `app/Modules/<ModuleName>/`.
