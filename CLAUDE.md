@@ -34,8 +34,6 @@ A **SaaS ERP platform**, architected as a **modular monolith** (Odoo-like), with
 - Treat each module as if it could one day be toggled on/off per tenant (per-plan feature flags) — this is core to the rental/SaaS model.
 - Separate Back-end from Front-end, since will be Web/Mobile/Tablet option. Start with Web edition.
 
-### Use existing UI components extensively, and if not found one, create.
-
 ## 3. Tech Stack
 
 | Layer | Choice |
@@ -91,27 +89,44 @@ When working on a task, Claude should check whether it belongs in **Core** (reus
 - Prefer explicit, boring code over clever abstractions — this codebase will be read and extended by one person (plus Claude Code), so optimize for future-you re-reading it, not for impressing a team.
 - Add short comments explaining *why* for any non-obvious architectural decision (e.g. why something was kept in Core vs. Legal, why a microservice was split out).
 
-## 7. Working with Claude Code
+## 7. Storage Conventions
+### A. Database:
+- One DB for each tenant.
+- Separate schema for each modules.
+- Custom fields on separate schema.
+- Structure:
+```text
+tenant_001.			# Database
+├── CRM.			# Schema
+├── SCHEDULE.
+├── NOTIFICATIONS.
+├── LEGAL.
+└── CUSTOMFIELDS.
+```
+- Table naming use: Transaction/Master name + level, ie. sales.order_hdr = Sales module, Order table, Header level
+- Use bigint for PK and JOIN. Add UUID for external facing objects.
+- No need to enforce FK in the Database, application must make sure of this.
+- Use stancl/tenancy whenever possible.
+- Tenant resolution strategy is login-bound.
+- Do not use PostgreSQL Row Level Security.
 
-- Before adding a new module or service, state which category it falls into (Core / Vertical / Microservice) and why, per Section 2 and Section 5.
-- When a task could reasonably be solved either inside the monolith or as a separate service, default to the monolith and flag the tradeoff rather than silently extracting a service.
-- When touching multi-tenant data paths, double-check tenant scoping is present — this is a recurring risk area.
-- Reference `DESIGN.md` before building any new UI component to avoid inventing a parallel design language.
-- Since this is a commercial SaaS product, when proposing a feature or implementation approach, briefly note if there's a simpler version that would still be sellable (MVP bias), especially for the Legal module which is closest to revenue.
+## B. Object File:
+- Separate folder for each tenant.
+- Subfolder and object file arrangement must consider restore performance / capability.
+- Structure:
+```text
+tenant_001/
+├── DB/
+├── CRM/
+├── SCHEDULE/
+├── NOTIFICATIONS/
+├── DMS/
+└── LEGAL/
+```
 
-## 8. Open Items to Fill In As the Project Grows
+## 8. Development Conventions
 
-- [x] API contract style between Laravel and Vue.js (REST/OpenAPI vs. other)
-- [ ] Auth strategy (Sanctum/Passport, SSO plans)
-- [x] Billing/subscription module ownership (Core vs. separate service)
-- [ ] CI/CD pipeline and deployment process for the Ubuntu VPS
-- [ ] Per-tenant infrastructure limits/monitoring approach
-- [x] `DESIGN.md` — design tokens, component inventory, and design principles (to be created alongside the first components)
-
-## 9. Development
-
-## Build & Run Commands
-
+### Build & Run Commands
 As the local host does not have PHP/Composer installed globally, all PHP and artisan commands must be run via Docker using `composer:latest`. Local Node.js / NPM commands can be run directly on the host.
 
 ### Local Development Setup
@@ -132,12 +147,10 @@ As the local host does not have PHP/Composer installed globally, all PHP and art
 
 ### Running Tests
 - **Run PHPUnit tests**: `docker run --rm -v $(pwd):/app -w /app composer:latest php artisan test`
-
----
  
-## 10. Codebase Guidelines & Conventions
+## 9. Codebase Guidelines & Conventions
 
-### 1. Modular Monolith Architecture
+### A. Modular Monolith Architecture
 - Business modules live in `app/Modules/<ModuleName>/`.
 - Each module contains:
   - `Controllers/` (Thin controllers only)
@@ -150,12 +163,30 @@ As the local host does not have PHP/Composer installed globally, all PHP and art
 - Shared/core utilities live in `app/Shared/` (`Actions/`, `DTOs/`, `Enums/`, `Services/`, `Traits/`, `Helpers/`).
 - Module routes are loaded dynamically from `routes/web.php`.
 
-### 2. Frontend Page Structure
+### B. Frontend Page Structure
 - Vue pages live in `resources/js/Pages/<ModuleName>/Items/` (e.g. `Index.vue`, `Create.vue`, `Edit.vue`).
 - Shared frontend layouts, navigation, forms, and table components live in `resources/js/Components/` (`layout/`, `navigation/`, `forms/`, `tables/`, `filters/`, `modals/`, `feedback/`).
 
-### 3. Coding Conventions
+### C. Coding Conventions
 - **Controllers**: Keep controllers thin. Validate requests using Form Requests, delegate execution to Service classes, and return Inertia responses.
 - **TypeScript**: Use strict TypeScript in Vue files. Explicitly define types and interfaces for backend-passed props.
 - **Tailwind CSS**: Use utility classes directly for layouts and UI styling. Maintain clean structure and consistent spacing.
 - **Lucide Icons**: Render Lucide icons dynamically in layouts and sidebars using the `<component :is="..." />` helper.
+
+## 10. Working with Claude Code
+
+- Before adding a new module or service, state which category it falls into (Core / Vertical / Microservice) and why, per Section 2 and Section 5.
+- When a task could reasonably be solved either inside the monolith or as a separate service, default to the monolith and flag the tradeoff rather than silently extracting a service.
+- When touching multi-tenant data paths, double-check tenant scoping is present — this is a recurring risk area.
+- Reference `DESIGN.md` before building any new UI component to avoid inventing a parallel design language.
+- Since this is a commercial SaaS product, when proposing a feature or implementation approach, briefly note if there's a simpler version that would still be sellable (MVP bias), especially for the Legal module which is closest to revenue.
+
+## 11. Open Items to Fill In As the Project Grows
+
+- [ ] API contract style between Laravel and Vue.js (REST/OpenAPI vs. other)
+- [ ] Auth strategy (Sanctum/Passport, SSO plans)
+- [ ] Billing/subscription module ownership (Core vs. separate service)
+- [ ] CI/CD pipeline and deployment process for the Ubuntu VPS
+- [ ] Per-tenant infrastructure limits/monitoring approach
+- [ ] `DESIGN.md` — design tokens, component inventory, and design principles (to be created alongside the first components)
+
