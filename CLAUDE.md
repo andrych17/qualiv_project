@@ -32,25 +32,31 @@ A **SaaS ERP platform**, architected as a **modular monolith** (Odoo-like), with
 - Core modules must have **zero knowledge** of vertical modules. Vertical modules depend on core, never the reverse.
 - Cross-module communication goes through events/contracts (e.g. Laravel events, service interfaces), not direct model reach-through into another module's internals.
 - Treat each module as if it could one day be toggled on/off per tenant (per-plan feature flags) — this is core to the rental/SaaS model.
-- Separate Back-end from Front-end, since will be Web/Mobile/Tablet option. Start with Web edition.
+
+### Web vs future clients (API boundary)
+- **Web (current):** Laravel + Inertia.js + Vue 3. Controllers return `Inertia::render(...)`. Do **not** build REST/GraphQL endpoints for web pages.
+- **Business logic** always lives in Service classes (never in controllers or Vue). Services are the reusable boundary.
+- **Mobile / Tablet / external clients (later):** versioned REST APIs that call the same Services — no duplicated domain logic. Do not invent a parallel API layer for web.
+- Start with Web edition. Ship REST only when a non-Inertia client is real, not speculative.
 
 ## 3. Tech Stack
 
 | Layer | Choice |
 |---|---|
 | Backend | Laravel 11/12 |
-| Frontend | Vue 3 (Inertia.js, Vite, Tailwind CSS, Lucide Icons) |
+| Frontend (Web) | Vue 3 via Inertia.js (Vite, Tailwind CSS, Lucide Icons) |
+| Future clients | Versioned REST reusing Service classes (not yet) |
 | Database | PostgreSQL |
 | Cache / Queue broker | Redis |
 | Web server | Nginx |
 | Hosting | Ubuntu VPS |
-| Containerization | Docker (where it simplifies deployment/consistency — not mandatory everywhere) |
+| Local / container | Docker Compose (`docker-compose.yml`: PHP app, queue worker, PostgreSQL, Redis) |
 | Design tooling | Claude Design / Google Stitch for UI exploration, see `DESIGN.md` for the resulting system |
 | Primary coding agent | Claude Code |
 
 Notes:
 - Laravel handles core business logic, auth, multi-tenancy, module orchestration, background jobs (via Redis queues).
-- Vue.js is the primary UI — treat it as a client of Laravel's API (REST or a thin GraphQL/RPC layer, whichever is decided per module), not a place to duplicate business rules.
+- Vue pages receive props from Inertia — keep presentation in Vue, domain rules in PHP Services.
 - Any microservice added later should default to whatever language fits the job best; don't force everything into PHP if it's the wrong tool (e.g. a Python service for document parsing/OCR is fine).
 
 ## 4. Multi-Tenancy
@@ -127,26 +133,47 @@ tenant_001/
 ## 8. Development Conventions
 
 ### Build & Run Commands
-As the local host does not have PHP/Composer installed globally, all PHP and artisan commands must be run via Docker using `composer:latest`. Local Node.js / NPM commands can be run directly on the host.
+Host has Node/npm; PHP runs inside Docker Compose (image includes `pdo_pgsql`, `redis`, Composer). Do **not** use bare `composer:latest` for artisan — that image lacks DB/Redis extensions.
+
+Stack (see `docker-compose.yml`):
+- `app` — `php artisan serve` on `:8000`
+- `queue` — `php artisan queue:work` (Redis)
+- `postgres` — PostgreSQL 16
+- `redis` — Redis 7
+
+Compose injects DB/Redis env for containers. Vite stays on the host.
 
 ### Local Development Setup
-- **Install PHP dependencies**: `docker run --rm -v $(pwd):/app -w /app composer:latest composer install`
-- **Install Node dependencies**: `npm install`
-- **Run Vite dev server**: `npm run dev`
-- **Run Laravel dev server**: `docker run --name nusaevo-web --rm -p 8000:8000 -v $(pwd):/app -w /app composer:latest php artisan serve --host=0.0.0.0`
-- **Run DB migrations**: `docker run --rm -v $(pwd):/app -w /app composer:latest php artisan migrate`
-- **Run DB seeders**: `docker run --rm -v $(pwd):/app -w /app composer:latest php artisan db:seed`
-- **Fresh migration & seed**: `docker run --rm -v $(pwd):/app -w /app composer:latest php artisan migrate:fresh --seed`
+```bash
+# First-time / after clone
+cp .env.example .env          # set APP_KEY via artisan key:generate below if empty
+docker compose build
+docker compose run --rm app composer install
+npm install
+docker compose up -d
+docker compose exec app php artisan key:generate   # once
+docker compose exec app php artisan migrate --seed
+
+# Everyday
+docker compose up -d          # app + queue + postgres + redis
+npm run dev                   # Vite on host → http://localhost:8000
+```
+
+One-off artisan (examples):
+- **Migrate**: `docker compose exec app php artisan migrate`
+- **Seed**: `docker compose exec app php artisan db:seed`
+- **Fresh + seed**: `docker compose exec app php artisan migrate:fresh --seed`
+- **Tinker**: `docker compose exec app php artisan tinker`
 
 ### Build Production Assets
 - **Vite production build**: `npm run build`
 
 ### Code Quality & Formatting
-- **PHP Linting (Laravel Pint)**: `docker run --rm -v $(pwd):/app -w /app composer:latest ./vendor/bin/pint`
+- **PHP Linting (Laravel Pint)**: `docker compose exec app ./vendor/bin/pint`
 - **TypeScript Checking**: `npm run build` (runs `vue-tsc`)
 
 ### Running Tests
-- **Run PHPUnit tests**: `docker run --rm -v $(pwd):/app -w /app composer:latest php artisan test`
+- **Run PHPUnit tests**: `docker compose exec app php artisan test`
  
 ## 9. Codebase Guidelines & Conventions
 
@@ -183,8 +210,8 @@ As the local host does not have PHP/Composer installed globally, all PHP and art
 
 ## 11. Open Items to Fill In As the Project Grows
 
-- [ ] API contract style between Laravel and Vue.js (REST/OpenAPI vs. other)
-- [ ] Auth strategy (Sanctum/Passport, SSO plans)
+- [x] API contract (Web): **Inertia.js**. Controllers → Services → `Inertia::render`. REST only later for mobile/external; same Services.
+- [ ] Auth strategy (Sanctum already installed — confirm session vs token, SSO plans)
 - [ ] Billing/subscription module ownership (Core vs. separate service)
 - [ ] CI/CD pipeline and deployment process for the Ubuntu VPS
 - [ ] Per-tenant infrastructure limits/monitoring approach
