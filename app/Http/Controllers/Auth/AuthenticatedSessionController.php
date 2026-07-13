@@ -33,6 +33,11 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // Re-assert after regenerate so priority/auth never sees a login without tenant.
+        if ($tenantId = tenant('id')) {
+            $request->session()->put('tenant_id', (string) $tenantId);
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
@@ -43,8 +48,12 @@ class AuthenticatedSessionController extends Controller
     {
         Auth::guard('web')->logout();
 
-        $request->session()->invalidate();
+        if (tenancy()->initialized) {
+            tenancy()->end();
+        }
 
+        $request->session()->forget('tenant_id');
+        $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return redirect('/');

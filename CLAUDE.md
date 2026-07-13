@@ -61,8 +61,11 @@ Notes:
 
 ## 4. Multi-Tenancy
 
-- This is a multi-tenant SaaS. Every core module must be tenant-aware from day one (tenant_id scoping on all tables, global scopes in Eloquent, tenant-aware queue jobs and cache keys).
-- Avoid designing anything (routes, jobs, cache, storage paths) as if there will only ever be one tenant.
+- Mode B: **one PostgreSQL database per tenant** (`tenant_{id}`), via `stancl/tenancy`. Tenant app data does **not** use a `tenant_id` column — isolation is the DB boundary.
+- Central DB (`nusaevo`) holds tenant registry + login lookup (`tenant_user_lookups`). Users and module data live in the tenant DB.
+- Inside each tenant DB, modules get separate schemas (`CRM`, `SCHEDULE`, `NOTIFICATIONS`, `LEGAL`, `CUSTOMFIELDS`). See §7.
+- Tenant resolution is **login-bound** (session `tenant_id` after email lookup), not domain/subdomain.
+- Queue/cache/filesystem are tenant-aware via stancl bootstrappers. Do **not** use PostgreSQL RLS.
 - Plan/feature-flagging (which modules a tenant has access to) should be a first-class concept in Core, since verticals are sold as bundles.
 
 ## 5. Build Order
@@ -138,8 +141,8 @@ Host has Node/npm; PHP runs inside Docker Compose (image includes `pdo_pgsql`, `
 Stack (see `docker-compose.yml`):
 - `app` — `php artisan serve` on `:8000`
 - `queue` — `php artisan queue:work` (Redis)
-- `postgres` — PostgreSQL 16
-- `redis` — Redis 7
+- `postgres` — PostgreSQL 16 (host port **5435** → container 5432; 5432 often taken locally)
+- `redis` — Redis 7 (host port **6381** → container 6379)
 
 Compose injects DB/Redis env for containers. Vite stays on the host.
 
@@ -154,9 +157,12 @@ docker compose up -d
 docker compose exec app php artisan key:generate   # once
 docker compose exec app php artisan migrate --seed
 
-# Everyday
+# Local / container
 docker compose up -d          # app + queue + postgres + redis
 npm run dev                   # Vite on host → http://localhost:8000
+
+# Host tools (psql/redis-cli): localhost:5435 / localhost:6381
+# PHP always via docker — .env uses postgres/redis service names.
 ```
 
 One-off artisan (examples):

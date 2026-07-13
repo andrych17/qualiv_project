@@ -12,12 +12,17 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Must run AFTER session is started and BEFORE Authenticate loads User.
+        $middleware->appendToPriorityList(
+            after: \Illuminate\Session\Middleware\StartSession::class,
+            append: \App\Http\Middleware\InitializeTenancyBySession::class,
+        );
+
         $middleware->web(append: [
+            \App\Http\Middleware\InitializeTenancyBySession::class,
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
-
-        //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

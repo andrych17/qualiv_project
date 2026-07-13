@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Modules\Config\Services\ConfigService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -29,11 +30,17 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = tenancy()->initialized ? $request->user() : null;
+
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                // Users table exists only on tenant DB — never resolve without tenancy.
+                'user' => $user,
             ],
+            'menus' => fn () => ($user && tenancy()->initialized)
+                ? app(ConfigService::class)->menusForUser((int) $user->id)
+                : [],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
