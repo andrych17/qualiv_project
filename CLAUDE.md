@@ -103,9 +103,12 @@ tenant_001.			# Database
 ├── LEGAL.
 └── CUSTOMFIELDS.
 ```
-- Table naming use: Transaction/Master name + level, ie. sales.order_hdr = Sales module, Order table, Header level
-- Use bigint for PK and JOIN. Add UUID for external facing objects.
-- No need to enforce FK in the Database, application must make sure of this.
+- Table naming: 
+	- Master: 
+		- mostly use 1 part, ie. materials, partners, etc.
+	- Transaction: 
+		- mostly use 2 part: name + level, ie. sales.order_hdrs = Sales module, Order table, Header level
+- Use bigint for PK, FK, and JOIN. Add UUID for external facing objects.
 - Use stancl/tenancy whenever possible.
 - Tenant resolution strategy is login-bound.
 - Do not use PostgreSQL Row Level Security.
@@ -123,6 +126,7 @@ tenant_001/
 ├── DMS/
 └── LEGAL/
 ```
+- Object file will use one Cloudflare R2 bucket. With naming convention to differentiate between tenants, modules, time, etc.
 
 ## 8. Development Conventions
 
