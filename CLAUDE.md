@@ -220,7 +220,7 @@ One-off artisan (examples):
 
 ## 11. Open Items to Fill In As the Project Grows
 
-- [x] API contract (Web): **Inertia.js**. Controllers → Services → `Inertia::render`. REST only later for mobile/external; same Services.
+- [ ] API contract (Web): **Inertia.js**. Controllers → Services → `Inertia::render`. REST only later for mobile/external; same Services.
 - [ ] Auth strategy (Sanctum already installed — confirm session vs token, SSO plans)
 - [ ] Billing/subscription module ownership (Core vs. separate service)
 - [ ] CI/CD pipeline and deployment process for the Ubuntu VPS
