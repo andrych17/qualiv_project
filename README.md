@@ -4,70 +4,58 @@ NusaEvo ERP is a modular monolith enterprise business application built using **
 
 ---
 
-## 🚀 Tech Stack & Requirements
-- **Backend**: Laravel 11/12
-- **Frontend**: Vue 3 (Inertia.js, Vite, Tailwind CSS, Lucide Icons)
-- **Database**: SQLite (default, zero-configuration)
-- **Prerequisites**: Node.js & NPM (installed on host) + Docker (installed on host to run PHP/Composer)
+## Tech Stack & Requirements
+- **Backend**: Laravel (PHP 8.3) via Docker Compose
+- **Frontend (Web)**: Vue 3 + Inertia.js (Vite, Tailwind CSS, Lucide Icons) — npm on host
+- **Database / cache**: PostgreSQL 16 + Redis 7 (Compose services)
+- **Prerequisites**: Docker Compose, Node.js & npm
+
+Web UI uses **Inertia** (not REST). Business logic stays in Service classes so a future mobile REST API can reuse the same services.
 
 ---
 
-## 🛠️ Local Setup Guide
+## Local Setup
 
-Follow these steps to set up and run the project locally on your machine:
-
-### 1. Clone & Configure Environment
-First, create your local `.env` configuration:
+### 1. Environment
 ```bash
 cp .env.example .env
 ```
+Compose overrides DB/Redis connection settings for the `app` and `queue` containers. Keep `APP_KEY` in `.env` (generated in step 3).
 
-### 2. Install Dependencies
-Install PHP dependencies via Docker (since PHP is run through a container) and Node packages locally:
+### 2. Build & install
 ```bash
-# Install PHP dependencies
-docker run --rm -v $(pwd):/app -w /app composer:latest composer install
-
-# Install JS/TS dependencies
+docker compose build
+docker compose run --rm app composer install
 npm install
 ```
 
-### 3. Initialize Database & Seed Dummy Data
-Create a fresh SQLite database, run migrations, and seed initial mock records (including 58 inventory items):
+### 3. Start stack, key, migrate
 ```bash
-docker run --rm -v $(pwd):/app -w /app composer:latest php artisan migrate:fresh --seed
+docker compose up -d
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate --seed
+npm run dev
 ```
 
-### 4. Start Development Servers
-You need to run two servers concurrently:
+Open **[http://localhost:8000](http://localhost:8000)**.
 
-- **Vite Asset Server (Frontend)**:
-  ```bash
-  npm run dev
-  ```
-- **Laravel Local Web Server (Backend via Docker)**:
-  ```bash
-  docker run --name nusaevo-web --rm -p 8000:8000 -v $(pwd):/app -w /app composer:latest php artisan serve --host=0.0.0.0
-  ```
+Everyday after that: `docker compose up -d` + `npm run dev`.
 
-Once both are running, open your web browser and navigate to:
-👉 **[http://localhost:8000](http://localhost:8000)** (which will automatically redirect you to the Login page).
+Common artisan: `docker compose exec app php artisan <command>` (migrate, test, pint, tinker, etc.).
 
 ---
 
-## 🔑 Login Credentials
-Use the default administrator account to sign in:
+## Login Credentials
 - **Email**: `admin@nusaevo.com`
 - **Password**: `password`
 
 ---
 
-## 📁 Modular Architecture Structure
+## Modular Architecture
 
-This ERP uses a **Modular Monolith** pattern.
-- **Modules**: Located in `app/Modules/` (e.g., `Inventory/`, `CRM/`, `Sales/`, etc.).
-- **Shared Code**: Shared services, DTOs, enums, traits, or helpers are located in `app/Shared/`.
-- **Frontend Pages**: Vue pages are organized modularly under `resources/js/Pages/` (e.g., `Inventory/Items/Index.vue`).
-- **Reusable UI Components**: General UI inputs, tables, dropdowns, and feedback panels are in `resources/js/Components/`.
+- **Modules**: `app/Modules/` (e.g. Inventory, CRM, Sales).
+- **Shared Code**: `app/Shared/`.
+- **Frontend Pages**: `resources/js/Pages/<Module>/...`.
+- **Reusable UI**: `resources/js/Components/`.
 
-Refer to the **[CLAUDE.md](CLAUDE.md)** file for a list of everyday coding conventions and complete build/run command references.
+See **[CLAUDE.md](CLAUDE.md)** for architecture rules and full command reference.

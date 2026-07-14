@@ -21,7 +21,10 @@ class InventorySeeder extends Seeder
 
         $categoryMap = [];
         foreach ($categories as $cat) {
-            $created = InventoryCategory::create($cat);
+            $created = InventoryCategory::query()->updateOrCreate(
+                ['code' => $cat['code']],
+                ['name' => $cat['name']],
+            );
             $categoryMap[$cat['code']] = $created->id;
         }
 
@@ -112,10 +115,13 @@ class InventorySeeder extends Seeder
             $catCode = $item['category_code'];
             unset($item['category_code']);
             $item['inventory_category_id'] = $categoryMap[$catCode];
-            InventoryItem::create($item);
+            InventoryItem::query()->updateOrCreate(
+                ['code' => $item['code']],
+                $item,
+            );
         }
 
-        // Generate additional items using factory
-        InventoryItem::factory()->count(50)->create();
-    }
-}
+        // ponytail: only bulk-factory on first seed so re-runs stay idempotent
+        if (InventoryItem::query()->count() <= count($items)) {
+            InventoryItem::factory()->count(50)->create();
+        }
