@@ -3,6 +3,7 @@
 use App\Modules\Config\Controllers\ConfigConstController;
 use App\Modules\Config\Controllers\ConfigGroupController;
 use App\Modules\Config\Controllers\ConfigMenuController;
+use App\Modules\Config\Controllers\ConfigSnumController;
 use App\Modules\Config\Controllers\ConfigUserController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +19,11 @@ Route::middleware(['auth', 'verified'])->prefix('config')->name('config.')->grou
         Route::resource('consts', ConfigConstController::class)
             ->except(['show'])
             ->parameters(['consts' => 'configConst']);
+    });
+    Route::middleware('menu.perm:CONFIG_SERIALS')->group(function () {
+        Route::resource('serials', ConfigSnumController::class)
+            ->except(['show'])
+            ->parameters(['serials' => 'configSnum']);
     });
     Route::middleware('menu.perm:CONFIG_USERS')->group(function () {
         Route::resource('users', ConfigUserController::class)->except(['show']);

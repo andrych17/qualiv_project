@@ -76,6 +76,7 @@ ponytail: single `value` column. Ceiling: typed columns / JSONB if reporting nee
 |--------------|------|
 | `LEGAL.cases` | Fixed domain columns (`code`, `title`, `status`, `notes`, `uuid`) |
 | `SYSCONFIG.config_consts` | Runtime knobs (`LEGAL.CASE_PREFIX`, `LEGAL.URGENT_SETS_PENDING`) |
+| `SYSCONFIG.config_snums` | Document serial counters (netapp1 `config_snums`) — e.g. `LEGAL_CASE_LASTID` |
 
 Do **not** add tenant-specific nullable columns to `LEGAL.cases`. Put them in `CUSTOMFIELDS`.
 
@@ -197,15 +198,18 @@ Add to another entity:
 
 ### 3.2 Custom logic (behavior)
 
-#### A. Strategy / contract
+#### A. Strategy / contract + serial counter
 
 ```php
 // AppServiceProvider
 $this->app->bind(CaseCodeGenerator::class, PrefixedCaseCodeGenerator::class);
 ```
 
-`PrefixedCaseCodeGenerator::next()` reads `LEGAL.CASE_PREFIX` → `{PREFIX}-{NNN}`.  
-Blank code on create → auto. Firm A/B differ by seeded const only.
+`PrefixedCaseCodeGenerator::next()` reads `LEGAL.CASE_PREFIX` and allocates via `ConfigSnumService::next('LEGAL_CASE_LASTID')` (atomic `lockForUpdate`, wrap at `wrap_high`).
+
+Blank code on create → auto `{PREFIX}-{NNN}`. Firm A/B differ by seeded const + snum `last_cnt`.
+
+Admin UI: System → Serials (`/config/serials`).
 
 #### B. Engine hooks
 

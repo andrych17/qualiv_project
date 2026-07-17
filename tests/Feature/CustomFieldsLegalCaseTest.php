@@ -30,6 +30,18 @@ class CustomFieldsLegalCaseTest extends TestCase
                 ['seq' => 2, 'num1' => 1, 'note1' => 'on'],
             );
 
+            \App\Modules\Config\Models\ConfigSnum::query()->updateOrCreate(
+                ['code' => 'LEGAL_CASE_LASTID'],
+                [
+                    'last_cnt' => 0,
+                    'wrap_low' => 1,
+                    'wrap_high' => 999999,
+                    'step_cnt' => 1,
+                    'descr' => 'Legal case running number',
+                    'status_code' => 'A',
+                ],
+            );
+
             FieldDef::query()->create([
                 'entity_type' => 'legal_case',
                 'code' => 'court_register',

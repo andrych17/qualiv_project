@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Modules\Config\Models\ConfigConst;
 use App\Modules\Config\Models\ConfigGroup;
 use App\Modules\Config\Models\ConfigMenu;
+use App\Modules\Config\Models\ConfigSnum;
 use App\Modules\CustomFields\Models\FieldDef;
 use App\Modules\CustomFields\Models\FieldValue;
 use App\Modules\Inventory\Models\InventoryCategory;
@@ -33,6 +34,7 @@ class TenantFlavorSeeder extends Seeder
         $this->seedInventory($flavor);
         $this->seedCustomFields($flavor);
         $this->seedLegalCases($flavor);
+        $this->seedSnums($flavor);
     }
 
     /** @return array<string, array<string, mixed>> */
@@ -61,6 +63,10 @@ class TenantFlavorSeeder extends Seeder
                 'extra_factory' => 20,
                 'case_prefix' => 'A',
                 'urgent_sets_pending' => 1,
+                'snums' => [
+                    ['code' => 'LEGAL_CASE_LASTID', 'last_cnt' => 3, 'wrap_low' => 1, 'wrap_high' => 999999, 'step_cnt' => 1, 'descr' => 'Legal case running number'],
+                    ['code' => 'INVENTORY_ITEM_LASTID', 'last_cnt' => 4, 'wrap_low' => 1, 'wrap_high' => 999999, 'step_cnt' => 1, 'descr' => 'Inventory item running number'],
+                ],
                 'field_defs' => [
                     ['code' => 'court_register', 'label' => 'Court register No.', 'field_type' => 'text', 'is_required' => true, 'seq' => 1],
                     ['code' => 'hearing_date', 'label' => 'Next hearing', 'field_type' => 'date', 'is_required' => false, 'seq' => 2],
@@ -123,6 +129,10 @@ class TenantFlavorSeeder extends Seeder
                 'extra_factory' => 12,
                 'case_prefix' => 'B',
                 'urgent_sets_pending' => 0,
+                'snums' => [
+                    ['code' => 'LEGAL_CASE_LASTID', 'last_cnt' => 2, 'wrap_low' => 1, 'wrap_high' => 999999, 'step_cnt' => 1, 'descr' => 'Legal case running number'],
+                    ['code' => 'INVENTORY_ITEM_LASTID', 'last_cnt' => 5, 'wrap_low' => 1, 'wrap_high' => 999999, 'step_cnt' => 1, 'descr' => 'Inventory item running number'],
+                ],
                 'field_defs' => [
                     ['code' => 'lease_object', 'label' => 'Lease object', 'field_type' => 'text', 'is_required' => true, 'seq' => 1],
                     ['code' => 'monthly_rent', 'label' => 'Monthly rent (IDR)', 'field_type' => 'number', 'is_required' => false, 'seq' => 2],
@@ -234,6 +244,24 @@ class TenantFlavorSeeder extends Seeder
         $extra = (int) ($flavor['extra_factory'] ?? 0);
         if ($extra > 0 && InventoryCategory::query()->exists()) {
             InventoryItem::factory()->count($extra)->create();
+        }
+    }
+
+    /** @param  array<string, mixed>  $flavor */
+    private function seedSnums(array $flavor): void
+    {
+        foreach ($flavor['snums'] ?? [] as $row) {
+            ConfigSnum::query()->updateOrCreate(
+                ['code' => $row['code']],
+                [
+                    'last_cnt' => $row['last_cnt'],
+                    'wrap_low' => $row['wrap_low'] ?? 1,
+                    'wrap_high' => $row['wrap_high'] ?? 999999,
+                    'step_cnt' => $row['step_cnt'] ?? 1,
+                    'descr' => $row['descr'] ?? null,
+                    'status_code' => 'A',
+                ],
+            );
         }
     }
 
