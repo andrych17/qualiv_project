@@ -59,3 +59,5 @@ Common artisan: `docker compose exec app php artisan <command>` (migrate, test, 
 - **Reusable UI**: `resources/js/Components/`.
 
 See **[CLAUDE.md](CLAUDE.md)** for architecture rules and full command reference.
+
+Architecture (DB, code, custom fields/logic): **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**.

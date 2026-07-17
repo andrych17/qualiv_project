@@ -1,9 +1,15 @@
 <?php
 
+use App\Http\Middleware\EnsureMenuPermission;
+use App\Http\Middleware\EnsureModuleEnabled;
+use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\InitializeTenancyBySession;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
+use Illuminate\Session\Middleware\StartSession;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -14,14 +20,19 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Must run AFTER session is started and BEFORE Authenticate loads User.
         $middleware->appendToPriorityList(
-            after: \Illuminate\Session\Middleware\StartSession::class,
-            append: \App\Http\Middleware\InitializeTenancyBySession::class,
+            after: StartSession::class,
+            append: InitializeTenancyBySession::class,
         );
 
         $middleware->web(append: [
-            \App\Http\Middleware\InitializeTenancyBySession::class,
-            \App\Http\Middleware\HandleInertiaRequests::class,
-            \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
+            InitializeTenancyBySession::class,
+            HandleInertiaRequests::class,
+            AddLinkHeadersForPreloadedAssets::class,
+        ]);
+
+        $middleware->alias([
+            'menu.perm' => EnsureMenuPermission::class,
+            'module' => EnsureModuleEnabled::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

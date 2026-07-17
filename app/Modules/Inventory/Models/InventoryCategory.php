@@ -1,5 +1,7 @@
 <?php
+
 // ponytail: Simple Eloquent model with namespace mapping for modular monolith
+
 namespace App\Modules\Inventory\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;

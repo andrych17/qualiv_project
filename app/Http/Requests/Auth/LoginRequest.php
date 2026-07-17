@@ -27,6 +27,7 @@ class LoginRequest extends FormRequest
         return [
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
+            'tenant_id' => ['nullable', 'string'],
         ];
     }
 
@@ -39,7 +40,20 @@ class LoginRequest extends FormRequest
 
         $email = Str::lower($this->string('email')->toString());
 
-        $lookup = TenantUserLookup::query()->where('email', $email)->first();
+        $lookups = TenantUserLookup::query()->where('email', $email)->orderBy('tenant_id')->get();
+
+        if ($lookups->isEmpty()) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => trans('auth.failed'),
+            ]);
+        }
+
+        $requestedTenantId = $this->string('tenant_id')->toString();
+        $lookup = $requestedTenantId !== ''
+            ? $lookups->firstWhere('tenant_id', $requestedTenantId)
+            : $lookups->first();
 
         if (! $lookup) {
             RateLimiter::hit($this->throttleKey());

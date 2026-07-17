@@ -62,11 +62,12 @@ Notes:
 ## 4. Multi-Tenancy
 
 - Mode B: **one PostgreSQL database per tenant** (`tenant_{id}`), via `stancl/tenancy`. Tenant app data does **not** use a `tenant_id` column — isolation is the DB boundary.
-- Central DB (`nusaevo`) holds tenant registry + login lookup (`tenant_user_lookups`). Users and module data live in the tenant DB.
-- Inside each tenant DB, modules get separate schemas (`CRM`, `SCHEDULE`, `NOTIFICATIONS`, `LEGAL`, `CUSTOMFIELDS`). See §7.
-- Tenant resolution is **login-bound** (session `tenant_id` after email lookup), not domain/subdomain.
+- Central DB (`nusaevo`) holds tenant registry + login lookup (`tenant_user_lookups`) + **plan** (`tenants.plan`). Users and module data live in the tenant DB.
+- Inside each tenant DB, modules get separate schemas (`SYSCONFIG`, `INVENTORY`, `CRM`, `SCHEDULE`, `NOTIFICATIONS`, `WORKFLOW`, `LEGAL`, `CUSTOMFIELDS`). See §7.
+- Tenant resolution is **login-bound** (session `tenant_id` after email lookup), not domain/subdomain. UI may switch among memberships via sidebar tenant dropdown.
 - Queue/cache/filesystem are tenant-aware via stancl bootstrappers. Do **not** use PostgreSQL RLS.
-- Plan/feature-flagging (which modules a tenant has access to) should be a first-class concept in Core, since verticals are sold as bundles.
+- Plan/feature-flagging: `config/tenant_modules.php` + `TenantFeatureService` + middleware `module:CODE`. Sidebar menus also hide modules not on the plan.
+- Authorization inside a tenant: SYSCONFIG trustee (C/R/U/D) via middleware `menu.perm:MENU_CODE` (not a substitute for DB isolation).
 
 ## 5. Build Order
 
@@ -76,6 +77,7 @@ Notes:
    - Notifications
    - Workflows (approvals, state machines, task routing)
    - CRM
+   - **CustomFields** (`CUSTOMFIELDS` schema) — EAV + config-driven logic; see `docs/ARCHITECTURE.md`
 3. **Legal vertical module** — first paid, rentable product. Built on top of the core modules above. This is the first real revenue test of the platform; prioritize correctness and UX polish here over speculative generalization for future verticals.
 4. Future verticals (e.g. Property) come after Legal is validated in market — reuse core modules, add vertical-specific modules only.
 
@@ -106,9 +108,12 @@ When working on a task, Claude should check whether it belongs in **Core** (reus
 - Structure:
 ```text
 tenant_001.			# Database
-├── CRM.			# Schema
+├── SYSCONFIG.		# Menus, groups, rights, consts (runtime authz)
+├── INVENTORY.		# Prefer new inventory tables here (legacy demo tables may still be in public)
+├── CRM.
 ├── SCHEDULE.
 ├── NOTIFICATIONS.
+├── WORKFLOW.
 ├── LEGAL.
 └── CUSTOMFIELDS.
 ```
@@ -215,15 +220,19 @@ One-off artisan (examples):
 - Before adding a new module or service, state which category it falls into (Core / Vertical / Microservice) and why, per Section 2 and Section 5.
 - When a task could reasonably be solved either inside the monolith or as a separate service, default to the monolith and flag the tradeoff rather than silently extracting a service.
 - When touching multi-tenant data paths, double-check tenant scoping is present — this is a recurring risk area.
+- Prefer the customization ladder in `docs/ARCHITECTURE.md` (consts → custom fields → logic engine/strategy) over tenant_id branches.
 - Reference `DESIGN.md` before building any new UI component to avoid inventing a parallel design language.
 - Since this is a commercial SaaS product, when proposing a feature or implementation approach, briefly note if there's a simpler version that would still be sellable (MVP bias), especially for the Legal module which is closest to revenue.
 
 ## 11. Open Items to Fill In As the Project Grows
 
-- [ ] API contract (Web): **Inertia.js**. Controllers → Services → `Inertia::render`. REST only later for mobile/external; same Services.
-- [ ] Auth strategy (Sanctum already installed — confirm session vs token, SSO plans)
-- [ ] Billing/subscription module ownership (Core vs. separate service)
+- [x] API contract (Web): **Inertia.js**. Controllers → Services → `Inertia::render`. REST only later for mobile/external; same Services.
+- [x] Auth strategy (session + login-bound tenancy; Sanctum reserved for future token clients)
+- [ ] Billing/subscription module ownership (Core vs. separate service) — plan string exists; payment provider not yet
 - [ ] CI/CD pipeline and deployment process for the Ubuntu VPS
 - [ ] Per-tenant infrastructure limits/monitoring approach
-- [ ] `DESIGN.md` — design tokens, component inventory, and design principles (to be created alongside the first components)
+- [x] `DESIGN.md` — design tokens, component inventory, and design principles (`resources/DESIGN.md`)
+- [x] Plan/module feature flags (`tenants.plan` + `config/tenant_modules.php` + `module:` middleware)
+- [x] In-tenant menu trustee enforcement (`menu.perm:` middleware)
+- [x] Custom fields + custom logic (`docs/ARCHITECTURE.md`; Legal wired; field-defs admin UI still open)
 

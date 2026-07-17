@@ -6,6 +6,7 @@ use App\Modules\Config\Models\ConfigConst;
 use App\Modules\Config\Models\ConfigGroupUser;
 use App\Modules\Config\Models\ConfigMenu;
 use App\Modules\Config\Models\ConfigRight;
+use App\Services\TenantFeatureService;
 use Illuminate\Support\Collection;
 
 class ConfigService
@@ -13,7 +14,7 @@ class ConfigService
     /**
      * Active menus the user may see (has at least R in any group).
      *
-     * @return list<array{code: string, label: string, href: string, icon: string|null, seq: int}>
+     * @return list<array{code: string, label: string, href: string, icon: string|null, seq: int, header: string|null}>
      */
     public function menusForUser(int $userId, string $appCode = 'NUSAEVO'): array
     {
@@ -38,12 +39,21 @@ class ConfigService
             ->where('status_code', 'A')
             ->orderBy('seq')
             ->get()
+            ->filter(function (ConfigMenu $m) {
+                // System CONFIG_* always allowed if trustee ok; domain menus need plan flag
+                if (str_starts_with($m->code, 'CONFIG_') || $m->code === 'DASHBOARD') {
+                    return true;
+                }
+
+                return app(TenantFeatureService::class)->enabled($m->code);
+            })
             ->map(fn (ConfigMenu $m) => [
                 'code' => $m->code,
                 'label' => $m->menu_caption,
                 'href' => $m->menu_link ?: '#',
                 'icon' => $m->icon,
                 'seq' => $m->seq,
+                'header' => $m->menu_header,
             ])
             ->values()
             ->all();

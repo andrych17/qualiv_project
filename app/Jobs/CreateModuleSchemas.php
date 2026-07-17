@@ -14,9 +14,11 @@ class CreateModuleSchemas
     /** @var list<string> */
     public const SCHEMAS = [
         'SYSCONFIG',
+        'INVENTORY',
         'CRM',
         'SCHEDULE',
         'NOTIFICATIONS',
+        'WORKFLOW',
         'LEGAL',
         'CUSTOMFIELDS',
     ];

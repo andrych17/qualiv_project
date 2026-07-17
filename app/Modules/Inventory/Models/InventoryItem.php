@@ -1,17 +1,22 @@
 <?php
+
 // ponytail: Simple Eloquent model with namespace mapping and dynamic search query scopes
+
 namespace App\Modules\Inventory\Models;
 
+use Database\Factories\InventoryItemFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 
 class InventoryItem extends Model
 {
     use HasFactory;
 
     protected $fillable = [
+        'uuid',
         'inventory_category_id',
         'code',
         'name',
@@ -19,8 +24,17 @@ class InventoryItem extends Model
         'stock',
         'minimum_stock',
         'unit',
-        'status'
+        'status',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (InventoryItem $item) {
+            if (empty($item->uuid)) {
+                $item->uuid = (string) Str::uuid();
+            }
+        });
+    }
 
     public function category(): BelongsTo
     {
@@ -32,7 +46,7 @@ class InventoryItem extends Model
         $query->when($filters['search'] ?? null, function ($query, $search) {
             $query->where(function ($query) use ($search) {
                 $query->where('name', 'like', '%'.$search.'%')
-                      ->orWhere('code', 'like', '%'.$search.'%');
+                    ->orWhere('code', 'like', '%'.$search.'%');
             });
         })->when($filters['status'] ?? null, function ($query, $status) {
             $query->where('status', $status);
@@ -41,6 +55,6 @@ class InventoryItem extends Model
 
     protected static function newFactory()
     {
-        return \Database\Factories\InventoryItemFactory::new();
+        return InventoryItemFactory::new();
     }
 }

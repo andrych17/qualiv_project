@@ -53,6 +53,11 @@
             "@php artisan config:clear --ansi @no_additional_args",
             "@php artisan test"
         ],
+        "test:unit": "@php artisan test --testsuite=Unit",
+        "test:feature": "@php artisan test --testsuite=Feature",
+        "test:coverage": "@php artisan test --coverage --min=80",
+        "lint": "@php vendor/bin/pint --test",
+        "lint:fix": "@php vendor/bin/pint",
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"

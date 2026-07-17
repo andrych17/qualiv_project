@@ -1,5 +1,7 @@
 <?php
+
 // ponytail: Reusable form request for validation rules with unique constraint exception
+
 namespace App\Modules\Inventory\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
