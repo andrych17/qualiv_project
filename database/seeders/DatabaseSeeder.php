@@ -6,12 +6,13 @@ use App\Models\Tenant;
 use App\Models\TenantUserLookup;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // ponytail: two tenants with distinct flavor seed (config/inventory/legal)
+        // ponytail: two tenants with distinct flavor seed (config/inventory/legal/custom fields)
         $tenants = [
             ['id' => '001', 'name' => 'Demo Firm A', 'plan' => 'legal'],
             ['id' => '002', 'name' => 'Demo Firm B', 'plan' => 'legal'],
@@ -24,13 +25,22 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($tenants as $t) {
-            $tenant = Tenant::query()->find($t['id'])
-                ?? Tenant::create(['id' => $t['id'], 'name' => $t['name'], 'plan' => $t['plan']]);
+            $tenant = Tenant::query()->find($t['id']);
 
-            $tenant->update([
-                'name' => $t['name'],
-                'plan' => $t['plan'],
-            ]);
+            if (! $tenant) {
+                // migrate:fresh drops central rows but leaves tenant_* DBs — clear orphans first
+                $this->dropOrphanTenantDatabase($t['id']);
+                $tenant = Tenant::create([
+                    'id' => $t['id'],
+                    'name' => $t['name'],
+                    'plan' => $t['plan'],
+                ]);
+            } else {
+                $tenant->update([
+                    'name' => $t['name'],
+                    'plan' => $t['plan'],
+                ]);
+            }
 
             $tenant->run(function () use ($users, $t) {
                 foreach ($users as $u) {
@@ -64,5 +74,15 @@ class DatabaseSeeder extends Seeder
                 );
             }
         }
+    }
+
+    private function dropOrphanTenantDatabase(string $tenantId): void
+    {
+        $dbName = 'tenant_'.$tenantId;
+        $pdo = DB::connection('pgsql')->getPdo();
+        $pdo->exec(
+            'SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '.$pdo->quote($dbName).' AND pid <> pg_backend_pid()'
+        );
+        $pdo->exec('DROP DATABASE IF EXISTS "'.$dbName.'"');
     }
 }
