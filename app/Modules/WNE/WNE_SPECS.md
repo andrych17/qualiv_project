@@ -57,105 +57,134 @@ be told when something happens**. Left to each module, this gets solved independ
 # 3. Forms / Engines
 
 > Every Form and Engine (Entry, View, Report, Service) — layout, logic, business rules, DB design.
+> **MVP-first** — each form below ships the simplest version that's still genuinely usable and
+> sellable. Anything that adds real implementation cost without blocking a first working release
+> is pushed to **3F. Future Version**, not built now. The schema in `wne_schema.sql` already has
+> the columns these future features need (`sla_hours`, `quorum_rule`, `group_no`, etc.), so
+> deferring the *logic* doesn't cost a breaking migration later.
 
 ## 3A. Main Dashboard
 
 **Function / features**
-- At-a-glance view of: pending approvals (assigned to me / assigned to my role), workflows
-  I've initiated and their current state, notification delivery health (sent / failed / queued
-  today), recent failures needing attention.
-- Quick actions: Approve / Reject / Delegate directly from the dashboard list.
-- Filter by module (Purchasing, HR, ...), by workflow type, by date range, by status.
+- Two lists, tab-switched: **"My Approvals"** (tasks assigned to me, by direct user match only
+  in v1) and **"Notification Log"** (recent sends + status, tenant-wide).
+- Approve / Reject directly from the "My Approvals" row, with an optional remarks field —
+  no separate detail page required to act.
 
 **Layout**
-- Top: 4 summary cards — Pending My Action, Total In-Flight Workflows, Notifications Sent
-  (24h), Notifications Failed (24h).
-- Left/main: tabbed table — "My Approvals" | "Workflows I Started" | "Notification Log".
-- Row click opens a drawer/modal showing full workflow history (timeline) or full
-  notification payload + delivery attempts.
+- Simple tabbed data table (shared component per `DESIGN.md`), no summary cards/analytics in v1.
+- Status Rail per row: `warning` = pending, `success` = approved, `danger` = rejected/failed,
+  `info` = queued.
+- Row click opens a drawer with the workflow's history (a flat list of `wrkflow_task_actions`
+  for that instance) or the notification's payload + attempts.
 
 **Rules / logic**
-- "My Approvals" resolves via current user's direct assignment **and** role/group
-  membership at the current pending step.
-- Dashboard queries are tenant-scoped automatically (global tenant scope on all MSG tables).
-- Failed notifications older than configurable retry-window surface with a "Retry" button
-  visible only to admins.
+- Tenant-scoped by default global scope.
+- "My Approvals" resolves via **direct user assignment only** (`assignee_type = 'user'`) in v1
+  — role/group-based task visibility is 3F.
 
 ## 3B. Workflow Configuration
 
-**Purpose:** define reusable approval / state-machine templates that any module can bind to.
+**Purpose:** let an admin define a workflow without a code deploy — via plain forms, not a
+visual canvas.
 
-- **Workflow Definition**
-  - `code`, `name`, `module` (owning module, e.g. `purchasing.po`), `description`, `is_active`,
-    `version` (definitions are versioned; in-flight instances keep the version they started on).
-- **States**
-  - Ordered or graph-based list of states (e.g. Draft → Submitted → Manager Review →
-    Finance Review → Approved / Rejected).
-  - Each state has: `is_initial`, `is_final`, `sla_hours` (optional timeout).
-- **Transitions**
-  - `from_state`, `to_state`, `action` (Approve, Reject, Request Revision, Escalate).
-  - **Conditions** (rule builder: field/operator/value, e.g. `amount > 10,000,000` routes to an
-    extra Finance Review state) — supports AND/OR groups.
-  - **Approvers** per transition: fixed user(s), role, dynamic (e.g. "requester's direct
-    manager", resolved from HR module), or approval-group with `any-one` / `all-must-approve`
-    / `majority` quorum rules.
-  - **On-transition actions**: fire a Notification event, call a webhook, update a field back
-    on the source record (via callback/event the owning module listens to).
-- **Escalation / Timeout**
-  - Per-state SLA; on breach: auto-escalate to next approver, notify a supervisor, or
-    auto-reject — configurable per workflow.
-- **Delegation**
-  - Users can delegate their approval authority to another user for a date range (out-of-office).
+- **Definition form:** code, name, owning module, version, active toggle.
+- **States sub-form:** add/remove rows — code, name, is_initial, is_final, `sla_hours`
+  (field exists and is stored in v1; nothing acts on it yet — see 3F).
+- **Transitions sub-form:** from-state / to-state / action dropdowns, name.
+- **Approver (per transition):** a **single** approver entry — either one specific user or one
+  role. `quorum_rule` is stored but v1 only implements the `any` (single approver) path — see
+  3F for multi-approver quorum.
+- **Conditions (per transition):** a flat list of `field / operator / value` rows, all
+  combined with **AND** only in v1 (`group_no` always `1`) — multi-group OR logic is 3F.
+- All of this is standard CRUD screens (data table + modal form per `DESIGN.md`), which is
+  dramatically faster to build than a drag-and-drop state/transition canvas and is just as
+  usable for the handful of workflows a tenant configures at launch.
 
 ## 3C. Messaging Control
 
-**Purpose:** configure *what* gets sent, *how*, and *to whom*.
+**Purpose:** configure *what* gets sent, *how*, and *to whom* — kept to flat, predictable forms.
 
-- **Event Catalog** — registry of event codes any module can publish
-  (e.g. `po.created`, `po.approved`, `workflow.step_pending`, `workflow.escalated`).
-- **Templates**
-  - Per event code × channel × locale × tenant: subject (email), body (supports merge-fields
-    like `{{requester_name}}`, `{{amount}}`, `{{approval_link}}`), and channel-specific
-    formatting (HTML for email, plain/short for SMS/WhatsApp).
-  - Template versioning + preview/test-send.
-- **Channel Configuration**
-  - Per tenant: which provider is active per channel (e.g. SMTP/SES for email, Twilio/Vonage
-    for SMS, WhatsApp Business API, FCM/OneSignal for push), credentials, rate limits,
-    sender identity.
-- **Routing Rules**
-  - Which channel(s) fire for which event (e.g. `workflow.step_pending` → in-app + email;
-    `workflow.escalated` → in-app + SMS).
-  - Recipient resolution: static user/role, dynamic (workflow approver, record owner), plus
-    per-user channel opt-out preferences (respect "do not SMS me" settings).
-- **Rate Limiting / Digest**
-  - Optional batching — e.g. collapse multiple in-app notifications into a digest instead of
-    spamming.
+- **Event Catalog:** read-only list, seeded by each module's migration/seeder. Admins pick
+  from existing event codes; creating a *new* event code is a developer task in v1, not an
+  admin-facing form (adding one is genuinely a code change — a new trigger point — so this
+  isn't a shortcut, it's the correct scope).
+- **Templates:** flat form — event, channel, subject (email only), body as plain text with
+  `{{merge_field}}` placeholders. One template per event × channel × the tenant's default
+  locale. No WYSIWYG editor, no live preview, no multi-locale variants in v1.
+- **Channel Configs:** one active provider per channel per tenant — a simple credentials form
+  (API key/host fields per provider). No multi-provider failover in v1.
+- **Routing Rules:** a table of event × channel × recipient type
+  (`static_user` / `static_role` / `workflow_approver` / `record_owner`), one active rule per
+  combination, no time-of-day/quiet-hours logic in v1.
+- **User preference:** a single opt-in/opt-out toggle per channel, per user — no granular
+  per-event preferences in v1.
 
 ## 3D. Workflow Engine
 
-**Purpose:** the runtime that actually executes 3B's definitions.
+**Purpose:** the runtime that executes 3B's definitions — synchronous and straightforward.
 
-- **Trigger intake** — listens for `WorkflowRequested` events published by other modules;
-  payload includes `workflow_code`, `subject_type`, `subject_id`, `initiator_id`, `context`
-  (arbitrary JSON used by condition rules and templates).
-- **State machine execution**
-  - Creates a `workflow_instance`, resolves the initial state, evaluates transition
-    conditions against `context`, resolves approvers, creates `workflow_task` record(s) for
-    each pending approver/group.
-  - On approver action (Approve/Reject/Delegate), records `workflow_task_action`, re-evaluates
-    quorum rules, and either advances to next state or finalizes.
-  - Every state change fires an internal `WorkflowStateChanged` event → Messaging Control
-    picks it up if a routing rule matches → queues Notification dispatch.
-- **Callback to owning module**
-  - On final state (Approved/Rejected), fires a module-specific callback/event so e.g.
-    Purchasing can flip its PO status — MSG never writes directly into another module's
-    tables, preserving modular boundaries.
-- **Notification dispatch**
-  - Queue job per (recipient × channel), calls the appropriate `ChannelDriverInterface`
-    implementation, logs attempt + provider response, retries with exponential backoff
-    (configurable max attempts), moves to dead-letter log on exhaustion.
+- **Trigger intake:** listens for `WorkflowRequested` (payload: `workflow_code`, `subject_type`,
+  `subject_id`, `initiator_id`, `context` JSON). Creates a `wrkflow_instance`, evaluates the
+  transitions leaving the initial state **top-to-bottom, first match wins** (no priority
+  weighting logic in v1), and creates one `wrkflow_task` for the configured approver.
+- **Approver action:** Approve/Reject writes a `wrkflow_task_action`, immediately advances the
+  instance to the matched transition's target state (or finalizes if that state `is_final`).
+  Because v1 approvers are single (3B), there's no quorum tally step — the one action *is* the
+  decision.
+- **State-change hand-off:** on every state change, synchronously fires an internal
+  `WorkflowStateChanged` event to the Notification engine (3E) in the same request — only the
+  actual channel send is queued, not this internal hand-off. Keeps the runtime simple to trace
+  and debug for a solo dev.
+- **Completion callback:** on reaching a final state, fires a plain `WorkflowCompleted` event
+  (`instance_id`, `status`, `subject_type`, `subject_id`) that the owning module listens to and
+  uses to update its own record — WNE never writes into another module's tables.
 
----
+## 3E. Notification Dispatch Engine
+
+**Purpose:** turn a `WorkflowStateChanged` (or any other module's `NotificationRequested`)
+into an actual message, reliably enough to trust, simply enough to ship fast.
+
+- Queued job per (recipient × channel): resolve the matching template + routing rule, check
+  `msg_user_preferences` for an opt-out, render merge fields, call
+  `ChannelDriverInterface::send()`, write one `msg_notification_log` row and one
+  `msg_notification_attempts` row.
+- **Retry:** a single fixed-delay retry (e.g. 60s) on failure, then mark `dead_letter` — no
+  exponential backoff curve in v1.
+- **Driver build order:** ship **Email** and **In-App** first — both have low/zero external
+  setup cost (In-App is just a row the frontend reads on load) — then add SMS/WhatsApp/Push
+  drivers once a provider is chosen. Each new driver is one class implementing
+  `ChannelDriverInterface`; no engine changes required either way.
+
+## 3F. Future Version (explicitly deferred — do not build now)
+
+- **No-code visual Workflow Builder** — drag-and-drop canvas for states/transitions, replacing
+  3B's flat forms.
+- **Dynamic approver resolver framework** (e.g. "requester's manager", "cost-center owner") —
+  needs integration with HR/org-chart data that doesn't exist yet; v1 approvers are a fixed
+  user or role only.
+- **Multi-approver quorum** (`any` / `all` / `majority` computation) — column already exists
+  (`quorum_rule`), logic to tally multiple approvers on one transition is future work.
+- **Multi-group AND/OR condition builder** — v1 ships a single AND group only
+  (`group_no` support exists in the schema for this reason).
+- **Role/group-based "My Approvals"** — v1 dashboard shows direct user assignments only.
+- **SLA timeout & auto-escalation** (scheduled job acting on `sla_hours`) — the column is
+  populated from day one precisely so this doesn't need a later migration.
+- **Delegation-aware task auto-reassignment** — `wrkflow_delegations` exists for record-keeping
+  today; the engine doesn't yet route tasks to a delegate automatically.
+- **Template versioning, live preview, and test-send tooling.**
+- **Multi-locale template sets** beyond the tenant's default locale.
+- **Notification digest/batching** — collapsing multiple notifications into one summary.
+- **Exponential backoff retry + a dead-letter manual-resend admin screen** — v1 is one retry,
+  then dead-letter for manual DB inspection.
+- **Real-time in-app delivery** (WebSocket/Pusher push) — v1 is poll/read-on-load.
+- **Multi-provider automatic failover** per channel (e.g. SES fails over to backup SMTP).
+- **Cross-module analytics** (approval turnaround time, deliverability rate, SLA breach trends).
+
+**Suggested build order for Claude Code:** 3B (definitions/states/transitions/approvers,
+single-AND conditions) → 3D (trigger intake + single-approver execution) → 3C (templates,
+channel configs, routing rules) → 3E (Email + In-App drivers first) → 3A (dashboard) — ship at
+this point — then revisit 3F items as real usage/revenue justifies each one.
 
 # 4. Technical Notes
 
