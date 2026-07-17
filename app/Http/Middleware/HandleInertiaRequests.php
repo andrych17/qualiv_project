@@ -3,6 +3,8 @@
 namespace App\Http\Middleware;
 
 use App\Modules\Config\Services\ConfigService;
+use App\Services\TenantFeatureService;
+use App\Services\TenantMembershipService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -31,6 +33,7 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $user = tenancy()->initialized ? $request->user() : null;
+        $tenant = tenancy()->initialized ? tenant() : null;
 
         return [
             ...parent::share($request),
@@ -38,7 +41,28 @@ class HandleInertiaRequests extends Middleware
                 // Users table exists only on tenant DB — never resolve without tenancy.
                 'user' => $user,
             ],
-            'menus' => fn () => ($user && tenancy()->initialized)
+            'currentTenant' => $tenant ? [
+                'id' => (string) $tenant->getTenantKey(),
+                'name' => method_exists($tenant, 'displayName')
+                    ? $tenant->displayName()
+                    : (string) $tenant->getTenantKey(),
+                'plan' => (string) ($tenant->plan ?? 'starter'),
+            ] : null,
+            'features' => fn () => ($user && tenancy()->initialized)
+                ? app(TenantFeatureService::class)->enabledModules()
+                : [],
+            'tenants' => fn () => ($user)
+                ? app(TenantMembershipService::class)
+                    ->tenantsForEmail($user->email)
+                    ->map(fn ($t) => [
+                        'id' => (string) $t->getTenantKey(),
+                        'name' => $t->displayName(),
+                    ])
+                    ->values()
+                    ->all()
+                : [],
+            // ponytail: named navMenus so page props like Config Menus `items` never shadow the sidebar
+            'navMenus' => fn () => ($user && tenancy()->initialized)
                 ? app(ConfigService::class)->menusForUser((int) $user->id)
                 : [],
             'flash' => [

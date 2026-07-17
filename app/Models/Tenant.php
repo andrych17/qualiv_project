@@ -10,6 +10,15 @@ class Tenant extends BaseTenant implements TenantWithDatabase
 {
     use HasDatabase;
 
+    public static function getCustomColumns(): array
+    {
+        return [
+            'id',
+            'name',
+            'plan',
+        ];
+    }
+
     /**
      * Mode B uses stable string ids (001 → tenant_001).
      * Without an id generator, stancl's GeneratesIds treats keys as incrementing ints
@@ -23,5 +32,10 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     public function getKeyType(): string
     {
         return 'string';
+    }
+
+    public function displayName(): string
+    {
+        return $this->name ?: 'Tenant '.$this->getTenantKey();
     }
 }

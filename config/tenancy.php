@@ -2,10 +2,17 @@
 
 declare(strict_types=1);
 
+use App\Models\Tenant;
+use Stancl\Tenancy\Bootstrappers\DatabaseTenancyBootstrapper;
+use Stancl\Tenancy\Bootstrappers\FilesystemTenancyBootstrapper;
+use Stancl\Tenancy\Bootstrappers\QueueTenancyBootstrapper;
 use Stancl\Tenancy\Database\Models\Domain;
+use Stancl\Tenancy\TenantDatabaseManagers\MySQLDatabaseManager;
+use Stancl\Tenancy\TenantDatabaseManagers\PostgreSQLDatabaseManager;
+use Stancl\Tenancy\TenantDatabaseManagers\SQLiteDatabaseManager;
 
 return [
-    'tenant_model' => \App\Models\Tenant::class,
+    'tenant_model' => Tenant::class,
     // Login-bound SaaS: stable string ids (e.g. 001 → DB tenant_001)
     'id_generator' => null,
 
@@ -28,12 +35,12 @@ return [
      * To configure their behavior, see the config keys below.
      */
     'bootstrappers' => [
-        Stancl\Tenancy\Bootstrappers\DatabaseTenancyBootstrapper::class,
+        DatabaseTenancyBootstrapper::class,
         // CacheTenancyBootstrapper off: SESSION_DRIVER=redis shares cache/redis and
         // tagged cache after login can desync session keys across requests.
         // Stancl\Tenancy\Bootstrappers\CacheTenancyBootstrapper::class,
-        Stancl\Tenancy\Bootstrappers\FilesystemTenancyBootstrapper::class,
-        Stancl\Tenancy\Bootstrappers\QueueTenancyBootstrapper::class,
+        FilesystemTenancyBootstrapper::class,
+        QueueTenancyBootstrapper::class,
     ],
 
     /**
@@ -60,10 +67,10 @@ return [
          * TenantDatabaseManagers are classes that handle the creation & deletion of tenant databases.
          */
         'managers' => [
-            'sqlite' => Stancl\Tenancy\TenantDatabaseManagers\SQLiteDatabaseManager::class,
-            'mysql' => Stancl\Tenancy\TenantDatabaseManagers\MySQLDatabaseManager::class,
-            'mariadb' => Stancl\Tenancy\TenantDatabaseManagers\MySQLDatabaseManager::class,
-            'pgsql' => Stancl\Tenancy\TenantDatabaseManagers\PostgreSQLDatabaseManager::class,
+            'sqlite' => SQLiteDatabaseManager::class,
+            'mysql' => MySQLDatabaseManager::class,
+            'mariadb' => MySQLDatabaseManager::class,
+            'pgsql' => PostgreSQLDatabaseManager::class,
 
         /**
          * Use this database manager for MySQL to have a DB user created for each tenant database.
@@ -132,13 +139,10 @@ return [
         'suffix_storage_path' => true,
 
         /**
-         * By default, asset() calls are made multi-tenant too. You can use global_asset() and mix()
-         * for global, non-tenant-specific assets. However, you might have some issues when using
-         * packages that use asset() calls inside the tenant app. To avoid such issues, you can
-         * disable asset() helper tenancy and explicitly use tenant_asset() calls in places
-         * where you want to use tenant-specific assets (product images, avatars, etc).
+         * Vite/public build assets are global — don't rewrite asset() to /tenancy/assets/...
+         * Use tenant_asset() or Storage disks for per-tenant files (uploads, etc.).
          */
-        'asset_helper_tenancy' => true,
+        'asset_helper_tenancy' => false,
     ],
 
     /**

@@ -11,71 +11,178 @@ use App\Modules\Config\Models\ConfigRight;
 use Illuminate\Database\Seeder;
 
 /**
- * Tenant SysConfig seed — Admin group, sidebar menus, CRUD rights, sample consts.
+ * Tenant SysConfig seed — groups, menus, CRUD rights, user↔group assign, consts.
  * Must run inside $tenant->run(...).
+ *
+ * Migration lives at database/migrations/tenant/2026_07_13_100000_create_config_tables.php
+ * (SYSCONFIG.config_groups|grpusers|menus|rights|consts) — no extra menu migration needed.
  */
 class SysConfigSeeder extends Seeder
 {
     private const APP = 'NUSAEVO';
 
+    /** @var list<array{code: string, descr: string}> */
+    private const GROUPS = [
+        ['code' => 'ADMIN', 'descr' => 'Full access administrators'],
+        ['code' => 'STAFF', 'descr' => 'Operational staff — create/update day-to-day data'],
+        ['code' => 'VIEWER', 'descr' => 'Read-only access'],
+    ];
+
+    /**
+     * Email → group code(s). Users must already exist in the tenant DB.
+     *
+     * @var array<string, list<string>>
+     */
+    private const USER_GROUPS = [
+        'admin@nusaevo.com' => ['ADMIN'],
+        'staff@nusaevo.com' => ['STAFF'],
+        'viewer@nusaevo.com' => ['VIEWER'],
+    ];
+
     public function run(): void
     {
-        $admin = User::query()->where('email', 'admin@nusaevo.com')->firstOrFail();
+        $groups = $this->seedGroups();
+        $menus = $this->seedMenus();
+        $this->seedRights($groups, $menus);
+        $this->seedGroupUsers($groups);
+        $this->seedConsts();
+    }
 
-        $group = ConfigGroup::query()->updateOrCreate(
-            ['app_code' => self::APP, 'code' => 'ADMIN'],
-            [
-                'descr' => 'Full access administrators',
-                'status_code' => 'A',
-            ],
-        );
-
-        ConfigGroupUser::query()->updateOrCreate(
-            ['group_id' => $group->id, 'user_id' => $admin->id],
-            ['group_code' => $group->code],
-        );
-
-        $menus = [
-            ['code' => 'DASHBOARD', 'menu_caption' => 'Dashboard', 'menu_link' => '/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 10],
-            ['code' => 'CRM', 'menu_caption' => 'CRM', 'menu_link' => '#', 'icon' => 'Users', 'seq' => 20],
-            ['code' => 'SCHEDULE', 'menu_caption' => 'Schedule', 'menu_link' => '#', 'icon' => 'CalendarDays', 'seq' => 30],
-            ['code' => 'LEGAL', 'menu_caption' => 'Legal', 'menu_link' => '#', 'icon' => 'Scale', 'seq' => 40],
-            ['code' => 'INVENTORY', 'menu_caption' => 'Inventory', 'menu_link' => '/inventory/items', 'icon' => 'Boxes', 'seq' => 50],
-            ['code' => 'WORKFLOW', 'menu_caption' => 'Workflow', 'menu_link' => '#', 'icon' => 'Workflow', 'seq' => 60],
-            ['code' => 'NOTIFICATIONS', 'menu_caption' => 'Notifications', 'menu_link' => '#', 'icon' => 'Bell', 'seq' => 70],
-        ];
-
-        foreach ($menus as $row) {
-            $menu = ConfigMenu::query()->updateOrCreate(
+    /** @return array<string, ConfigGroup> */
+    private function seedGroups(): array
+    {
+        $map = [];
+        foreach (self::GROUPS as $row) {
+            $map[$row['code']] = ConfigGroup::query()->updateOrCreate(
                 ['app_code' => self::APP, 'code' => $row['code']],
                 [
-                    'menu_header' => 'Main',
-                    'menu_caption' => $row['menu_caption'],
-                    'menu_link' => $row['menu_link'],
-                    'icon' => $row['icon'],
-                    'seq' => $row['seq'],
+                    'descr' => $row['descr'],
                     'status_code' => 'A',
-                ],
-            );
-
-            ConfigRight::query()->updateOrCreate(
-                ['group_id' => $group->id, 'menu_id' => $menu->id],
-                [
-                    'group_code' => $group->code,
-                    'menu_code' => $menu->code,
-                    'menu_seq' => $menu->seq,
-                    'trustee' => 'CRUD',
-                    'app_code' => self::APP,
                 ],
             );
         }
 
+        return $map;
+    }
+
+    /**
+     * Flat sidebar menus. status I = placeholder (not shipped yet) — hidden from nav.
+     *
+     * @return array<string, ConfigMenu>
+     */
+    private function seedMenus(): array
+    {
+        $rows = [
+            // Live
+            ['code' => 'DASHBOARD', 'menu_header' => 'Main', 'menu_caption' => 'Dashboard', 'menu_link' => '/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 10, 'status_code' => 'A'],
+            ['code' => 'INVENTORY', 'menu_header' => 'Operations', 'menu_caption' => 'Inventory', 'menu_link' => '/inventory/items', 'icon' => 'Boxes', 'seq' => 70, 'status_code' => 'A'],
+            ['code' => 'CONFIG_MENUS', 'menu_header' => 'System', 'menu_caption' => 'Menus', 'menu_link' => '/config/menus', 'icon' => 'Menu', 'seq' => 200, 'status_code' => 'A'],
+            ['code' => 'CONFIG_GROUPS', 'menu_header' => 'System', 'menu_caption' => 'Groups', 'menu_link' => '/config/groups', 'icon' => 'Shield', 'seq' => 210, 'status_code' => 'A'],
+            ['code' => 'CONFIG_USERS', 'menu_header' => 'System', 'menu_caption' => 'Users', 'menu_link' => '/config/users', 'icon' => 'UserRoundCog', 'seq' => 215, 'status_code' => 'A'],
+            ['code' => 'CONFIG_CONSTS', 'menu_header' => 'System', 'menu_caption' => 'Constants', 'menu_link' => '/config/consts', 'icon' => 'SlidersHorizontal', 'seq' => 220, 'status_code' => 'A'],
+            ['code' => 'CONFIG_SERIALS', 'menu_header' => 'System', 'menu_caption' => 'Serials', 'menu_link' => '/config/serials', 'icon' => 'Hash', 'seq' => 225, 'status_code' => 'A'],
+
+            // Placeholder — keep rows, status I until module ships
+            ['code' => 'CRM', 'menu_header' => 'Core', 'menu_caption' => 'CRM', 'menu_link' => '#', 'icon' => 'Users', 'seq' => 20, 'status_code' => 'I'],
+            ['code' => 'SCHEDULE', 'menu_header' => 'Core', 'menu_caption' => 'Schedule', 'menu_link' => '#', 'icon' => 'CalendarDays', 'seq' => 30, 'status_code' => 'I'],
+            ['code' => 'NOTIFICATIONS', 'menu_header' => 'Core', 'menu_caption' => 'Notifications', 'menu_link' => '#', 'icon' => 'Bell', 'seq' => 40, 'status_code' => 'I'],
+            ['code' => 'WORKFLOW', 'menu_header' => 'Core', 'menu_caption' => 'Workflow', 'menu_link' => '#', 'icon' => 'Workflow', 'seq' => 50, 'status_code' => 'I'],
+            ['code' => 'LEGAL', 'menu_header' => 'Vertical', 'menu_caption' => 'Legal', 'menu_link' => '/legal/cases', 'icon' => 'Scale', 'seq' => 60, 'status_code' => 'A'],
+            ['code' => 'SALES', 'menu_header' => 'Operations', 'menu_caption' => 'Sales', 'menu_link' => '#', 'icon' => 'ShoppingCart', 'seq' => 80, 'status_code' => 'I'],
+            ['code' => 'PROCUREMENT', 'menu_header' => 'Operations', 'menu_caption' => 'Procurement', 'menu_link' => '#', 'icon' => 'Truck', 'seq' => 90, 'status_code' => 'I'],
+            ['code' => 'DELIVERY', 'menu_header' => 'Operations', 'menu_caption' => 'Delivery', 'menu_link' => '#', 'icon' => 'Package', 'seq' => 100, 'status_code' => 'I'],
+            ['code' => 'ASSET', 'menu_header' => 'Operations', 'menu_caption' => 'Asset', 'menu_link' => '#', 'icon' => 'Building2', 'seq' => 110, 'status_code' => 'I'],
+            ['code' => 'ACCOUNTING', 'menu_header' => 'Operations', 'menu_caption' => 'Accounting', 'menu_link' => '#', 'icon' => 'Calculator', 'seq' => 120, 'status_code' => 'I'],
+            ['code' => 'HCM', 'menu_header' => 'People', 'menu_caption' => 'HCM', 'menu_link' => '#', 'icon' => 'UserCog', 'seq' => 130, 'status_code' => 'I'],
+            ['code' => 'PAYROLL', 'menu_header' => 'People', 'menu_caption' => 'Payroll', 'menu_link' => '#', 'icon' => 'Wallet', 'seq' => 140, 'status_code' => 'I'],
+        ];
+
+        $map = [];
+        foreach ($rows as $row) {
+            $map[$row['code']] = ConfigMenu::query()->updateOrCreate(
+                ['app_code' => self::APP, 'code' => $row['code']],
+                [
+                    'menu_header' => $row['menu_header'],
+                    'menu_caption' => $row['menu_caption'],
+                    'menu_link' => $row['menu_link'],
+                    'icon' => $row['icon'],
+                    'seq' => $row['seq'],
+                    'status_code' => $row['status_code'],
+                ],
+            );
+        }
+
+        return $map;
+    }
+
+    /**
+     * @param  array<string, ConfigGroup>  $groups
+     * @param  array<string, ConfigMenu>  $menus
+     */
+    private function seedRights(array $groups, array $menus): void
+    {
+        // ponytail: rights still seeded for placeholders so flipping status A later is enough
+        $matrix = [
+            'ADMIN' => array_fill_keys(array_keys($menus), 'CRUD'),
+            'STAFF' => [
+                'DASHBOARD' => 'R',
+                'INVENTORY' => 'CRUD',
+                'LEGAL' => 'CRUD',
+            ],
+            'VIEWER' => [
+                'DASHBOARD' => 'R',
+                'INVENTORY' => 'R',
+                'LEGAL' => 'R',
+            ],
+        ];
+
+        foreach ($matrix as $groupCode => $menuTrustees) {
+            $group = $groups[$groupCode];
+            foreach ($menuTrustees as $menuCode => $trustee) {
+                $menu = $menus[$menuCode];
+                ConfigRight::query()->updateOrCreate(
+                    ['group_id' => $group->id, 'menu_id' => $menu->id],
+                    [
+                        'group_code' => $group->code,
+                        'menu_code' => $menu->code,
+                        'menu_seq' => $menu->seq,
+                        'trustee' => $trustee,
+                        'app_code' => self::APP,
+                    ],
+                );
+            }
+        }
+    }
+
+    /** @param  array<string, ConfigGroup>  $groups */
+    private function seedGroupUsers(array $groups): void
+    {
+        foreach (self::USER_GROUPS as $email => $groupCodes) {
+            $user = User::query()->where('email', $email)->first();
+            if ($user === null) {
+                continue;
+            }
+
+            foreach ($groupCodes as $groupCode) {
+                $group = $groups[$groupCode];
+                ConfigGroupUser::query()->updateOrCreate(
+                    ['group_id' => $group->id, 'user_id' => $user->id],
+                    ['group_code' => $group->code],
+                );
+            }
+        }
+    }
+
+    private function seedConsts(): void
+    {
         $consts = [
             ['const_group' => 'APP', 'group_code' => 'NAME', 'seq' => 1, 'str1' => 'NusaEvo ERP', 'note1' => 'Product display name'],
             ['const_group' => 'APP', 'group_code' => 'TZ', 'seq' => 2, 'str1' => 'Asia/Jakarta', 'note1' => 'Default timezone'],
             ['const_group' => 'INVENTORY', 'group_code' => 'LOW_STOCK', 'seq' => 1, 'num1' => 10, 'note1' => 'Default low-stock threshold'],
             ['const_group' => 'STATUS', 'group_code' => 'ACTIVE', 'seq' => 1, 'str1' => 'A', 'str2' => 'Active'],
             ['const_group' => 'STATUS', 'group_code' => 'INACTIVE', 'seq' => 2, 'str1' => 'I', 'str2' => 'Inactive'],
+            ['const_group' => 'TRUSTEE', 'group_code' => 'CRUD', 'seq' => 1, 'str1' => 'CRUD', 'note1' => 'Full menu trustee'],
+            ['const_group' => 'TRUSTEE', 'group_code' => 'R', 'seq' => 2, 'str1' => 'R', 'note1' => 'Read-only trustee'],
         ];
 
         foreach ($consts as $c) {

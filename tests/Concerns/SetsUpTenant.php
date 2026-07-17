@@ -5,6 +5,7 @@ namespace Tests\Concerns;
 use App\Models\Tenant;
 use App\Models\TenantUserLookup;
 use App\Models\User;
+use Database\Seeders\SysConfigSeeder;
 use Illuminate\Support\Facades\DB;
 
 trait SetsUpTenant
@@ -35,13 +36,13 @@ trait SetsUpTenant
 
             // SysConfigSeeder keys off admin@nusaevo.com — keep email aligned for tests.
             if ($email === 'admin@nusaevo.com') {
-                $this->seed(\Database\Seeders\SysConfigSeeder::class);
+                $this->seed(SysConfigSeeder::class);
             }
         });
 
         TenantUserLookup::query()->updateOrCreate(
-            ['email' => $email],
-            ['tenant_id' => $tenantId],
+            ['email' => $email, 'tenant_id' => $tenantId],
+            [],
         );
 
         return $tenant;

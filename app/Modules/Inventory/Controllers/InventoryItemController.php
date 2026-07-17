@@ -1,5 +1,7 @@
 <?php
+
 // ponytail: Thin CRUD controller delegating transactions to InventoryItemService
+
 namespace App\Modules\Inventory\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -45,7 +47,7 @@ class InventoryItemController extends Controller
             ->get(['id', 'name'])
             ->map(fn ($cat) => [
                 'label' => $cat->name,
-                'value' => $cat->id
+                'value' => $cat->id,
             ]);
 
         return Inertia::render('Inventory/Items/Index', [
@@ -61,7 +63,7 @@ class InventoryItemController extends Controller
             ->get(['id', 'name'])
             ->map(fn ($cat) => [
                 'label' => $cat->name,
-                'value' => $cat->id
+                'value' => $cat->id,
             ]);
 
         return Inertia::render('Inventory/Items/Create', [
@@ -83,7 +85,7 @@ class InventoryItemController extends Controller
             ->get(['id', 'name'])
             ->map(fn ($cat) => [
                 'label' => $cat->name,
-                'value' => $cat->id
+                'value' => $cat->id,
             ]);
 
         return Inertia::render('Inventory/Items/Edit', [

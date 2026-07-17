@@ -1,9 +1,11 @@
 <?php
+
 // ponytail: Simple model factory
+
 namespace Database\Factories;
 
-use App\Modules\Inventory\Models\InventoryItem;
 use App\Modules\Inventory\Models\InventoryCategory;
+use App\Modules\Inventory\Models\InventoryItem;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class InventoryItemFactory extends Factory

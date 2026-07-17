@@ -1,0 +1,156 @@
+<!-- ponytail: Config menu listing — SYSCONFIG.config_menus CRUD -->
+<script setup lang="ts">
+import { Link, router } from '@inertiajs/vue3'
+import AppLayout from '@/Components/layout/AppLayout.vue'
+import PageHeader from '@/Components/layout/PageHeader.vue'
+import DataTable from '@/Components/tables/DataTable.vue'
+import DataTablePagination from '@/Components/tables/DataTablePagination.vue'
+import SearchInput from '@/Components/filters/SearchInput.vue'
+import StatusBadge from '@/Components/feedback/StatusBadge.vue'
+import FormSelect from '@/Components/forms/FormSelect.vue'
+import { ref, watch } from 'vue'
+import { debounce } from '@/Composables/debounce'
+
+interface ConfigMenuRow {
+  id: number
+  code: string
+  menu_caption: string
+  menu_header: string | null
+  menu_link: string | null
+  icon: string | null
+  seq: number
+  status_code: string
+  status_label: string
+}
+
+interface PaginatedData<T> {
+  data: T[]
+  links: Array<{ url: string | null; label: string; active: boolean }>
+}
+
+const props = defineProps<{
+  items: PaginatedData<ConfigMenuRow>
+  filters: {
+    search?: string
+    status?: string
+    header?: string
+  }
+  headers: Array<{ label: string; value: string }>
+}>()
+
+const search = ref(props.filters.search ?? '')
+const status = ref(props.filters.status ?? '')
+const header = ref(props.filters.header ?? '')
+
+const columns: Array<{
+  key: string
+  label: string
+  align?: 'left' | 'center' | 'right'
+}> = [
+  { key: 'seq', label: 'Seq', align: 'right' },
+  { key: 'code', label: 'Code' },
+  { key: 'menu_caption', label: 'Caption' },
+  { key: 'menu_header', label: 'Header' },
+  { key: 'menu_link', label: 'Link' },
+  { key: 'icon', label: 'Icon' },
+  { key: 'status_label', label: 'Status' },
+  { key: 'actions', label: 'Actions', align: 'right' },
+]
+
+watch([search, status, header], debounce(() => {
+  router.get(route('config.menus.index'), {
+    search: search.value,
+    status: status.value,
+    header: header.value,
+  }, {
+    preserveState: true,
+    replace: true,
+  })
+}, 400))
+
+const confirmDelete = (item: ConfigMenuRow | Record<string, unknown>) => {
+  const row = item as ConfigMenuRow
+  if (!confirm(`Delete menu ${row.menu_caption} (${row.code})?`)) return
+  router.delete(route('config.menus.destroy', row.id))
+}
+</script>
+
+<template>
+  <AppLayout>
+    <PageHeader
+      title="Menus"
+      description="Sidebar menus and links for this tenant."
+    >
+      <template #actions>
+        <Link
+          :href="route('config.menus.create')"
+          class="inline-flex items-center rounded-md bg-gray-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800"
+        >
+          Create Menu
+        </Link>
+      </template>
+    </PageHeader>
+
+    <div class="mt-6 space-y-4">
+      <div class="flex flex-col gap-3 md:flex-row md:items-center">
+        <div class="w-full sm:max-w-xs">
+          <SearchInput v-model="search" placeholder="Search code, caption, link..." />
+        </div>
+        <div class="w-full sm:max-w-[180px]">
+          <FormSelect
+            v-model="status"
+            name="status"
+            placeholder="All Status"
+            :options="[
+              { label: 'Active', value: 'A' },
+              { label: 'Inactive', value: 'I' },
+            ]"
+          />
+        </div>
+        <div class="w-full sm:max-w-[200px]">
+          <FormSelect
+            v-model="header"
+            name="header"
+            placeholder="All Headers"
+            :options="headers"
+          />
+        </div>
+      </div>
+
+      <DataTable
+        :columns="columns"
+        :items="items.data"
+        empty-title="No menus"
+        empty-description="Create a menu so it can appear in the sidebar."
+      >
+        <template #cell-status_label="{ item }">
+          <StatusBadge :status="item.status_label" />
+        </template>
+
+        <template #cell-menu_link="{ item }">
+          <span class="font-mono text-xs text-gray-600">{{ item.menu_link || '#' }}</span>
+        </template>
+
+        <template #cell-actions="{ item }">
+          <div class="flex items-center justify-end gap-2">
+            <Link
+              :href="route('config.menus.edit', item.id)"
+              class="text-sm font-medium text-gray-700 hover:text-gray-900"
+            >
+              Edit
+            </Link>
+            <button
+              type="button"
+              class="text-sm font-medium text-red-600 hover:text-red-950"
+              @click="confirmDelete(item)"
+            >
+              Delete
+            </button>
+          </div>
+        </template>
+      </DataTable>
+
+      <DataTablePagination :links="items.links" />
+    </div>
+  </AppLayout>
+</template>

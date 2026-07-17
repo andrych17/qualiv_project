@@ -1,5 +1,7 @@
 <?php
+
 // ponytail: Clean business service layer processing DB transactions directly
+
 namespace App\Modules\Inventory\Services;
 
 use App\Modules\Inventory\Models\InventoryItem;
@@ -14,6 +16,7 @@ class InventoryItemService
     public function updateItem(InventoryItem $item, array $data): InventoryItem
     {
         $item->update($data);
+
         return $item;
     }
 

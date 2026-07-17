@@ -1,5 +1,7 @@
 <?php
+
 // ponytail: Clean inventory data seeder matching specs and generating 50+ records
+
 namespace Database\Seeders;
 
 use App\Modules\Inventory\Models\InventoryCategory;
@@ -125,3 +127,5 @@ class InventorySeeder extends Seeder
         if (InventoryItem::query()->count() <= count($items)) {
             InventoryItem::factory()->count(50)->create();
         }
+    }
+}

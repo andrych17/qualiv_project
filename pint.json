@@ -1,0 +1,7 @@
+{
+    "$schema": "https://json.schemastore.org/pint.json",
+    "preset": "laravel",
+    "rules": {
+        "not_operator_with_successor_space": true
+    }
+}
