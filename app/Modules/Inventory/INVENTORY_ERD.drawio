@@ -1,0 +1,869 @@
+<?xml version="1.0" ?>
+<mxfile host="app.diagrams.net" modified="2026-07-20T00:00:00Z" agent="python-generator" version="24.7.5">
+  <diagram name="Inventory ERD" id="inventory-erd">
+    <mxGraphModel dx="1400" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2200" pageHeight="1800" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="legend_title" value="Legend — domain groups (colors match DESIGN.md tokens)" style="text;html=1;fontStyle=1;fontSize=13;fontColor=#12181F;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1560" width="600" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_box_master" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#4A5563;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1590" width="18" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_box_master_lbl" value="Master / Lookup" style="text;html=1;fontSize=12;fontColor=#12181F;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="64" y="1587" width="300" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_box_location" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#5B4FCF;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="390" y="1590" width="18" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_box_location_lbl" value="Warehouse / Location" style="text;html=1;fontSize=12;fontColor=#12181F;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="414" y="1587" width="300" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_box_tracking" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#B5760A;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="740" y="1590" width="18" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_box_tracking_lbl" value="Batch / Serial Tracking" style="text;html=1;fontSize=12;fontColor=#12181F;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="764" y="1587" width="300" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_box_document" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1F5FBF;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1620" width="18" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_box_document_lbl" value="Transaction Documents" style="text;html=1;fontSize=12;fontColor=#12181F;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="64" y="1617" width="300" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_box_ledger" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1E7F5C;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="390" y="1620" width="18" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_box_ledger_lbl" value="Ledger &amp; Valuation (source of truth)" style="text;html=1;fontSize=12;fontColor=#12181F;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="414" y="1617" width="300" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_box_operational" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#C1332B;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="740" y="1620" width="18" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_box_operational_lbl" value="Operational (Reserve/Pick/Pack/Ship/Count)" style="text;html=1;fontSize=12;fontColor=#12181F;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="764" y="1617" width="300" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_product_categories" value="product_categories" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#4A5563;strokeColor=#4A5563;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="240" height="114" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_product_categories_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_product_categories">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_product_categories_row1" value="FK parent_category_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_product_categories">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_product_categories_row2" value="name  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_product_categories">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_product_categories_row3" value="is_active  :  bool" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_product_categories">
+          <mxGeometry x="0" y="92" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_uoms" value="uoms" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#4A5563;strokeColor=#4A5563;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="40" y="194" width="240" height="92" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_uoms_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_uoms">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_uoms_row1" value="code  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_uoms">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_uoms_row2" value="name  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_uoms">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_uom_conversions" value="uom_conversions" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#4A5563;strokeColor=#4A5563;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="40" y="326" width="240" height="114" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_uom_conversions_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_uom_conversions">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_uom_conversions_row1" value="FK from_uom_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_uom_conversions">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_uom_conversions_row2" value="FK to_uom_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_uom_conversions">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_uom_conversions_row3" value="factor  :  numeric" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_uom_conversions">
+          <mxGeometry x="0" y="92" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_products" value="products" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#4A5563;strokeColor=#4A5563;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="40" y="480" width="240" height="224" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_products_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_products">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_products_row1" value="uuid  :  uuid" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_products">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_products_row2" value="sku  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_products">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_products_row3" value="name  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_products">
+          <mxGeometry x="0" y="92" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_products_row4" value="FK category_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_products">
+          <mxGeometry x="0" y="114" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_products_row5" value="FK base_uom_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_products">
+          <mxGeometry x="0" y="136" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_products_row6" value="costing_method  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_products">
+          <mxGeometry x="0" y="158" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_products_row7" value="tracking_mode  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_products">
+          <mxGeometry x="0" y="180" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_products_row8" value="reorder_point  :  numeric" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_products">
+          <mxGeometry x="0" y="202" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_product_barcodes" value="product_barcodes" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#4A5563;strokeColor=#4A5563;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="40" y="744" width="240" height="114" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_product_barcodes_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_product_barcodes">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_product_barcodes_row1" value="FK product_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_product_barcodes">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_product_barcodes_row2" value="barcode  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_product_barcodes">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_product_barcodes_row3" value="barcode_type  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_product_barcodes">
+          <mxGeometry x="0" y="92" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_adjustment_reasons" value="adjustment_reasons" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#4A5563;strokeColor=#4A5563;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="40" y="898" width="240" height="92" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_adjustment_reasons_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_adjustment_reasons">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_adjustment_reasons_row1" value="code  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_adjustment_reasons">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_adjustment_reasons_row2" value="label  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_adjustment_reasons">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_warehouses" value="warehouses" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#5B4FCF;strokeColor=#5B4FCF;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="400" y="40" width="240" height="92" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_warehouses_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_warehouses">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_warehouses_row1" value="code  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_warehouses">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_warehouses_row2" value="name  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_warehouses">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_locations" value="locations" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#5B4FCF;strokeColor=#5B4FCF;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="400" y="172" width="240" height="136" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_locations_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_locations">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_locations_row1" value="FK warehouse_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_locations">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_locations_row2" value="FK parent_location_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_locations">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_locations_row3" value="code  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_locations">
+          <mxGeometry x="0" y="92" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_locations_row4" value="location_type  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_locations">
+          <mxGeometry x="0" y="114" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_location_barcodes" value="location_barcodes" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#5B4FCF;strokeColor=#5B4FCF;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="400" y="348" width="240" height="92" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_location_barcodes_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_location_barcodes">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_location_barcodes_row1" value="FK location_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_location_barcodes">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_location_barcodes_row2" value="barcode  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_location_barcodes">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_putaway_rules" value="putaway_rules" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#5B4FCF;strokeColor=#5B4FCF;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="400" y="480" width="240" height="158" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_putaway_rules_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_putaway_rules">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_putaway_rules_row1" value="FK warehouse_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_putaway_rules">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_putaway_rules_row2" value="FK category_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_putaway_rules">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_putaway_rules_row3" value="FK product_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_putaway_rules">
+          <mxGeometry x="0" y="92" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_putaway_rules_row4" value="FK target_location_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_putaway_rules">
+          <mxGeometry x="0" y="114" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_putaway_rules_row5" value="priority  :  int" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_putaway_rules">
+          <mxGeometry x="0" y="136" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_batches" value="stock_batches" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#B5760A;strokeColor=#B5760A;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="400" y="620" width="240" height="114" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_batches_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_batches">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_batches_row1" value="FK product_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_batches">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_batches_row2" value="batch_number  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_batches">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_batches_row3" value="expiry_date  :  date" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_batches">
+          <mxGeometry x="0" y="92" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_serials" value="stock_serials" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#B5760A;strokeColor=#B5760A;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="400" y="774" width="240" height="136" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_serials_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_serials">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_serials_row1" value="FK product_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_serials">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_serials_row2" value="serial_number  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_serials">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_serials_row3" value="status  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_serials">
+          <mxGeometry x="0" y="92" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_serials_row4" value="FK current_location_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_serials">
+          <mxGeometry x="0" y="114" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_goods_receipts" value="goods_receipts" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#1F5FBF;strokeColor=#1F5FBF;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="760" y="40" width="240" height="136" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_goods_receipts_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_goods_receipts">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_goods_receipts_row1" value="receipt_number  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_goods_receipts">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_goods_receipts_row2" value="FK warehouse_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_goods_receipts">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_goods_receipts_row3" value="vendor_partner_id  :  bigint*" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_goods_receipts">
+          <mxGeometry x="0" y="92" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_goods_receipts_row4" value="status  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_goods_receipts">
+          <mxGeometry x="0" y="114" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_goods_receipt_lines" value="goods_receipt_lines" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#1F5FBF;strokeColor=#1F5FBF;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="760" y="216" width="240" height="180" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_goods_receipt_lines_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_goods_receipt_lines">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_goods_receipt_lines_row1" value="FK goods_receipt_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_goods_receipt_lines">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_goods_receipt_lines_row2" value="FK product_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_goods_receipt_lines">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_goods_receipt_lines_row3" value="FK batch_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_goods_receipt_lines">
+          <mxGeometry x="0" y="92" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_goods_receipt_lines_row4" value="quantity  :  numeric" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_goods_receipt_lines">
+          <mxGeometry x="0" y="114" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_goods_receipt_lines_row5" value="unit_cost  :  numeric" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_goods_receipt_lines">
+          <mxGeometry x="0" y="136" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_goods_receipt_lines_row6" value="FK destination_location_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_goods_receipt_lines">
+          <mxGeometry x="0" y="158" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_goods_issues" value="goods_issues" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#1F5FBF;strokeColor=#1F5FBF;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="760" y="436" width="240" height="136" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_goods_issues_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_goods_issues">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_goods_issues_row1" value="issue_number  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_goods_issues">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_goods_issues_row2" value="FK warehouse_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_goods_issues">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_goods_issues_row3" value="customer_partner_id  :  bigint*" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_goods_issues">
+          <mxGeometry x="0" y="92" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_goods_issues_row4" value="status  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_goods_issues">
+          <mxGeometry x="0" y="114" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_goods_issue_lines" value="goods_issue_lines" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#1F5FBF;strokeColor=#1F5FBF;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="760" y="612" width="240" height="158" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_goods_issue_lines_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_goods_issue_lines">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_goods_issue_lines_row1" value="FK goods_issue_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_goods_issue_lines">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_goods_issue_lines_row2" value="FK product_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_goods_issue_lines">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_goods_issue_lines_row3" value="FK batch_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_goods_issue_lines">
+          <mxGeometry x="0" y="92" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_goods_issue_lines_row4" value="quantity  :  numeric" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_goods_issue_lines">
+          <mxGeometry x="0" y="114" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_goods_issue_lines_row5" value="FK source_location_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_goods_issue_lines">
+          <mxGeometry x="0" y="136" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_transfers" value="transfers" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#1F5FBF;strokeColor=#1F5FBF;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="760" y="810" width="240" height="180" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_transfers_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_transfers">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_transfers_row1" value="transfer_number  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_transfers">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_transfers_row2" value="FK source_warehouse_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_transfers">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_transfers_row3" value="FK source_location_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_transfers">
+          <mxGeometry x="0" y="92" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_transfers_row4" value="FK destination_warehouse_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_transfers">
+          <mxGeometry x="0" y="114" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_transfers_row5" value="FK destination_location_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_transfers">
+          <mxGeometry x="0" y="136" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_transfers_row6" value="status  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_transfers">
+          <mxGeometry x="0" y="158" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_transfer_lines" value="transfer_lines" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#1F5FBF;strokeColor=#1F5FBF;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="760" y="1030" width="240" height="136" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_transfer_lines_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_transfer_lines">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_transfer_lines_row1" value="FK transfer_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_transfer_lines">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_transfer_lines_row2" value="FK product_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_transfer_lines">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_transfer_lines_row3" value="FK batch_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_transfer_lines">
+          <mxGeometry x="0" y="92" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_transfer_lines_row4" value="quantity  :  numeric" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_transfer_lines">
+          <mxGeometry x="0" y="114" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_adjustments" value="adjustments" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#1F5FBF;strokeColor=#1F5FBF;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="760" y="1206" width="240" height="158" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_adjustments_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_adjustments">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_adjustments_row1" value="adjustment_number  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_adjustments">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_adjustments_row2" value="FK warehouse_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_adjustments">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_adjustments_row3" value="FK location_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_adjustments">
+          <mxGeometry x="0" y="92" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_adjustments_row4" value="FK reason_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_adjustments">
+          <mxGeometry x="0" y="114" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_adjustments_row5" value="status  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_adjustments">
+          <mxGeometry x="0" y="136" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_adjustment_lines" value="adjustment_lines" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#1F5FBF;strokeColor=#1F5FBF;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="760" y="1404" width="240" height="180" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_adjustment_lines_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_adjustment_lines">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_adjustment_lines_row1" value="FK adjustment_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_adjustment_lines">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_adjustment_lines_row2" value="FK product_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_adjustment_lines">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_adjustment_lines_row3" value="FK batch_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_adjustment_lines">
+          <mxGeometry x="0" y="92" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_adjustment_lines_row4" value="system_quantity  :  numeric" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_adjustment_lines">
+          <mxGeometry x="0" y="114" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_adjustment_lines_row5" value="counted_quantity  :  numeric" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_adjustment_lines">
+          <mxGeometry x="0" y="136" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_adjustment_lines_row6" value="variance_quantity  :  numeric*" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_adjustment_lines">
+          <mxGeometry x="0" y="158" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_ledger" value="stock_ledger" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#1E7F5C;strokeColor=#1E7F5C;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="40" width="240" height="268" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_ledger_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_ledger">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_ledger_row1" value="FK product_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_ledger">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_ledger_row2" value="FK warehouse_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_ledger">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_ledger_row3" value="FK location_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_ledger">
+          <mxGeometry x="0" y="92" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_ledger_row4" value="FK batch_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_ledger">
+          <mxGeometry x="0" y="114" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_ledger_row5" value="FK serial_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_ledger">
+          <mxGeometry x="0" y="136" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_ledger_row6" value="movement_type  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_ledger">
+          <mxGeometry x="0" y="158" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_ledger_row7" value="quantity  :  numeric" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_ledger">
+          <mxGeometry x="0" y="180" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_ledger_row8" value="unit_cost  :  numeric" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_ledger">
+          <mxGeometry x="0" y="202" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_ledger_row9" value="reference_type  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_ledger">
+          <mxGeometry x="0" y="224" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_ledger_row10" value="reference_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_ledger">
+          <mxGeometry x="0" y="246" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_valuation_layers" value="stock_valuation_layers" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#1E7F5C;strokeColor=#1E7F5C;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="348" width="240" height="202" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_valuation_layers_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_valuation_layers">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_valuation_layers_row1" value="FK product_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_valuation_layers">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_valuation_layers_row2" value="FK warehouse_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_valuation_layers">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_valuation_layers_row3" value="FK batch_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_valuation_layers">
+          <mxGeometry x="0" y="92" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_valuation_layers_row4" value="FK source_ledger_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_valuation_layers">
+          <mxGeometry x="0" y="114" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_valuation_layers_row5" value="received_quantity  :  numeric" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_valuation_layers">
+          <mxGeometry x="0" y="136" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_valuation_layers_row6" value="remaining_quantity  :  numeric" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_valuation_layers">
+          <mxGeometry x="0" y="158" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_valuation_layers_row7" value="unit_cost  :  numeric" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_valuation_layers">
+          <mxGeometry x="0" y="180" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_balances" value="stock_balances" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#1E7F5C;strokeColor=#1E7F5C;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="590" width="240" height="180" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_balances_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_balances">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_balances_row1" value="FK product_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_balances">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_balances_row2" value="FK warehouse_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_balances">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_balances_row3" value="FK location_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_balances">
+          <mxGeometry x="0" y="92" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_balances_row4" value="FK batch_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_balances">
+          <mxGeometry x="0" y="114" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_balances_row5" value="qty_on_hand  :  numeric" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_balances">
+          <mxGeometry x="0" y="136" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_balances_row6" value="avg_cost  :  numeric" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_balances">
+          <mxGeometry x="0" y="158" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_reservations" value="stock_reservations" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#C1332B;strokeColor=#C1332B;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="1540" y="40" width="240" height="224" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_reservations_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_reservations">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_reservations_row1" value="FK product_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_reservations">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_reservations_row2" value="FK batch_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_reservations">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_reservations_row3" value="FK serial_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_reservations">
+          <mxGeometry x="0" y="92" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_reservations_row4" value="FK warehouse_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_reservations">
+          <mxGeometry x="0" y="114" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_reservations_row5" value="FK location_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_reservations">
+          <mxGeometry x="0" y="136" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_reservations_row6" value="quantity  :  numeric" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_reservations">
+          <mxGeometry x="0" y="158" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_reservations_row7" value="subject_type / subject_id  :  poly*" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_reservations">
+          <mxGeometry x="0" y="180" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_stock_reservations_row8" value="status  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_stock_reservations">
+          <mxGeometry x="0" y="202" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_pick_lists" value="pick_lists" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#C1332B;strokeColor=#C1332B;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="1540" y="304" width="240" height="136" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_pick_lists_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_pick_lists">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_pick_lists_row1" value="pick_list_number  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_pick_lists">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_pick_lists_row2" value="FK warehouse_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_pick_lists">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_pick_lists_row3" value="assigned_to  :  bigint*" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_pick_lists">
+          <mxGeometry x="0" y="92" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_pick_lists_row4" value="status  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_pick_lists">
+          <mxGeometry x="0" y="114" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_pick_list_lines" value="pick_list_lines" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#C1332B;strokeColor=#C1332B;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="1540" y="480" width="240" height="180" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_pick_list_lines_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_pick_list_lines">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_pick_list_lines_row1" value="FK pick_list_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_pick_list_lines">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_pick_list_lines_row2" value="FK reservation_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_pick_list_lines">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_pick_list_lines_row3" value="FK product_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_pick_list_lines">
+          <mxGeometry x="0" y="92" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_pick_list_lines_row4" value="FK location_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_pick_list_lines">
+          <mxGeometry x="0" y="114" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_pick_list_lines_row5" value="quantity  :  numeric" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_pick_list_lines">
+          <mxGeometry x="0" y="136" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_pick_list_lines_row6" value="picked_quantity  :  numeric" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_pick_list_lines">
+          <mxGeometry x="0" y="158" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_shipments" value="shipments" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#C1332B;strokeColor=#C1332B;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="1540" y="700" width="240" height="158" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_shipments_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_shipments">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_shipments_row1" value="shipment_number  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_shipments">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_shipments_row2" value="FK warehouse_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_shipments">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_shipments_row3" value="customer_partner_id  :  bigint*" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_shipments">
+          <mxGeometry x="0" y="92" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_shipments_row4" value="FK goods_issue_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_shipments">
+          <mxGeometry x="0" y="114" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_shipments_row5" value="status  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_shipments">
+          <mxGeometry x="0" y="136" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_pack_lists" value="pack_lists" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#C1332B;strokeColor=#C1332B;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="1540" y="898" width="240" height="158" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_pack_lists_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_pack_lists">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_pack_lists_row1" value="pack_list_number  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_pack_lists">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_pack_lists_row2" value="FK pick_list_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_pack_lists">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_pack_lists_row3" value="FK shipment_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_pack_lists">
+          <mxGeometry x="0" y="92" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_pack_lists_row4" value="weight  :  numeric" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_pack_lists">
+          <mxGeometry x="0" y="114" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_pack_lists_row5" value="status  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_pack_lists">
+          <mxGeometry x="0" y="136" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_cycle_counts" value="cycle_counts" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#C1332B;strokeColor=#C1332B;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="1540" y="1096" width="240" height="158" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_cycle_counts_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_cycle_counts">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_cycle_counts_row1" value="count_number  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_cycle_counts">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_cycle_counts_row2" value="FK warehouse_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_cycle_counts">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_cycle_counts_row3" value="FK location_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_cycle_counts">
+          <mxGeometry x="0" y="92" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_cycle_counts_row4" value="FK category_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_cycle_counts">
+          <mxGeometry x="0" y="114" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_cycle_counts_row5" value="status  :  varchar" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_cycle_counts">
+          <mxGeometry x="0" y="136" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_cycle_count_lines" value="cycle_count_lines" style="swimlane;html=1;startSize=26;fontSize=13;fontStyle=1;fillColor=#C1332B;strokeColor=#C1332B;fontColor=#FFFFFF;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=0;resizeParentMax=0;collapsible=0;swimlaneFillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="1540" y="1294" width="240" height="180" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_cycle_count_lines_row0" value="PK id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=1;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_cycle_count_lines">
+          <mxGeometry x="0" y="26" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_cycle_count_lines_row1" value="FK cycle_count_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_cycle_count_lines">
+          <mxGeometry x="0" y="48" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_cycle_count_lines_row2" value="FK product_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_cycle_count_lines">
+          <mxGeometry x="0" y="70" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_cycle_count_lines_row3" value="FK batch_id  :  bigint" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_cycle_count_lines">
+          <mxGeometry x="0" y="92" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_cycle_count_lines_row4" value="system_quantity  :  numeric" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_cycle_count_lines">
+          <mxGeometry x="0" y="114" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_cycle_count_lines_row5" value="counted_quantity  :  numeric" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_cycle_count_lines">
+          <mxGeometry x="0" y="136" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl_cycle_count_lines_row6" value="variance_quantity  :  numeric*" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=8;fontSize=11;fontStyle=0;fontColor=#12181F;strokeColor=#DEE3E8;fillColor=#FFFFFF;" vertex="1" parent="tbl_cycle_count_lines">
+          <mxGeometry x="0" y="158" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_1" value="parent_category_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;dashed=1;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_product_categories" target="tbl_product_categories">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_2" value="category_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;dashed=1;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_product_categories" target="tbl_products">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_3" value="base_uom_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_uoms" target="tbl_products">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_4" value="from_uom_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_uoms" target="tbl_uom_conversions">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_5" value="to_uom_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_uoms" target="tbl_uom_conversions">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_6" value="product_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_products" target="tbl_product_barcodes">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_7" value="warehouse_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_warehouses" target="tbl_locations">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_8" value="parent_location_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;dashed=1;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_locations" target="tbl_locations">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_9" value="location_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_locations" target="tbl_location_barcodes">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_10" value="warehouse_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_warehouses" target="tbl_putaway_rules">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_11" value="category_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;dashed=1;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_product_categories" target="tbl_putaway_rules">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_12" value="product_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;dashed=1;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_products" target="tbl_putaway_rules">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_13" value="target_location_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_locations" target="tbl_putaway_rules">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_14" value="product_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_products" target="tbl_stock_batches">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_15" value="product_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_products" target="tbl_stock_serials">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_16" value="current_location_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;dashed=1;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_locations" target="tbl_stock_serials">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_17" value="warehouse_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_warehouses" target="tbl_goods_receipts">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_18" value="goods_receipt_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_goods_receipts" target="tbl_goods_receipt_lines">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_19" value="product_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_products" target="tbl_goods_receipt_lines">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_20" value="batch_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;dashed=1;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_stock_batches" target="tbl_goods_receipt_lines">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_21" value="destination_location_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_locations" target="tbl_goods_receipt_lines">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_22" value="warehouse_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_warehouses" target="tbl_goods_issues">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_23" value="goods_issue_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_goods_issues" target="tbl_goods_issue_lines">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_24" value="product_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_products" target="tbl_goods_issue_lines">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_25" value="batch_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;dashed=1;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_stock_batches" target="tbl_goods_issue_lines">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_26" value="source_location_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_locations" target="tbl_goods_issue_lines">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_27" value="source_warehouse_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_warehouses" target="tbl_transfers">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_28" value="source_location_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_locations" target="tbl_transfers">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_29" value="transfer_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_transfers" target="tbl_transfer_lines">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_30" value="product_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_products" target="tbl_transfer_lines">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_31" value="batch_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;dashed=1;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_stock_batches" target="tbl_transfer_lines">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_32" value="warehouse_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_warehouses" target="tbl_adjustments">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_33" value="location_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_locations" target="tbl_adjustments">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_34" value="reason_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_adjustment_reasons" target="tbl_adjustments">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_35" value="adjustment_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_adjustments" target="tbl_adjustment_lines">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_36" value="product_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_products" target="tbl_adjustment_lines">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_37" value="batch_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;dashed=1;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_stock_batches" target="tbl_adjustment_lines">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_38" value="product_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_products" target="tbl_stock_ledger">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_39" value="warehouse_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_warehouses" target="tbl_stock_ledger">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_40" value="location_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_locations" target="tbl_stock_ledger">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_41" value="batch_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;dashed=1;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_stock_batches" target="tbl_stock_ledger">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_42" value="serial_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;dashed=1;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_stock_serials" target="tbl_stock_ledger">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_43" value="product_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_products" target="tbl_stock_valuation_layers">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_44" value="warehouse_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_warehouses" target="tbl_stock_valuation_layers">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_45" value="batch_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;dashed=1;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_stock_batches" target="tbl_stock_valuation_layers">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_46" value="source_ledger_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_stock_ledger" target="tbl_stock_valuation_layers">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_47" value="product_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_products" target="tbl_stock_balances">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_48" value="warehouse_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_warehouses" target="tbl_stock_balances">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_49" value="location_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_locations" target="tbl_stock_balances">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_50" value="batch_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;dashed=1;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_stock_batches" target="tbl_stock_balances">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_51" value="product_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_products" target="tbl_stock_reservations">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_52" value="batch_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;dashed=1;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_stock_batches" target="tbl_stock_reservations">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_53" value="serial_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;dashed=1;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_stock_serials" target="tbl_stock_reservations">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_54" value="warehouse_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_warehouses" target="tbl_stock_reservations">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_55" value="location_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;dashed=1;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_locations" target="tbl_stock_reservations">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_56" value="warehouse_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_warehouses" target="tbl_pick_lists">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_57" value="pick_list_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_pick_lists" target="tbl_pick_list_lines">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_58" value="reservation_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;dashed=1;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_stock_reservations" target="tbl_pick_list_lines">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_59" value="product_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_products" target="tbl_pick_list_lines">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_60" value="location_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_locations" target="tbl_pick_list_lines">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_61" value="warehouse_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_warehouses" target="tbl_shipments">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_62" value="goods_issue_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;dashed=1;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_goods_issues" target="tbl_shipments">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_63" value="pick_list_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;dashed=1;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_pick_lists" target="tbl_pack_lists">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_64" value="shipment_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;dashed=1;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_shipments" target="tbl_pack_lists">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_65" value="warehouse_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_warehouses" target="tbl_cycle_counts">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_66" value="location_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;dashed=1;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_locations" target="tbl_cycle_counts">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_67" value="category_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;dashed=1;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_product_categories" target="tbl_cycle_counts">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_68" value="cycle_count_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_cycle_counts" target="tbl_cycle_count_lines">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_69" value="product_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_products" target="tbl_cycle_count_lines">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel_70" value="batch_id" style="edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERmany;startArrow=ERone;startFill=0;endFill=0;rounded=0;dashed=1;strokeColor=#4A5563;fontSize=9;fontColor=#4A5563;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="tbl_stock_batches" target="tbl_cycle_count_lines">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

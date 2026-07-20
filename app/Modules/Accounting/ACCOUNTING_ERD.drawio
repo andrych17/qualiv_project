@@ -1,0 +1,565 @@
+<mxfile host="app.diagrams.net" modified="2026-07-19T00:00:00Z" agent="python-script" version="24.7.5" type="device">
+  <diagram id="accounting-erd" name="ACCOUNTING - ERD">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2400" pageHeight="1900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="c2" value="ACCOUNTING Module — Entity Relationship Diagram (crow's-foot)" style="text;html=1;fontSize=22;fontStyle=1;fontColor=#12181F;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="-40" width="1000" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="c3" value="Note: every table also carries company_id → ACCOUNTING.companies (and most carry currency_code → ACCOUNTING.currencies). These universal scoping FKs are omitted from the drawing for readability; all other FKs from 001_accounting_schema.sql are shown. Dashed entity = external, owned by another Core module (CRM)." style="text;html=1;fontSize=11;fontColor=#4A5563;align=left;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="1160" y="-70" width="900" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="c4" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="-140" width="16" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="c5" value="Setup / Master" style="text;html=1;fontSize=11;fontColor=#12181F;align=left;" vertex="1" parent="1">
+          <mxGeometry x="62" y="-143" width="175" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="c6" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="240" y="-140" width="16" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="c7" value="General Ledger" style="text;html=1;fontSize=11;fontColor=#12181F;align=left;" vertex="1" parent="1">
+          <mxGeometry x="262" y="-143" width="175" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="c8" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E9F5F0;strokeColor=#1E7F5C;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="440" y="-140" width="16" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="c9" value="Accounts Receivable" style="text;html=1;fontSize=11;fontColor=#12181F;align=left;" vertex="1" parent="1">
+          <mxGeometry x="462" y="-143" width="175" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="c10" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FBEBEA;strokeColor=#C1332B;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="640" y="-140" width="16" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="c11" value="Accounts Payable" style="text;html=1;fontSize=11;fontColor=#12181F;align=left;" vertex="1" parent="1">
+          <mxGeometry x="662" y="-143" width="175" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="c12" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#EFEDFB;strokeColor=#5B4FCF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="840" y="-140" width="16" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="c13" value="Cash &amp; Banks" style="text;html=1;fontSize=11;fontColor=#12181F;align=left;" vertex="1" parent="1">
+          <mxGeometry x="862" y="-143" width="175" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="c14" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FBF1E3;strokeColor=#B5760A;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="-140" width="16" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="c15" value="Fixed Assets" style="text;html=1;fontSize=11;fontColor=#12181F;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1062" y="-143" width="175" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="c16" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E5F4F7;strokeColor=#0E7490;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="-140" width="16" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="c17" value="Inventory Costing" style="text;html=1;fontSize=11;fontColor=#12181F;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1262" y="-143" width="175" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="c18" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F3EEE1;strokeColor=#7C5C1E;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="-140" width="16" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="c19" value="Cost Accounting &amp; Budgeting" style="text;html=1;fontSize=11;fontColor=#12181F;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1462" y="-143" width="175" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="c20" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F6E9EF;strokeColor=#8B3A62;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1640" y="-140" width="16" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="c21" value="Indonesian Tax Engine" style="text;html=1;fontSize=11;fontColor=#12181F;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1662" y="-143" width="175" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="c22" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#EAF0F7;strokeColor=#3D6B9E;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1840" y="-140" width="16" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="c23" value="Recurring Transactions" style="text;html=1;fontSize=11;fontColor=#12181F;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1862" y="-143" width="175" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="c24" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F1F2F3;strokeColor=#6B7280;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="2040" y="-140" width="16" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="c25" value="Audit &amp; Compliance" style="text;html=1;fontSize=11;fontColor=#12181F;align=left;" vertex="1" parent="1">
+          <mxGeometry x="2062" y="-143" width="175" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="c26" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;companies&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;uuid&lt;br/&gt;legal_name&lt;br/&gt;trade_name&lt;br/&gt;npwp&lt;br/&gt;nitku&lt;br/&gt;address&lt;br/&gt;base_currency_code&lt;br/&gt;fiscal_year_start_month&lt;br/&gt;is_active&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="260" height="218" as="geometry"/>
+        </mxCell>
+        <mxCell id="c27" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;accounts&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 company_id&lt;br/&gt;account_code&lt;br/&gt;account_name&lt;br/&gt;account_type&lt;br/&gt;normal_balance&lt;br/&gt;🔗 parent_account_id&lt;br/&gt;is_control_account&lt;br/&gt;control_account_for&lt;br/&gt;is_active&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="40" y="288" width="260" height="218" as="geometry"/>
+        </mxCell>
+        <mxCell id="c28" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;fiscal_years&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 company_id&lt;br/&gt;year_code&lt;br/&gt;start_date&lt;br/&gt;end_date&lt;br/&gt;status&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="40" y="536" width="260" height="146" as="geometry"/>
+        </mxCell>
+        <mxCell id="c29" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;fiscal_periods&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 company_id&lt;br/&gt;🔗 fiscal_year_id&lt;br/&gt;period_no&lt;br/&gt;start_date&lt;br/&gt;end_date&lt;br/&gt;status&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="40" y="712" width="260" height="164" as="geometry"/>
+        </mxCell>
+        <mxCell id="c30" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;cost_centers&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 company_id&lt;br/&gt;code&lt;br/&gt;name&lt;br/&gt;🔗 parent_cost_center_id&lt;br/&gt;is_active&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="40" y="906" width="260" height="146" as="geometry"/>
+        </mxCell>
+        <mxCell id="c31" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;currencies&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 code&lt;/b&gt;&lt;br/&gt;name&lt;br/&gt;symbol&lt;br/&gt;is_active&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1082" width="260" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="c32" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;exchange_rates&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 currency_code&lt;br/&gt;rate_date&lt;br/&gt;rate_to_base&lt;br/&gt;source&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1222" width="260" height="128" as="geometry"/>
+        </mxCell>
+        <mxCell id="c33" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;asset_groups&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 company_id&lt;br/&gt;code&lt;br/&gt;name&lt;br/&gt;group_class&lt;br/&gt;commercial_method&lt;br/&gt;commercial_useful_life_months&lt;br/&gt;fiscal_method&lt;br/&gt;fiscal_rate&lt;br/&gt;fiscal_useful_life_months&lt;br/&gt;is_active&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1380" width="260" height="236" as="geometry"/>
+        </mxCell>
+        <mxCell id="c34" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;bank_accounts&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 company_id&lt;br/&gt;account_type&lt;br/&gt;bank_name&lt;br/&gt;account_no_last4&lt;br/&gt;account_holder_name&lt;br/&gt;🔗 currency_code&lt;br/&gt;🔗 gl_account_id&lt;br/&gt;is_active&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1646" width="260" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="c35" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;gl_journals&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;uuid&lt;br/&gt;🔗 company_id&lt;br/&gt;journal_no&lt;br/&gt;journal_date&lt;br/&gt;🔗 fiscal_period_id&lt;br/&gt;🔗 currency_code&lt;br/&gt;exchange_rate&lt;br/&gt;memo&lt;br/&gt;source_module&lt;br/&gt;subject_type&lt;br/&gt;subject_id&lt;br/&gt;status&lt;br/&gt;🔗 reversed_journal_id&lt;br/&gt;posted_by&lt;br/&gt;posted_at&lt;br/&gt;created_by&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="440" y="40" width="260" height="344" as="geometry"/>
+        </mxCell>
+        <mxCell id="c36" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;gl_journal_lines&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 journal_id&lt;br/&gt;line_no&lt;br/&gt;🔗 account_id&lt;br/&gt;🔗 cost_center_id&lt;br/&gt;description&lt;br/&gt;debit_amount&lt;br/&gt;credit_amount&lt;br/&gt;debit_amount_base&lt;br/&gt;credit_amount_base&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="440" y="414" width="260" height="218" as="geometry"/>
+        </mxCell>
+        <mxCell id="c37" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;ar_invoices&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;uuid&lt;br/&gt;🔗 company_id&lt;br/&gt;invoice_no&lt;br/&gt;🔗 partner_id &lt;i&gt;(→ CRM.partners)&lt;/i&gt;&lt;br/&gt;invoice_date&lt;br/&gt;due_date&lt;br/&gt;🔗 currency_code&lt;br/&gt;exchange_rate&lt;br/&gt;subtotal_amount&lt;br/&gt;🔗 tax_code_id&lt;br/&gt;tax_amount&lt;br/&gt;total_amount&lt;br/&gt;paid_amount&lt;br/&gt;status&lt;br/&gt;subject_type&lt;br/&gt;subject_id&lt;br/&gt;🔗 journal_id&lt;br/&gt;🔗 faktur_pajak_id&lt;br/&gt;created_by&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#E9F5F0;strokeColor=#1E7F5C;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="760" y="40" width="260" height="398" as="geometry"/>
+        </mxCell>
+        <mxCell id="c38" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;ar_invoice_lines&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 invoice_id&lt;br/&gt;line_no&lt;br/&gt;description&lt;br/&gt;qty&lt;br/&gt;unit_price&lt;br/&gt;discount_amount&lt;br/&gt;line_amount&lt;br/&gt;🔗 revenue_account_id&lt;br/&gt;🔗 tax_code_id&lt;br/&gt;🔗 cost_center_id&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#E9F5F0;strokeColor=#1E7F5C;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="760" y="468" width="260" height="236" as="geometry"/>
+        </mxCell>
+        <mxCell id="c39" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;ar_payments&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;uuid&lt;br/&gt;🔗 company_id&lt;br/&gt;payment_no&lt;br/&gt;🔗 partner_id &lt;i&gt;(→ CRM.partners)&lt;/i&gt;&lt;br/&gt;payment_date&lt;br/&gt;🔗 bank_account_id&lt;br/&gt;🔗 currency_code&lt;br/&gt;exchange_rate&lt;br/&gt;amount&lt;br/&gt;status&lt;br/&gt;🔗 journal_id&lt;br/&gt;memo&lt;br/&gt;created_by&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#E9F5F0;strokeColor=#1E7F5C;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="760" y="734" width="260" height="290" as="geometry"/>
+        </mxCell>
+        <mxCell id="c40" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;ar_payment_applications&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 payment_id&lt;br/&gt;🔗 invoice_id&lt;br/&gt;applied_amount&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#E9F5F0;strokeColor=#1E7F5C;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="760" y="1054" width="260" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="c41" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;ar_credit_notes&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;uuid&lt;br/&gt;🔗 company_id&lt;br/&gt;credit_note_no&lt;br/&gt;🔗 partner_id &lt;i&gt;(→ CRM.partners)&lt;/i&gt;&lt;br/&gt;🔗 invoice_id&lt;br/&gt;credit_date&lt;br/&gt;🔗 currency_code&lt;br/&gt;exchange_rate&lt;br/&gt;total_amount&lt;br/&gt;status&lt;br/&gt;🔗 journal_id&lt;br/&gt;reason&lt;br/&gt;created_by&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#E9F5F0;strokeColor=#1E7F5C;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="760" y="1194" width="260" height="290" as="geometry"/>
+        </mxCell>
+        <mxCell id="c42" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;ar_credit_note_lines&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 credit_note_id&lt;br/&gt;description&lt;br/&gt;amount&lt;br/&gt;🔗 revenue_account_id&lt;br/&gt;🔗 tax_code_id&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#E9F5F0;strokeColor=#1E7F5C;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="760" y="1514" width="260" height="146" as="geometry"/>
+        </mxCell>
+        <mxCell id="c43" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;ap_bills&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;uuid&lt;br/&gt;🔗 company_id&lt;br/&gt;bill_no&lt;br/&gt;🔗 partner_id &lt;i&gt;(→ CRM.partners)&lt;/i&gt;&lt;br/&gt;bill_date&lt;br/&gt;due_date&lt;br/&gt;🔗 currency_code&lt;br/&gt;exchange_rate&lt;br/&gt;subtotal_amount&lt;br/&gt;🔗 withholding_type_id&lt;br/&gt;withholding_amount&lt;br/&gt;total_amount&lt;br/&gt;net_payable_amount&lt;br/&gt;paid_amount&lt;br/&gt;status&lt;br/&gt;subject_type&lt;br/&gt;subject_id&lt;br/&gt;🔗 journal_id&lt;br/&gt;🔗 bukti_potong_id&lt;br/&gt;created_by&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#FBEBEA;strokeColor=#C1332B;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="900" width="260" height="416" as="geometry"/>
+        </mxCell>
+        <mxCell id="c44" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;ap_bill_lines&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 bill_id&lt;br/&gt;line_no&lt;br/&gt;description&lt;br/&gt;qty&lt;br/&gt;unit_price&lt;br/&gt;discount_amount&lt;br/&gt;line_amount&lt;br/&gt;🔗 expense_account_id&lt;br/&gt;🔗 cost_center_id&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#FBEBEA;strokeColor=#C1332B;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="1346" width="260" height="218" as="geometry"/>
+        </mxCell>
+        <mxCell id="c45" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;ap_payments&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;uuid&lt;br/&gt;🔗 company_id&lt;br/&gt;payment_no&lt;br/&gt;🔗 partner_id &lt;i&gt;(→ CRM.partners)&lt;/i&gt;&lt;br/&gt;payment_date&lt;br/&gt;🔗 bank_account_id&lt;br/&gt;🔗 currency_code&lt;br/&gt;exchange_rate&lt;br/&gt;amount&lt;br/&gt;status&lt;br/&gt;🔗 journal_id&lt;br/&gt;memo&lt;br/&gt;created_by&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#FBEBEA;strokeColor=#C1332B;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="1594" width="260" height="290" as="geometry"/>
+        </mxCell>
+        <mxCell id="c46" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;ap_payment_applications&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 payment_id&lt;br/&gt;🔗 bill_id&lt;br/&gt;applied_amount&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#FBEBEA;strokeColor=#C1332B;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="1914" width="260" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="c47" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;ap_debit_notes&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;uuid&lt;br/&gt;🔗 company_id&lt;br/&gt;debit_note_no&lt;br/&gt;🔗 partner_id &lt;i&gt;(→ CRM.partners)&lt;/i&gt;&lt;br/&gt;🔗 bill_id&lt;br/&gt;debit_date&lt;br/&gt;🔗 currency_code&lt;br/&gt;exchange_rate&lt;br/&gt;total_amount&lt;br/&gt;status&lt;br/&gt;🔗 journal_id&lt;br/&gt;reason&lt;br/&gt;created_by&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#FBEBEA;strokeColor=#C1332B;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="2054" width="260" height="290" as="geometry"/>
+        </mxCell>
+        <mxCell id="c48" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;ap_debit_note_lines&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 debit_note_id&lt;br/&gt;description&lt;br/&gt;amount&lt;br/&gt;🔗 expense_account_id&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#FBEBEA;strokeColor=#C1332B;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="2374" width="260" height="128" as="geometry"/>
+        </mxCell>
+        <mxCell id="c49" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;cash_transactions&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;uuid&lt;br/&gt;🔗 company_id&lt;br/&gt;🔗 bank_account_id&lt;br/&gt;transaction_date&lt;br/&gt;transaction_type&lt;br/&gt;🔗 counter_bank_account_id&lt;br/&gt;amount&lt;br/&gt;🔗 currency_code&lt;br/&gt;exchange_rate&lt;br/&gt;🔗 gl_offset_account_id&lt;br/&gt;description&lt;br/&gt;status&lt;br/&gt;🔗 journal_id&lt;br/&gt;created_by&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#EFEDFB;strokeColor=#5B4FCF;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="40" y="900" width="260" height="308" as="geometry"/>
+        </mxCell>
+        <mxCell id="c50" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;bank_statement_imports&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 company_id&lt;br/&gt;🔗 bank_account_id&lt;br/&gt;file_name&lt;br/&gt;imported_by&lt;br/&gt;imported_at&lt;br/&gt;period_start&lt;br/&gt;period_end&lt;br/&gt;status&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#EFEDFB;strokeColor=#5B4FCF;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1238" width="260" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="c51" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;bank_statement_lines&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 import_id&lt;br/&gt;🔗 bank_account_id&lt;br/&gt;line_date&lt;br/&gt;description&lt;br/&gt;reference&lt;br/&gt;amount&lt;br/&gt;is_matched&lt;br/&gt;🔗 matched_cash_transaction_id&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#EFEDFB;strokeColor=#5B4FCF;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1468" width="260" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="c52" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;bank_reconciliations&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 company_id&lt;br/&gt;🔗 bank_account_id&lt;br/&gt;reconciliation_date&lt;br/&gt;statement_ending_balance&lt;br/&gt;book_ending_balance&lt;br/&gt;status&lt;br/&gt;completed_by&lt;br/&gt;completed_at&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#EFEDFB;strokeColor=#5B4FCF;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1698" width="260" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="c53" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;bank_reconciliation_matches&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 reconciliation_id&lt;br/&gt;🔗 statement_line_id&lt;br/&gt;🔗 cash_transaction_id&lt;br/&gt;match_type&lt;br/&gt;matched_at&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#EFEDFB;strokeColor=#5B4FCF;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1928" width="260" height="146" as="geometry"/>
+        </mxCell>
+        <mxCell id="c54" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;fa_assets&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;uuid&lt;br/&gt;🔗 company_id&lt;br/&gt;asset_no&lt;br/&gt;name&lt;br/&gt;🔗 asset_group_id&lt;br/&gt;acquisition_date&lt;br/&gt;acquisition_cost&lt;br/&gt;🔗 vendor_partner_id &lt;i&gt;(→ CRM.partners)&lt;/i&gt;&lt;br/&gt;🔗 source_bill_id&lt;br/&gt;commercial_nbv&lt;br/&gt;fiscal_nbv&lt;br/&gt;location&lt;br/&gt;status&lt;br/&gt;🔗 gl_asset_account_id&lt;br/&gt;🔗 gl_depreciation_expense_account_id&lt;br/&gt;🔗 gl_accum_depreciation_account_id&lt;br/&gt;created_by&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#FBF1E3;strokeColor=#B5760A;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="440" y="900" width="260" height="362" as="geometry"/>
+        </mxCell>
+        <mxCell id="c55" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;fa_depreciation_schedule_commercial&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 asset_id&lt;br/&gt;🔗 fiscal_period_id&lt;br/&gt;depreciation_amount&lt;br/&gt;accumulated_amount&lt;br/&gt;nbv_after&lt;br/&gt;🔗 journal_id&lt;br/&gt;status&lt;br/&gt;posted_at&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#FBF1E3;strokeColor=#B5760A;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="440" y="1292" width="260" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="c56" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;fa_depreciation_schedule_fiscal&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 asset_id&lt;br/&gt;🔗 fiscal_period_id&lt;br/&gt;depreciation_amount&lt;br/&gt;accumulated_amount&lt;br/&gt;nbv_after&lt;br/&gt;status&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#FBF1E3;strokeColor=#B5760A;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="440" y="1522" width="260" height="164" as="geometry"/>
+        </mxCell>
+        <mxCell id="c57" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;fa_disposals&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 asset_id&lt;br/&gt;disposal_date&lt;br/&gt;disposal_proceeds&lt;br/&gt;commercial_nbv_at_disposal&lt;br/&gt;commercial_gain_loss&lt;br/&gt;fiscal_nbv_at_disposal&lt;br/&gt;fiscal_gain_loss&lt;br/&gt;🔗 journal_id&lt;br/&gt;disposal_method&lt;br/&gt;created_by&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#FBF1E3;strokeColor=#B5760A;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="440" y="1716" width="260" height="236" as="geometry"/>
+        </mxCell>
+        <mxCell id="c58" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;inv_items&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 company_id&lt;br/&gt;item_code&lt;br/&gt;item_name&lt;br/&gt;costing_method&lt;br/&gt;current_avg_cost&lt;br/&gt;on_hand_qty&lt;br/&gt;🔗 inventory_account_id&lt;br/&gt;🔗 cogs_account_id&lt;br/&gt;is_active&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#E5F4F7;strokeColor=#0E7490;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="760" y="900" width="260" height="218" as="geometry"/>
+        </mxCell>
+        <mxCell id="c59" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;inv_movements&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;uuid&lt;br/&gt;🔗 company_id&lt;br/&gt;🔗 item_id&lt;br/&gt;movement_date&lt;br/&gt;movement_type&lt;br/&gt;qty&lt;br/&gt;unit_cost&lt;br/&gt;total_cost&lt;br/&gt;avg_cost_after&lt;br/&gt;subject_type&lt;br/&gt;subject_id&lt;br/&gt;🔗 journal_id&lt;br/&gt;created_by&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#E5F4F7;strokeColor=#0E7490;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="760" y="1148" width="260" height="290" as="geometry"/>
+        </mxCell>
+        <mxCell id="c60" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;inv_valuation_snapshots&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 company_id&lt;br/&gt;🔗 item_id&lt;br/&gt;snapshot_date&lt;br/&gt;qty_on_hand&lt;br/&gt;avg_unit_cost&lt;br/&gt;total_value&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#E5F4F7;strokeColor=#0E7490;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="760" y="1468" width="260" height="164" as="geometry"/>
+        </mxCell>
+        <mxCell id="c61" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;cost_allocation_rules&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 company_id&lt;br/&gt;name&lt;br/&gt;🔗 source_account_id&lt;br/&gt;🔗 source_cost_center_id&lt;br/&gt;is_active&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#F3EEE1;strokeColor=#7C5C1E;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="900" width="260" height="146" as="geometry"/>
+        </mxCell>
+        <mxCell id="c62" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;cost_allocation_rule_targets&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 rule_id&lt;br/&gt;🔗 target_cost_center_id&lt;br/&gt;percentage&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#F3EEE1;strokeColor=#7C5C1E;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="1076" width="260" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="c63" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;cost_allocation_runs&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 company_id&lt;br/&gt;🔗 rule_id&lt;br/&gt;🔗 run_period_id&lt;br/&gt;total_amount&lt;br/&gt;🔗 journal_id&lt;br/&gt;status&lt;br/&gt;run_by&lt;br/&gt;run_at&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#F3EEE1;strokeColor=#7C5C1E;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="1216" width="260" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="c64" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;budgets&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 company_id&lt;br/&gt;🔗 fiscal_year_id&lt;br/&gt;name&lt;br/&gt;status&lt;br/&gt;created_by&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#F3EEE1;strokeColor=#7C5C1E;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="1446" width="260" height="146" as="geometry"/>
+        </mxCell>
+        <mxCell id="c65" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;budget_lines&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 budget_id&lt;br/&gt;🔗 account_id&lt;br/&gt;🔗 cost_center_id&lt;br/&gt;🔗 fiscal_period_id&lt;br/&gt;budget_amount&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#F3EEE1;strokeColor=#7C5C1E;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="1622" width="260" height="146" as="geometry"/>
+        </mxCell>
+        <mxCell id="c66" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;tax_codes&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 company_id&lt;br/&gt;code&lt;br/&gt;name&lt;br/&gt;tax_type&lt;br/&gt;rate&lt;br/&gt;🔗 gl_account_id&lt;br/&gt;is_active&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#F6E9EF;strokeColor=#8B3A62;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="40" width="260" height="182" as="geometry"/>
+        </mxCell>
+        <mxCell id="c67" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;withholding_types&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 company_id&lt;br/&gt;code&lt;br/&gt;name&lt;br/&gt;rate&lt;br/&gt;is_final&lt;br/&gt;bupot_form_type&lt;br/&gt;🔗 gl_payable_account_id&lt;br/&gt;is_active&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#F6E9EF;strokeColor=#8B3A62;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="252" width="260" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="c68" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;tax_faktur_pajak&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;uuid&lt;br/&gt;🔗 company_id&lt;br/&gt;nomor_faktur&lt;br/&gt;faktur_type&lt;br/&gt;🔗 ar_invoice_id&lt;br/&gt;🔗 ap_bill_id&lt;br/&gt;🔗 partner_id &lt;i&gt;(→ CRM.partners)&lt;/i&gt;&lt;br/&gt;partner_npwp&lt;br/&gt;tax_base_amount&lt;br/&gt;ppn_amount&lt;br/&gt;faktur_date&lt;br/&gt;status&lt;br/&gt;🔗 replaces_faktur_id&lt;br/&gt;🔗 coretax_export_batch_id&lt;br/&gt;created_by&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#F6E9EF;strokeColor=#8B3A62;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="482" width="260" height="326" as="geometry"/>
+        </mxCell>
+        <mxCell id="c69" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;tax_bukti_potong&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;uuid&lt;br/&gt;🔗 company_id&lt;br/&gt;bukti_potong_no&lt;br/&gt;form_type&lt;br/&gt;🔗 ap_bill_id&lt;br/&gt;🔗 ap_payment_id&lt;br/&gt;🔗 partner_id &lt;i&gt;(→ CRM.partners)&lt;/i&gt;&lt;br/&gt;partner_npwp&lt;br/&gt;gross_amount&lt;br/&gt;tax_rate&lt;br/&gt;withheld_amount&lt;br/&gt;is_final&lt;br/&gt;bukti_potong_date&lt;br/&gt;status&lt;br/&gt;🔗 replaces_bukti_potong_id&lt;br/&gt;🔗 coretax_export_batch_id&lt;br/&gt;created_by&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#F6E9EF;strokeColor=#8B3A62;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="838" width="260" height="362" as="geometry"/>
+        </mxCell>
+        <mxCell id="c70" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;tax_periods&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 company_id&lt;br/&gt;obligation_type&lt;br/&gt;period_year&lt;br/&gt;period_month&lt;br/&gt;due_date&lt;br/&gt;filing_status&lt;br/&gt;filed_at&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#F6E9EF;strokeColor=#8B3A62;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="1230" width="260" height="182" as="geometry"/>
+        </mxCell>
+        <mxCell id="c71" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;tax_coretax_export_batches&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;uuid&lt;br/&gt;🔗 company_id&lt;br/&gt;batch_type&lt;br/&gt;period_year&lt;br/&gt;period_month&lt;br/&gt;file_path&lt;br/&gt;record_count&lt;br/&gt;generated_by&lt;br/&gt;generated_at&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#F6E9EF;strokeColor=#8B3A62;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="1442" width="260" height="218" as="geometry"/>
+        </mxCell>
+        <mxCell id="c72" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;recurring_journal_templates&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 company_id&lt;br/&gt;name&lt;br/&gt;recurrence_rule&lt;br/&gt;next_run_date&lt;br/&gt;🔗 currency_code&lt;br/&gt;is_active&lt;br/&gt;created_by&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#EAF0F7;strokeColor=#3D6B9E;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="1160" y="40" width="260" height="182" as="geometry"/>
+        </mxCell>
+        <mxCell id="c73" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;recurring_journal_template_lines&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 template_id&lt;br/&gt;🔗 account_id&lt;br/&gt;🔗 cost_center_id&lt;br/&gt;description&lt;br/&gt;debit_amount&lt;br/&gt;credit_amount&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#EAF0F7;strokeColor=#3D6B9E;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="1160" y="252" width="260" height="164" as="geometry"/>
+        </mxCell>
+        <mxCell id="c74" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;recurring_ar_templates&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 company_id&lt;br/&gt;name&lt;br/&gt;🔗 partner_id &lt;i&gt;(→ CRM.partners)&lt;/i&gt;&lt;br/&gt;recurrence_rule&lt;br/&gt;next_run_date&lt;br/&gt;🔗 currency_code&lt;br/&gt;description&lt;br/&gt;amount&lt;br/&gt;🔗 revenue_account_id&lt;br/&gt;🔗 tax_code_id&lt;br/&gt;is_active&lt;br/&gt;created_by&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#EAF0F7;strokeColor=#3D6B9E;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="1160" y="446" width="260" height="272" as="geometry"/>
+        </mxCell>
+        <mxCell id="c75" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;recurring_ap_templates&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 company_id&lt;br/&gt;name&lt;br/&gt;🔗 partner_id &lt;i&gt;(→ CRM.partners)&lt;/i&gt;&lt;br/&gt;recurrence_rule&lt;br/&gt;next_run_date&lt;br/&gt;🔗 currency_code&lt;br/&gt;description&lt;br/&gt;amount&lt;br/&gt;🔗 expense_account_id&lt;br/&gt;🔗 withholding_type_id&lt;br/&gt;is_active&lt;br/&gt;created_by&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#EAF0F7;strokeColor=#3D6B9E;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="1160" y="748" width="260" height="272" as="geometry"/>
+        </mxCell>
+        <mxCell id="c76" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;recurring_generation_log&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;template_type&lt;br/&gt;template_id&lt;br/&gt;generated_document_type&lt;br/&gt;generated_document_id&lt;br/&gt;generated_at&lt;br/&gt;status&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#EAF0F7;strokeColor=#3D6B9E;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="1160" y="1050" width="260" height="164" as="geometry"/>
+        </mxCell>
+        <mxCell id="c77" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;audit_logs&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;🔗 company_id&lt;br/&gt;action_type&lt;br/&gt;actor_id&lt;br/&gt;actor_name&lt;br/&gt;record_type&lt;br/&gt;record_id&lt;br/&gt;before_snapshot&lt;br/&gt;after_snapshot&lt;br/&gt;ip_address&lt;br/&gt;created_at&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#F1F2F3;strokeColor=#6B7280;strokeWidth=2;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="1880" y="900" width="260" height="236" as="geometry"/>
+        </mxCell>
+        <mxCell id="c78" value="&lt;div style=&quot;text-align:left;padding:2px;&quot;&gt;&lt;b style=&quot;font-size:13px;&quot;&gt;CRM.partners&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;🔑 id&lt;/b&gt;&lt;br/&gt;uuid&lt;br/&gt;type&lt;br/&gt;name&lt;br/&gt;&lt;i&gt;(owned by CRM module — see CRM_SPECS.md)&lt;/i&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=left;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;dashed=1;fontSize=11;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="1880" y="40" width="260" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="c79" value="parent_account_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#4A5563;" edge="1" parent="1" source="c27" target="c27">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c80" value="fiscal_year_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#4A5563;" edge="1" parent="1" source="c28" target="c29">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c81" value="parent_cost_center_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#4A5563;" edge="1" parent="1" source="c30" target="c30">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c82" value="gl_account_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#8B3A62;" edge="1" parent="1" source="c27" target="c66">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c83" value="gl_payable_account_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#8B3A62;" edge="1" parent="1" source="c27" target="c67">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c84" value="gl_account_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#4A5563;" edge="1" parent="1" source="c27" target="c34">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c85" value="fiscal_period_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#1F5FBF;" edge="1" parent="1" source="c29" target="c35">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c86" value="reversed_journal_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#1F5FBF;" edge="1" parent="1" source="c35" target="c35">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c87" value="journal_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#1F5FBF;" edge="1" parent="1" source="c35" target="c36">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c88" value="account_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#1F5FBF;" edge="1" parent="1" source="c27" target="c36">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c89" value="cost_center_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#1F5FBF;" edge="1" parent="1" source="c30" target="c36">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c90" value="partner_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#1E7F5C;dashed=1;" edge="1" parent="1" source="c78" target="c37">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c91" value="tax_code_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#1E7F5C;" edge="1" parent="1" source="c66" target="c37">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c92" value="journal_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#1E7F5C;" edge="1" parent="1" source="c35" target="c37">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c93" value="faktur_pajak_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#1E7F5C;" edge="1" parent="1" source="c68" target="c37">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c94" value="invoice_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#1E7F5C;" edge="1" parent="1" source="c37" target="c38">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c95" value="revenue_account_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#1E7F5C;" edge="1" parent="1" source="c27" target="c38">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c96" value="tax_code_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#1E7F5C;" edge="1" parent="1" source="c66" target="c38">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c97" value="cost_center_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#1E7F5C;" edge="1" parent="1" source="c30" target="c38">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c98" value="partner_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#1E7F5C;dashed=1;" edge="1" parent="1" source="c78" target="c39">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c99" value="bank_account_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#1E7F5C;" edge="1" parent="1" source="c34" target="c39">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c100" value="journal_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#1E7F5C;" edge="1" parent="1" source="c35" target="c39">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c101" value="payment_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#1E7F5C;" edge="1" parent="1" source="c39" target="c40">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c102" value="invoice_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#1E7F5C;" edge="1" parent="1" source="c37" target="c40">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c103" value="partner_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#1E7F5C;dashed=1;" edge="1" parent="1" source="c78" target="c41">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c104" value="invoice_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#1E7F5C;" edge="1" parent="1" source="c37" target="c41">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c105" value="journal_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#1E7F5C;" edge="1" parent="1" source="c35" target="c41">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c106" value="credit_note_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#1E7F5C;" edge="1" parent="1" source="c41" target="c42">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c107" value="revenue_account_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#1E7F5C;" edge="1" parent="1" source="c27" target="c42">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c108" value="tax_code_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#1E7F5C;" edge="1" parent="1" source="c66" target="c42">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c109" value="partner_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#C1332B;dashed=1;" edge="1" parent="1" source="c78" target="c43">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c110" value="withholding_type_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#C1332B;" edge="1" parent="1" source="c67" target="c43">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c111" value="journal_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#C1332B;" edge="1" parent="1" source="c35" target="c43">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c112" value="bukti_potong_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#C1332B;" edge="1" parent="1" source="c69" target="c43">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c113" value="bill_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#C1332B;" edge="1" parent="1" source="c43" target="c44">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c114" value="expense_account_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#C1332B;" edge="1" parent="1" source="c27" target="c44">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c115" value="cost_center_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#C1332B;" edge="1" parent="1" source="c30" target="c44">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c116" value="partner_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#C1332B;dashed=1;" edge="1" parent="1" source="c78" target="c45">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c117" value="bank_account_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#C1332B;" edge="1" parent="1" source="c34" target="c45">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c118" value="journal_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#C1332B;" edge="1" parent="1" source="c35" target="c45">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c119" value="payment_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#C1332B;" edge="1" parent="1" source="c45" target="c46">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c120" value="bill_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#C1332B;" edge="1" parent="1" source="c43" target="c46">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c121" value="partner_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#C1332B;dashed=1;" edge="1" parent="1" source="c78" target="c47">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c122" value="bill_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#C1332B;" edge="1" parent="1" source="c43" target="c47">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c123" value="journal_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#C1332B;" edge="1" parent="1" source="c35" target="c47">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c124" value="debit_note_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#C1332B;" edge="1" parent="1" source="c47" target="c48">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c125" value="expense_account_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#C1332B;" edge="1" parent="1" source="c27" target="c48">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c126" value="bank_account_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#5B4FCF;" edge="1" parent="1" source="c34" target="c49">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c127" value="counter_bank_account_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#5B4FCF;" edge="1" parent="1" source="c34" target="c49">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c128" value="gl_offset_account_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#5B4FCF;" edge="1" parent="1" source="c27" target="c49">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c129" value="journal_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#5B4FCF;" edge="1" parent="1" source="c35" target="c49">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c130" value="bank_account_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#5B4FCF;" edge="1" parent="1" source="c34" target="c50">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c131" value="import_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#5B4FCF;" edge="1" parent="1" source="c50" target="c51">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c132" value="bank_account_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#5B4FCF;" edge="1" parent="1" source="c34" target="c51">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c133" value="matched_cash_transaction_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#5B4FCF;" edge="1" parent="1" source="c49" target="c51">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c134" value="bank_account_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#5B4FCF;" edge="1" parent="1" source="c34" target="c52">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c135" value="reconciliation_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#5B4FCF;" edge="1" parent="1" source="c52" target="c53">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c136" value="statement_line_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#5B4FCF;" edge="1" parent="1" source="c51" target="c53">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c137" value="cash_transaction_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#5B4FCF;" edge="1" parent="1" source="c49" target="c53">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c138" value="asset_group_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#B5760A;" edge="1" parent="1" source="c33" target="c54">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c139" value="vendor_partner_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#B5760A;dashed=1;" edge="1" parent="1" source="c78" target="c54">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c140" value="source_bill_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#B5760A;" edge="1" parent="1" source="c43" target="c54">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c141" value="gl_asset_account_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#B5760A;" edge="1" parent="1" source="c27" target="c54">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c142" value="gl_depreciation_expense_account_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#B5760A;" edge="1" parent="1" source="c27" target="c54">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c143" value="gl_accum_depreciation_account_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#B5760A;" edge="1" parent="1" source="c27" target="c54">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c144" value="asset_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#B5760A;" edge="1" parent="1" source="c54" target="c55">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c145" value="fiscal_period_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#B5760A;" edge="1" parent="1" source="c29" target="c55">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c146" value="journal_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#B5760A;" edge="1" parent="1" source="c35" target="c55">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c147" value="asset_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#B5760A;" edge="1" parent="1" source="c54" target="c56">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c148" value="fiscal_period_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#B5760A;" edge="1" parent="1" source="c29" target="c56">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c149" value="asset_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#B5760A;" edge="1" parent="1" source="c54" target="c57">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c150" value="journal_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#B5760A;" edge="1" parent="1" source="c35" target="c57">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c151" value="inventory_account_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#0E7490;" edge="1" parent="1" source="c27" target="c58">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c152" value="cogs_account_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#0E7490;" edge="1" parent="1" source="c27" target="c58">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c153" value="item_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#0E7490;" edge="1" parent="1" source="c58" target="c59">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c154" value="journal_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#0E7490;" edge="1" parent="1" source="c35" target="c59">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c155" value="item_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#0E7490;" edge="1" parent="1" source="c58" target="c60">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c156" value="source_account_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#7C5C1E;" edge="1" parent="1" source="c27" target="c61">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c157" value="source_cost_center_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#7C5C1E;" edge="1" parent="1" source="c30" target="c61">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c158" value="rule_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#7C5C1E;" edge="1" parent="1" source="c61" target="c62">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c159" value="target_cost_center_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#7C5C1E;" edge="1" parent="1" source="c30" target="c62">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c160" value="rule_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#7C5C1E;" edge="1" parent="1" source="c61" target="c63">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c161" value="run_period_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#7C5C1E;" edge="1" parent="1" source="c29" target="c63">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c162" value="journal_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#7C5C1E;" edge="1" parent="1" source="c35" target="c63">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c163" value="fiscal_year_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#7C5C1E;" edge="1" parent="1" source="c28" target="c64">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c164" value="budget_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#7C5C1E;" edge="1" parent="1" source="c64" target="c65">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c165" value="account_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#7C5C1E;" edge="1" parent="1" source="c27" target="c65">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c166" value="cost_center_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#7C5C1E;" edge="1" parent="1" source="c30" target="c65">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c167" value="fiscal_period_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#7C5C1E;" edge="1" parent="1" source="c29" target="c65">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c168" value="ar_invoice_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#8B3A62;" edge="1" parent="1" source="c37" target="c68">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c169" value="ap_bill_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#8B3A62;" edge="1" parent="1" source="c43" target="c68">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c170" value="partner_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#8B3A62;dashed=1;" edge="1" parent="1" source="c78" target="c68">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c171" value="replaces_faktur_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#8B3A62;" edge="1" parent="1" source="c68" target="c68">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c172" value="coretax_export_batch_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#8B3A62;" edge="1" parent="1" source="c71" target="c68">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c173" value="ap_bill_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#8B3A62;" edge="1" parent="1" source="c43" target="c69">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c174" value="ap_payment_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#8B3A62;" edge="1" parent="1" source="c45" target="c69">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c175" value="partner_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#8B3A62;dashed=1;" edge="1" parent="1" source="c78" target="c69">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c176" value="replaces_bukti_potong_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#8B3A62;" edge="1" parent="1" source="c69" target="c69">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c177" value="coretax_export_batch_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#8B3A62;" edge="1" parent="1" source="c71" target="c69">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c178" value="template_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#3D6B9E;" edge="1" parent="1" source="c72" target="c73">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c179" value="account_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#3D6B9E;" edge="1" parent="1" source="c27" target="c73">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c180" value="cost_center_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#3D6B9E;" edge="1" parent="1" source="c30" target="c73">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c181" value="partner_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#3D6B9E;dashed=1;" edge="1" parent="1" source="c78" target="c74">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c182" value="revenue_account_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#3D6B9E;" edge="1" parent="1" source="c27" target="c74">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c183" value="tax_code_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#3D6B9E;" edge="1" parent="1" source="c66" target="c74">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c184" value="partner_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#3D6B9E;dashed=1;" edge="1" parent="1" source="c78" target="c75">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c185" value="expense_account_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#3D6B9E;" edge="1" parent="1" source="c27" target="c75">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="c186" value="withholding_type_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;fontSize=9;strokeWidth=1;jettySize=auto;strokeColor=#3D6B9E;" edge="1" parent="1" source="c67" target="c75">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
