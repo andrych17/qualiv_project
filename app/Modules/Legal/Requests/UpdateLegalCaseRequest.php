@@ -29,7 +29,7 @@ class UpdateLegalCaseRequest extends FormRequest
     {
         $validator->after(function (Validator $validator) {
             /** @var LegalCase|null $case */
-            $case = $this->route('case');
+            $case = $this->route('legalCase');
             if (LegalCase::query()
                 ->where('code', $this->input('code'))
                 ->when($case, fn ($q) => $q->where('id', '!=', $case->id))

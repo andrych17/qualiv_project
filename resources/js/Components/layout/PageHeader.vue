@@ -1,4 +1,4 @@
-<!-- ponytail: Simple PageHeader component with slots for action items -->
+<!-- ponytail: PageHeader — H1 uses display serif (DESIGN.md) -->
 <script setup lang="ts">
 defineProps<{
   title: string
@@ -7,12 +7,12 @@ defineProps<{
 </script>
 
 <template>
-  <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 pb-5">
+  <div class="flex flex-col gap-1 border-b border-border pb-5 sm:flex-row sm:items-center sm:justify-between">
     <div>
-      <h1 class="text-2xl font-bold tracking-tight text-gray-900">{{ title }}</h1>
-      <p v-if="description" class="text-sm text-gray-500 mt-1">{{ description }}</p>
+      <h1 class="font-serif text-[1.75rem] font-semibold tracking-tight text-ink-900">{{ title }}</h1>
+      <p v-if="description" class="mt-1 text-sm text-ink-600">{{ description }}</p>
     </div>
-    <div class="flex items-center gap-3 mt-4 sm:mt-0">
+    <div class="mt-4 flex items-center gap-3 sm:mt-0">
       <slot name="actions" />
     </div>
   </div>

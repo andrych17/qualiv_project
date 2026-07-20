@@ -95,4 +95,4 @@ Minimal and functional only: state transitions (hover, focus, expand/collapse), 
 - [ ] Finalize whether Source Serif 4 / Inter / IBM Plex Mono are locally hosted or loaded via a font CDN, given the VPS/Nginx setup.
 - [x] Icon set choice (needs to cover legal-specific iconography: gavel, case file, court date, etc. — likely a general set + a small custom set for Legal).
 - [x] Dark mode palette (deferred until core light-mode components are stable).
-- [ ] Formalize this into an actual token file (CSS variables / Tailwind config) once the Vue.js component library scaffolding begins.
+- [x] Formalize this into an actual token file (CSS variables / Tailwind config) once the Vue.js component library scaffolding begins. (`resources/css/app.css` + `tailwind.config.js`)

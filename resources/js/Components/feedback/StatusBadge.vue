@@ -1,4 +1,4 @@
-<!-- ponytail: StatusBadge mapping status string to colors -->
+<!-- ponytail: DESIGN.md Status Badge — pill reserved for status; color + label -->
 <script setup lang="ts">
 import { computed } from 'vue'
 
@@ -13,20 +13,25 @@ const displayLabel = computed(() => {
   if (props.label) return props.label
   return normalizedStatus.value
     .replace(/_/g, ' ')
-    .replace(/\b\w/g, char => char.toUpperCase())
+    .replace(/\b\w/g, (char) => char.toUpperCase())
 })
 
+/** Maps domain status → semantic signal (DESIGN.md). */
 const badgeClass = computed(() => {
   const map: Record<string, string> = {
-    active: 'bg-green-100 text-green-700 border-green-200',
-    approved: 'bg-green-100 text-green-700 border-green-200',
-    inactive: 'bg-gray-100 text-gray-700 border-gray-200',
-    archived: 'bg-red-100 text-red-700 border-red-200',
-    rejected: 'bg-red-100 text-red-700 border-red-200',
-    pending: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+    open: 'bg-signal-info/10 text-signal-info border-signal-info/25',
+    active: 'bg-signal-success/10 text-signal-success border-signal-success/25',
+    approved: 'bg-signal-success/10 text-signal-success border-signal-success/25',
+    closed: 'bg-signal-success/10 text-signal-success border-signal-success/25',
+    completed: 'bg-signal-success/10 text-signal-success border-signal-success/25',
+    pending: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
+    inactive: 'bg-surface-50 text-ink-600 border-border',
+    archived: 'bg-signal-danger/10 text-signal-danger border-signal-danger/25',
+    rejected: 'bg-signal-danger/10 text-signal-danger border-signal-danger/25',
+    overdue: 'bg-signal-danger/10 text-signal-danger border-signal-danger/25',
   }
 
-  return map[normalizedStatus.value] ?? 'bg-gray-100 text-gray-700 border-gray-200'
+  return map[normalizedStatus.value] ?? 'bg-surface-50 text-ink-600 border-border'
 })
 </script>
 

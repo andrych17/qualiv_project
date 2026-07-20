@@ -1,3 +1,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* DESIGN.md — Ink & Signal tokens */
+:root {
+  --color-ink-900: #12181f;
+  --color-ink-600: #4a5563;
+  --color-surface-0: #ffffff;
+  --color-surface-50: #f4f6f8;
+  --color-border: #dee3e8;
+  --color-accent: #1f5fbf;
+  --color-signal-success: #1e7f5c;
+  --color-signal-warning: #b5760a;
+  --color-signal-danger: #c1332b;
+  --color-signal-info: #5b4fcf;
+}
+
+@layer base {
+  body {
+    @apply bg-surface-50 text-ink-900 antialiased;
+  }
+}

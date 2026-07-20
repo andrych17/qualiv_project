@@ -58,6 +58,4 @@ Common artisan: `docker compose exec app php artisan <command>` (migrate, test, 
 - **Frontend Pages**: `resources/js/Pages/<Module>/...`.
 - **Reusable UI**: `resources/js/Components/`.
 
-See **[CLAUDE.md](CLAUDE.md)** for architecture rules and full command reference.
-
-Architecture (DB, code, custom fields/logic): **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**.
+See **[CLAUDE.md](CLAUDE.md)** for agent rules. Architecture detail: **[ARCHITECTURE.md](ARCHITECTURE.md)**. Design: **[resources/DESIGN.md](resources/DESIGN.md)**.

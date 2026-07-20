@@ -252,6 +252,6 @@ UI: System → Constants (`/config/consts`).
 
 ## Related
 
-- Multi-tenancy & schemas: [CLAUDE.md](../CLAUDE.md) §4, §7
+- Agent guidance: [CLAUDE.md](CLAUDE.md)
+- Design system: [resources/DESIGN.md](resources/DESIGN.md)
 - Plan gates: `config/tenant_modules.php`, `TenantFeatureService`
-- Design: [resources/DESIGN.md](../resources/DESIGN.md)
