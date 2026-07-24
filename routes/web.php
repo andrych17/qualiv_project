@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DesignSystemController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TenantSwitchController;
 use Illuminate\Support\Facades\Route;
@@ -16,6 +17,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/tenant/switch', TenantSwitchController::class)->name('tenant.switch');
+
+    Route::get('/design-system', DesignSystemController::class)
+        ->middleware('menu.perm:DESIGN_SYSTEM')
+        ->name('design-system');
 });
 
 require __DIR__.'/auth.php';

@@ -81,6 +81,7 @@ class SysConfigSeeder extends Seeder
             ['code' => 'CONFIG_USERS', 'menu_header' => 'System', 'menu_caption' => 'Users', 'menu_link' => '/config/users', 'icon' => 'UserRoundCog', 'seq' => 215, 'status_code' => 'A'],
             ['code' => 'CONFIG_CONSTS', 'menu_header' => 'System', 'menu_caption' => 'Constants', 'menu_link' => '/config/consts', 'icon' => 'SlidersHorizontal', 'seq' => 220, 'status_code' => 'A'],
             ['code' => 'CONFIG_SERIALS', 'menu_header' => 'System', 'menu_caption' => 'Serials', 'menu_link' => '/config/serials', 'icon' => 'Hash', 'seq' => 225, 'status_code' => 'A'],
+            ['code' => 'DESIGN_SYSTEM', 'menu_header' => 'System', 'menu_caption' => 'Komponen UI', 'menu_link' => '/design-system', 'icon' => 'Layers', 'seq' => 230, 'status_code' => 'A'],
 
             // Placeholder — keep rows, status I until module ships
             ['code' => 'CRM', 'menu_header' => 'Core', 'menu_caption' => 'CRM', 'menu_link' => '#', 'icon' => 'Users', 'seq' => 20, 'status_code' => 'I'],
@@ -128,11 +129,13 @@ class SysConfigSeeder extends Seeder
                 'DASHBOARD' => 'R',
                 'INVENTORY' => 'CRUD',
                 'LEGAL' => 'CRUD',
+                'DESIGN_SYSTEM' => 'R',
             ],
             'VIEWER' => [
                 'DASHBOARD' => 'R',
                 'INVENTORY' => 'R',
                 'LEGAL' => 'R',
+                'DESIGN_SYSTEM' => 'R',
             ],
         ];
 
