@@ -1,0 +1,305 @@
+<?xml version="1.0" ?>
+<mxfile host="app.diagrams.net" version="24.7.5">
+  <diagram id="hcm-dfd" name="HCM - DFD (Level 1)">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2200" pageHeight="1600" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="HCM Module — Level-1 Data Flow Diagram (Gane-Sarson notation)" style="text;html=1;fontSize=20;fontStyle=1;fontColor=#12181F;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="16" width="1000" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_0" value="Square = External Entity" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;fontColor=#12181F;fontSize=11;strokeColor=#DEE3E8;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="16" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_1" value="Rounded = Process (internal to HCM)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1F5FBF;fontColor=#FFFFFF;fontSize=11;strokeColor=#DEE3E8;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="48" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_2" value="Open bar = Data Store" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F4F6F8;fontColor=#12181F;fontSize=11;strokeColor=#DEE3E8;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="80" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_3" value="Dashed = Cross-module / Future Version" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;fontColor=#4A5563;fontSize=11;strokeColor=#DEE3E8;align=left;spacingLeft=8;dashed=1;dashPattern=4 3;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="112" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="ext_employee" value="Employee" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=1.5;fontSize=12;fontStyle=1;fontColor=#12181F;align=center;" vertex="1" parent="1">
+          <mxGeometry x="40" y="140" width="180" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="ext_manager" value="Manager" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=1.5;fontSize=12;fontStyle=1;fontColor=#12181F;align=center;" vertex="1" parent="1">
+          <mxGeometry x="40" y="360" width="180" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="ext_hr_admin" value="HR Admin" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=1.5;fontSize=12;fontStyle=1;fontColor=#12181F;align=center;" vertex="1" parent="1">
+          <mxGeometry x="40" y="580" width="180" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="ext_bank" value="Bank
+(payment file recipient)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=1.5;fontSize=12;fontStyle=1;fontColor=#12181F;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1780" y="700" width="180" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="ext_wne" value="WNE
+(Workflow &amp;amp; Notification Engine)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=1.5;fontSize=12;fontStyle=1;fontColor=#12181F;align=center;dashed=1;dashPattern=4 3;strokeColor=#4A5563;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="1780" y="140" width="180" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="ext_dms" value="DMS
+(Document Management)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=1.5;fontSize=12;fontStyle=1;fontColor=#12181F;align=center;dashed=1;dashPattern=4 3;strokeColor=#4A5563;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="1780" y="360" width="180" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="ext_schedule" value="Schedule
+(Calendar &amp;amp; Scheduling)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=1.5;fontSize=12;fontStyle=1;fontColor=#12181F;align=center;dashed=1;dashPattern=4 3;strokeColor=#4A5563;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="1780" y="940" width="180" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="p1" value="1.0
+Onboard Employee
+(Hire)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1F5FBF;strokeColor=#1F5FBF;fontColor=#FFFFFF;fontSize=12;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="420" y="60" width="200" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="p2" value="2.0
+Manage Attendance
+(Clock In/Out)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1F5FBF;strokeColor=#1F5FBF;fontColor=#FFFFFF;fontSize=12;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="420" y="260" width="200" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="p3" value="3.0
+Process Leave Request" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1F5FBF;strokeColor=#1F5FBF;fontColor=#FFFFFF;fontSize=12;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="420" y="460" width="200" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="p4" value="4.0
+Run Payroll" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1F5FBF;strokeColor=#1F5FBF;fontColor=#FFFFFF;fontSize=12;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="900" y="60" width="200" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="p5" value="5.0
+Generate THR" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1F5FBF;strokeColor=#1F5FBF;fontColor=#FFFFFF;fontSize=12;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="900" y="260" width="200" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="p6" value="6.0
+Employee Self-Service
+Portal (ESS)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1F5FBF;strokeColor=#1F5FBF;fontColor=#FFFFFF;fontSize=12;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="900" y="460" width="200" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="p7" value="7.0
+Process Attendance
+Correction" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1F5FBF;strokeColor=#1F5FBF;fontColor=#FFFFFF;fontSize=12;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="60" width="200" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="d1" value="D1  Employees &amp;amp; Org
+(HCM.employees, positions, org_units)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=0;left=0;bottom=0;right=0;fillColor=#F4F6F8;strokeColor=#12181F;strokeWidth=1.5;fontSize=11;fontColor=#12181F;align=left;spacingLeft=10;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="420" y="700" width="260" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="d1_top" style="line;strokeColor=#12181F;strokeWidth=1.5;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="420" y="700" as="sourcePoint"/>
+            <mxPoint x="680" y="700" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d1_bottom" style="line;strokeColor=#12181F;strokeWidth=1.5;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="420" y="750" as="sourcePoint"/>
+            <mxPoint x="680" y="750" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d2" value="D2  Employment Contracts
+(HCM.employment_contracts)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=0;left=0;bottom=0;right=0;fillColor=#F4F6F8;strokeColor=#12181F;strokeWidth=1.5;fontSize=11;fontColor=#12181F;align=left;spacingLeft=10;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="900" y="700" width="260" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="d2_top" style="line;strokeColor=#12181F;strokeWidth=1.5;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="900" y="700" as="sourcePoint"/>
+            <mxPoint x="1160" y="700" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d2_bottom" style="line;strokeColor=#12181F;strokeWidth=1.5;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="900" y="750" as="sourcePoint"/>
+            <mxPoint x="1160" y="750" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d3" value="D3  Attendance Logs
+(HCM.attendance_logs, shift_assignments)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=0;left=0;bottom=0;right=0;fillColor=#F4F6F8;strokeColor=#12181F;strokeWidth=1.5;fontSize=11;fontColor=#12181F;align=left;spacingLeft=10;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="260" width="260" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="d3_top" style="line;strokeColor=#12181F;strokeWidth=1.5;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1340" y="260" as="sourcePoint"/>
+            <mxPoint x="1600" y="260" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d3_bottom" style="line;strokeColor=#12181F;strokeWidth=1.5;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1340" y="310" as="sourcePoint"/>
+            <mxPoint x="1600" y="310" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d4" value="D4  Leave Balances &amp;amp; Requests
+(HCM.leave_balances, leave_requests)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=0;left=0;bottom=0;right=0;fillColor=#F4F6F8;strokeColor=#12181F;strokeWidth=1.5;fontSize=11;fontColor=#12181F;align=left;spacingLeft=10;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="460" width="260" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="d4_top" style="line;strokeColor=#12181F;strokeWidth=1.5;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1340" y="460" as="sourcePoint"/>
+            <mxPoint x="1600" y="460" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d4_bottom" style="line;strokeColor=#12181F;strokeWidth=1.5;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1340" y="510" as="sourcePoint"/>
+            <mxPoint x="1600" y="510" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d5" value="D5  Payroll Run Items
+(HCM.payroll_run_items, thr_run_items)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=0;left=0;bottom=0;right=0;fillColor=#F4F6F8;strokeColor=#12181F;strokeWidth=1.5;fontSize=11;fontColor=#12181F;align=left;spacingLeft=10;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="420" y="940" width="260" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="d5_top" style="line;strokeColor=#12181F;strokeWidth=1.5;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="420" y="940" as="sourcePoint"/>
+            <mxPoint x="680" y="940" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d5_bottom" style="line;strokeColor=#12181F;strokeWidth=1.5;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="420" y="990" as="sourcePoint"/>
+            <mxPoint x="680" y="990" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d6" value="D6  Statutory Rate Tables
+(HCM.ptkp_statuses, ter_rates, bpjs_rates)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=0;left=0;bottom=0;right=0;fillColor=#F4F6F8;strokeColor=#12181F;strokeWidth=1.5;fontSize=11;fontColor=#12181F;align=left;spacingLeft=10;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="900" y="940" width="260" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="d6_top" style="line;strokeColor=#12181F;strokeWidth=1.5;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="900" y="940" as="sourcePoint"/>
+            <mxPoint x="1160" y="940" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d6_bottom" style="line;strokeColor=#12181F;strokeWidth=1.5;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="900" y="990" as="sourcePoint"/>
+            <mxPoint x="1160" y="990" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow_0" value="new hire details" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#12181F;strokeWidth=1;" edge="1" parent="1" source="ext_hr_admin" target="p1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_1" value="employee + position record" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#12181F;strokeWidth=1;" edge="1" parent="1" source="p1" target="d1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_2" value="employment contract" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#12181F;strokeWidth=1;" edge="1" parent="1" source="p1" target="d2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_3" value="store contract / ID docs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#4A5563;strokeWidth=1;dashed=1;dashPattern=4 3;" edge="1" parent="1" source="p1" target="ext_dms">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_4" value="contract expiring / probation ending reminder" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#4A5563;strokeWidth=1;dashed=1;dashPattern=4 3;" edge="1" parent="1" source="p1" target="ext_wne">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_5" value="clock in / clock out" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#12181F;strokeWidth=1;" edge="1" parent="1" source="ext_employee" target="p2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_6" value="attendance log" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#12181F;strokeWidth=1;" edge="1" parent="1" source="p2" target="d3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_7" value="shift assignment" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#12181F;strokeWidth=1;" edge="1" parent="1" source="d1" target="p2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_8" value="mirrored shift calendar (optional)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#4A5563;strokeWidth=1;dashed=1;dashPattern=4 3;" edge="1" parent="1" source="ext_schedule" target="p2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_9" value="correction request" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#12181F;strokeWidth=1;" edge="1" parent="1" source="ext_employee" target="p7">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_10" value="correction record" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#12181F;strokeWidth=1;" edge="1" parent="1" source="p7" target="d3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_11" value="approval request" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#4A5563;strokeWidth=1;dashed=1;dashPattern=4 3;" edge="1" parent="1" source="p7" target="ext_wne">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_12" value="approve / reject correction" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#4A5563;strokeWidth=1;dashed=1;dashPattern=4 3;" edge="1" parent="1" source="ext_manager" target="ext_wne">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_13" value="approval decision" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#4A5563;strokeWidth=1;dashed=1;dashPattern=4 3;" edge="1" parent="1" source="ext_wne" target="p7">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_14" value="leave request" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#12181F;strokeWidth=1;" edge="1" parent="1" source="ext_employee" target="p3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_15" value="leave request + balance update" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#12181F;strokeWidth=1;" edge="1" parent="1" source="p3" target="d4">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_16" value="approval request (workflow_code=hcm.leave_approval)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#4A5563;strokeWidth=1;dashed=1;dashPattern=4 3;" edge="1" parent="1" source="p3" target="ext_wne">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_17" value="approve / reject leave" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#4A5563;strokeWidth=1;dashed=1;dashPattern=4 3;" edge="1" parent="1" source="ext_manager" target="ext_wne">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_18" value="approval decision" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#4A5563;strokeWidth=1;dashed=1;dashPattern=4 3;" edge="1" parent="1" source="ext_wne" target="p3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_19" value="store attachment (e.g. doctor's note)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#4A5563;strokeWidth=1;dashed=1;dashPattern=4 3;" edge="1" parent="1" source="p3" target="ext_dms">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_20" value="employee + salary data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#12181F;strokeWidth=1;" edge="1" parent="1" source="d1" target="p4">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_21" value="base salary / contract status" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#12181F;strokeWidth=1;" edge="1" parent="1" source="d2" target="p4">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_22" value="attendance-derived overtime" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#12181F;strokeWidth=1;" edge="1" parent="1" source="d3" target="p4">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_23" value="unpaid leave days" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#12181F;strokeWidth=1;" edge="1" parent="1" source="d4" target="p4">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_24" value="PTKP / TER / BPJS rates" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#12181F;strokeWidth=1;" edge="1" parent="1" source="d6" target="p4">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_25" value="payroll run item + payslip" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#12181F;strokeWidth=1;" edge="1" parent="1" source="p4" target="d5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_26" value="payroll approval request (workflow_code=hcm.payroll_approval)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#4A5563;strokeWidth=1;dashed=1;dashPattern=4 3;" edge="1" parent="1" source="p4" target="ext_wne">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_27" value="approve payroll run" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#4A5563;strokeWidth=1;dashed=1;dashPattern=4 3;" edge="1" parent="1" source="ext_hr_admin" target="ext_wne">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_28" value="approval decision" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#4A5563;strokeWidth=1;dashed=1;dashPattern=4 3;" edge="1" parent="1" source="ext_wne" target="p4">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_29" value="payment file (approved run)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#12181F;strokeWidth=1;" edge="1" parent="1" source="p4" target="ext_bank">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_30" value="store payslip" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#4A5563;strokeWidth=1;dashed=1;dashPattern=4 3;" edge="1" parent="1" source="p4" target="ext_dms">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_31" value="tenure + base salary" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#12181F;strokeWidth=1;" edge="1" parent="1" source="d1" target="p5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_32" value="THR run item" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#12181F;strokeWidth=1;" edge="1" parent="1" source="p5" target="d5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_33" value="THR payment due reminder (H-7)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#4A5563;strokeWidth=1;dashed=1;dashPattern=4 3;" edge="1" parent="1" source="p5" target="ext_wne">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_34" value="store THR payslip" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#4A5563;strokeWidth=1;dashed=1;dashPattern=4 3;" edge="1" parent="1" source="p5" target="ext_dms">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_35" value="view profile / payslip / balance / attendance" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#12181F;strokeWidth=1;" edge="1" parent="1" source="ext_employee" target="p6">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_36" value="view team roster / approvals inbox" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#12181F;strokeWidth=1;" edge="1" parent="1" source="ext_manager" target="p6">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_37" value="employee profile" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#12181F;strokeWidth=1;" edge="1" parent="1" source="d1" target="p6">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_38" value="attendance summary" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#12181F;strokeWidth=1;" edge="1" parent="1" source="d3" target="p6">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_39" value="leave balance" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#12181F;strokeWidth=1;" edge="1" parent="1" source="d4" target="p6">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_40" value="payslip history" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#12181F;strokeWidth=1;" edge="1" parent="1" source="d5" target="p6">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_41" value="fetch documents" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;strokeColor=#4A5563;strokeWidth=1;dashed=1;dashPattern=4 3;" edge="1" parent="1" source="p6" target="ext_dms">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

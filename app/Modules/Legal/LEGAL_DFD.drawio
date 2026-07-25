@@ -1,0 +1,258 @@
+<mxfile host="app.diagrams.net" modified="2026-07-24T00:00:00.000Z" agent="legal-dfd-generator" version="24.0.0" type="device">
+  <diagram id="legal-dfd" name="LEGAL Module - DFD (Level 1)">
+    <mxGraphModel dx="1400" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1300" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="ext_2" value="Client / Party
+(via CRM)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#12181F;strokeColor=#12181F;fontColor=#FFFFFF;fontStyle=1;fontSize=12;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="20" y="260" width="170" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="ext_3" value="Notary / PPAT
+Staff (internal user)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#12181F;strokeColor=#12181F;fontColor=#FFFFFF;fontStyle=1;fontSize=12;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="20" y="500" width="170" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="ext_4" value="Field Operator
+(mobile)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#12181F;strokeColor=#12181F;fontColor=#FFFFFF;fontStyle=1;fontSize=12;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="20" y="900" width="170" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="ext_5" value="DJP Coretax /
+Bapenda SSPD" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#12181F;strokeColor=#12181F;fontColor=#FFFFFF;fontStyle=1;fontSize=12;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1650" y="380" width="170" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="ext_6" value="Kantor Pertanahan
+(BPN)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#12181F;strokeColor=#12181F;fontColor=#FFFFFF;fontStyle=1;fontSize=12;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1650" y="620" width="170" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="ext_7" value="AHU Kemenkumham
+(DPW)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#12181F;strokeColor=#12181F;fontColor=#FFFFFF;fontStyle=1;fontSize=12;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1650" y="60" width="170" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="proc_8" value="1.0
+Manage Matter" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#1F5FBF;strokeColor=#1F5FBF;fontColor=#FFFFFF;fontStyle=1;fontSize=11;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="260" y="40" width="200" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="proc_9" value="2.0
+Draft Deed
+(Notary or PPAT)" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#1E7F5C;strokeColor=#1E7F5C;fontColor=#FFFFFF;fontStyle=1;fontSize=11;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="550" y="40" width="200" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="proc_10" value="3.0
+Manage Land Object &amp;
+Due Diligence" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#5B4FCF;strokeColor=#5B4FCF;fontColor=#FFFFFF;fontStyle=1;fontSize=11;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="260" y="260" width="200" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="proc_11" value="4.0
+Compute &amp; Track Tax
+(PPh Final / BPHTB)" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#B5760A;strokeColor=#B5760A;fontColor=#FFFFFF;fontStyle=1;fontSize=11;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="850" y="260" width="200" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="proc_12" value="5.0
+Sign Deed
+(gate: DD clear + tax validated)" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#1E7F5C;strokeColor=#1E7F5C;fontColor=#FFFFFF;fontStyle=1;fontSize=11;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="550" y="260" width="200" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="proc_13" value="6.0
+Register with BPN" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#C1332B;strokeColor=#C1332B;fontColor=#FFFFFF;fontStyle=1;fontSize=11;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="850" y="480" width="200" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="proc_14" value="7.0
+Manage Notary Protocol
+(ledger numbering &amp; handover)" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#12181F;strokeColor=#12181F;fontColor=#FFFFFF;fontStyle=1;fontSize=11;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="550" y="480" width="200" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="proc_15" value="8.0
+Field Visit Operations" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#1F5FBF;strokeColor=#1F5FBF;fontColor=#FFFFFF;fontStyle=1;fontSize=11;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="260" y="700" width="200" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="proc_16" value="9.0
+Track Will / DPW
+Registration" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#4A5563;strokeColor=#4A5563;fontColor=#FFFFFF;fontStyle=1;fontSize=11;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="40" width="200" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="store_17" value="D1 | Matters" style="shape=partialRectangle;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4A5563;fontColor=#12181F;fontSize=10;top=0;bottom=0;left=1;right=1;align=left;spacingLeft=10;fontStyle=1;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="260" y="170" width="190" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="store_18" value="D2 | Deeds &amp; Deed Parties" style="shape=partialRectangle;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4A5563;fontColor=#12181F;fontSize=10;top=0;bottom=0;left=1;right=1;align=left;spacingLeft=10;fontStyle=1;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="550" y="170" width="190" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="store_19" value="D3 | Land Objects &amp; Due
+Diligence Checks" style="shape=partialRectangle;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4A5563;fontColor=#12181F;fontSize=10;top=0;bottom=0;left=1;right=1;align=left;spacingLeft=10;fontStyle=1;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="260" y="400" width="190" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="store_20" value="D4 | Deed Taxes" style="shape=partialRectangle;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4A5563;fontColor=#12181F;fontSize=10;top=0;bottom=0;left=1;right=1;align=left;spacingLeft=10;fontStyle=1;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="850" y="400" width="190" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="store_21" value="D5 | BPN Submissions" style="shape=partialRectangle;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4A5563;fontColor=#12181F;fontSize=10;top=0;bottom=0;left=1;right=1;align=left;spacingLeft=10;fontStyle=1;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="850" y="610" width="190" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="store_22" value="D6 | Protocol Books &amp;
+Entries" style="shape=partialRectangle;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4A5563;fontColor=#12181F;fontSize=10;top=0;bottom=0;left=1;right=1;align=left;spacingLeft=10;fontStyle=1;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="550" y="610" width="190" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="store_23" value="D7 | Field Visits" style="shape=partialRectangle;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4A5563;fontColor=#12181F;fontSize=10;top=0;bottom=0;left=1;right=1;align=left;spacingLeft=10;fontStyle=1;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="260" y="830" width="190" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="store_24" value="D8 | Wills" style="shape=partialRectangle;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4A5563;fontColor=#12181F;fontSize=10;top=0;bottom=0;left=1;right=1;align=left;spacingLeft=10;fontStyle=1;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="170" width="190" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="store_25" value="D9 | DMS Documents
+(Core module)" style="shape=partialRectangle;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4A5563;fontColor=#12181F;fontSize=10;top=0;bottom=0;left=1;right=1;align=left;spacingLeft=10;fontStyle=1;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="550" y="830" width="190" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="store_26" value="D10 | CRM Partners /
+Leads (Core module)" style="shape=partialRectangle;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4A5563;fontColor=#12181F;fontSize=10;top=0;bottom=0;left=1;right=1;align=left;spacingLeft=10;fontStyle=1;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="20" y="130" width="190" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="store_27" value="D11 | Schedule Items
+(Core module)" style="shape=partialRectangle;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4A5563;fontColor=#12181F;fontSize=10;top=0;bottom=0;left=1;right=1;align=left;spacingLeft=10;fontStyle=1;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="20" y="600" width="190" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_28" value="matter request" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="ext_2" target="proc_8">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_29" value="matter record" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="proc_8" target="store_17">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_30" value="assign / update matter" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="ext_3" target="proc_8">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_31" value="partner lookup" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="store_26" target="proc_8">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_32" value="matter context" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="proc_8" target="proc_9">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_33" value="deed details, party info" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="ext_3" target="proc_9">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_34" value="party identity (snapshot)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="store_26" target="proc_9">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_35" value="draft deed + parties" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="proc_9" target="store_18">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_36" value="attach supporting docs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="proc_9" target="store_25">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_37" value="land object reference" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="proc_9" target="proc_10">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_38" value="certificate / PBB / blokir data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="ext_3" target="proc_10">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_39" value="land object + check results" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="proc_10" target="store_19">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_40" value="evidence attachment" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="store_25" target="proc_10">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_41" value="transaction value, party roles" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="proc_9" target="proc_11">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_42" value="prior tax records" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="store_20" target="proc_11">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_43" value="billing code, NTPN" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="ext_3" target="proc_11">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_44" value="tax validation status" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="ext_5" target="proc_11">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_45" value="tax record (status)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="proc_11" target="store_20">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_46" value="deed (ready_for_signing)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="store_18" target="proc_12">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_47" value="due diligence status" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="store_19" target="proc_12">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_48" value="tax status" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="store_20" target="proc_12">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_49" value="sign-off" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="ext_3" target="proc_12">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_50" value="deed (signed)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="proc_12" target="store_18">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_51" value="signing event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="proc_12" target="proc_14">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_52" value="protocol entry (auto-numbered)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="proc_14" target="store_22">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_53" value="active book / sequence" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="store_22" target="proc_14">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_54" value="book handover request" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="ext_3" target="proc_14">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_55" value="handover manifest (future: e-filing)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="proc_14" target="ext_7">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_56" value="will deed reference" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="store_18" target="proc_16">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_57" value="DPW registration number" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="ext_3" target="proc_16">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_58" value="will record (status)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="proc_16" target="store_24">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_59" value="DPW registration (manual, portal)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="proc_16" target="ext_7">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_60" value="signed PPAT deed" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="proc_12" target="proc_13">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_61" value="submission tracking update" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="ext_3" target="proc_13">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_62" value="BPN submission record" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="proc_13" target="store_21">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_63" value="registration package (manual, portal)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="proc_13" target="ext_6">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_64" value="tracking no. / certificate (manual entry)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="ext_6" target="proc_13">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_65" value="resulting certificate" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="proc_13" target="store_25">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_66" value="matter context" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="store_17" target="proc_15">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_67" value="due diligence checklist" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="store_19" target="proc_15">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_68" value="BPN submission checklist" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="store_21" target="proc_15">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_69" value="check-in, GPS, photos, checklist" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="ext_4" target="proc_15">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_70" value="scheduled visit" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="store_27" target="proc_15">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_71" value="field visit record" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="proc_15" target="store_23">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_72" value="field photos / scans" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="proc_15" target="store_25">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_73" value="update: check status" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="proc_15" target="store_19">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow_74" value="update: submission status" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=9;endArrow=block;endFill=1;strokeColor=#4A5563;fontColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="proc_15" target="store_21">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_75" value="&lt;b&gt;Legend (Gane-Sarson)&lt;/b&gt;&lt;br&gt;Black rectangle = External Entity &amp;nbsp;&amp;nbsp; Rounded colored box = Process &amp;nbsp;&amp;nbsp; Open-ended box = Data Store&lt;br&gt;&lt;b&gt;Dashed border / dashed flow&lt;/b&gt; = cross-module reference (Core: CRM / DMS / SCHEDULE) or a manual/portal step outside the platform (DJP Coretax, Bapenda SSPD, Kantor Pertanahan, AHU Kemenkumham) — tracked as status, not integrated. See LEGAL_SPECS.md §5." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#DEE3E8;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="260" y="1010" width="1100" height="90" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
