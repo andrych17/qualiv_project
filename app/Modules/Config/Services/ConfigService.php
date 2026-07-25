@@ -41,7 +41,7 @@ class ConfigService
             ->get()
             ->filter(function (ConfigMenu $m) {
                 // System CONFIG_* always allowed if trustee ok; domain menus need plan flag
-                if (str_starts_with($m->code, 'CONFIG_') || $m->code === 'DASHBOARD') {
+                if (str_starts_with($m->code, 'CONFIG_') || $m->code === 'DASHBOARD' || $m->code === 'DESIGN_SYSTEM') {
                     return true;
                 }
 

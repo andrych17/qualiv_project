@@ -17,6 +17,22 @@ A **SaaS ERP platform**, architected as a **modular monolith** (Odoo-like), with
 
 ## 2. Architecture Philosophy
 
+> Detail for customization (DB / code / custom fields & logic): **[ARCHITECTURE.md](ARCHITECTURE.md)** — keep this ladder in mind on every feature.
+
+### Customization ladder (no `tenant_id` branches)
+Prefer lower rungs first. Same PHP/Vue path; Firm A vs B differ via tenant DB data.
+
+| Rung | What | Where |
+|------|------|--------|
+| 1 | Constants | `SYSCONFIG.config_consts` |
+| 2 | Serials | `SYSCONFIG.config_snums` |
+| 3 | Custom fields | `CUSTOMFIELDS.*` |
+| 4 | Custom logic | Services reading consts + field values / strategies |
+| 5 | Plan / modules | Central `tenants.plan` + `config/tenant_modules.php` |
+| 6 | Vertical module | `app/Modules/Legal` etc. |
+
+**Anti-pattern:** `if (tenant_id === '001')`. **OK:** seed different consts/field defs/snums per firm.
+
 ### Modular monolith first. Microservices/APIs only when justified
 1. Default to building inside the monolith as a well-isolated module.
 2. Only extract a microservice/standalone API when at least one is true:
@@ -77,7 +93,7 @@ Notes:
    - Notifications
    - Workflows (approvals, state machines, task routing)
    - CRM
-   - **CustomFields** (`CUSTOMFIELDS` schema) — EAV + config-driven logic; see `docs/ARCHITECTURE.md`
+   - **CustomFields** (`CUSTOMFIELDS` schema) — EAV + config-driven logic; see `ARCHITECTURE.md`
 3. **Legal vertical module** — first paid, rentable product. Built on top of the core modules above. This is the first real revenue test of the platform; prioritize correctness and UX polish here over speculative generalization for future verticals.
 4. Future verticals (e.g. Property) come after Legal is validated in market — reuse core modules, add vertical-specific modules only.
 
@@ -220,8 +236,8 @@ One-off artisan (examples):
 - Before adding a new module or service, state which category it falls into (Core / Vertical / Microservice) and why, per Section 2 and Section 5.
 - When a task could reasonably be solved either inside the monolith or as a separate service, default to the monolith and flag the tradeoff rather than silently extracting a service.
 - When touching multi-tenant data paths, double-check tenant scoping is present — this is a recurring risk area.
-- Prefer the customization ladder in `docs/ARCHITECTURE.md` (consts → custom fields → logic engine/strategy) over tenant_id branches.
-- Reference `DESIGN.md` before building any new UI component to avoid inventing a parallel design language.
+- Prefer the customization ladder in §2 / `ARCHITECTURE.md` (consts → serials → custom fields → logic) over tenant_id branches.
+- Reference `resources/DESIGN.md` before building any new UI — compose from `resources/js/Components/` (StatusBadge, DataTable Status Rail, Panel, StatCard, PrimaryButton). Do not invent ad hoc gray/indigo chrome.
 - Since this is a commercial SaaS product, when proposing a feature or implementation approach, briefly note if there's a simpler version that would still be sellable (MVP bias), especially for the Legal module which is closest to revenue.
 
 ## 11. Open Items to Fill In As the Project Grows
@@ -231,8 +247,8 @@ One-off artisan (examples):
 - [ ] Billing/subscription module ownership (Core vs. separate service) — plan string exists; payment provider not yet
 - [ ] CI/CD pipeline and deployment process for the Ubuntu VPS
 - [ ] Per-tenant infrastructure limits/monitoring approach
-- [x] `DESIGN.md` — design tokens, component inventory, and design principles (`resources/DESIGN.md`)
+- [x] `DESIGN.md` — design tokens, component inventory (`resources/DESIGN.md`; tokens in `app.css` / Tailwind)
 - [x] Plan/module feature flags (`tenants.plan` + `config/tenant_modules.php` + `module:` middleware)
 - [x] In-tenant menu trustee enforcement (`menu.perm:` middleware)
-- [x] Custom fields + custom logic (`docs/ARCHITECTURE.md`; Legal wired; field-defs admin UI still open)
+- [x] Custom fields + custom logic + serials (`ARCHITECTURE.md`; field-defs admin UI still open)
 

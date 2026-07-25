@@ -7,6 +7,9 @@ use App\Modules\Config\Controllers\ConfigSnumController;
 use App\Modules\Config\Controllers\ConfigUserController;
 use Illuminate\Support\Facades\Route;
 
+// Bare /config → first SysConfig screen (avoids 404 when link/bookmark drops the child path)
+Route::redirect('/config', '/config/menus');
+
 // SysConfig admin screens — ADMIN trustee on CONFIG_* menus
 Route::middleware(['auth', 'verified'])->prefix('config')->name('config.')->group(function () {
     Route::middleware('menu.perm:CONFIG_MENUS')->group(function () {

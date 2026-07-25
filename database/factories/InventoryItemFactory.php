@@ -1,7 +1,5 @@
 <?php
 
-// ponytail: Simple model factory
-
 namespace Database\Factories;
 
 use App\Modules\Inventory\Models\InventoryCategory;
@@ -14,15 +12,20 @@ class InventoryItemFactory extends Factory
 
     public function definition(): array
     {
+        $cat = InventoryCategory::inRandomOrder()->first();
+        if (!$cat) {
+            $cat = InventoryCategory::create(['name' => 'General', 'code' => 'GEN']);
+        }
+
         return [
-            'inventory_category_id' => InventoryCategory::inRandomOrder()->first()->id,
-            'code' => 'ITEM-'.$this->faker->unique()->numberBetween(100, 999),
-            'name' => ucfirst($this->faker->words(2, true)),
-            'description' => $this->faker->sentence(),
-            'stock' => $this->faker->numberBetween(5, 300),
-            'minimum_stock' => $this->faker->numberBetween(10, 50),
-            'unit' => $this->faker->randomElement(['pcs', 'box', 'unit', 'rim', 'kg', 'liter']),
-            'status' => $this->faker->randomElement(['active', 'inactive', 'archived']),
+            'inventory_category_id' => $cat->id,
+            'code' => 'ITEM-'.random_int(100, 99999),
+            'name' => 'Sample Item '.random_int(1, 1000),
+            'description' => 'Description for inventory item',
+            'stock' => random_int(5, 300),
+            'minimum_stock' => random_int(10, 50),
+            'unit' => 'pcs',
+            'status' => 'active',
         ];
     }
 }

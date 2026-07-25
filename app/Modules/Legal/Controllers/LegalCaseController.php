@@ -58,31 +58,31 @@ class LegalCaseController extends Controller
             ->with('success', 'Case created.');
     }
 
-    public function edit(LegalCase $case): Response
+    public function edit(LegalCase $legalCase): Response
     {
         return Inertia::render('Legal/Cases/Edit', [
             'caseItem' => [
-                'id' => $case->id,
-                'code' => $case->code,
-                'title' => $case->title,
-                'status' => $case->status,
-                'notes' => $case->notes,
+                'id' => $legalCase->id,
+                'code' => $legalCase->code,
+                'title' => $legalCase->title,
+                'status' => $legalCase->status,
+                'notes' => $legalCase->notes,
             ],
-            'customFields' => $this->customFields->formPayload(LegalCaseService::ENTITY, $case->id),
+            'customFields' => $this->customFields->formPayload(LegalCaseService::ENTITY, $legalCase->id),
         ]);
     }
 
-    public function update(UpdateLegalCaseRequest $request, LegalCase $case)
+    public function update(UpdateLegalCaseRequest $request, LegalCase $legalCase)
     {
-        $this->service->update($case, $request->validated());
+        $this->service->update($legalCase, $request->validated());
 
         return redirect()->route('legal.cases.index')
             ->with('success', 'Case updated.');
     }
 
-    public function destroy(LegalCase $case)
+    public function destroy(LegalCase $legalCase)
     {
-        $this->service->delete($case);
+        $this->service->delete($legalCase);
 
         return redirect()->route('legal.cases.index')
             ->with('success', 'Case deleted.');

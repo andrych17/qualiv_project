@@ -1,36 +1,47 @@
-<!-- ponytail: Dynamic breadcrumbs parsed from URL path with fallback -->
+<!-- ponytail: Breadcrumbs from URL; remap section roots that have no index page -->
 <script setup lang="ts">
 import { computed } from 'vue'
 import { usePage, Link } from '@inertiajs/vue3'
 import { ChevronRight, Home } from 'lucide-vue-next'
+
+/** Bare /config|/legal|/inventory have no page — link to first real screen. */
+const SECTION_HOME: Record<string, string> = {
+  config: '/config/menus',
+  legal: '/legal/cases',
+  inventory: '/inventory/items',
+}
 
 const page = usePage()
 
 const breadcrumbs = computed(() => {
   const path = page.url.split('?')[0]
   const segments = path.split('/').filter(Boolean)
-  
+
   return segments.map((segment, index) => {
-    const href = '/' + segments.slice(0, index + 1).join('/')
-    const label = segment.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+    const built = '/' + segments.slice(0, index + 1).join('/')
+    const href = SECTION_HOME[built.slice(1)] ?? (SECTION_HOME[segment] && built === `/${segment}` ? SECTION_HOME[segment] : built)
+    const label = segment.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
     return { label, href, active: index === segments.length - 1 }
   })
 })
 </script>
 
 <template>
-  <nav class="flex items-center gap-2 text-sm text-gray-500">
-    <Link :href="route('dashboard')" class="hover:text-gray-900 flex items-center">
+  <nav class="flex items-center gap-2 text-sm text-ink-600">
+    <Link
+      :href="route('dashboard')"
+      class="flex items-center hover:text-ink-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+    >
       <Home class="h-4 w-4" />
     </Link>
-    
-    <div v-for="crumb in breadcrumbs" :key="crumb.href" class="flex items-center gap-2">
-      <ChevronRight class="h-4 w-4 text-gray-400" />
-      <span v-if="crumb.active" class="text-gray-900 font-medium">{{ crumb.label }}</span>
-      <Link 
-        v-else-if="crumb.href !== '/dashboard'"
-        :href="crumb.href" 
-        class="hover:text-gray-900"
+
+    <div v-for="crumb in breadcrumbs" :key="crumb.label + crumb.href" class="flex items-center gap-2">
+      <ChevronRight class="h-4 w-4 text-ink-600/50" />
+      <span v-if="crumb.active" class="font-medium text-ink-900">{{ crumb.label }}</span>
+      <Link
+        v-else
+        :href="crumb.href"
+        class="hover:text-ink-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       >
         {{ crumb.label }}
       </Link>

@@ -8,6 +8,7 @@ return [
     'plans' => [
         'starter' => [
             'INVENTORY',
+            'DESIGN_SYSTEM',
         ],
         'legal' => [
             'INVENTORY',
@@ -16,6 +17,7 @@ return [
             'SCHEDULE',
             'NOTIFICATIONS',
             'WORKFLOW',
+            'DESIGN_SYSTEM',
         ],
         'full' => [
             'INVENTORY',
@@ -31,6 +33,7 @@ return [
             'ACCOUNTING',
             'HCM',
             'PAYROLL',
+            'DESIGN_SYSTEM',
         ],
     ],
 ];

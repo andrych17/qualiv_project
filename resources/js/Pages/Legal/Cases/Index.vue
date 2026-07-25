@@ -1,4 +1,4 @@
-<!-- ponytail: Legal cases list — first vertical MVP -->
+<!-- ponytail: Legal cases — Status Rail + design-system components -->
 <script setup lang="ts">
 import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
@@ -58,15 +58,15 @@ const confirmDelete = (item: CaseRow | Record<string, unknown>) => {
 <template>
   <AppLayout>
     <PageHeader
-      title="Legal Cases"
-      description="Track matters and case status for this firm."
+      title="Legal cases"
+      description="Where each matter stands — open, waiting, or closed."
     >
       <template #actions>
         <Link
           :href="route('legal.cases.create')"
-          class="inline-flex items-center rounded-md bg-gray-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800"
+          class="inline-flex items-center justify-center rounded-sm bg-accent px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-accent/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
         >
-          Open Case
+          Open case
         </Link>
       </template>
     </PageHeader>
@@ -74,13 +74,13 @@ const confirmDelete = (item: CaseRow | Record<string, unknown>) => {
     <div class="mt-6 space-y-4">
       <div class="flex flex-col gap-3 sm:flex-row">
         <div class="w-full sm:max-w-xs">
-          <SearchInput v-model="search" placeholder="Search code or title..." />
+          <SearchInput v-model="search" placeholder="Search code or title…" />
         </div>
         <div class="w-full sm:max-w-[180px]">
           <FormSelect
             v-model="status"
             name="status"
-            placeholder="All Status"
+            placeholder="All status"
             :options="[
               { label: 'Open', value: 'open' },
               { label: 'Pending', value: 'pending' },
@@ -93,23 +93,30 @@ const confirmDelete = (item: CaseRow | Record<string, unknown>) => {
       <DataTable
         :columns="columns"
         :items="cases.data"
+        status-rail-key="status"
         empty-title="No cases yet"
-        empty-description="Open your first case to start the Legal module."
+        empty-description="Open your first case to track matters for this firm."
       >
+        <template #cell-code="{ item }">
+          <span class="font-mono text-sm text-ink-900">{{ item.code }}</span>
+        </template>
         <template #cell-status="{ item }">
           <StatusBadge :status="item.status" />
         </template>
+        <template #cell-created_at_formatted="{ item }">
+          <span class="font-mono text-xs text-ink-600">{{ item.created_at_formatted }}</span>
+        </template>
         <template #cell-actions="{ item }">
-          <div class="flex items-center justify-end gap-2">
+          <div class="flex items-center justify-end gap-3">
             <Link
               :href="route('legal.cases.edit', item.id)"
-              class="text-sm font-medium text-gray-700 hover:text-gray-900"
+              class="text-sm font-medium text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             >
               Edit
             </Link>
             <button
               type="button"
-              class="text-sm font-medium text-red-600 hover:text-red-950"
+              class="text-sm font-medium text-signal-danger hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               @click="confirmDelete(item)"
             >
               Delete
