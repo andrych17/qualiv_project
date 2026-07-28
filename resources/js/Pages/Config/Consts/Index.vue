@@ -26,29 +26,38 @@ interface PaginatedData<T> {
   links: Array<{ url: string | null; label: string; active: boolean }>
 }
 
+type SortState = { key: string; direction: 'asc' | 'desc' } | null
+
 const props = defineProps<{
   consts: PaginatedData<ConstRow>
-  filters: { search?: string; const_group?: string }
+  filters: { search?: string; const_group?: string; sort?: string; direction?: string }
   groups: Array<{ label: string; value: string }>
 }>()
 
 const search = ref(props.filters.search ?? '')
 const constGroup = ref(props.filters.const_group ?? '')
+const sort = ref<SortState>(
+  props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
+)
+const selected = ref<Array<string | number>>([])
 
 const columns = [
-  { key: 'const_group', label: 'Group' },
-  { key: 'group_code', label: 'Key' },
-  { key: 'seq', label: 'Seq', align: 'right' as const },
-  { key: 'str1', label: 'Str1' },
-  { key: 'num1', label: 'Num1', align: 'right' as const },
-  { key: 'note1', label: 'Note' },
+  { key: 'const_group', label: 'Group', sortable: true },
+  { key: 'group_code', label: 'Key', sortable: true },
+  { key: 'seq', label: 'Seq', align: 'right' as const, sortable: true },
+  { key: 'str1', label: 'Str1', sortable: true },
+  { key: 'num1', label: 'Num1', align: 'right' as const, sortable: true },
+  { key: 'note1', label: 'Note', sortable: true },
   { key: 'actions', label: 'Actions', align: 'right' as const },
 ]
 
-watch([search, constGroup], debounce(() => {
+watch([search, constGroup, sort], debounce(() => {
+  selected.value = []
   router.get(route('config.consts.index'), {
     search: search.value,
     const_group: constGroup.value,
+    sort: sort.value?.key,
+    direction: sort.value?.direction,
   }, { preserveState: true, replace: true })
 }, 400))
 
@@ -56,6 +65,14 @@ const confirmDelete = (item: ConstRow | Record<string, unknown>) => {
   const row = item as ConstRow
   if (!confirm(`Delete const ${row.const_group}.${row.group_code}?`)) return
   router.delete(route('config.consts.destroy', row.id))
+}
+
+const confirmBulkDelete = () => {
+  if (!confirm(`Delete ${selected.value.length} selected const(s)?`)) return
+  router.delete(route('config.consts.bulkDestroy'), {
+    data: { ids: selected.value },
+    onSuccess: () => { selected.value = [] },
+  })
 }
 </script>
 
@@ -93,9 +110,19 @@ const confirmDelete = (item: ConstRow | Record<string, unknown>) => {
       <DataTable
         :columns="columns"
         :items="consts.data"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        selectable
+        sticky-header
+        storage-key="config.consts"
         empty-title="No constants"
         empty-description="Create a constant for app settings."
       >
+        <template #bulk-actions>
+          <button type="button" class="text-sm font-medium text-red-600 hover:text-red-950" @click="confirmBulkDelete">
+            Delete selected
+          </button>
+        </template>
         <template #cell-actions="{ item }">
           <div class="flex items-center justify-end gap-2">
             <Link

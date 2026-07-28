@@ -10,24 +10,30 @@ use App\Modules\Config\Models\ConfigRight;
 use App\Modules\Config\Requests\StoreConfigGroupRequest;
 use App\Modules\Config\Requests\UpdateConfigGroupRequest;
 use App\Modules\Config\Services\ConfigGroupService;
+use App\Shared\Helpers\TableQuery;
+use App\Shared\Traits\BulkDeletable;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ConfigGroupController extends Controller
 {
+    use BulkDeletable;
+
+    private const SORTABLE = ['code', 'descr'];
+
     public function __construct(
         protected ConfigGroupService $service,
     ) {}
 
     public function index(Request $request): Response
     {
-        $filters = $request->only('search', 'status');
+        $filters = $request->only('search', 'status', 'sort', 'direction');
 
         $groups = ConfigGroup::query()
             ->filter($filters)
             ->withCount(['groupUsers', 'rights'])
-            ->orderBy('code')
+            ->tap(fn ($query) => TableQuery::applySort($query, $filters['sort'] ?? null, $filters['direction'] ?? null, self::SORTABLE, 'code'))
             ->paginate(20)
             ->withQueryString()
             ->through(fn (ConfigGroup $g) => [
@@ -125,5 +131,10 @@ class ConfigGroupController extends Controller
 
         return redirect()->route('config.groups.index')
             ->with('success', 'Group deleted.');
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        return $this->bulkDestroyUsing($request, ConfigGroup::class, fn (ConfigGroup $group) => $this->service->delete($group));
     }
 }

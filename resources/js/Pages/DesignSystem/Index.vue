@@ -1,6 +1,6 @@
 <!-- ponytail: Single-page documentation & showcase for all NusaEvo ERP UI components -->
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
@@ -75,9 +75,9 @@ const customFieldDefs = ref<CustomFieldDef[]>([
 
 // Table demo data
 const tableColumns = [
-  { key: 'case_number', label: 'Nomor Perkara', align: 'left' as const },
-  { key: 'client', label: 'Klien', align: 'left' as const },
-  { key: 'type', label: 'Tipe Layanan', align: 'left' as const },
+  { key: 'case_number', label: 'Nomor Perkara', align: 'left' as const, sortable: true },
+  { key: 'client', label: 'Klien', align: 'left' as const, sortable: true },
+  { key: 'type', label: 'Tipe Layanan', align: 'left' as const, sortable: true },
   { key: 'status', label: 'Status Perkara', align: 'center' as const },
   { key: 'amount', label: 'Nilai Klaim', align: 'right' as const },
 ]
@@ -89,6 +89,18 @@ const tableItems = [
   { id: 4, case_number: 'LEGAL-2026-004', client: 'CV Global Perkasa', type: 'Audit Kepatuhan', status: 'overdue', statusRail: 'overdue', amount: 'Rp 75.000.000' },
   { id: 5, case_number: 'LEGAL-2026-005', client: 'Lembaga Keuangan Mandiri', type: 'Restrukturisasi', status: 'completed', statusRail: 'completed', amount: 'Rp 1.200.000.000' },
 ]
+
+const tableSort = ref<{ key: string; direction: 'asc' | 'desc' } | null>(null)
+const tableSelected = ref<Array<string | number>>([])
+
+const sortedTableItems = computed(() => {
+  if (!tableSort.value) return tableItems
+  const { key, direction } = tableSort.value
+  return [...tableItems].sort((a, b) => {
+    const cmp = String((a as any)[key]).localeCompare(String((b as any)[key]))
+    return direction === 'asc' ? cmp : -cmp
+  })
+})
 
 const paginationLinks = [
   { url: null, label: '&laquo; Previous', active: false },
@@ -442,13 +454,23 @@ const triggerConfirmDemo = (variant: 'default' | 'destructive') => {
           <Table class="h-5 w-5 text-accent" />
           <h2 class="font-serif text-xl font-bold">6. Data Tables & Pagination</h2>
         </div>
-        <Panel subtitle="Tabel data standar dengan pengkodean Status Rail pada batas kiri baris.">
+        <Panel subtitle="Tabel data standar dengan pengkodean Status Rail, sort kolom, seleksi baris, dan kolom visibility toggle.">
           <div class="space-y-4">
             <DataTable
               :columns="tableColumns"
-              :items="tableItems"
+              :items="sortedTableItems"
+              v-model:sort="tableSort"
+              v-model:selected="tableSelected"
+              selectable
+              sticky-header
+              storage-key="design-system.demo"
               status-rail-key="statusRail"
             >
+              <template #bulk-actions>
+                <button type="button" class="text-sm font-medium text-signal-danger hover:underline" @click="tableSelected = []">
+                  Hapus Terpilih
+                </button>
+              </template>
               <template #cell-status="{ value }">
                 <StatusBadge :status="value" />
               </template>

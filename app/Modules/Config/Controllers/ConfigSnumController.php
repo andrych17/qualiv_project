@@ -7,23 +7,29 @@ use App\Modules\Config\Models\ConfigSnum;
 use App\Modules\Config\Requests\StoreConfigSnumRequest;
 use App\Modules\Config\Requests\UpdateConfigSnumRequest;
 use App\Modules\Config\Services\ConfigSnumService;
+use App\Shared\Helpers\TableQuery;
+use App\Shared\Traits\BulkDeletable;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ConfigSnumController extends Controller
 {
+    use BulkDeletable;
+
+    private const SORTABLE = ['code', 'last_cnt', 'wrap_low', 'wrap_high', 'step_cnt', 'descr', 'status_code'];
+
     public function __construct(
         protected ConfigSnumService $service,
     ) {}
 
     public function index(Request $request): Response
     {
-        $filters = $request->only('search');
+        $filters = $request->only('search', 'sort', 'direction');
 
         $snums = ConfigSnum::query()
             ->filter($filters)
-            ->orderBy('code')
+            ->tap(fn ($query) => TableQuery::applySort($query, $filters['sort'] ?? null, $filters['direction'] ?? null, self::SORTABLE, 'code'))
             ->paginate(20)
             ->withQueryString()
             ->through(fn (ConfigSnum $s) => [
@@ -86,5 +92,10 @@ class ConfigSnumController extends Controller
 
         return redirect()->route('config.serials.index')
             ->with('success', 'Serial deleted.');
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        return $this->bulkDestroyUsing($request, ConfigSnum::class, fn (ConfigSnum $snum) => $this->service->delete($snum));
     }
 }

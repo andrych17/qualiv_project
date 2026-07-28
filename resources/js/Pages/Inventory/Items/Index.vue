@@ -29,36 +29,49 @@ interface PaginatedData<T> {
   meta?: any
 }
 
+type SortState = { key: string; direction: 'asc' | 'desc' } | null
+
 const props = defineProps<{
   items: PaginatedData<InventoryItem>
   filters: {
     search?: string
     status?: string
+    sort?: string
+    direction?: string
   }
 }>()
 
 const search = ref(props.filters.search ?? '')
 const status = ref(props.filters.status ?? '')
+const sort = ref<SortState>(
+  props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
+)
+const selected = ref<Array<string | number>>([])
 
 const columns: Array<{
   key: string
   label: string
   align?: 'left' | 'center' | 'right'
+  sortable?: boolean
+  sortKey?: string
 }> = [
-  { key: 'code', label: 'Code' },
-  { key: 'name', label: 'Name' },
+  { key: 'code', label: 'Code', sortable: true },
+  { key: 'name', label: 'Name', sortable: true },
   { key: 'category_name', label: 'Category' },
-  { key: 'stock', label: 'Stock', align: 'right' },
-  { key: 'unit', label: 'Unit' },
-  { key: 'status', label: 'Status' },
-  { key: 'created_at_formatted', label: 'Created Date' },
+  { key: 'stock', label: 'Stock', align: 'right', sortable: true },
+  { key: 'unit', label: 'Unit', sortable: true },
+  { key: 'status', label: 'Status', sortable: true },
+  { key: 'created_at_formatted', label: 'Created Date', sortable: true, sortKey: 'created_at' },
   { key: 'actions', label: 'Actions', align: 'right' },
 ]
 
-watch([search, status], debounce(() => {
+watch([search, status, sort], debounce(() => {
+  selected.value = []
   router.get(route('inventory.items.index'), {
     search: search.value,
-    status: status.value
+    status: status.value,
+    sort: sort.value?.key,
+    direction: sort.value?.direction,
   }, {
     preserveState: true,
     replace: true,
@@ -72,6 +85,14 @@ const goToEdit = (item: any) => {
 const confirmDelete = (item: any) => {
   if (!confirm(`Are you sure you want to delete item ${item.name}?`)) return
   router.delete(route('inventory.items.destroy', item.id))
+}
+
+const confirmBulkDelete = () => {
+  if (!confirm(`Delete ${selected.value.length} selected item(s)?`)) return
+  router.delete(route('inventory.items.bulkDestroy'), {
+    data: { ids: selected.value },
+    onSuccess: () => { selected.value = [] },
+  })
 }
 </script>
 
@@ -112,9 +133,19 @@ const confirmDelete = (item: any) => {
       <DataTable
         :columns="columns"
         :items="items.data"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        selectable
+        sticky-header
+        storage-key="inventory.items"
         empty-title="No inventory items"
         empty-description="Create your first inventory item to start tracking stock."
       >
+        <template #bulk-actions>
+          <button type="button" class="text-sm font-medium text-red-600 hover:text-red-950" @click="confirmBulkDelete">
+            Delete selected
+          </button>
+        </template>
         <template #cell-status="{ item }">
           <StatusBadge :status="item.status" />
         </template>

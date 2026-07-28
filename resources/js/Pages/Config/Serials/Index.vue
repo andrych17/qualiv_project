@@ -25,32 +25,51 @@ interface PaginatedData<T> {
   links: Array<{ url: string | null; label: string; active: boolean }>
 }
 
+type SortState = { key: string; direction: 'asc' | 'desc' } | null
+
 const props = defineProps<{
   snums: PaginatedData<SnumRow>
-  filters: { search?: string }
+  filters: { search?: string; sort?: string; direction?: string }
 }>()
 
 const search = ref(props.filters.search ?? '')
+const sort = ref<SortState>(
+  props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
+)
+const selected = ref<Array<string | number>>([])
 
 const columns = [
-  { key: 'code', label: 'Code' },
-  { key: 'last_cnt', label: 'Last', align: 'right' as const },
-  { key: 'wrap_low', label: 'Low', align: 'right' as const },
-  { key: 'wrap_high', label: 'High', align: 'right' as const },
-  { key: 'step_cnt', label: 'Step', align: 'right' as const },
-  { key: 'descr', label: 'Description' },
-  { key: 'status_code', label: 'Status' },
+  { key: 'code', label: 'Code', sortable: true },
+  { key: 'last_cnt', label: 'Last', align: 'right' as const, sortable: true },
+  { key: 'wrap_low', label: 'Low', align: 'right' as const, sortable: true },
+  { key: 'wrap_high', label: 'High', align: 'right' as const, sortable: true },
+  { key: 'step_cnt', label: 'Step', align: 'right' as const, sortable: true },
+  { key: 'descr', label: 'Description', sortable: true },
+  { key: 'status_code', label: 'Status', sortable: true },
   { key: 'actions', label: 'Actions', align: 'right' as const },
 ]
 
-watch(search, debounce(() => {
-  router.get(route('config.serials.index'), { search: search.value }, { preserveState: true, replace: true })
+watch([search, sort], debounce(() => {
+  selected.value = []
+  router.get(route('config.serials.index'), {
+    search: search.value,
+    sort: sort.value?.key,
+    direction: sort.value?.direction,
+  }, { preserveState: true, replace: true })
 }, 400))
 
 const confirmDelete = (item: SnumRow | Record<string, unknown>) => {
   const row = item as SnumRow
   if (!confirm(`Delete serial ${row.code}?`)) return
   router.delete(route('config.serials.destroy', row.id))
+}
+
+const confirmBulkDelete = () => {
+  if (!confirm(`Delete ${selected.value.length} selected serial(s)?`)) return
+  router.delete(route('config.serials.bulkDestroy'), {
+    data: { ids: selected.value },
+    onSuccess: () => { selected.value = [] },
+  })
 }
 </script>
 
@@ -78,9 +97,19 @@ const confirmDelete = (item: SnumRow | Record<string, unknown>) => {
       <DataTable
         :columns="columns"
         :items="snums.data"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        selectable
+        sticky-header
+        storage-key="config.serials"
         empty-title="No serials"
         empty-description="Create a document number counter for this tenant."
       >
+        <template #bulk-actions>
+          <button type="button" class="text-sm font-medium text-red-600 hover:text-red-950" @click="confirmBulkDelete">
+            Delete selected
+          </button>
+        </template>
         <template #cell-actions="{ item }">
           <div class="flex items-center justify-end gap-2">
             <Link

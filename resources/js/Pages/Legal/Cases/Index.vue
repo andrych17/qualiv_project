@@ -25,26 +25,35 @@ interface PaginatedData<T> {
   links: Array<{ url: string | null; label: string; active: boolean }>
 }
 
+type SortState = { key: string; direction: 'asc' | 'desc' } | null
+
 const props = defineProps<{
   cases: PaginatedData<CaseRow>
-  filters: { search?: string; status?: string }
+  filters: { search?: string; status?: string; sort?: string; direction?: string }
 }>()
 
 const search = ref(props.filters.search ?? '')
 const status = ref(props.filters.status ?? '')
+const sort = ref<SortState>(
+  props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
+)
+const selected = ref<Array<string | number>>([])
 
 const columns = [
-  { key: 'code', label: 'Code' },
-  { key: 'title', label: 'Title' },
-  { key: 'status', label: 'Status' },
-  { key: 'created_at_formatted', label: 'Opened' },
+  { key: 'code', label: 'Code', sortable: true },
+  { key: 'title', label: 'Title', sortable: true },
+  { key: 'status', label: 'Status', sortable: true },
+  { key: 'created_at_formatted', label: 'Opened', sortable: true, sortKey: 'created_at' },
   { key: 'actions', label: 'Actions', align: 'right' as const },
 ]
 
-watch([search, status], debounce(() => {
+watch([search, status, sort], debounce(() => {
+  selected.value = []
   router.get(route('legal.cases.index'), {
     search: search.value,
     status: status.value,
+    sort: sort.value?.key,
+    direction: sort.value?.direction,
   }, { preserveState: true, replace: true })
 }, 400))
 
@@ -52,6 +61,14 @@ const confirmDelete = (item: CaseRow | Record<string, unknown>) => {
   const row = item as CaseRow
   if (!confirm(`Delete case ${row.code}?`)) return
   router.delete(route('legal.cases.destroy', row.id))
+}
+
+const confirmBulkDelete = () => {
+  if (!confirm(`Delete ${selected.value.length} selected case(s)?`)) return
+  router.delete(route('legal.cases.bulkDestroy'), {
+    data: { ids: selected.value },
+    onSuccess: () => { selected.value = [] },
+  })
 }
 </script>
 
@@ -93,10 +110,24 @@ const confirmDelete = (item: CaseRow | Record<string, unknown>) => {
       <DataTable
         :columns="columns"
         :items="cases.data"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        selectable
+        sticky-header
+        storage-key="legal.cases"
         status-rail-key="status"
         empty-title="No cases yet"
         empty-description="Open your first case to track matters for this firm."
       >
+        <template #bulk-actions>
+          <button
+            type="button"
+            class="text-sm font-medium text-signal-danger hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            @click="confirmBulkDelete"
+          >
+            Delete selected
+          </button>
+        </template>
         <template #cell-code="{ item }">
           <span class="font-mono text-sm text-ink-900">{{ item.code }}</span>
         </template>
