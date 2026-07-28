@@ -1,4 +1,4 @@
-<!-- ponytail: Highly flexible Async Searchable Dropdown with API, extraParams, custom key mapping, and Vue Scoped Slots -->
+<!-- ponytail: Highly flexible Async Searchable Dropdown with API, JOINs, extraParams, custom key mapping, Vue Scoped Slots & Event-driven Ref methods -->
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
@@ -147,6 +147,19 @@ watch(searchQuery, (newQuery) => {
   }, props.debounceMs)
 })
 
+// Re-query if extraParams change (e.g. cascading dropdowns event from parent)
+watch(
+  () => props.extraParams,
+  (newParams, oldParams) => {
+    if (JSON.stringify(newParams) !== JSON.stringify(oldParams)) {
+      if (isOpen.value) {
+        performSearch(searchQuery.value)
+      }
+    }
+  },
+  { deep: true }
+)
+
 // Watch modelValue changes externally
 watch(() => props.modelValue, (newVal) => {
   if (!newVal) {
@@ -176,8 +189,8 @@ const selectItem = (opt: AsyncSelectOption) => {
   searchQuery.value = ''
 }
 
-const clearSelection = (e: MouseEvent) => {
-  e.stopPropagation()
+const clearSelection = (e?: MouseEvent) => {
+  if (e) e.stopPropagation()
   selectedOption.value = null
   emit('update:modelValue', null)
   emit('select', null)
@@ -195,6 +208,19 @@ const handleKeyDown = (e: KeyboardEvent) => {
     isOpen.value = false
   }
 }
+
+// Expose helper methods to parent components for event-driven control
+defineExpose({
+  reload: () => performSearch(searchQuery.value),
+  clear: clearSelection,
+  open: () => {
+    isOpen.value = true
+    performSearch('')
+  },
+  close: () => {
+    isOpen.value = false
+  },
+})
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
