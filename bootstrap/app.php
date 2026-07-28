@@ -18,6 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trustProxies(at: '*');
+
         // Must run AFTER session is started and BEFORE Authenticate loads User.
         $middleware->appendToPriorityList(
             after: StartSession::class,
