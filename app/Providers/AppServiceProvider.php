@@ -26,5 +26,24 @@ class AppServiceProvider extends ServiceProvider
         Auth::provider('eloquent', function ($app, array $config) {
             return new TenantAwareUserProvider($app['hash'], $config['model']);
         });
+
+        // Register default searchable entities with 50 limit cap
+        \App\Services\AsyncSearchRegistry::register(
+            'user',
+            \App\Models\User::class,
+            ['name', 'email'],
+            'name',
+            'email',
+            fn () => 'User'
+        );
+
+        \App\Services\AsyncSearchRegistry::register(
+            'legal_case',
+            \App\Modules\Legal\Models\LegalCase::class,
+            ['code', 'title'],
+            fn ($c) => "{$c->code} — {$c->title}",
+            fn ($c) => "Status: {$c->status}",
+            'status'
+        );
     }
 }
