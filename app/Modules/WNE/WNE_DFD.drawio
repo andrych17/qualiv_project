@@ -1,0 +1,207 @@
+<mxfile host="app.diagrams.net" modified="2026-07-26T00:00:00.000Z" agent="python-generator" version="24.0.0" type="device">
+  <diagram id="wne-dfd" name="WNE - DFD Level 1">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="d2" value="WNE — Level 1 Data Flow Diagram (Gane-Sarson notation)" style="text;html=1;fontSize=15;fontStyle=1;fontColor=#12181F;align=left;fontFamily=Source Serif 4;" vertex="1" parent="1">
+          <mxGeometry x="40" y="10" width="500" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="d3" value="Calling Module
+(HCM, Purchase, Legal,
+Accounting, ...)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F4F6F8;strokeColor=#12181F;strokeWidth=2;fontStyle=1;fontSize=12;fontColor=#12181F;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="220" width="160" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="d4" value="End User
+(Approver / Recipient)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F4F6F8;strokeColor=#12181F;strokeWidth=2;fontStyle=1;fontSize=12;fontColor=#12181F;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="420" width="160" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="d5" value="Delivery Provider
+(SMTP, Twilio, FCM/APNs)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F4F6F8;strokeColor=#12181F;strokeWidth=2;fontStyle=1;fontSize=12;fontColor=#12181F;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1360" y="220" width="160" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="d6" value="External System
+(webhook target /
+callback source)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F4F6F8;strokeColor=#12181F;strokeWidth=2;fontStyle=1;fontSize=12;fontColor=#12181F;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1360" y="480" width="160" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="d7" value="" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#1F5FBF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="280" y="100" width="220" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="d8" value="P1" style="text;html=1;fontSize=11;fontStyle=1;fontColor=#1F5FBF;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="286" y="104" width="26" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="d9" value="Start &amp; Route
+Workflow Instance" style="text;html=1;fontSize=11.5;fontColor=#12181F;align=center;verticalAlign=middle;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="286" y="118" width="208" height="68" as="geometry"/>
+        </mxCell>
+        <mxCell id="d10" value="" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#1F5FBF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="280" y="380" width="220" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="d11" value="P2" style="text;html=1;fontSize=11;fontStyle=1;fontColor=#1F5FBF;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="286" y="384" width="26" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="d12" value="Record Task Decision
+(My Approvals)" style="text;html=1;fontSize=11.5;fontColor=#12181F;align=center;verticalAlign=middle;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="286" y="398" width="208" height="68" as="geometry"/>
+        </mxCell>
+        <mxCell id="d13" value="" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#1F5FBF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="560" y="100" width="220" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="d14" value="P3" style="text;html=1;fontSize=11;fontStyle=1;fontColor=#1F5FBF;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="566" y="104" width="26" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="d15" value="Monitor SLA
+&amp; Escalate" style="text;html=1;fontSize=11.5;fontColor=#12181F;align=center;verticalAlign=middle;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="566" y="118" width="208" height="68" as="geometry"/>
+        </mxCell>
+        <mxCell id="d16" value="" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#5B4FCF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="840" y="380" width="220" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="d17" value="P4" style="text;html=1;fontSize=11;fontStyle=1;fontColor=#5B4FCF;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="846" y="384" width="26" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="d18" value="Resolve Template
+&amp; Preferences" style="text;html=1;fontSize=11.5;fontColor=#12181F;align=center;verticalAlign=middle;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="846" y="398" width="208" height="68" as="geometry"/>
+        </mxCell>
+        <mxCell id="d19" value="" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#5B4FCF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="100" width="220" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="d20" value="P5" style="text;html=1;fontSize=11;fontStyle=1;fontColor=#5B4FCF;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1106" y="104" width="26" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="d21" value="Dispatch &amp; Retry
+Delivery" style="text;html=1;fontSize=11.5;fontColor=#12181F;align=center;verticalAlign=middle;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="1106" y="118" width="208" height="68" as="geometry"/>
+        </mxCell>
+        <mxCell id="d22" value="" style="rounded=1;arcSize=14;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#5B4FCF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="480" width="220" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="d23" value="P6" style="text;html=1;fontSize=11;fontStyle=1;fontColor=#5B4FCF;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1106" y="484" width="26" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="d24" value="Track Delivery
+Events &amp; Status" style="text;html=1;fontSize=11.5;fontColor=#12181F;align=center;verticalAlign=middle;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="1106" y="498" width="208" height="68" as="geometry"/>
+        </mxCell>
+        <mxCell id="d25" value="" style="shape=dataStore;whiteSpace=wrap;html=1;fillColor=#F4F6F8;strokeColor=#1F5FBF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="280" y="640" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="d26" value="D1  Workflow Definitions
+(definitions/versions/steps)" style="text;html=1;fontSize=11.5;fontColor=#12181F;align=center;verticalAlign=middle;whiteSpace=wrap;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="280" y="640" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="d27" value="" style="shape=dataStore;whiteSpace=wrap;html=1;fillColor=#F4F6F8;strokeColor=#1F5FBF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="560" y="640" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="d28" value="D2  Workflow Instances
+(instances/steps/escalation)" style="text;html=1;fontSize=11.5;fontColor=#12181F;align=center;verticalAlign=middle;whiteSpace=wrap;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="560" y="640" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="d29" value="" style="shape=dataStore;whiteSpace=wrap;html=1;fillColor=#F4F6F8;strokeColor=#5B4FCF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="840" y="640" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="d30" value="D3  Notification Config
+(categories/templates/prefs)" style="text;html=1;fontSize=11.5;fontColor=#12181F;align=center;verticalAlign=middle;whiteSpace=wrap;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="840" y="640" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="d31" value="" style="shape=dataStore;whiteSpace=wrap;html=1;fillColor=#F4F6F8;strokeColor=#5B4FCF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="640" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="d32" value="D4  Notifications &amp; Deliveries
+(notifications/deliveries/events)" style="text;html=1;fontSize=11.5;fontColor=#12181F;align=center;verticalAlign=middle;whiteSpace=wrap;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="640" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="d33" value="WorkflowRequested event
+(code, subject, payload)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;strokeColor=#4A5563;endArrow=block;endFill=1;endSize=8;dashed=1;labelBackgroundColor=#FFFFFF;align=center;" edge="1" parent="1" source="d3" target="d7">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="d34" value="read published version" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;strokeColor=#4A5563;endArrow=block;endFill=1;endSize=8;dashed=0;labelBackgroundColor=#FFFFFF;align=center;" edge="1" parent="1" source="d7" target="d25">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="d35" value="write instance +
+entry step" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;strokeColor=#4A5563;endArrow=block;endFill=1;endSize=8;dashed=0;labelBackgroundColor=#FFFFFF;align=center;" edge="1" parent="1" source="d7" target="d27">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="d36" value="WorkflowInstanceStarted /
+Completed / Failed event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;strokeColor=#4A5563;endArrow=block;endFill=1;endSize=8;dashed=1;labelBackgroundColor=#FFFFFF;align=center;" edge="1" parent="1" source="d7" target="d3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="d37" value="approve / reject
++ comment" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;strokeColor=#4A5563;endArrow=block;endFill=1;endSize=8;dashed=0;labelBackgroundColor=#FFFFFF;align=center;" edge="1" parent="1" source="d4" target="d10">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="d38" value="update instance_step
+status + decision" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;strokeColor=#4A5563;endArrow=block;endFill=1;endSize=8;dashed=0;labelBackgroundColor=#FFFFFF;align=center;" edge="1" parent="1" source="d10" target="d27">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="d39" value="next pending step
+(routing continuation)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;strokeColor=#4A5563;endArrow=block;endFill=1;endSize=8;dashed=0;labelBackgroundColor=#FFFFFF;align=center;" edge="1" parent="1" source="d27" target="d7">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="d40" value="wrkflow_audit_logs entry" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;strokeColor=#4A5563;endArrow=block;endFill=1;endSize=8;dashed=0;labelBackgroundColor=#FFFFFF;align=center;" edge="1" parent="1" source="d10" target="d27">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="d41" value="scan pending/in_progress
+past due_at" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;strokeColor=#4A5563;endArrow=block;endFill=1;endSize=8;dashed=0;labelBackgroundColor=#FFFFFF;align=center;" edge="1" parent="1" source="d27" target="d13">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="d42" value="write escalation_log +
+reassign/add assignee" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;strokeColor=#4A5563;endArrow=block;endFill=1;endSize=8;dashed=0;labelBackgroundColor=#FFFFFF;align=center;" edge="1" parent="1" source="d13" target="d27">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="d43" value="NotificationRequested
+(escalation notice)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;strokeColor=#4A5563;endArrow=block;endFill=1;endSize=8;dashed=0;labelBackgroundColor=#FFFFFF;align=center;" edge="1" parent="1" source="d13" target="d19">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="d44" value="NotificationRequested event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;strokeColor=#4A5563;endArrow=block;endFill=1;endSize=8;dashed=1;labelBackgroundColor=#FFFFFF;align=center;" edge="1" parent="1" source="d3" target="d19">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="d45" value="resolve template + channel +
+user preference" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;strokeColor=#4A5563;endArrow=block;endFill=1;endSize=8;dashed=0;labelBackgroundColor=#FFFFFF;align=center;" edge="1" parent="1" source="d19" target="d16">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="d46" value="read template /
+category / preference" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;strokeColor=#4A5563;endArrow=block;endFill=1;endSize=8;dashed=0;labelBackgroundColor=#FFFFFF;align=center;" edge="1" parent="1" source="d16" target="d29">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="d47" value="write notification +
+delivery rows" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;strokeColor=#4A5563;endArrow=block;endFill=1;endSize=8;dashed=0;labelBackgroundColor=#FFFFFF;align=center;" edge="1" parent="1" source="d19" target="d31">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="d48" value="send (email/SMS/push)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;strokeColor=#4A5563;endArrow=block;endFill=1;endSize=8;dashed=1;labelBackgroundColor=#FFFFFF;align=center;" edge="1" parent="1" source="d19" target="d5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="d49" value="delivery status
+(sent/bounced/opened)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;strokeColor=#4A5563;endArrow=block;endFill=1;endSize=8;dashed=1;labelBackgroundColor=#FFFFFF;align=center;" edge="1" parent="1" source="d5" target="d22">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="d50" value="append delivery_events,
+update delivery status" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;strokeColor=#4A5563;endArrow=block;endFill=1;endSize=8;dashed=0;labelBackgroundColor=#FFFFFF;align=center;" edge="1" parent="1" source="d22" target="d31">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="d51" value="move to dead_letters
+on max attempts" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;strokeColor=#4A5563;endArrow=block;endFill=1;endSize=8;dashed=0;labelBackgroundColor=#FFFFFF;align=center;" edge="1" parent="1" source="d22" target="d31">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="d52" value="webhook_call step
+(outbound POST)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;strokeColor=#4A5563;endArrow=block;endFill=1;endSize=8;dashed=1;labelBackgroundColor=#FFFFFF;align=center;" edge="1" parent="1" source="d7" target="d6">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="d53" value="callback POST
+(resume wait_for_callback)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;strokeColor=#4A5563;endArrow=block;endFill=1;endSize=8;dashed=1;labelBackgroundColor=#FFFFFF;align=center;" edge="1" parent="1" source="d6" target="d7">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="d54" value="Legend" style="text;html=1;fontSize=15;fontStyle=1;fontColor=#12181F;align=left;fontFamily=Source Serif 4;" vertex="1" parent="1">
+          <mxGeometry x="40" y="760" width="500" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="d55" value="Solid line = internal data flow within WNE.   Dashed line = cross-module or external-system interface
+(calling module, delivery provider, external webhook target).
+Rounded box = Process.   Open-ended box = Data Store.   Sharp-cornered box = External Entity." style="text;html=1;fontSize=11;fontColor=#4A5563;align=left;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="790" width="700" height="60" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

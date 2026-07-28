@@ -1,0 +1,214 @@
+<mxfile host="app.diagrams.net" modified="2026-07-24T00:00:00.000Z" agent="legal-erd-generator" version="24.0.0" type="device">
+  <diagram id="legal-erd" name="LEGAL Module - ERD">
+    <mxGraphModel dx="1400" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2200" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="cluster_2" value="Lookups" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#F4F4F5;strokeColor=#4A5563;strokeWidth=1;dashed=1;verticalAlign=top;align=left;fontColor=#4A5563;fontStyle=1;fontSize=13;spacingLeft=10;spacingTop=6;" vertex="1" parent="1">
+          <mxGeometry x="16" y="-6" width="348" height="500" as="geometry"/>
+        </mxCell>
+        <mxCell id="cluster_3" value="Matters &amp; Parties" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#F1F5FB;strokeColor=#1F5FBF;strokeWidth=1;dashed=1;verticalAlign=top;align=left;fontColor=#1F5FBF;fontStyle=1;fontSize=13;spacingLeft=10;spacingTop=6;" vertex="1" parent="1">
+          <mxGeometry x="316" y="-6" width="348" height="448" as="geometry"/>
+        </mxCell>
+        <mxCell id="cluster_4" value="Land &amp; Due Diligence" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#F5F4FC;strokeColor=#5B4FCF;strokeWidth=1;dashed=1;verticalAlign=top;align=left;fontColor=#5B4FCF;fontStyle=1;fontSize=13;spacingLeft=10;spacingTop=6;" vertex="1" parent="1">
+          <mxGeometry x="656" y="-6" width="348" height="502" as="geometry"/>
+        </mxCell>
+        <mxCell id="cluster_5" value="Deeds &amp; Wills" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#F1F7F5;strokeColor=#1E7F5C;strokeWidth=1;dashed=1;verticalAlign=top;align=left;fontColor=#1E7F5C;fontStyle=1;fontSize=13;spacingLeft=10;spacingTop=6;" vertex="1" parent="1">
+          <mxGeometry x="996" y="-6" width="348" height="526" as="geometry"/>
+        </mxCell>
+        <mxCell id="cluster_6" value="Tax" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#FAF6F0;strokeColor=#B5760A;strokeWidth=1;dashed=1;verticalAlign=top;align=left;fontColor=#B5760A;fontStyle=1;fontSize=13;spacingLeft=10;spacingTop=6;" vertex="1" parent="1">
+          <mxGeometry x="1336" y="-6" width="348" height="368" as="geometry"/>
+        </mxCell>
+        <mxCell id="cluster_7" value="BPN Registration" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#FBF2F2;strokeColor=#C1332B;strokeWidth=1;dashed=1;verticalAlign=top;align=left;fontColor=#C1332B;fontStyle=1;fontSize=13;spacingLeft=10;spacingTop=6;" vertex="1" parent="1">
+          <mxGeometry x="1336" y="294" width="348" height="278" as="geometry"/>
+        </mxCell>
+        <mxCell id="cluster_8" value="Notary Protocol" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#F0F1F1;strokeColor=#12181F;strokeWidth=1;dashed=1;verticalAlign=top;align=left;fontColor=#12181F;fontStyle=1;fontSize=13;spacingLeft=10;spacingTop=6;" vertex="1" parent="1">
+          <mxGeometry x="1676" y="-6" width="348" height="426" as="geometry"/>
+        </mxCell>
+        <mxCell id="cluster_9" value="Field Operations" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#F4F8FF;strokeColor=#4C8DFF;strokeWidth=1;dashed=1;verticalAlign=top;align=left;fontColor=#4C8DFF;fontStyle=1;fontSize=13;spacingLeft=10;spacingTop=6;" vertex="1" parent="1">
+          <mxGeometry x="1676" y="414" width="348" height="350" as="geometry"/>
+        </mxCell>
+        <mxCell id="cluster_10" value="Core (external)" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#F4F4F5;strokeColor=#4A5563;strokeWidth=1;dashed=1;verticalAlign=top;align=left;fontColor=#4A5563;fontStyle=1;fontSize=13;spacingLeft=10;spacingTop=6;" vertex="1" parent="1">
+          <mxGeometry x="16" y="574" width="1028" height="188" as="geometry"/>
+        </mxCell>
+        <mxCell id="hdr_11" value="deed_types" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#4A5563;strokeColor=#4A5563;fontColor=#FFFFFF;fontStyle=1;fontSize=12;align=left;spacingLeft=8;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="300" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="body_12" value="🔑 &lt;b&gt;id&lt;/b&gt;&lt;br&gt;code&lt;br&gt;name&lt;br&gt;category&lt;br&gt;requires_tax&lt;br&gt;requires_bpn_registration&lt;br&gt;default_protocol_book_type&lt;br&gt;is_active" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E9EAEC;strokeColor=#4A5563;fontColor=#12181F;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingBottom=6;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="68" width="300" height="144" as="geometry"/>
+        </mxCell>
+        <mxCell id="hdr_13" value="party_role_types" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#4A5563;strokeColor=#4A5563;fontColor=#FFFFFF;fontStyle=1;fontSize=12;align=left;spacingLeft=8;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="230" width="300" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="body_14" value="🔑 &lt;b&gt;id&lt;/b&gt;&lt;br&gt;code&lt;br&gt;name&lt;br&gt;is_active" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E9EAEC;strokeColor=#4A5563;fontColor=#12181F;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingBottom=6;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="258" width="300" height="72" as="geometry"/>
+        </mxCell>
+        <mxCell id="hdr_15" value="field_visit_types" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#4A5563;strokeColor=#4A5563;fontColor=#FFFFFF;fontStyle=1;fontSize=12;align=left;spacingLeft=8;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="370" width="300" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="body_16" value="🔑 &lt;b&gt;id&lt;/b&gt;&lt;br&gt;code&lt;br&gt;name&lt;br&gt;default_checklist  &lt;font color='#8A94A0'&gt;JSON&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E9EAEC;strokeColor=#4A5563;fontColor=#12181F;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingBottom=6;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="398" width="300" height="72" as="geometry"/>
+        </mxCell>
+        <mxCell id="hdr_17" value="matters" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1F5FBF;strokeColor=#1F5FBF;fontColor=#FFFFFF;fontStyle=1;fontSize=12;align=left;spacingLeft=8;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="340" y="40" width="300" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="body_18" value="🔑 &lt;b&gt;id&lt;/b&gt;&lt;br&gt;uuid  &lt;font color='#8A94A0'&gt;UQ&lt;/font&gt;&lt;br&gt;title&lt;br&gt;matter_type&lt;br&gt;↳ partner_id  &lt;font color='#8A94A0'&gt;FK -&amp;gt; CRM.partners&lt;/font&gt;&lt;br&gt;assigned_to&lt;br&gt;status&lt;br&gt;opened_at&lt;br&gt;target_close_at&lt;br&gt;↳ converted_from_lead_id  &lt;font color='#8A94A0'&gt;FK -&amp;gt; CRM.leads&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E4EBF7;strokeColor=#1F5FBF;fontColor=#12181F;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingBottom=6;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="340" y="68" width="300" height="180" as="geometry"/>
+        </mxCell>
+        <mxCell id="hdr_19" value="deed_parties" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1F5FBF;strokeColor=#1F5FBF;fontColor=#FFFFFF;fontStyle=1;fontSize=12;align=left;spacingLeft=8;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="340" y="300" width="300" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="body_20" value="🔑 &lt;b&gt;id&lt;/b&gt;&lt;br&gt;↳ deed_id  &lt;font color='#8A94A0'&gt;FK -&amp;gt; deeds&lt;/font&gt;&lt;br&gt;↳ partner_id  &lt;font color='#8A94A0'&gt;FK -&amp;gt; CRM.partners&lt;/font&gt;&lt;br&gt;↳ role_type_id  &lt;font color='#8A94A0'&gt;FK -&amp;gt; party_role_types&lt;/font&gt;&lt;br&gt;identity_snapshot  &lt;font color='#8A94A0'&gt;JSON, frozen at signing&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E4EBF7;strokeColor=#1F5FBF;fontColor=#12181F;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingBottom=6;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="340" y="328" width="300" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="hdr_21" value="land_objects" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#5B4FCF;strokeColor=#5B4FCF;fontColor=#FFFFFF;fontStyle=1;fontSize=12;align=left;spacingLeft=8;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="680" y="40" width="300" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="body_22" value="🔑 &lt;b&gt;id&lt;/b&gt;&lt;br&gt;uuid  &lt;font color='#8A94A0'&gt;UQ&lt;/font&gt;&lt;br&gt;certificate_type&lt;br&gt;certificate_number  &lt;font color='#8A94A0'&gt;UQ w/ type&lt;/font&gt;&lt;br&gt;nib&lt;br&gt;address&lt;br&gt;area_m2&lt;br&gt;njop_reference&lt;br&gt;↳ current_owner_id  &lt;font color='#8A94A0'&gt;FK -&amp;gt; CRM.partners&lt;/font&gt;&lt;br&gt;status" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#EBE9F9;strokeColor=#5B4FCF;fontColor=#12181F;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingBottom=6;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="680" y="68" width="300" height="180" as="geometry"/>
+        </mxCell>
+        <mxCell id="hdr_23" value="due_diligence_checks" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#5B4FCF;strokeColor=#5B4FCF;fontColor=#FFFFFF;fontStyle=1;fontSize=12;align=left;spacingLeft=8;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="680" y="300" width="300" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="body_24" value="🔑 &lt;b&gt;id&lt;/b&gt;&lt;br&gt;↳ land_object_id  &lt;font color='#8A94A0'&gt;FK -&amp;gt; land_objects&lt;/font&gt;&lt;br&gt;check_type&lt;br&gt;status&lt;br&gt;checked_by&lt;br&gt;checked_at&lt;br&gt;result_notes&lt;br&gt;override_reason" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#EBE9F9;strokeColor=#5B4FCF;fontColor=#12181F;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingBottom=6;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="680" y="328" width="300" height="144" as="geometry"/>
+        </mxCell>
+        <mxCell id="hdr_25" value="deeds" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1E7F5C;strokeColor=#1E7F5C;fontColor=#FFFFFF;fontStyle=1;fontSize=12;align=left;spacingLeft=8;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="40" width="300" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="body_26" value="🔑 &lt;b&gt;id&lt;/b&gt;&lt;br&gt;uuid  &lt;font color='#8A94A0'&gt;UQ&lt;/font&gt;&lt;br&gt;↳ matter_id  &lt;font color='#8A94A0'&gt;FK -&amp;gt; matters&lt;/font&gt;&lt;br&gt;↳ deed_type_id  &lt;font color='#8A94A0'&gt;FK -&amp;gt; deed_types&lt;/font&gt;&lt;br&gt;category&lt;br&gt;↳ land_object_id  &lt;font color='#8A94A0'&gt;FK -&amp;gt; land_objects&lt;/font&gt;&lt;br&gt;deed_number&lt;br&gt;status  &lt;font color='#8A94A0'&gt;immutable once signed&lt;/font&gt;&lt;br&gt;signing_date&lt;br&gt;minuta_reference&lt;br&gt;transaction_value&lt;br&gt;summary&lt;br&gt;↳ amends_deed_id  &lt;font color='#8A94A0'&gt;FK -&amp;gt; deeds (self)&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E4EFEB;strokeColor=#1E7F5C;fontColor=#12181F;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingBottom=6;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="68" width="300" height="234" as="geometry"/>
+        </mxCell>
+        <mxCell id="hdr_27" value="wills" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1E7F5C;strokeColor=#1E7F5C;fontColor=#FFFFFF;fontStyle=1;fontSize=12;align=left;spacingLeft=8;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="360" width="300" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="body_28" value="🔑 &lt;b&gt;id&lt;/b&gt;&lt;br&gt;↳ deed_id  &lt;font color='#8A94A0'&gt;FK -&amp;gt; deeds, UQ&lt;/font&gt;&lt;br&gt;↳ testator_id  &lt;font color='#8A94A0'&gt;FK -&amp;gt; CRM.partners&lt;/font&gt;&lt;br&gt;dpw_reg_number&lt;br&gt;dpw_registered_at&lt;br&gt;status" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E4EFEB;strokeColor=#1E7F5C;fontColor=#12181F;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingBottom=6;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="388" width="300" height="108" as="geometry"/>
+        </mxCell>
+        <mxCell id="hdr_29" value="deed_taxes" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#B5760A;strokeColor=#B5760A;fontColor=#FFFFFF;fontStyle=1;fontSize=12;align=left;spacingLeft=8;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1360" y="40" width="300" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="body_30" value="🔑 &lt;b&gt;id&lt;/b&gt;&lt;br&gt;↳ deed_id  &lt;font color='#8A94A0'&gt;FK -&amp;gt; deeds&lt;/font&gt;&lt;br&gt;tax_type&lt;br&gt;↳ taxpayer_partner_id  &lt;font color='#8A94A0'&gt;FK -&amp;gt; CRM.partners&lt;/font&gt;&lt;br&gt;transaction_amount&lt;br&gt;njop_amount&lt;br&gt;base_amount&lt;br&gt;rate_percent&lt;br&gt;npoptkp_applied&lt;br&gt;computed_amount&lt;br&gt;billing_code&lt;br&gt;ntpn&lt;br&gt;status  &lt;font color='#8A94A0'&gt;gates deed signing&lt;/font&gt;&lt;br&gt;paid_at&lt;br&gt;validated_at" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F6EEE1;strokeColor=#B5760A;fontColor=#12181F;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingBottom=6;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1360" y="68" width="300" height="270" as="geometry"/>
+        </mxCell>
+        <mxCell id="hdr_31" value="bpn_submissions" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#C1332B;strokeColor=#C1332B;fontColor=#FFFFFF;fontStyle=1;fontSize=12;align=left;spacingLeft=8;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1360" y="340" width="300" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="body_32" value="🔑 &lt;b&gt;id&lt;/b&gt;&lt;br&gt;↳ deed_id  &lt;font color='#8A94A0'&gt;FK -&amp;gt; deeds&lt;/font&gt;&lt;br&gt;submission_type&lt;br&gt;submitted_at&lt;br&gt;tracking_number&lt;br&gt;pnbp_amount&lt;br&gt;status&lt;br&gt;rejection_reason&lt;br&gt;completed_at&lt;br&gt;↳ resubmission_of_id  &lt;font color='#8A94A0'&gt;FK -&amp;gt; bpn_submissions (self)&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F7E6E5;strokeColor=#C1332B;fontColor=#12181F;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingBottom=6;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1360" y="368" width="300" height="180" as="geometry"/>
+        </mxCell>
+        <mxCell id="hdr_33" value="protocol_books" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#12181F;strokeColor=#12181F;fontColor=#FFFFFF;fontStyle=1;fontSize=12;align=left;spacingLeft=8;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1700" y="40" width="300" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="body_34" value="🔑 &lt;b&gt;id&lt;/b&gt;&lt;br&gt;book_type&lt;br&gt;year&lt;br&gt;volume&lt;br&gt;notary_id&lt;br&gt;status&lt;br&gt;opened_at&lt;br&gt;closed_at&lt;br&gt;handed_over_to&lt;br&gt;handed_over_at" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E2E3E4;strokeColor=#12181F;fontColor=#12181F;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingBottom=6;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1700" y="68" width="300" height="180" as="geometry"/>
+        </mxCell>
+        <mxCell id="hdr_35" value="protocol_entries" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#12181F;strokeColor=#12181F;fontColor=#FFFFFF;fontStyle=1;fontSize=12;align=left;spacingLeft=8;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1700" y="260" width="300" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="body_36" value="🔑 &lt;b&gt;id&lt;/b&gt;&lt;br&gt;↳ book_id  &lt;font color='#8A94A0'&gt;FK -&amp;gt; protocol_books&lt;/font&gt;&lt;br&gt;↳ deed_id  &lt;font color='#8A94A0'&gt;FK -&amp;gt; deeds&lt;/font&gt;&lt;br&gt;sequence_number  &lt;font color='#8A94A0'&gt;gap-free, auto&lt;/font&gt;&lt;br&gt;entry_date&lt;br&gt;(append-only: no UPDATE/DELETE)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E2E3E4;strokeColor=#12181F;fontColor=#12181F;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingBottom=6;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1700" y="288" width="300" height="108" as="geometry"/>
+        </mxCell>
+        <mxCell id="hdr_37" value="field_visits" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#4C8DFF;strokeColor=#4C8DFF;fontColor=#FFFFFF;fontStyle=1;fontSize=12;align=left;spacingLeft=8;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1700" y="460" width="300" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="body_38" value="🔑 &lt;b&gt;id&lt;/b&gt;&lt;br&gt;uuid  &lt;font color='#8A94A0'&gt;UQ, used by mobile API&lt;/font&gt;&lt;br&gt;↳ matter_id  &lt;font color='#8A94A0'&gt;FK -&amp;gt; matters&lt;/font&gt;&lt;br&gt;↳ land_object_id  &lt;font color='#8A94A0'&gt;FK -&amp;gt; land_objects&lt;/font&gt;&lt;br&gt;↳ deed_id  &lt;font color='#8A94A0'&gt;FK -&amp;gt; deeds&lt;/font&gt;&lt;br&gt;↳ visit_type_id  &lt;font color='#8A94A0'&gt;FK -&amp;gt; field_visit_types&lt;/font&gt;&lt;br&gt;assigned_to&lt;br&gt;↳ schedule_item_id  &lt;font color='#8A94A0'&gt;FK -&amp;gt; SCHEDULE.sched_items&lt;/font&gt;&lt;br&gt;status&lt;br&gt;checked_in_at&lt;br&gt;gps_lat&lt;br&gt;gps_lng&lt;br&gt;checklist_result  &lt;font color='#8A94A0'&gt;JSON&lt;/font&gt;&lt;br&gt;notes" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E9F1FF;strokeColor=#4C8DFF;fontColor=#12181F;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingBottom=6;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1700" y="488" width="300" height="252" as="geometry"/>
+        </mxCell>
+        <mxCell id="hdr_39" value="CRM.partners  (Core module — read-only ref.)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#4A5563;strokeColor=#4A5563;fontColor=#FFFFFF;fontStyle=1;fontSize=12;align=left;spacingLeft=8;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="380" y="620" width="300" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="body_40" value="🔑 &lt;b&gt;id&lt;/b&gt;&lt;br&gt;uuid  &lt;font color='#8A94A0'&gt;UQ&lt;/font&gt;&lt;br&gt;type&lt;br&gt;name&lt;br&gt;is_active" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E9EAEC;strokeColor=#4A5563;fontColor=#12181F;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingBottom=6;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="380" y="648" width="300" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="hdr_41" value="CRM.leads  (Core module — read-only ref.)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#4A5563;strokeColor=#4A5563;fontColor=#FFFFFF;fontStyle=1;fontSize=12;align=left;spacingLeft=8;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="620" width="300" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="body_42" value="🔑 &lt;b&gt;id&lt;/b&gt;&lt;br&gt;name" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E9EAEC;strokeColor=#4A5563;fontColor=#12181F;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingBottom=6;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="648" width="300" height="36" as="geometry"/>
+        </mxCell>
+        <mxCell id="hdr_43" value="SCHEDULE.sched_items  (Core module — read-only ref.)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#4A5563;strokeColor=#4A5563;fontColor=#FFFFFF;fontStyle=1;fontSize=12;align=left;spacingLeft=8;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="720" y="620" width="300" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="body_44" value="🔑 &lt;b&gt;id&lt;/b&gt;&lt;br&gt;type&lt;br&gt;title" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E9EAEC;strokeColor=#4A5563;fontColor=#12181F;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingBottom=6;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="720" y="648" width="300" height="54" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_45" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=9;html=1;endArrow=ERone;startArrow=ERmany;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeColor=#4A5563;dashed=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="body_18" target="body_40">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_46" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=9;html=1;endArrow=ERone;startArrow=ERzeroToMany;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeColor=#4A5563;dashed=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="body_18" target="body_42">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_47" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=9;html=1;endArrow=ERone;startArrow=ERzeroToMany;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeColor=#4A5563;dashed=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="body_22" target="body_40">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_48" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=9;html=1;endArrow=ERone;startArrow=ERzeroToMany;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="body_26" target="body_18">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_49" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=9;html=1;endArrow=ERone;startArrow=ERmany;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="body_26" target="body_12">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_50" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=9;html=1;endArrow=ERone;startArrow=ERzeroToMany;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="body_26" target="body_22">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_51" value="amends" style="edgeStyle=entityRelationEdgeStyle;fontSize=9;html=1;endArrow=ERone;startArrow=ERzeroToMany;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="body_26" target="body_26">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_52" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=9;html=1;endArrow=ERone;startArrow=ERmany;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="body_20" target="body_26">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_53" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=9;html=1;endArrow=ERone;startArrow=ERmany;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeColor=#4A5563;dashed=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="body_20" target="body_40">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_54" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=9;html=1;endArrow=ERone;startArrow=ERmany;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="body_20" target="body_14">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_55" value="1:1" style="edgeStyle=entityRelationEdgeStyle;fontSize=9;html=1;endArrow=ERone;startArrow=ERmany;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="body_28" target="body_26">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_56" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=9;html=1;endArrow=ERone;startArrow=ERmany;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeColor=#4A5563;dashed=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="body_28" target="body_40">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_57" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=9;html=1;endArrow=ERone;startArrow=ERmany;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="body_24" target="body_22">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_58" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=9;html=1;endArrow=ERone;startArrow=ERmany;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="body_30" target="body_26">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_59" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=9;html=1;endArrow=ERone;startArrow=ERmany;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeColor=#4A5563;dashed=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="body_30" target="body_40">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_60" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=9;html=1;endArrow=ERone;startArrow=ERmany;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="body_32" target="body_26">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_61" value="resubmission of" style="edgeStyle=entityRelationEdgeStyle;fontSize=9;html=1;endArrow=ERone;startArrow=ERzeroToMany;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="body_32" target="body_32">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_62" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=9;html=1;endArrow=ERone;startArrow=ERmany;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="body_36" target="body_34">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_63" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=9;html=1;endArrow=ERone;startArrow=ERzeroToMany;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="body_36" target="body_26">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_64" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=9;html=1;endArrow=ERone;startArrow=ERzeroToMany;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="body_38" target="body_18">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_65" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=9;html=1;endArrow=ERone;startArrow=ERzeroToMany;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="body_38" target="body_22">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_66" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=9;html=1;endArrow=ERone;startArrow=ERzeroToMany;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="body_38" target="body_26">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_67" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=9;html=1;endArrow=ERone;startArrow=ERmany;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeColor=#4A5563;dashed=0;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="body_38" target="body_16">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_68" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=9;html=1;endArrow=ERone;startArrow=ERzeroToMany;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeColor=#4A5563;dashed=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="body_38" target="body_44">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_69" value="&lt;b&gt;Legend&lt;/b&gt;&lt;br&gt;🔑 = Primary Key &amp;nbsp;&amp;nbsp; ↳ = Foreign Key&lt;br&gt;Crow's foot: —&amp;#124;&amp;lt; mandatory many-to-one, —o&amp;lt; optional many-to-one&lt;br&gt;&lt;b&gt;Dashed box / dashed edge&lt;/b&gt; = cross-schema reference into a Core module (CRM, SCHEDULE) — LEGAL depends on Core, never the reverse.&lt;br&gt;Domain clusters colored per DESIGN.md &quot;Ink &amp;amp; Signal&quot; tokens." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#DEE3E8;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="40" y="780" width="900" height="110" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
