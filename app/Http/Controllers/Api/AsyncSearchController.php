@@ -14,7 +14,7 @@ class AsyncSearchController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $search = trim((string) $request->input('q', ''));
+        $search = mb_strtoupper(trim((string) $request->input('q', '')), 'UTF-8');
         $entity = (string) $request->input('entity', 'user');
         $selectedId = $request->input('selected_id');
         $limit = min((int) $request->input('limit', 50), 50);

@@ -77,14 +77,17 @@ class AsyncSearchRegistry
             }
         }
 
-        // Search query across configured searchFields
+        // Search query across configured searchFields using uppercase column & parameter matching
         if ($search !== '') {
-            $query->where(function (Builder $q) use ($config, $search) {
+            $searchUpper = mb_strtoupper($search, 'UTF-8');
+            $query->where(function (Builder $q) use ($config, $searchUpper) {
                 foreach ($config['searchFields'] as $index => $field) {
+                    $sql = "UPPER({$field}::text) LIKE ?";
+                    $param = "%{$searchUpper}%";
                     if ($index === 0) {
-                        $q->where($field, 'ilike', "%{$search}%");
+                        $q->whereRaw($sql, [$param]);
                     } else {
-                        $q->orWhere($field, 'ilike', "%{$search}%");
+                        $q->orWhereRaw($sql, [$param]);
                     }
                 }
             });
