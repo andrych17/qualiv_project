@@ -11,6 +11,9 @@ import DangerButton from '@/Components/DangerButton.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
 import FormSearchableSelect from '@/Components/forms/FormSearchableSelect.vue'
+import FormSwitch from '@/Components/forms/FormSwitch.vue'
+import FormRadioGroup from '@/Components/forms/FormRadioGroup.vue'
+import FormTextarea from '@/Components/forms/FormTextarea.vue'
 import SearchInput from '@/Components/filters/SearchInput.vue'
 import Checkbox from '@/Components/Checkbox.vue'
 import InputLabel from '@/Components/InputLabel.vue'
@@ -34,6 +37,9 @@ const inputErrorDemo = ref('Format email tidak valid')
 const selectDemo = ref('legal')
 const searchableSelectDemo = ref<string | number | null>('id-001')
 const checkboxDemo = ref(true)
+const switchDemo = ref(true)
+const radioDemo = ref('email')
+const textareaDemo = ref('Catatan ringkas mengenai jalannya sidang perdata permohonan eksekusi.')
 const customFieldsModel = ref<Record<string, string>>({
   court_name: 'Pengadilan Negeri Jakarta Selatan',
   hearing_date: '2026-08-15',
@@ -410,6 +416,32 @@ const triggerConfirmDemo = (variant: 'default' | 'destructive') => {
               <div class="flex items-center gap-2 pt-2">
                 <Checkbox id="demo-check" v-model:checked="checkboxDemo" />
                 <label for="demo-check" class="text-sm text-ink-900 cursor-pointer">Aktifkan Notifikasi Jatuh Tempo (Checkbox)</label>
+              </div>
+
+              <div class="border-t border-border pt-3 space-y-4">
+                <FormSwitch
+                  v-model="switchDemo"
+                  label="Aktifkan Notifikasi Email (FormSwitch)"
+                  description="Kirim ringkasan mingguan otomatis ke alamat email pengguna."
+                />
+
+                <FormRadioGroup
+                  v-model="radioDemo"
+                  name="notification_channel"
+                  label="Saluran Komunikasi Utama (FormRadioGroup)"
+                  :options="[
+                    { label: 'Surat Elektronik (Email)', value: 'email', description: 'Rekomendasi untuk laporan formal' },
+                    { label: 'Pesan WhatsApp Business', value: 'whatsapp', description: 'Notifikasi cepat realtime' },
+                  ]"
+                />
+
+                <FormTextarea
+                  v-model="textareaDemo"
+                  name="case_notes"
+                  label="Catatan Ringkas Perkara (FormTextarea)"
+                  placeholder="Ketik catatan di sini..."
+                  :max-length="200"
+                />
               </div>
 
               <!-- Custom Fields Engine -->
