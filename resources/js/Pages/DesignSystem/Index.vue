@@ -1,6 +1,6 @@
 <!-- ponytail: Single-page documentation & showcase for all NusaEvo ERP UI components -->
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, ref } from 'vue'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
@@ -92,7 +92,7 @@ const tableItems = ref([
 const tableSort = ref<{ key: string; direction: 'asc' | 'desc' } | null>(null)
 const tableSelected = ref<Array<string | number>>([])
 const tableSearch = ref('')
-const tableFilters = reactive({ status: '' })
+const tableFilters = ref({ status: '' })
 const tablePerPage = ref(10)
 
 const tableFilterFields: FilterFieldDef[] = [
@@ -118,8 +118,8 @@ const filteredTableItems = computed(() => {
     const q = tableSearch.value.toLowerCase()
     rows = rows.filter((r) => r.case_number.toLowerCase().includes(q) || r.client.toLowerCase().includes(q))
   }
-  if (tableFilters.status) {
-    rows = rows.filter((r) => r.status === tableFilters.status)
+  if (tableFilters.value.status) {
+    rows = rows.filter((r) => r.status === tableFilters.value.status)
   }
   if (tableSort.value) {
     const { key, direction } = tableSort.value

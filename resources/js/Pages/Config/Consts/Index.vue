@@ -4,7 +4,7 @@ import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
-import { ref, reactive, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { debounce } from '@/Composables/debounce'
 
 interface ConstRow {
@@ -34,7 +34,7 @@ const props = defineProps<{
 }>()
 
 const search = ref(props.filters.search ?? '')
-const filters = reactive({ const_group: props.filters.const_group ?? '' })
+const filters = ref({ const_group: props.filters.const_group ?? '' })
 const sort = ref<SortState>(
   props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
 )
@@ -59,7 +59,7 @@ watch([search, filters, sort, perPage], debounce(() => {
   selected.value = []
   router.get(route('config.consts.index'), {
     search: search.value,
-    const_group: filters.const_group,
+    const_group: filters.value.const_group,
     sort: sort.value?.key,
     direction: sort.value?.direction,
     per_page: perPage.value,

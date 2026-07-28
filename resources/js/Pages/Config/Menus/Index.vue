@@ -5,7 +5,7 @@ import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
-import { ref, reactive, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { debounce } from '@/Composables/debounce'
 
 interface ConfigMenuRow {
@@ -43,7 +43,7 @@ const props = defineProps<{
 }>()
 
 const search = ref(props.filters.search ?? '')
-const filters = reactive({ status: props.filters.status ?? '', header: props.filters.header ?? '' })
+const filters = ref({ status: props.filters.status ?? '', header: props.filters.header ?? '' })
 const sort = ref<SortState>(
   props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
 )
@@ -83,8 +83,8 @@ watch([search, filters, sort, perPage], debounce(() => {
   selected.value = []
   router.get(route('config.menus.index'), {
     search: search.value,
-    status: filters.status,
-    header: filters.header,
+    status: filters.value.status,
+    header: filters.value.header,
     sort: sort.value?.key,
     direction: sort.value?.direction,
     per_page: perPage.value,
