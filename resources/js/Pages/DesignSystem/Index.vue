@@ -11,6 +11,7 @@ import DangerButton from '@/Components/DangerButton.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
 import FormSearchableSelect from '@/Components/forms/FormSearchableSelect.vue'
+import FormAsyncSearchableSelect from '@/Components/forms/FormAsyncSearchableSelect.vue'
 import FormSwitch from '@/Components/forms/FormSwitch.vue'
 import FormRadioGroup from '@/Components/forms/FormRadioGroup.vue'
 import FormTextarea from '@/Components/forms/FormTextarea.vue'
@@ -36,6 +37,7 @@ const inputDemo = ref('PT NusaEvo Indonesia')
 const inputErrorDemo = ref('Format email tidak valid')
 const selectDemo = ref('legal')
 const searchableSelectDemo = ref<string | number | null>('id-001')
+const asyncSelectDemo = ref<string | number | null>(1)
 const checkboxDemo = ref(true)
 const switchDemo = ref(true)
 const radioDemo = ref('email')
@@ -386,7 +388,7 @@ const triggerConfirmDemo = (variant: 'default' | 'destructive') => {
               <FormSearchableSelect
                 v-model="searchableSelectDemo"
                 name="client_id"
-                label="Pilih Klien / Perusahaan (Searchable Select)"
+                label="Pilih Klien / Perusahaan (Local Searchable Select)"
                 placeholder="Cari atau pilih klien..."
                 search-placeholder="Ketik nama klien..."
                 :options="[
@@ -395,6 +397,18 @@ const triggerConfirmDemo = (variant: 'default' | 'destructive') => {
                   { label: 'CV Global Perkasa Logistics', value: 'id-003', description: 'Surabaya — HAKI' },
                   { label: 'Firma Law Office Mandiri', value: 'id-004', description: 'Semarang — Arbitrase' },
                 ]"
+                clearable
+                required
+              />
+
+              <FormAsyncSearchableSelect
+                v-model="asyncSelectDemo"
+                name="user_id"
+                label="Pilih Pengguna Sistem (Async API Select — Limit 50)"
+                api-url="/api/search"
+                api-entity="user"
+                placeholder="Pencarian via API Eloquent Model (Limit 50)..."
+                search-placeholder="Ketik nama / email pengguna..."
                 clearable
                 required
               />
