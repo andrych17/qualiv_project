@@ -5,7 +5,7 @@ import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
-import { ref, reactive, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { debounce } from '@/Composables/debounce'
 
 interface InventoryItem {
@@ -41,7 +41,7 @@ const props = defineProps<{
 }>()
 
 const search = ref(props.filters.search ?? '')
-const filters = reactive({ status: props.filters.status ?? '' })
+const filters = ref({ status: props.filters.status ?? '' })
 const sort = ref<SortState>(
   props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
 )
@@ -82,7 +82,7 @@ watch([search, filters, sort, perPage], debounce(() => {
   selected.value = []
   router.get(route('inventory.items.index'), {
     search: search.value,
-    status: filters.status,
+    status: filters.value.status,
     sort: sort.value?.key,
     direction: sort.value?.direction,
     per_page: perPage.value,
