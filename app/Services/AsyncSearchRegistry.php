@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class AsyncSearchRegistry
 {
     /**
-     * @var array<string, array{modelClass: class-string<Model>, searchFields: array, labelField: string|callable, descriptionField: string|callable|null, badgeField: string|callable|null}>
+     * @var array<string, array{modelClass: class-string<Model>, searchFields: array, labelField: string|callable, descriptionField: string|callable|null, badgeField: string|callable|null, queryCallback: callable|null}>
      */
     protected static array $registry = [];
 
@@ -21,6 +21,7 @@ class AsyncSearchRegistry
      * @param string|callable $labelField Column name or callback for option label
      * @param string|callable|null $descriptionField Column name or callback for option description
      * @param string|callable|null $badgeField Column name or callback for status badge
+     * @param callable|null $queryCallback Optional custom query builder callback for JOINs, scopes, or complex logic
      */
     public static function register(
         string $key,
@@ -28,7 +29,8 @@ class AsyncSearchRegistry
         array $searchFields = ['name'],
         string|callable $labelField = 'name',
         string|callable|null $descriptionField = null,
-        string|callable|null $badgeField = null
+        string|callable|null $badgeField = null,
+        ?callable $queryCallback = null
     ): void {
         static::$registry[$key] = [
             'modelClass' => $modelClass,
@@ -36,13 +38,14 @@ class AsyncSearchRegistry
             'labelField' => $labelField,
             'descriptionField' => $descriptionField,
             'badgeField' => $badgeField,
+            'queryCallback' => $queryCallback,
         ];
     }
 
     /**
      * Check if an entity is registered.
      */
-    public static function has(string $key): boolean
+    public static function has(string $key): bool
     {
         return isset(static::$registry[$key]);
     }
@@ -70,27 +73,32 @@ class AsyncSearchRegistry
         $modelClass = $config['modelClass'];
         $query = $modelClass::query();
 
-        // Apply extra filters (excluding system params)
-        foreach ($extraFilters as $col => $val) {
-            if ($val !== null && $val !== '' && ! in_array($col, ['q', 'entity', 'limit', 'selected_id', 'page'])) {
-                $query->where($col, $val);
-            }
-        }
-
-        // Search query across configured searchFields using uppercase column & parameter matching
-        if ($search !== '') {
-            $searchUpper = mb_strtoupper($search, 'UTF-8');
-            $query->where(function (Builder $q) use ($config, $searchUpper) {
-                foreach ($config['searchFields'] as $index => $field) {
-                    $sql = "UPPER({$field}::text) LIKE ?";
-                    $param = "%{$searchUpper}%";
-                    if ($index === 0) {
-                        $q->whereRaw($sql, [$param]);
-                    } else {
-                        $q->orWhereRaw($sql, [$param]);
-                    }
+        // Custom queryCallback for complex JOINs, scopes, or advanced logic
+        if (isset($config['queryCallback']) && is_callable($config['queryCallback'])) {
+            ($config['queryCallback'])($query, $search, $extraFilters);
+        } else {
+            // Apply extra filters (excluding system params)
+            foreach ($extraFilters as $col => $val) {
+                if ($val !== null && $val !== '' && ! in_array($col, ['q', 'entity', 'limit', 'selected_id', 'page'])) {
+                    $query->where($col, $val);
                 }
-            });
+            }
+
+            // Default search query across configured searchFields using uppercase column & parameter matching
+            if ($search !== '') {
+                $searchUpper = mb_strtoupper($search, 'UTF-8');
+                $query->where(function (Builder $q) use ($config, $searchUpper) {
+                    foreach ($config['searchFields'] as $index => $field) {
+                        $sql = "UPPER({$field}::text) LIKE ?";
+                        $param = "%{$searchUpper}%";
+                        if ($index === 0) {
+                            $q->whereRaw($sql, [$param]);
+                        } else {
+                            $q->orWhereRaw($sql, [$param]);
+                        }
+                    }
+                });
+            }
         }
 
         $total = $query->count();
