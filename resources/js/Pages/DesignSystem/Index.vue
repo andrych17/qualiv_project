@@ -10,6 +10,7 @@ import SecondaryButton from '@/Components/SecondaryButton.vue'
 import DangerButton from '@/Components/DangerButton.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
+import FormSearchableSelect from '@/Components/forms/FormSearchableSelect.vue'
 import SearchInput from '@/Components/filters/SearchInput.vue'
 import Checkbox from '@/Components/Checkbox.vue'
 import InputLabel from '@/Components/InputLabel.vue'
@@ -31,6 +32,7 @@ const searchDemo = ref('')
 const inputDemo = ref('PT NusaEvo Indonesia')
 const inputErrorDemo = ref('Format email tidak valid')
 const selectDemo = ref('legal')
+const searchableSelectDemo = ref<string | number | null>('id-001')
 const checkboxDemo = ref(true)
 const customFieldsModel = ref<Record<string, string>>({
   court_name: 'Pengadilan Negeri Jakarta Selatan',
@@ -366,12 +368,28 @@ const triggerConfirmDemo = (variant: 'default' | 'destructive') => {
               <FormSelect
                 v-model="selectDemo"
                 name="module_type"
-                label="Pilih Vertikal Modul"
+                label="Pilih Vertikal Modul (Standard Select)"
                 :options="[
                   { label: 'Legal Practice Management', value: 'legal' },
                   { label: 'Property Management', value: 'property' },
                   { label: 'General Corporate ERP', value: 'general' },
                 ]"
+                required
+              />
+
+              <FormSearchableSelect
+                v-model="searchableSelectDemo"
+                name="client_id"
+                label="Pilih Klien / Perusahaan (Searchable Select)"
+                placeholder="Cari atau pilih klien..."
+                search-placeholder="Ketik nama klien..."
+                :options="[
+                  { label: 'PT NusaEvo Indonesia', value: 'id-001', description: 'Jakarta Selatan — Perdata' },
+                  { label: 'PT Maju Bersama Tech', value: 'id-002', description: 'Bandung — Kontrak' },
+                  { label: 'CV Global Perkasa Logistics', value: 'id-003', description: 'Surabaya — HAKI' },
+                  { label: 'Firma Law Office Mandiri', value: 'id-004', description: 'Semarang — Arbitrase' },
+                ]"
+                clearable
                 required
               />
             </div>
