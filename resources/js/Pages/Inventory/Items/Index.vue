@@ -3,12 +3,9 @@
 import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
-import DataTable from '@/Components/tables/DataTable.vue'
-import DataTablePagination from '@/Components/tables/DataTablePagination.vue'
-import SearchInput from '@/Components/filters/SearchInput.vue'
+import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
-import FormSelect from '@/Components/forms/FormSelect.vue'
-import { ref, watch } from 'vue'
+import { ref, reactive, watch } from 'vue'
 import { debounce } from '@/Composables/debounce'
 
 interface InventoryItem {
@@ -26,10 +23,11 @@ interface InventoryItem {
 interface PaginatedData<T> {
   data: T[]
   links: Array<{ url: string | null; label: string; active: boolean }>
-  meta?: any
+  total: number
+  from: number | null
+  to: number | null
+  per_page: number
 }
-
-type SortState = { key: string; direction: 'asc' | 'desc' } | null
 
 const props = defineProps<{
   items: PaginatedData<InventoryItem>
@@ -38,15 +36,30 @@ const props = defineProps<{
     status?: string
     sort?: string
     direction?: string
+    per_page?: string
   }
 }>()
 
 const search = ref(props.filters.search ?? '')
-const status = ref(props.filters.status ?? '')
+const filters = reactive({ status: props.filters.status ?? '' })
 const sort = ref<SortState>(
   props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
 )
 const selected = ref<Array<string | number>>([])
+const perPage = ref(Number(props.filters.per_page) || props.items.per_page)
+
+const filterFields: FilterFieldDef[] = [
+  {
+    key: 'status',
+    label: 'Status',
+    type: 'select',
+    options: [
+      { label: 'Active', value: 'active' },
+      { label: 'Inactive', value: 'inactive' },
+      { label: 'Archived', value: 'archived' },
+    ],
+  },
+]
 
 const columns: Array<{
   key: string
@@ -65,22 +78,19 @@ const columns: Array<{
   { key: 'actions', label: 'Actions', align: 'right' },
 ]
 
-watch([search, status, sort], debounce(() => {
+watch([search, filters, sort, perPage], debounce(() => {
   selected.value = []
   router.get(route('inventory.items.index'), {
     search: search.value,
-    status: status.value,
+    status: filters.status,
     sort: sort.value?.key,
     direction: sort.value?.direction,
+    per_page: perPage.value,
   }, {
     preserveState: true,
     replace: true,
   })
 }, 400))
-
-const goToEdit = (item: any) => {
-  router.get(route('inventory.items.edit', item.id))
-}
 
 const confirmDelete = (item: any) => {
   if (!confirm(`Are you sure you want to delete item ${item.name}?`)) return
@@ -110,34 +120,24 @@ const confirmBulkDelete = () => {
     </PageHeader>
 
     <div class="mt-6 space-y-4">
-      <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div class="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
-          <div class="w-full sm:max-w-xs">
-            <SearchInput v-model="search" placeholder="Search by code or name..." />
-          </div>
-          <div class="w-full sm:max-w-[200px]">
-            <FormSelect
-              v-model="status"
-              name="status"
-              placeholder="All Status"
-              :options="[
-                { label: 'Active', value: 'active' },
-                { label: 'Inactive', value: 'inactive' },
-                { label: 'Archived', value: 'archived' }
-              ]"
-            />
-          </div>
-        </div>
-      </div>
-
       <DataTable
         :columns="columns"
         :items="items.data"
         v-model:sort="sort"
         v-model:selected="selected"
+        v-model:search="search"
+        v-model:filters="filters"
+        v-model:per-page="perPage"
         selectable
         sticky-header
         storage-key="inventory.items"
+        search-placeholder="Search by code or name..."
+        :filter-fields="filterFields"
+        export-filename="inventory-items"
+        :total="items.total"
+        :from="items.from"
+        :to="items.to"
+        :links="items.links"
         empty-title="No inventory items"
         empty-description="Create your first inventory item to start tracking stock."
       >
@@ -167,8 +167,6 @@ const confirmBulkDelete = () => {
           </div>
         </template>
       </DataTable>
-
-      <DataTablePagination :links="items.links" />
     </div>
   </AppLayout>
 </template>

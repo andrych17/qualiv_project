@@ -3,12 +3,9 @@
 import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
-import DataTable from '@/Components/tables/DataTable.vue'
-import DataTablePagination from '@/Components/tables/DataTablePagination.vue'
-import SearchInput from '@/Components/filters/SearchInput.vue'
+import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
-import FormSelect from '@/Components/forms/FormSelect.vue'
-import { ref, watch } from 'vue'
+import { ref, reactive, watch } from 'vue'
 import { debounce } from '@/Composables/debounce'
 
 interface ConfigMenuRow {
@@ -26,9 +23,11 @@ interface ConfigMenuRow {
 interface PaginatedData<T> {
   data: T[]
   links: Array<{ url: string | null; label: string; active: boolean }>
+  total: number
+  from: number | null
+  to: number | null
+  per_page: number
 }
-
-type SortState = { key: string; direction: 'asc' | 'desc' } | null
 
 const props = defineProps<{
   items: PaginatedData<ConfigMenuRow>
@@ -38,17 +37,31 @@ const props = defineProps<{
     header?: string
     sort?: string
     direction?: string
+    per_page?: string
   }
   headers: Array<{ label: string; value: string }>
 }>()
 
 const search = ref(props.filters.search ?? '')
-const status = ref(props.filters.status ?? '')
-const header = ref(props.filters.header ?? '')
+const filters = reactive({ status: props.filters.status ?? '', header: props.filters.header ?? '' })
 const sort = ref<SortState>(
   props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
 )
 const selected = ref<Array<string | number>>([])
+const perPage = ref(Number(props.filters.per_page) || props.items.per_page)
+
+const filterFields: FilterFieldDef[] = [
+  {
+    key: 'status',
+    label: 'Status',
+    type: 'select',
+    options: [
+      { label: 'Active', value: 'A' },
+      { label: 'Inactive', value: 'I' },
+    ],
+  },
+  { key: 'header', label: 'Header', type: 'select', options: props.headers },
+]
 
 const columns: Array<{
   key: string
@@ -66,14 +79,15 @@ const columns: Array<{
   { key: 'actions', label: 'Actions', align: 'right' },
 ]
 
-watch([search, status, header, sort], debounce(() => {
+watch([search, filters, sort, perPage], debounce(() => {
   selected.value = []
   router.get(route('config.menus.index'), {
     search: search.value,
-    status: status.value,
-    header: header.value,
+    status: filters.status,
+    header: filters.header,
     sort: sort.value?.key,
     direction: sort.value?.direction,
+    per_page: perPage.value,
   }, {
     preserveState: true,
     replace: true,
@@ -112,39 +126,24 @@ const confirmBulkDelete = () => {
     </PageHeader>
 
     <div class="mt-6 space-y-4">
-      <div class="flex flex-col gap-3 md:flex-row md:items-center">
-        <div class="w-full sm:max-w-xs">
-          <SearchInput v-model="search" placeholder="Search code, caption, link..." />
-        </div>
-        <div class="w-full sm:max-w-[180px]">
-          <FormSelect
-            v-model="status"
-            name="status"
-            placeholder="All Status"
-            :options="[
-              { label: 'Active', value: 'A' },
-              { label: 'Inactive', value: 'I' },
-            ]"
-          />
-        </div>
-        <div class="w-full sm:max-w-[200px]">
-          <FormSelect
-            v-model="header"
-            name="header"
-            placeholder="All Headers"
-            :options="headers"
-          />
-        </div>
-      </div>
-
       <DataTable
         :columns="columns"
         :items="items.data"
         v-model:sort="sort"
         v-model:selected="selected"
+        v-model:search="search"
+        v-model:filters="filters"
+        v-model:per-page="perPage"
         selectable
         sticky-header
         storage-key="config.menus"
+        search-placeholder="Search code, caption, link..."
+        :filter-fields="filterFields"
+        export-filename="config-menus"
+        :total="items.total"
+        :from="items.from"
+        :to="items.to"
+        :links="items.links"
         empty-title="No menus"
         empty-description="Create a menu so it can appear in the sidebar."
       >
@@ -179,8 +178,6 @@ const confirmBulkDelete = () => {
           </div>
         </template>
       </DataTable>
-
-      <DataTablePagination :links="items.links" />
     </div>
   </AppLayout>
 </template>

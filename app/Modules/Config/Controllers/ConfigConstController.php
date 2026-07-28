@@ -10,6 +10,7 @@ use App\Modules\Config\Services\ConfigConstService;
 use App\Shared\Helpers\TableQuery;
 use App\Shared\Traits\BulkDeletable;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -25,7 +26,7 @@ class ConfigConstController extends Controller
 
     public function index(Request $request): Response
     {
-        $filters = $request->only('search', 'const_group', 'sort', 'direction');
+        $filters = $request->only('search', 'const_group', 'sort', 'direction', 'per_page');
 
         $consts = ConfigConst::query()
             ->filter($filters)
@@ -34,7 +35,7 @@ class ConfigConstController extends Controller
                 fn ($query) => TableQuery::applySort($query, $filters['sort'], $filters['direction'] ?? null, self::SORTABLE, 'const_group'),
                 fn ($query) => $query->orderBy('const_group')->orderBy('seq'),
             )
-            ->paginate(20)
+            ->paginate(TableQuery::perPage(isset($filters['per_page']) ? (int) $filters['per_page'] : null, 20))
             ->withQueryString()
             ->through(fn (ConfigConst $c) => [
                 'id' => $c->id,
@@ -112,5 +113,20 @@ class ConfigConstController extends Controller
     public function bulkDestroy(Request $request)
     {
         return $this->bulkDestroyUsing($request, ConfigConst::class, fn (ConfigConst $const) => $this->service->delete($const));
+    }
+
+    /** DataTable InlineEditor demo — only str1/seq are editable inline; everything else needs the full form. */
+    public function quickUpdate(Request $request, ConfigConst $configConst)
+    {
+        $data = $request->validate([
+            'field' => ['required', 'string', Rule::in(['str1', 'seq'])],
+            'value' => ['required'],
+        ]);
+
+        $value = $data['field'] === 'seq' ? (int) $data['value'] : $data['value'];
+
+        $this->service->quickUpdate($configConst, $data['field'], $value);
+
+        return back()->with('success', 'Const updated.');
     }
 }

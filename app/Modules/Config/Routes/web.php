@@ -22,6 +22,7 @@ Route::middleware(['auth', 'verified'])->prefix('config')->name('config.')->grou
     });
     Route::middleware('menu.perm:CONFIG_CONSTS')->group(function () {
         Route::delete('consts/bulk-destroy', [ConfigConstController::class, 'bulkDestroy'])->name('consts.bulkDestroy');
+        Route::patch('consts/{configConst}/quick-update', [ConfigConstController::class, 'quickUpdate'])->name('consts.quickUpdate');
         Route::resource('consts', ConfigConstController::class)
             ->except(['show'])
             ->parameters(['consts' => 'configConst']);

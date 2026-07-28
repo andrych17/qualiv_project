@@ -32,4 +32,17 @@ class TableQuery
 
         $query->orderBy($defaultColumn, $defaultDirection);
     }
+
+    /**
+     * Clamp a client-requested page size so a crafted `per_page` can't force
+     * an unbounded/huge query against the database.
+     */
+    public static function perPage(?int $requested, int $default, int $max = 100): int
+    {
+        if ($requested === null || $requested < 1) {
+            return $default;
+        }
+
+        return min($requested, $max);
+    }
 }

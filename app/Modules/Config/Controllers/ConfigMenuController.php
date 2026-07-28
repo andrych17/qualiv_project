@@ -25,12 +25,12 @@ class ConfigMenuController extends Controller
 
     public function index(Request $request): Response
     {
-        $filters = $request->only('search', 'status', 'header', 'sort', 'direction');
+        $filters = $request->only('search', 'status', 'header', 'sort', 'direction', 'per_page');
 
         $menus = ConfigMenu::query()
             ->filter($filters)
             ->tap(fn ($query) => TableQuery::applySort($query, $filters['sort'] ?? null, $filters['direction'] ?? null, self::SORTABLE, 'seq'))
-            ->paginate(20)
+            ->paginate(TableQuery::perPage(isset($filters['per_page']) ? (int) $filters['per_page'] : null, 20))
             ->withQueryString()
             ->through(fn (ConfigMenu $m) => [
                 'id' => $m->id,

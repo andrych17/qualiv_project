@@ -30,6 +30,7 @@ class ConfigUserController extends Controller
         $search = $request->string('search')->toString();
         $sort = $request->string('sort')->toString() ?: null;
         $direction = $request->string('direction')->toString() ?: null;
+        $perPage = $request->filled('per_page') ? (int) $request->input('per_page') : null;
 
         $users = User::query()
             ->when($search !== '', function ($q) use ($search) {
@@ -39,7 +40,7 @@ class ConfigUserController extends Controller
                 });
             })
             ->tap(fn ($query) => TableQuery::applySort($query, $sort, $direction, self::SORTABLE, 'name'))
-            ->paginate(20)
+            ->paginate(TableQuery::perPage($perPage, 20))
             ->withQueryString()
             ->through(function (User $u) {
                 $groups = ConfigGroupUser::query()
@@ -58,7 +59,7 @@ class ConfigUserController extends Controller
 
         return Inertia::render('Config/Users/Index', [
             'users' => $users,
-            'filters' => ['search' => $search, 'sort' => $sort, 'direction' => $direction],
+            'filters' => ['search' => $search, 'sort' => $sort, 'direction' => $direction, 'per_page' => $perPage],
         ]);
     }
 

@@ -1,6 +1,6 @@
 <!-- ponytail: Single-page documentation & showcase for all NusaEvo ERP UI components -->
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
@@ -16,8 +16,7 @@ import InputLabel from '@/Components/InputLabel.vue'
 import InputError from '@/Components/InputError.vue'
 import CustomFieldInputs, { type CustomFieldDef } from '@/Components/forms/CustomFieldInputs.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
-import DataTable from '@/Components/tables/DataTable.vue'
-import DataTablePagination from '@/Components/tables/DataTablePagination.vue'
+import DataTable, { type FilterFieldDef } from '@/Components/tables/DataTable.vue'
 import ApplicationLogo from '@/Components/ApplicationLogo.vue'
 import Dropdown from '@/Components/Dropdown.vue'
 import DropdownLink from '@/Components/DropdownLink.vue'
@@ -82,33 +81,61 @@ const tableColumns = [
   { key: 'amount', label: 'Nilai Klaim', align: 'right' as const },
 ]
 
-const tableItems = [
+const tableItems = ref([
   { id: 1, case_number: 'LEGAL-2026-001', client: 'PT Maju Bersama', type: 'Sengketa Kontrak', status: 'active', statusRail: 'active', amount: 'Rp 450.000.000' },
   { id: 2, case_number: 'LEGAL-2026-002', client: 'Firma Hukum Prima', type: 'Konsultasi HAKI', status: 'pending', statusRail: 'pending', amount: 'Rp 125.000.000' },
   { id: 3, case_number: 'LEGAL-2026-003', client: 'Budi Santoso & Partners', type: 'Arbitrase Niaga', status: 'open', statusRail: 'open', amount: 'Rp 890.000.000' },
   { id: 4, case_number: 'LEGAL-2026-004', client: 'CV Global Perkasa', type: 'Audit Kepatuhan', status: 'overdue', statusRail: 'overdue', amount: 'Rp 75.000.000' },
   { id: 5, case_number: 'LEGAL-2026-005', client: 'Lembaga Keuangan Mandiri', type: 'Restrukturisasi', status: 'completed', statusRail: 'completed', amount: 'Rp 1.200.000.000' },
-]
+])
 
 const tableSort = ref<{ key: string; direction: 'asc' | 'desc' } | null>(null)
 const tableSelected = ref<Array<string | number>>([])
+const tableSearch = ref('')
+const tableFilters = reactive({ status: '' })
+const tablePerPage = ref(10)
 
-const sortedTableItems = computed(() => {
-  if (!tableSort.value) return tableItems
-  const { key, direction } = tableSort.value
-  return [...tableItems].sort((a, b) => {
-    const cmp = String((a as any)[key]).localeCompare(String((b as any)[key]))
-    return direction === 'asc' ? cmp : -cmp
-  })
+const tableFilterFields: FilterFieldDef[] = [
+  {
+    key: 'status',
+    label: 'Status Perkara',
+    type: 'select',
+    options: [
+      { label: 'Active', value: 'active' },
+      { label: 'Pending', value: 'pending' },
+      { label: 'Open', value: 'open' },
+      { label: 'Overdue', value: 'overdue' },
+      { label: 'Completed', value: 'completed' },
+    ],
+  },
+]
+
+// ponytail: this demo table has no backend, so search/filter/sort run client-side here —
+// on a real page these are v-model'd straight into the host page's router.get() params instead.
+const filteredTableItems = computed(() => {
+  let rows = tableItems.value
+  if (tableSearch.value) {
+    const q = tableSearch.value.toLowerCase()
+    rows = rows.filter((r) => r.case_number.toLowerCase().includes(q) || r.client.toLowerCase().includes(q))
+  }
+  if (tableFilters.status) {
+    rows = rows.filter((r) => r.status === tableFilters.status)
+  }
+  if (tableSort.value) {
+    const { key, direction } = tableSort.value
+    rows = [...rows].sort((a, b) => {
+      const cmp = String((a as any)[key]).localeCompare(String((b as any)[key]))
+      return direction === 'asc' ? cmp : -cmp
+    })
+  }
+  return rows
 })
 
-const paginationLinks = [
-  { url: null, label: '&laquo; Previous', active: false },
-  { url: '#', label: '1', active: true },
-  { url: '#', label: '2', active: false },
-  { url: '#', label: '3', active: false },
-  { url: '#', label: 'Next &raquo;', active: false },
-]
+const onTableCellEdit = (item: Record<string, any>, key: string, value: string) => {
+  const row = tableItems.value.find((r) => r.id === item.id)
+  if (row) (row as any)[key] = value
+}
+
 
 const triggerToastDemo = (type: 'success' | 'error') => {
   if (type === 'success') {
@@ -454,17 +481,29 @@ const triggerConfirmDemo = (variant: 'default' | 'destructive') => {
           <Table class="h-5 w-5 text-accent" />
           <h2 class="font-serif text-xl font-bold">6. Data Tables & Pagination</h2>
         </div>
-        <Panel subtitle="Tabel data standar dengan pengkodean Status Rail, sort kolom, seleksi baris, dan kolom visibility toggle.">
+        <Panel subtitle="Tabel data lengkap: Toolbar (search, filter, saved views, column visibility, export), sort, seleksi + bulk action, inline editor, expandable row, dan footer (record count, page size, pagination).">
           <div class="space-y-4">
             <DataTable
               :columns="tableColumns"
-              :items="sortedTableItems"
+              :items="filteredTableItems"
               v-model:sort="tableSort"
               v-model:selected="tableSelected"
+              v-model:search="tableSearch"
+              v-model:filters="tableFilters"
+              v-model:per-page="tablePerPage"
               selectable
+              expandable
               sticky-header
               storage-key="design-system.demo"
               status-rail-key="statusRail"
+              search-placeholder="Cari nomor perkara atau klien…"
+              :filter-fields="tableFilterFields"
+              :editable-keys="['client']"
+              export-filename="design-system-demo"
+              :total="filteredTableItems.length"
+              :from="filteredTableItems.length ? 1 : 0"
+              :to="filteredTableItems.length"
+              @cell-edit="onTableCellEdit"
             >
               <template #bulk-actions>
                 <button type="button" class="text-sm font-medium text-signal-danger hover:underline" @click="tableSelected = []">
@@ -474,9 +513,11 @@ const triggerConfirmDemo = (variant: 'default' | 'destructive') => {
               <template #cell-status="{ value }">
                 <StatusBadge :status="value" />
               </template>
+              <template #row-detail="{ item }">
+                <p class="text-xs font-semibold uppercase tracking-wide text-ink-600">Detail Perkara</p>
+                <p class="mt-1 text-sm text-ink-900">{{ item.type }} — {{ item.amount }}</p>
+              </template>
             </DataTable>
-
-            <DataTablePagination :links="paginationLinks" />
           </div>
         </Panel>
       </section>
