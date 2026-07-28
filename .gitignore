@@ -26,3 +26,23 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Graphify knowledge graph
+graphify-out/
+.graphifyignore
+
+# AI & Agent configurations / metadata
+.agents/
+.augment/
+.claude/
+.codewhale/
+.continue/
+.factory/
+.gemini/
+.github/prompts/
+.opencode/
+.qoder/
+.roo/
+.warp/
+
+

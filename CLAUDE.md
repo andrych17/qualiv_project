@@ -166,8 +166,9 @@ Host has Node/npm; PHP runs inside Docker Compose (image includes `pdo_pgsql`, `
 Stack (see `docker-compose.yml`):
 - `app` — `php artisan serve` on `:8000`
 - `queue` — `php artisan queue:work` (Redis)
-- `postgres` — PostgreSQL 16 (host port **5435** → container 5432; 5432 often taken locally)
-- `redis` — Redis 7 (host port **6381** → container 6379)
+- Postgres/Redis now come from the shared-infra stack (`shared-postgres`/`shared-redis`,
+  host port **5432**/**6379**), joined via the external `shared-infra` network. Start
+  that stack before this one.
 
 Compose injects DB/Redis env for containers. Vite stays on the host.
 
@@ -183,11 +184,11 @@ docker compose exec app php artisan key:generate   # once
 docker compose exec app php artisan migrate --seed
 
 # Local / container
-docker compose up -d          # app + queue + postgres + redis
+docker compose up -d          # app + queue (needs shared-infra stack running)
 npm run dev                   # Vite on host → http://localhost:8000
 
-# Host tools (psql/redis-cli): localhost:5435 / localhost:6381
-# PHP always via docker — .env uses postgres/redis service names.
+# Host tools (psql/redis-cli): localhost:5432 / localhost:6379 (shared-infra stack)
+# PHP always via docker — .env uses postgres/redis service names (network aliases).
 ```
 
 One-off artisan (examples):
@@ -252,3 +253,14 @@ One-off artisan (examples):
 - [x] In-tenant menu trustee enforcement (`menu.perm:` middleware)
 - [x] Custom fields + custom logic + serials (`ARCHITECTURE.md`; field-defs admin UI still open)
 
+## graphify
+
+STRICT REQUIREMENT: NEVER use `grep` or `grep_search` tool as first search method for codebase/architecture questions. ALWAYS use graphify first.
+
+Rules:
+- BEFORE searching code: Check if `graphify-out/graph.json` exists. If missing, run `graphify index .` immediately to build graph.
+- For all codebase/architecture questions, MUST run `graphify query "<question>"` (CLI) or `query_graph` (MCP) first. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts.
+- `grep` / `grep_search` is STRICTLY prohibited unless graphify tools yield no results or fail.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
