@@ -7,5 +7,6 @@ Route::middleware(['auth', 'verified', 'module:INVENTORY', 'menu.perm:INVENTORY'
     ->prefix('inventory')
     ->name('inventory.')
     ->group(function () {
+        Route::delete('items/bulk-destroy', [InventoryItemController::class, 'bulkDestroy'])->name('items.bulkDestroy');
         Route::resource('items', InventoryItemController::class);
     });

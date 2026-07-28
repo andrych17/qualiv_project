@@ -26,27 +26,36 @@ interface PaginatedData<T> {
   links: Array<{ url: string | null; label: string; active: boolean }>
 }
 
+type SortState = { key: string; direction: 'asc' | 'desc' } | null
+
 const props = defineProps<{
   groups: PaginatedData<GroupRow>
-  filters: { search?: string; status?: string }
+  filters: { search?: string; status?: string; sort?: string; direction?: string }
 }>()
 
 const search = ref(props.filters.search ?? '')
 const status = ref(props.filters.status ?? '')
+const sort = ref<SortState>(
+  props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
+)
+const selected = ref<Array<string | number>>([])
 
 const columns = [
-  { key: 'code', label: 'Code' },
-  { key: 'descr', label: 'Description' },
+  { key: 'code', label: 'Code', sortable: true },
+  { key: 'descr', label: 'Description', sortable: true },
   { key: 'users_count', label: 'Users', align: 'right' as const },
   { key: 'rights_count', label: 'Menus', align: 'right' as const },
   { key: 'status_label', label: 'Status' },
   { key: 'actions', label: 'Actions', align: 'right' as const },
 ]
 
-watch([search, status], debounce(() => {
+watch([search, status, sort], debounce(() => {
+  selected.value = []
   router.get(route('config.groups.index'), {
     search: search.value,
     status: status.value,
+    sort: sort.value?.key,
+    direction: sort.value?.direction,
   }, { preserveState: true, replace: true })
 }, 400))
 
@@ -54,6 +63,14 @@ const confirmDelete = (item: GroupRow | Record<string, unknown>) => {
   const row = item as GroupRow
   if (!confirm(`Delete group ${row.code}?`)) return
   router.delete(route('config.groups.destroy', row.id))
+}
+
+const confirmBulkDelete = () => {
+  if (!confirm(`Delete ${selected.value.length} selected group(s)?`)) return
+  router.delete(route('config.groups.bulkDestroy'), {
+    data: { ids: selected.value },
+    onSuccess: () => { selected.value = [] },
+  })
 }
 </script>
 
@@ -94,9 +111,19 @@ const confirmDelete = (item: GroupRow | Record<string, unknown>) => {
       <DataTable
         :columns="columns"
         :items="groups.data"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        selectable
+        sticky-header
+        storage-key="config.groups"
         empty-title="No groups"
         empty-description="Create a group to assign menu access."
       >
+        <template #bulk-actions>
+          <button type="button" class="text-sm font-medium text-red-600 hover:text-red-950" @click="confirmBulkDelete">
+            Delete selected
+          </button>
+        </template>
         <template #cell-status_label="{ item }">
           <StatusBadge :status="item.status_label" />
         </template>

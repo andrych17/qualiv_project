@@ -28,12 +28,16 @@ interface PaginatedData<T> {
   links: Array<{ url: string | null; label: string; active: boolean }>
 }
 
+type SortState = { key: string; direction: 'asc' | 'desc' } | null
+
 const props = defineProps<{
   items: PaginatedData<ConfigMenuRow>
   filters: {
     search?: string
     status?: string
     header?: string
+    sort?: string
+    direction?: string
   }
   headers: Array<{ label: string; value: string }>
 }>()
@@ -41,27 +45,35 @@ const props = defineProps<{
 const search = ref(props.filters.search ?? '')
 const status = ref(props.filters.status ?? '')
 const header = ref(props.filters.header ?? '')
+const sort = ref<SortState>(
+  props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
+)
+const selected = ref<Array<string | number>>([])
 
 const columns: Array<{
   key: string
   label: string
   align?: 'left' | 'center' | 'right'
+  sortable?: boolean
 }> = [
-  { key: 'seq', label: 'Seq', align: 'right' },
-  { key: 'code', label: 'Code' },
-  { key: 'menu_caption', label: 'Caption' },
-  { key: 'menu_header', label: 'Header' },
+  { key: 'seq', label: 'Seq', align: 'right', sortable: true },
+  { key: 'code', label: 'Code', sortable: true },
+  { key: 'menu_caption', label: 'Caption', sortable: true },
+  { key: 'menu_header', label: 'Header', sortable: true },
   { key: 'menu_link', label: 'Link' },
   { key: 'icon', label: 'Icon' },
   { key: 'status_label', label: 'Status' },
   { key: 'actions', label: 'Actions', align: 'right' },
 ]
 
-watch([search, status, header], debounce(() => {
+watch([search, status, header, sort], debounce(() => {
+  selected.value = []
   router.get(route('config.menus.index'), {
     search: search.value,
     status: status.value,
     header: header.value,
+    sort: sort.value?.key,
+    direction: sort.value?.direction,
   }, {
     preserveState: true,
     replace: true,
@@ -72,6 +84,14 @@ const confirmDelete = (item: ConfigMenuRow | Record<string, unknown>) => {
   const row = item as ConfigMenuRow
   if (!confirm(`Delete menu ${row.menu_caption} (${row.code})?`)) return
   router.delete(route('config.menus.destroy', row.id))
+}
+
+const confirmBulkDelete = () => {
+  if (!confirm(`Delete ${selected.value.length} selected menu(s)?`)) return
+  router.delete(route('config.menus.bulkDestroy'), {
+    data: { ids: selected.value },
+    onSuccess: () => { selected.value = [] },
+  })
 }
 </script>
 
@@ -120,9 +140,19 @@ const confirmDelete = (item: ConfigMenuRow | Record<string, unknown>) => {
       <DataTable
         :columns="columns"
         :items="items.data"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        selectable
+        sticky-header
+        storage-key="config.menus"
         empty-title="No menus"
         empty-description="Create a menu so it can appear in the sidebar."
       >
+        <template #bulk-actions>
+          <button type="button" class="text-sm font-medium text-red-600 hover:text-red-950" @click="confirmBulkDelete">
+            Delete selected
+          </button>
+        </template>
         <template #cell-status_label="{ item }">
           <StatusBadge :status="item.status_label" />
         </template>

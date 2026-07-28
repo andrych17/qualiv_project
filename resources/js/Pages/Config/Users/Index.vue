@@ -22,23 +22,34 @@ interface PaginatedData<T> {
   links: Array<{ url: string | null; label: string; active: boolean }>
 }
 
+type SortState = { key: string; direction: 'asc' | 'desc' } | null
+
 const props = defineProps<{
   users: PaginatedData<UserRow>
-  filters: { search?: string }
+  filters: { search?: string; sort?: string; direction?: string }
 }>()
 
 const search = ref(props.filters.search ?? '')
+const sort = ref<SortState>(
+  props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
+)
+const selected = ref<Array<string | number>>([])
 
 const columns = [
-  { key: 'name', label: 'Name' },
-  { key: 'email', label: 'Email' },
+  { key: 'name', label: 'Name', sortable: true },
+  { key: 'email', label: 'Email', sortable: true },
   { key: 'groups', label: 'Groups' },
-  { key: 'created_at_formatted', label: 'Created' },
+  { key: 'created_at_formatted', label: 'Created', sortable: true, sortKey: 'created_at' },
   { key: 'actions', label: 'Actions', align: 'right' as const },
 ]
 
-watch(search, debounce(() => {
-  router.get(route('config.users.index'), { search: search.value }, {
+watch([search, sort], debounce(() => {
+  selected.value = []
+  router.get(route('config.users.index'), {
+    search: search.value,
+    sort: sort.value?.key,
+    direction: sort.value?.direction,
+  }, {
     preserveState: true,
     replace: true,
   })
@@ -48,6 +59,14 @@ const confirmDelete = (item: UserRow | Record<string, unknown>) => {
   const row = item as UserRow
   if (!confirm(`Delete user ${row.email}?`)) return
   router.delete(route('config.users.destroy', row.id))
+}
+
+const confirmBulkDelete = () => {
+  if (!confirm(`Delete ${selected.value.length} selected user(s)?`)) return
+  router.delete(route('config.users.bulkDestroy'), {
+    data: { ids: selected.value },
+    onSuccess: () => { selected.value = [] },
+  })
 }
 </script>
 
@@ -75,9 +94,19 @@ const confirmDelete = (item: UserRow | Record<string, unknown>) => {
       <DataTable
         :columns="columns"
         :items="users.data"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        selectable
+        sticky-header
+        storage-key="config.users"
         empty-title="No users"
         empty-description="Create a user for this tenant."
       >
+        <template #bulk-actions>
+          <button type="button" class="text-sm font-medium text-red-600 hover:text-red-950" @click="confirmBulkDelete">
+            Delete selected
+          </button>
+        </template>
         <template #cell-groups="{ item }">
           <span class="text-sm text-gray-600">
             {{ (item.groups as string[]).join(', ') || '—' }}

@@ -8,12 +8,18 @@ use App\Modules\Legal\Models\LegalCase;
 use App\Modules\Legal\Requests\StoreLegalCaseRequest;
 use App\Modules\Legal\Requests\UpdateLegalCaseRequest;
 use App\Modules\Legal\Services\LegalCaseService;
+use App\Shared\Helpers\TableQuery;
+use App\Shared\Traits\BulkDeletable;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class LegalCaseController extends Controller
 {
+    use BulkDeletable;
+
+    private const SORTABLE = ['code', 'title', 'status', 'created_at'];
+
     public function __construct(
         protected LegalCaseService $service,
         protected CustomFieldService $customFields,
@@ -21,11 +27,15 @@ class LegalCaseController extends Controller
 
     public function index(Request $request): Response
     {
-        $filters = $request->only('search', 'status');
+        $filters = $request->only('search', 'status', 'sort', 'direction');
 
         $cases = LegalCase::query()
             ->filter($filters)
-            ->orderByDesc('id')
+            ->when(
+                $filters['sort'] ?? null,
+                fn ($query) => TableQuery::applySort($query, $filters['sort'], $filters['direction'] ?? null, self::SORTABLE, 'id', 'desc'),
+                fn ($query) => $query->orderByDesc('id'),
+            )
             ->paginate(15)
             ->withQueryString()
             ->through(fn (LegalCase $c) => [
@@ -86,5 +96,10 @@ class LegalCaseController extends Controller
 
         return redirect()->route('legal.cases.index')
             ->with('success', 'Case deleted.');
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        return $this->bulkDestroyUsing($request, LegalCase::class, fn (LegalCase $case) => $this->service->delete($case));
     }
 }

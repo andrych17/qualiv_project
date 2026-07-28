@@ -7,24 +7,33 @@ use App\Modules\Config\Models\ConfigConst;
 use App\Modules\Config\Requests\StoreConfigConstRequest;
 use App\Modules\Config\Requests\UpdateConfigConstRequest;
 use App\Modules\Config\Services\ConfigConstService;
+use App\Shared\Helpers\TableQuery;
+use App\Shared\Traits\BulkDeletable;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ConfigConstController extends Controller
 {
+    use BulkDeletable;
+
+    private const SORTABLE = ['const_group', 'group_code', 'seq', 'str1', 'num1', 'note1'];
+
     public function __construct(
         protected ConfigConstService $service,
     ) {}
 
     public function index(Request $request): Response
     {
-        $filters = $request->only('search', 'const_group');
+        $filters = $request->only('search', 'const_group', 'sort', 'direction');
 
         $consts = ConfigConst::query()
             ->filter($filters)
-            ->orderBy('const_group')
-            ->orderBy('seq')
+            ->when(
+                $filters['sort'] ?? null,
+                fn ($query) => TableQuery::applySort($query, $filters['sort'], $filters['direction'] ?? null, self::SORTABLE, 'const_group'),
+                fn ($query) => $query->orderBy('const_group')->orderBy('seq'),
+            )
             ->paginate(20)
             ->withQueryString()
             ->through(fn (ConfigConst $c) => [
@@ -98,5 +107,10 @@ class ConfigConstController extends Controller
 
         return redirect()->route('config.consts.index')
             ->with('success', 'Const deleted.');
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        return $this->bulkDestroyUsing($request, ConfigConst::class, fn (ConfigConst $const) => $this->service->delete($const));
     }
 }
