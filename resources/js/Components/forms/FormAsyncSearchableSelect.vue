@@ -1,6 +1,6 @@
-<!-- ponytail: Complex Async Searchable Dropdown / Combobox with API integration & 50 item limit -->
+<!-- ponytail: Highly flexible Async Searchable Dropdown with API, extraParams, custom key mapping, and Vue Scoped Slots -->
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
 import { Search, ChevronDown, Check, X, Loader2, AlertCircle, RefreshCw } from 'lucide-vue-next'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
@@ -21,6 +21,7 @@ const props = withDefaults(
     name: string
     apiUrl?: string
     apiEntity?: string
+    extraParams?: Record<string, any>
     fetchFn?: (query: string) => Promise<AsyncSelectOption[]>
     placeholder?: string
     searchPlaceholder?: string
@@ -30,11 +31,15 @@ const props = withDefaults(
     required?: boolean
     disabled?: boolean
     clearable?: boolean
+    labelKey?: string
+    valueKey?: string
+    descriptionKey?: string
   }>(),
   {
     label: '',
     apiUrl: '/api/search',
     apiEntity: 'user',
+    extraParams: () => ({}),
     placeholder: 'Cari dan pilih data...',
     searchPlaceholder: 'Ketik untuk mencari (maks 50 hasil)...',
     limit: 50,
@@ -42,6 +47,9 @@ const props = withDefaults(
     required: false,
     disabled: false,
     clearable: true,
+    labelKey: 'label',
+    valueKey: 'value',
+    descriptionKey: 'description',
   }
 )
 
@@ -64,6 +72,10 @@ const searchInput = ref<HTMLInputElement | null>(null)
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
+const getItemValue = (item: AsyncSelectOption) => item[props.valueKey] ?? item.value
+const getItemLabel = (item: AsyncSelectOption) => item[props.labelKey] ?? item.label
+const getItemDescription = (item: AsyncSelectOption) => item[props.descriptionKey] ?? item.description
+
 // Hydrate selected item label on initial load if modelValue is provided
 const hydrateSelectedValue = async () => {
   if (!props.modelValue) {
@@ -75,13 +87,14 @@ const hydrateSelectedValue = async () => {
   try {
     if (props.fetchFn) {
       const res = await props.fetchFn('')
-      const match = res.find((item) => String(item.value) === String(props.modelValue))
+      const match = res.find((item) => String(getItemValue(item)) === String(props.modelValue))
       if (match) selectedOption.value = match
     } else {
       const response = await axios.get(props.apiUrl, {
         params: {
           entity: props.apiEntity,
           selected_id: props.modelValue,
+          ...props.extraParams,
         },
       })
       const items: AsyncSelectOption[] = response.data?.items ?? []
@@ -112,6 +125,7 @@ const performSearch = async (query: string) => {
           entity: props.apiEntity,
           q: query,
           limit: Math.min(props.limit, 50),
+          ...props.extraParams,
         },
       })
       options.value = response.data?.items ?? []
@@ -137,7 +151,7 @@ watch(searchQuery, (newQuery) => {
 watch(() => props.modelValue, (newVal) => {
   if (!newVal) {
     selectedOption.value = null
-  } else if (!selectedOption.value || String(selectedOption.value.value) !== String(newVal)) {
+  } else if (!selectedOption.value || String(getItemValue(selectedOption.value)) !== String(newVal)) {
     hydrateSelectedValue()
   }
 }, { immediate: true })
@@ -156,7 +170,7 @@ const toggleDropdown = () => {
 
 const selectItem = (opt: AsyncSelectOption) => {
   selectedOption.value = opt
-  emit('update:modelValue', opt.value)
+  emit('update:modelValue', getItemValue(opt))
   emit('select', opt)
   isOpen.value = false
   searchQuery.value = ''
@@ -212,28 +226,31 @@ onUnmounted(() => {
           disabled ? 'bg-surface-50 cursor-not-allowed text-ink-600' : 'cursor-pointer'
         ]"
       >
-        <div v-if="selectedOption" class="flex items-center gap-2 min-w-0 pr-2">
-          <div
-            v-if="selectedOption.avatar"
-            class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-900 font-semibold text-[10px] text-white"
-          >
-            {{ selectedOption.avatar }}
+        <!-- Custom selected slot or default layout -->
+        <slot name="selected" :option="selectedOption">
+          <div v-if="selectedOption" class="flex items-center gap-2 min-w-0 pr-2">
+            <div
+              v-if="selectedOption.avatar"
+              class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-900 font-semibold text-[10px] text-white"
+            >
+              {{ selectedOption.avatar }}
+            </div>
+            <span class="font-medium text-ink-900 truncate">
+              {{ getItemLabel(selectedOption) }}
+            </span>
+            <span v-if="getItemDescription(selectedOption)" class="text-xs text-ink-600 truncate hidden sm:inline">
+              — {{ getItemDescription(selectedOption) }}
+            </span>
           </div>
-          <span class="font-medium text-ink-900 truncate">
-            {{ selectedOption.label }}
-          </span>
-          <span v-if="selectedOption.description" class="text-xs text-ink-600 truncate hidden sm:inline">
-            — {{ selectedOption.description }}
-          </span>
-        </div>
 
-        <span v-else-if="isHydrating" class="text-xs text-ink-600 flex items-center gap-1.5">
-          <Loader2 class="h-3.5 w-3.5 animate-spin" /> Memuat detail pilihan...
-        </span>
+          <span v-else-if="isHydrating" class="text-xs text-ink-600 flex items-center gap-1.5">
+            <Loader2 class="h-3.5 w-3.5 animate-spin" /> Memuat detail...
+          </span>
 
-        <span v-else class="text-ink-600">
-          {{ placeholder }}
-        </span>
+          <span v-else class="text-ink-600">
+            {{ placeholder }}
+          </span>
+        </slot>
 
         <div class="flex items-center gap-1.5 shrink-0 ml-2">
           <button
@@ -280,7 +297,6 @@ onUnmounted(() => {
 
         <!-- Options List -->
         <div class="overflow-y-auto flex-1 py-1 divide-y divide-border/40">
-          <!-- Loading skeleton state -->
           <div v-if="isLoading && options.length === 0" class="p-4 space-y-2 text-center text-xs text-ink-600">
             <div class="flex items-center justify-center gap-2">
               <Loader2 class="h-4 w-4 animate-spin text-accent" />
@@ -288,7 +304,6 @@ onUnmounted(() => {
             </div>
           </div>
 
-          <!-- Error state -->
           <div v-else-if="fetchError" class="p-4 text-center text-xs text-signal-danger space-y-2">
             <div class="flex items-center justify-center gap-1.5 font-medium">
               <AlertCircle class="h-4 w-4" />
@@ -303,49 +318,52 @@ onUnmounted(() => {
             </button>
           </div>
 
-          <!-- Empty state -->
-          <div
-            v-else-if="options.length === 0"
-            class="px-4 py-6 text-center text-xs text-ink-600"
-          >
-            Data tidak ditemukan untuk "{{ searchQuery || 'pencarian' }}"
+          <!-- Empty slot or default state -->
+          <div v-else-if="options.length === 0" class="px-4 py-6 text-center text-xs text-ink-600">
+            <slot name="empty">
+              Data tidak ditemukan untuk "{{ searchQuery || 'pencarian' }}"
+            </slot>
           </div>
 
-          <!-- Option items -->
+          <!-- Option items with custom slot support -->
           <button
             v-for="opt in options"
-            :key="opt.value"
+            :key="getItemValue(opt)"
             type="button"
             @click="selectItem(opt)"
             class="w-full flex items-center justify-between px-3 py-2.5 text-left text-sm transition-colors hover:bg-surface-50"
-            :class="String(opt.value) === String(modelValue) ? 'bg-surface-50 font-semibold text-accent' : 'text-ink-900'"
+            :class="String(getItemValue(opt)) === String(modelValue) ? 'bg-surface-50 font-semibold text-accent' : 'text-ink-900'"
           >
-            <div class="flex items-center gap-3 min-w-0 pr-2">
-              <div
-                v-if="opt.avatar"
-                class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gray-900 font-bold text-xs text-white shadow-sm"
-              >
-                {{ opt.avatar }}
-              </div>
-              <div class="min-w-0">
-                <div class="leading-snug truncate">{{ opt.label }}</div>
-                <div v-if="opt.description" class="text-xs text-ink-600 mt-0.5 truncate font-normal">
-                  {{ opt.description }}
+            <slot name="option" :option="opt">
+              <div class="flex items-center gap-3 min-w-0 pr-2">
+                <div
+                  v-if="opt.avatar"
+                  class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gray-900 font-bold text-xs text-white shadow-sm"
+                >
+                  {{ opt.avatar }}
+                </div>
+                <div class="min-w-0">
+                  <div class="leading-snug truncate">{{ getItemLabel(opt) }}</div>
+                  <div v-if="getItemDescription(opt)" class="text-xs text-ink-600 mt-0.5 truncate font-normal">
+                    {{ getItemDescription(opt) }}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div class="flex items-center gap-2 shrink-0 ml-2">
-              <StatusBadge v-if="opt.badge" :status="opt.badge === 'active' || opt.badge === 'open' ? 'active' : 'pending'" :label="opt.badge" />
-              <Check v-if="String(opt.value) === String(modelValue)" class="h-4 w-4 text-accent shrink-0" />
-            </div>
+              <div class="flex items-center gap-2 shrink-0 ml-2">
+                <StatusBadge v-if="opt.badge" :status="opt.badge === 'active' || opt.badge === 'open' ? 'active' : 'pending'" :label="opt.badge" />
+                <Check v-if="String(getItemValue(opt)) === String(modelValue)" class="h-4 w-4 text-accent shrink-0" />
+              </div>
+            </slot>
           </button>
         </div>
 
         <!-- Footer Notice Limit 50 -->
         <div class="border-t border-border bg-surface-50 px-3 py-1.5 text-[11px] text-ink-600 flex items-center justify-between">
-          <span>Dibatasi maks 50 hasil per pencarian</span>
-          <span v-if="totalResults > 0" class="font-mono text-[10px]">{{ options.length }} dari {{ totalResults }}</span>
+          <slot name="footer" :total="totalResults" :count="options.length">
+            <span>Dibatasi maks 50 hasil per pencarian</span>
+            <span v-if="totalResults > 0" class="font-mono text-[10px]">{{ options.length }} dari {{ totalResults }}</span>
+          </slot>
         </div>
       </div>
     </div>
