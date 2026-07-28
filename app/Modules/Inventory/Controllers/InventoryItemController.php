@@ -31,12 +31,12 @@ class InventoryItemController extends Controller
 
     public function index(Request $request): Response
     {
-        $filters = $request->only('search', 'status', 'sort', 'direction');
+        $filters = $request->only('search', 'status', 'sort', 'direction', 'per_page');
 
         $items = InventoryItem::with('category')
             ->filter($filters)
             ->tap(fn ($query) => TableQuery::applySort($query, $filters['sort'] ?? null, $filters['direction'] ?? null, self::SORTABLE, 'created_at', 'desc'))
-            ->paginate(15)
+            ->paginate(TableQuery::perPage(isset($filters['per_page']) ? (int) $filters['per_page'] : null, 20))
             ->withQueryString()
             ->through(fn ($item) => [
                 'id' => $item->id,

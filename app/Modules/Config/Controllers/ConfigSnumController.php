@@ -25,12 +25,12 @@ class ConfigSnumController extends Controller
 
     public function index(Request $request): Response
     {
-        $filters = $request->only('search', 'sort', 'direction');
+        $filters = $request->only('search', 'sort', 'direction', 'per_page');
 
         $snums = ConfigSnum::query()
             ->filter($filters)
             ->tap(fn ($query) => TableQuery::applySort($query, $filters['sort'] ?? null, $filters['direction'] ?? null, self::SORTABLE, 'code'))
-            ->paginate(20)
+            ->paginate(TableQuery::perPage(isset($filters['per_page']) ? (int) $filters['per_page'] : null, 20))
             ->withQueryString()
             ->through(fn (ConfigSnum $s) => [
                 'id' => $s->id,

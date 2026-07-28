@@ -3,12 +3,9 @@
 import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
-import DataTable from '@/Components/tables/DataTable.vue'
-import DataTablePagination from '@/Components/tables/DataTablePagination.vue'
-import SearchInput from '@/Components/filters/SearchInput.vue'
+import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
-import FormSelect from '@/Components/forms/FormSelect.vue'
-import { ref, watch } from 'vue'
+import { ref, reactive, watch } from 'vue'
 import { debounce } from '@/Composables/debounce'
 
 interface CaseRow {
@@ -17,27 +14,44 @@ interface CaseRow {
   code: string
   title: string
   status: string
+  notes: string | null
   created_at_formatted: string | null
 }
 
 interface PaginatedData<T> {
   data: T[]
   links: Array<{ url: string | null; label: string; active: boolean }>
+  total: number
+  from: number | null
+  to: number | null
+  per_page: number
 }
-
-type SortState = { key: string; direction: 'asc' | 'desc' } | null
 
 const props = defineProps<{
   cases: PaginatedData<CaseRow>
-  filters: { search?: string; status?: string; sort?: string; direction?: string }
+  filters: { search?: string; status?: string; sort?: string; direction?: string; per_page?: string }
 }>()
 
 const search = ref(props.filters.search ?? '')
-const status = ref(props.filters.status ?? '')
+const filters = reactive({ status: props.filters.status ?? '' })
 const sort = ref<SortState>(
   props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
 )
 const selected = ref<Array<string | number>>([])
+const perPage = ref(Number(props.filters.per_page) || props.cases.per_page)
+
+const filterFields: FilterFieldDef[] = [
+  {
+    key: 'status',
+    label: 'Status',
+    type: 'select',
+    options: [
+      { label: 'Open', value: 'open' },
+      { label: 'Pending', value: 'pending' },
+      { label: 'Closed', value: 'closed' },
+    ],
+  },
+]
 
 const columns = [
   { key: 'code', label: 'Code', sortable: true },
@@ -47,13 +61,14 @@ const columns = [
   { key: 'actions', label: 'Actions', align: 'right' as const },
 ]
 
-watch([search, status, sort], debounce(() => {
+watch([search, filters, sort, perPage], debounce(() => {
   selected.value = []
   router.get(route('legal.cases.index'), {
     search: search.value,
-    status: status.value,
+    status: filters.status,
     sort: sort.value?.key,
     direction: sort.value?.direction,
+    per_page: perPage.value,
   }, { preserveState: true, replace: true })
 }, 400))
 
@@ -89,33 +104,26 @@ const confirmBulkDelete = () => {
     </PageHeader>
 
     <div class="mt-6 space-y-4">
-      <div class="flex flex-col gap-3 sm:flex-row">
-        <div class="w-full sm:max-w-xs">
-          <SearchInput v-model="search" placeholder="Search code or title…" />
-        </div>
-        <div class="w-full sm:max-w-[180px]">
-          <FormSelect
-            v-model="status"
-            name="status"
-            placeholder="All status"
-            :options="[
-              { label: 'Open', value: 'open' },
-              { label: 'Pending', value: 'pending' },
-              { label: 'Closed', value: 'closed' },
-            ]"
-          />
-        </div>
-      </div>
-
       <DataTable
         :columns="columns"
         :items="cases.data"
         v-model:sort="sort"
         v-model:selected="selected"
+        v-model:search="search"
+        v-model:filters="filters"
+        v-model:per-page="perPage"
         selectable
+        expandable
         sticky-header
         storage-key="legal.cases"
         status-rail-key="status"
+        search-placeholder="Search code or title…"
+        :filter-fields="filterFields"
+        export-filename="legal-cases"
+        :total="cases.total"
+        :from="cases.from"
+        :to="cases.to"
+        :links="cases.links"
         empty-title="No cases yet"
         empty-description="Open your first case to track matters for this firm."
       >
@@ -154,9 +162,11 @@ const confirmBulkDelete = () => {
             </button>
           </div>
         </template>
+        <template #row-detail="{ item }">
+          <p class="text-xs font-semibold uppercase tracking-wide text-ink-600">Notes</p>
+          <p class="mt-1 text-sm text-ink-900">{{ (item as CaseRow).notes || 'No notes for this case.' }}</p>
+        </template>
       </DataTable>
-
-      <DataTablePagination :links="cases.links" />
     </div>
   </AppLayout>
 </template>

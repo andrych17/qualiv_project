@@ -1,8 +1,16 @@
-<!-- ponytail: DataTable + optional Status Rail (DESIGN.md signature) -->
-<!-- ponytail: sort/selection/column-visibility are client concerns; pagination + actual data sort stay server-side via the host page's router.get. -->
+<!-- ponytail: DataTable orchestrator — composes Toolbar/Header/Body/Footer + useDataTable().
+     QueryState (search/filters/sort) and SelectionState (selected) are host-owned defineModels
+     (the host page's router.get is the source of truth for what's actually loaded server-side).
+     ViewState (hidden columns/column widths) and SavedViews/Persistence live in useDataTable(). -->
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
-import { ChevronDown, ChevronUp, ChevronsUpDown, Columns3 } from 'lucide-vue-next'
+import { computed, ref, useSlots } from 'vue'
+import { useDataTable, type SortState, type SavedView } from '@/Composables/useDataTable'
+import DataTableToolbar, { type FilterFieldDef } from '@/Components/tables/DataTableToolbar.vue'
+import DataTableHeader from '@/Components/tables/DataTableHeader.vue'
+import DataTableBody from '@/Components/tables/DataTableBody.vue'
+import DataTableFooter from '@/Components/tables/DataTableFooter.vue'
+
+export type { FilterFieldDef, SortState, SavedView }
 
 type Column = {
   key: string
@@ -13,7 +21,7 @@ type Column = {
   align?: 'left' | 'center' | 'right'
 }
 
-type SortState = { key: string; direction: 'asc' | 'desc' } | null
+type PaginationLink = { url: string | null; label: string; active: boolean }
 
 const props = withDefaults(
   defineProps<{
@@ -30,34 +38,51 @@ const props = withDefaults(
     selectable?: boolean
     /** Sticks the header row to the top of the nearest scroll container. */
     stickyHeader?: boolean
-    /** Unique key to persist column visibility in localStorage (e.g. 'legal.cases'). Omit to skip persistence. */
+    /** Unique key to persist column visibility/widths/saved views in localStorage (e.g. 'legal.cases'). */
     storageKey?: string
+    /** FilterBuilder field defs — reuses the same whitelisted params each controller's scopeFilter() accepts. */
+    filterFields?: FilterFieldDef[]
+    searchPlaceholder?: string
+    /** Enables drag-to-resize column width handles. */
+    resizable?: boolean
+    /** Freezes this many leading visible columns (after selection) while scrolling horizontally. */
+    stickyColumnCount?: number
+    /** Columns that open an inline text editor on double-click; emits `cell-edit` on commit. */
+    editableKeys?: string[]
+    /** Shows an expand toggle per row; expanded content renders via the #row-detail slot. */
+    expandable?: boolean
+    /** Filename for the Export CSV button (current loaded page only — bump per-page size to export more). */
+    exportFilename?: string
+    // Footer / pagination meta — pass straight from the Laravel paginator (already has these fields).
+    total?: number
+    from?: number | null
+    to?: number | null
+    links?: PaginationLink[]
+    perPageOptions?: number[]
   }>(),
   { rowKey: 'id' },
 )
 
+const emit = defineEmits<{
+  'cell-edit': [item: Record<string, any>, key: string, value: string]
+}>()
+
 const sort = defineModel<SortState>('sort', { default: null })
 const selected = defineModel<Array<string | number>>('selected', { default: () => [] })
+const search = defineModel<string>('search', { default: '' })
+const filters = defineModel<Record<string, any>>('filters', { default: () => ({}) })
+const perPage = defineModel<number | undefined>('perPage')
 
-const alignClass = (align?: string) => {
-  if (align === 'center') return 'text-center'
-  if (align === 'right') return 'text-right'
-  return 'text-left'
-}
+const slots = useSlots()
+// Only forward per-column cell slots the host page actually provided — an always-registered
+// but empty slot would shadow DataTableBody's own default cell rendering (v-if can't combine
+// with v-for on the same <template>, so filter the list instead of guarding inline).
+const forwardedCellColumns = computed(() => visibleColumns.value.filter((c) => !!slots[`cell-${c.key}`]))
 
-const railClass = (item: Record<string, any>) => {
-  if (!props.statusRailKey) return ''
-  const status = String(item[props.statusRailKey] ?? '').toLowerCase()
-  const map: Record<string, string> = {
-    open: 'border-l-[3px] border-l-signal-info',
-    pending: 'border-l-[3px] border-l-signal-warning',
-    closed: 'border-l-[3px] border-l-signal-success',
-    active: 'border-l-[3px] border-l-signal-success',
-    overdue: 'border-l-[3px] border-l-signal-danger',
-    rejected: 'border-l-[3px] border-l-signal-danger',
-  }
-  return map[status] ?? 'border-l-[3px] border-l-border'
-}
+const { hiddenKeys, columnWidths, savedViews, toggleColumn, setColumnWidth, saveView, deleteView } =
+  useDataTable({ storageKey: props.storageKey, columnCount: props.columns.length })
+
+const visibleColumns = computed(() => props.columns.filter((c) => !hiddenKeys.value.has(c.key)))
 
 // --- Sort ---
 const sortKeyOf = (column: Column) => column.sortKey ?? column.key
@@ -74,60 +99,8 @@ const toggleSort = (column: Column) => {
   }
 }
 
-const sortIcon = (column: Column) => {
-  if (sort.value?.key !== sortKeyOf(column)) return ChevronsUpDown
-  return sort.value.direction === 'asc' ? ChevronUp : ChevronDown
-}
-
-// --- Column visibility ---
-const storagePrefix = 'datatable:hidden-columns:'
-
-const loadHidden = (): string[] => {
-  if (!props.storageKey) return []
-  try {
-    const raw = localStorage.getItem(storagePrefix + props.storageKey)
-    return raw ? JSON.parse(raw) : []
-  } catch {
-    return []
-  }
-}
-
-const hiddenKeys = ref<Set<string>>(new Set(loadHidden()))
-const showColumnMenu = ref(false)
-
-watch(
-  hiddenKeys,
-  (val) => {
-    if (!props.storageKey) return
-    localStorage.setItem(storagePrefix + props.storageKey, JSON.stringify([...val]))
-  },
-  { deep: true },
-)
-
-const visibleColumns = computed(() => props.columns.filter((c) => !hiddenKeys.value.has(c.key)))
-
-const toggleColumn = (key: string) => {
-  const next = new Set(hiddenKeys.value)
-  if (next.has(key)) {
-    next.delete(key)
-  } else {
-    if (props.columns.length - next.size <= 1) return // keep at least one column visible
-    next.add(key)
-  }
-  hiddenKeys.value = next
-}
-
-const closeColumnMenu = (e: MouseEvent) => {
-  if (!(e.target as HTMLElement)?.closest?.('[data-column-menu]')) {
-    showColumnMenu.value = false
-  }
-}
-onMounted(() => document.addEventListener('click', closeColumnMenu))
-onUnmounted(() => document.removeEventListener('click', closeColumnMenu))
-
 // --- Selection ---
 const rowId = (item: Record<string, any>) => item[props.rowKey]
-
 const isSelected = (item: Record<string, any>) => selected.value.includes(rowId(item))
 
 const toggleRow = (item: Record<string, any>) => {
@@ -147,10 +120,59 @@ const someSelected = computed(
 const toggleAll = () => {
   selected.value = allSelected.value ? [] : props.items.map(rowId)
 }
+
+// --- Sticky columns: Header measures <th> widths, Body aligns matching <td> offsets ---
+const stickyOffsets = ref<number[]>([])
+
+// --- Saved views ---
+const applyView = (view: SavedView) => {
+  search.value = view.search
+  filters.value = { ...view.filters }
+  sort.value = view.sort
+}
+
+const submitSaveView = (name: string) => {
+  saveView(name, { search: search.value, filters: { ...filters.value }, sort: sort.value })
+}
+
+// --- Export current page to CSV ---
+const exportCsv = () => {
+  const cols = visibleColumns.value
+  const escape = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`
+  const rows = [
+    cols.map((c) => escape(c.label)).join(','),
+    ...props.items.map((item) => cols.map((c) => escape(item[c.key])).join(',')),
+  ]
+  const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `${props.exportFilename ?? 'export'}.csv`
+  link.click()
+  URL.revokeObjectURL(url)
+}
 </script>
 
 <template>
-  <div class="space-y-2">
+  <div class="space-y-3">
+    <DataTableToolbar
+      v-if="filterFields?.length || storageKey || exportFilename"
+      v-model:search="search"
+      v-model:filters="filters"
+      :columns="columns"
+      :hidden-keys="hiddenKeys"
+      :filter-fields="filterFields"
+      :saved-views="storageKey ? savedViews : undefined"
+      :search-placeholder="searchPlaceholder"
+      :exportable="!!exportFilename"
+      :current-sort="sort"
+      @toggle-column="toggleColumn"
+      @apply-view="applyView"
+      @save-view="submitSaveView"
+      @delete-view="deleteView"
+      @export="exportCsv"
+    />
+
     <div v-if="selectable && selected.length > 0" class="flex items-center justify-between rounded-md border border-border bg-surface-50 px-4 py-2">
       <span class="text-sm font-medium text-ink-900">{{ selected.length }} selected</span>
       <div class="flex items-center gap-3">
@@ -161,117 +183,69 @@ const toggleAll = () => {
       </div>
     </div>
 
-    <div v-if="storageKey" class="flex justify-end">
-      <div class="relative" data-column-menu>
-        <button
-          type="button"
-          class="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface-0 px-2.5 py-1.5 text-xs font-medium text-ink-600 hover:bg-surface-50"
-          @click="showColumnMenu = !showColumnMenu"
-        >
-          <Columns3 class="h-3.5 w-3.5" />
-          Columns
-        </button>
-        <div
-          v-if="showColumnMenu"
-          class="absolute right-0 z-20 mt-1 w-48 rounded-md border border-border bg-surface-0 py-1 shadow-lg"
-        >
-          <label
-            v-for="column in columns"
-            :key="column.key"
-            class="flex cursor-pointer items-center gap-2 px-3 py-1.5 text-sm text-ink-900 hover:bg-surface-50"
-          >
-            <input
-              type="checkbox"
-              class="rounded border-border text-accent focus:ring-accent"
-              :checked="!hiddenKeys.has(column.key)"
-              @change="toggleColumn(column.key)"
-            />
-            {{ column.label }}
-          </label>
-        </div>
-      </div>
-    </div>
-
     <div class="overflow-hidden rounded-md border border-border bg-surface-0 shadow-sm">
       <div class="max-h-[70vh] overflow-auto">
         <table class="min-w-full divide-y divide-border">
-          <thead class="bg-surface-50" :class="{ 'sticky top-0 z-10': stickyHeader }">
-            <tr>
-              <th v-if="selectable" class="w-10 px-4 py-3">
-                <input
-                  type="checkbox"
-                  class="rounded border-border text-accent focus:ring-accent"
-                  :checked="allSelected"
-                  :indeterminate="someSelected"
-                  @change="toggleAll"
-                />
-              </th>
-              <th
-                v-for="column in visibleColumns"
-                :key="column.key"
-                class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-ink-600"
-                :class="[alignClass(column.align), column.sortable ? 'cursor-pointer select-none hover:text-ink-900' : '']"
-                @click="toggleSort(column)"
-              >
-                <span class="inline-flex items-center gap-1" :class="{ 'flex-row-reverse': column.align === 'right' }">
-                  {{ column.label }}
-                  <component :is="sortIcon(column)" v-if="column.sortable" class="h-3.5 w-3.5" />
-                </span>
-              </th>
-            </tr>
-          </thead>
-
-          <tbody class="divide-y divide-border bg-surface-0">
-            <tr v-if="loading">
-              <td :colspan="visibleColumns.length + (selectable ? 1 : 0)" class="px-4 py-8 text-center text-sm text-ink-600">
-                Loading…
-              </td>
-            </tr>
-
-            <tr v-else-if="items.length === 0">
-              <td :colspan="visibleColumns.length + (selectable ? 1 : 0)" class="px-4 py-10 text-center">
-                <slot name="empty">
-                  <div class="space-y-1">
-                    <p class="text-sm font-medium text-ink-900">
-                      {{ emptyTitle ?? 'Nothing here yet' }}
-                    </p>
-                    <p class="text-sm text-ink-600">
-                      {{ emptyDescription ?? 'Add the first item to get started.' }}
-                    </p>
-                  </div>
-                </slot>
-              </td>
-            </tr>
-
-            <tr
-              v-else
-              v-for="item in items"
-              :key="rowId(item)"
-              class="hover:bg-surface-50"
-              :class="railClass(item)"
+          <DataTableHeader
+            :columns="visibleColumns"
+            :sort="sort"
+            :selectable="selectable"
+            :expandable="expandable"
+            :all-selected="allSelected"
+            :some-selected="someSelected"
+            :sticky-header="stickyHeader"
+            :resizable="resizable"
+            :column-widths="columnWidths"
+            :sticky-column-count="stickyColumnCount"
+            @toggle-sort="toggleSort"
+            @toggle-all="toggleAll"
+            @resize="setColumnWidth"
+            @sticky-offsets-change="stickyOffsets = $event"
+          />
+          <DataTableBody
+            :columns="visibleColumns"
+            :items="items"
+            :row-key="rowKey"
+            :loading="loading"
+            :empty-title="emptyTitle"
+            :empty-description="emptyDescription"
+            :status-rail-key="statusRailKey"
+            :selectable="selectable"
+            :selected="selected"
+            :expandable="expandable"
+            :editable-keys="editableKeys"
+            :column-widths="columnWidths"
+            :sticky-column-count="stickyColumnCount"
+            :sticky-offsets="stickyOffsets"
+            @toggle-row="toggleRow"
+            @cell-edit="(item, key, value) => emit('cell-edit', item, key, value)"
+          >
+            <template
+              v-for="column in forwardedCellColumns"
+              :key="column.key"
+              #[`cell-${column.key}`]="slotProps"
             >
-              <td v-if="selectable" class="w-10 px-4 py-3">
-                <input
-                  type="checkbox"
-                  class="rounded border-border text-accent focus:ring-accent"
-                  :checked="isSelected(item)"
-                  @change="toggleRow(item)"
-                />
-              </td>
-              <td
-                v-for="column in visibleColumns"
-                :key="column.key"
-                class="whitespace-nowrap px-4 py-3 text-sm text-ink-900"
-                :class="alignClass(column.align)"
-              >
-                <slot :name="`cell-${column.key}`" :item="item" :value="item[column.key]">
-                  {{ item[column.key] }}
-                </slot>
-              </td>
-            </tr>
-          </tbody>
+              <slot :name="`cell-${column.key}`" v-bind="slotProps" />
+            </template>
+            <template v-if="slots.empty" #empty>
+              <slot name="empty" />
+            </template>
+            <template v-if="slots['row-detail']" #row-detail="slotProps">
+              <slot name="row-detail" v-bind="slotProps" />
+            </template>
+          </DataTableBody>
         </table>
       </div>
     </div>
+
+    <DataTableFooter
+      v-if="total !== undefined || links"
+      :total="total"
+      :from="from"
+      :to="to"
+      :links="links"
+      :per-page-options="perPageOptions"
+      v-model:per-page="perPage"
+    />
   </div>
 </template>

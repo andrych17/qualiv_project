@@ -3,11 +3,8 @@
 import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
-import DataTable from '@/Components/tables/DataTable.vue'
-import DataTablePagination from '@/Components/tables/DataTablePagination.vue'
-import SearchInput from '@/Components/filters/SearchInput.vue'
-import FormSelect from '@/Components/forms/FormSelect.vue'
-import { ref, watch } from 'vue'
+import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
+import { ref, reactive, watch } from 'vue'
 import { debounce } from '@/Composables/debounce'
 
 interface ConstRow {
@@ -24,22 +21,29 @@ interface ConstRow {
 interface PaginatedData<T> {
   data: T[]
   links: Array<{ url: string | null; label: string; active: boolean }>
+  total: number
+  from: number | null
+  to: number | null
+  per_page: number
 }
-
-type SortState = { key: string; direction: 'asc' | 'desc' } | null
 
 const props = defineProps<{
   consts: PaginatedData<ConstRow>
-  filters: { search?: string; const_group?: string; sort?: string; direction?: string }
+  filters: { search?: string; const_group?: string; sort?: string; direction?: string; per_page?: string }
   groups: Array<{ label: string; value: string }>
 }>()
 
 const search = ref(props.filters.search ?? '')
-const constGroup = ref(props.filters.const_group ?? '')
+const filters = reactive({ const_group: props.filters.const_group ?? '' })
 const sort = ref<SortState>(
   props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
 )
 const selected = ref<Array<string | number>>([])
+const perPage = ref(Number(props.filters.per_page) || props.consts.per_page)
+
+const filterFields: FilterFieldDef[] = [
+  { key: 'const_group', label: 'Group', type: 'select', options: props.groups },
+]
 
 const columns = [
   { key: 'const_group', label: 'Group', sortable: true },
@@ -51,13 +55,14 @@ const columns = [
   { key: 'actions', label: 'Actions', align: 'right' as const },
 ]
 
-watch([search, constGroup, sort], debounce(() => {
+watch([search, filters, sort, perPage], debounce(() => {
   selected.value = []
   router.get(route('config.consts.index'), {
     search: search.value,
-    const_group: constGroup.value,
+    const_group: filters.const_group,
     sort: sort.value?.key,
     direction: sort.value?.direction,
+    per_page: perPage.value,
   }, { preserveState: true, replace: true })
 }, 400))
 
@@ -72,6 +77,14 @@ const confirmBulkDelete = () => {
   router.delete(route('config.consts.bulkDestroy'), {
     data: { ids: selected.value },
     onSuccess: () => { selected.value = [] },
+  })
+}
+
+// InlineEditor demo — only str1/seq are quick-editable; everything else needs the full Edit form.
+const onCellEdit = (item: Record<string, any>, key: string, value: string) => {
+  router.patch(route('config.consts.quickUpdate', item.id), { field: key, value }, {
+    preserveScroll: true,
+    preserveState: true,
   })
 }
 </script>
@@ -93,30 +106,28 @@ const confirmBulkDelete = () => {
     </PageHeader>
 
     <div class="mt-6 space-y-4">
-      <div class="flex flex-col gap-3 sm:flex-row">
-        <div class="w-full sm:max-w-xs">
-          <SearchInput v-model="search" placeholder="Search group, key, value..." />
-        </div>
-        <div class="w-full sm:max-w-[200px]">
-          <FormSelect
-            v-model="constGroup"
-            name="const_group"
-            placeholder="All Groups"
-            :options="groups"
-          />
-        </div>
-      </div>
-
       <DataTable
         :columns="columns"
         :items="consts.data"
         v-model:sort="sort"
         v-model:selected="selected"
+        v-model:search="search"
+        v-model:filters="filters"
+        v-model:per-page="perPage"
         selectable
         sticky-header
         storage-key="config.consts"
+        search-placeholder="Search group, key, value..."
+        :filter-fields="filterFields"
+        :editable-keys="['str1', 'seq']"
+        export-filename="config-consts"
+        :total="consts.total"
+        :from="consts.from"
+        :to="consts.to"
+        :links="consts.links"
         empty-title="No constants"
         empty-description="Create a constant for app settings."
+        @cell-edit="onCellEdit"
       >
         <template #bulk-actions>
           <button type="button" class="text-sm font-medium text-red-600 hover:text-red-950" @click="confirmBulkDelete">
@@ -141,8 +152,6 @@ const confirmBulkDelete = () => {
           </div>
         </template>
       </DataTable>
-
-      <DataTablePagination :links="consts.links" />
     </div>
   </AppLayout>
 </template>

@@ -27,7 +27,7 @@ class LegalCaseController extends Controller
 
     public function index(Request $request): Response
     {
-        $filters = $request->only('search', 'status', 'sort', 'direction');
+        $filters = $request->only('search', 'status', 'sort', 'direction', 'per_page');
 
         $cases = LegalCase::query()
             ->filter($filters)
@@ -36,7 +36,7 @@ class LegalCaseController extends Controller
                 fn ($query) => TableQuery::applySort($query, $filters['sort'], $filters['direction'] ?? null, self::SORTABLE, 'id', 'desc'),
                 fn ($query) => $query->orderByDesc('id'),
             )
-            ->paginate(15)
+            ->paginate(TableQuery::perPage(isset($filters['per_page']) ? (int) $filters['per_page'] : null, 20))
             ->withQueryString()
             ->through(fn (LegalCase $c) => [
                 'id' => $c->id,
@@ -44,6 +44,7 @@ class LegalCaseController extends Controller
                 'code' => $c->code,
                 'title' => $c->title,
                 'status' => $c->status,
+                'notes' => $c->notes,
                 'created_at_formatted' => $c->created_at?->format('d M Y'),
             ]);
 
