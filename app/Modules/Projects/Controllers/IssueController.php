@@ -11,7 +11,6 @@ use App\Modules\Projects\Models\Project;
 use App\Modules\Projects\Requests\StoreIssueAttachmentRequest;
 use App\Modules\Projects\Requests\StoreIssueRequest;
 use App\Modules\Projects\Requests\UpdateIssueRequest;
-use App\Modules\Projects\Requests\UpdateIssueStatusRequest;
 use App\Modules\Projects\Services\IssueService;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -76,13 +75,6 @@ class IssueController extends Controller
         $this->service->update($issue, $request->validated());
 
         return redirect()->route('projects.show', $project)->with('success', 'Issue updated.');
-    }
-
-    public function updateStatus(UpdateIssueStatusRequest $request, Project $project, Issue $issue)
-    {
-        $this->service->updateStatus($issue, $request->validated()['status']);
-
-        return back()->with('success', 'Issue moved.');
     }
 
     public function destroy(Project $project, Issue $issue)

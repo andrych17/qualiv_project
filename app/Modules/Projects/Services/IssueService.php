@@ -40,13 +40,6 @@ class IssueService
         return $issue->refresh();
     }
 
-    public function updateStatus(Issue $issue, string $status): Issue
-    {
-        $issue->update(['status' => $status]);
-
-        return $issue->refresh();
-    }
-
     public function delete(Issue $issue): void
     {
         $issue->delete();
