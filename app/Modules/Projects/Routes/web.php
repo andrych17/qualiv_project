@@ -18,7 +18,6 @@ Route::middleware(['auth', 'verified', 'module:PROJECTS', 'menu.perm:PROJECTS'])
             Route::post('issues', [IssueController::class, 'store'])->name('issues.store');
             Route::get('issues/{issue}/edit', [IssueController::class, 'edit'])->name('issues.edit');
             Route::put('issues/{issue}', [IssueController::class, 'update'])->name('issues.update');
-            Route::patch('issues/{issue}/status', [IssueController::class, 'updateStatus'])->name('issues.updateStatus');
             Route::delete('issues/{issue}', [IssueController::class, 'destroy'])->name('issues.destroy');
 
             Route::post('issues/{issue}/comments', [IssueCommentController::class, 'store'])->name('issues.comments.store');
