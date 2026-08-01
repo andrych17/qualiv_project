@@ -1,10 +1,10 @@
-<!-- ponytail: Project issues — List (DataTable groupBy showcasing the Excel-style subtotal
-     footer). Issues load as one flat array (a single project's backlog, not paginated), so
-     sort/search/filter here are client-side computed instead of the Inertia router.get push
-     pattern Index.vue uses for server-paginated tables. -->
+<!-- ponytail: Project board — Kanban (native HTML5 drag/drop, no new dependency) + List (DataTable
+     groupBy showcasing the Excel-style subtotal footer). Issues load as one flat array (a single
+     project's backlog, not paginated), so sort/search/filter here are client-side computed instead
+     of the Inertia router.get push pattern Index.vue uses for server-paginated tables. -->
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { Link, useForm } from '@inertiajs/vue3'
+import { Link, router, useForm } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
@@ -12,6 +12,7 @@ import DataTable, { type SortState } from '@/Components/tables/DataTable.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
+import Tabs from '@/Components/navigation/Tabs.vue'
 import { Paperclip } from 'lucide-vue-next'
 
 interface IssueRow {
@@ -57,6 +58,8 @@ const PRIORITY_CLASS: Record<string, string> = {
   urgent: 'text-signal-danger font-semibold',
 }
 
+const view = ref<'board' | 'list'>('board')
+
 // --- New issue (quick create, always starts in Todo) ---
 const form = useForm({
   title: '',
@@ -74,6 +77,36 @@ const submitNewIssue = () => {
     onSuccess: () => form.reset('title'),
   })
 }
+
+// --- Board drag/drop ---
+const onDragStart = (event: DragEvent, issueId: number) => {
+  event.dataTransfer?.setData('text/plain', String(issueId))
+}
+
+const onDrop = (event: DragEvent, status: string) => {
+  const issueId = Number(event.dataTransfer?.getData('text/plain'))
+  if (!issueId) return
+  router.patch(route('projects.issues.updateStatus', [props.project.id, issueId]), { status }, { preserveScroll: true })
+}
+
+// --- Board quick-assign (Jira-style: pick a user straight from the card) ---
+const onAssigneeChange = (issueId: number, event: Event) => {
+  const value = (event.target as HTMLSelectElement).value
+  router.patch(
+    route('projects.issues.updateAssignee', [props.project.id, issueId]),
+    { assignee_id: value === '' ? null : Number(value) },
+    { preserveScroll: true },
+  )
+}
+
+const issuesByStatus = (status: string) =>
+  props.issues
+    .filter((i) => i.status === status)
+    .sort((a, b) => {
+      // Overdue first, then soonest due date; undated issues sink to the bottom.
+      if (a.is_overdue !== b.is_overdue) return a.is_overdue ? -1 : 1
+      return (a.due_date ?? '9999-12-31').localeCompare(b.due_date ?? '9999-12-31')
+    })
 
 const formatProjectDates = () => {
   if (!props.project.start_date && !props.project.end_date) return null
@@ -180,6 +213,69 @@ const filteredIssues = computed(() => {
     </Panel>
 
     <div class="mt-6">
+      <Tabs v-model="view" :tabs="[{ key: 'board', label: 'Board' }, { key: 'list', label: 'List' }]" />
+    </div>
+
+    <div v-if="view === 'board'" class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div
+        v-for="column in STATUS_COLUMNS"
+        :key="column.key"
+        class="rounded-md border border-border bg-surface-50 p-3"
+        @dragover.prevent
+        @drop="onDrop($event, column.key)"
+      >
+        <p class="mb-3 flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-ink-600">
+          {{ column.label }}
+          <span class="rounded-full bg-surface-0 px-2 py-0.5 text-[11px] font-medium text-ink-600">
+            {{ issuesByStatus(column.key).length }}
+          </span>
+        </p>
+        <div class="space-y-2">
+          <Link
+            v-for="issue in issuesByStatus(column.key)"
+            :key="issue.id"
+            :href="route('projects.issues.edit', [project.id, issue.id])"
+            draggable="true"
+            class="block cursor-grab rounded-md border border-border bg-surface-0 p-3 shadow-sm transition hover:shadow active:cursor-grabbing"
+            @dragstart="onDragStart($event, issue.id)"
+          >
+            <p class="font-mono text-xs text-ink-600">{{ issue.code }}</p>
+            <p class="mt-1 text-sm font-medium text-ink-900">{{ issue.title }}</p>
+            <div class="mt-2 flex items-center justify-between gap-2 text-xs">
+              <span :class="PRIORITY_CLASS[issue.priority]">{{ PRIORITY_LABEL[issue.priority] }}</span>
+              <select
+                :value="issue.assignee_id ?? ''"
+                draggable="false"
+                class="max-w-[7.5rem] truncate rounded-sm border border-transparent bg-transparent py-0.5 pl-1 pr-4 text-right text-ink-600 hover:border-border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                @click.stop
+                @mousedown.stop
+                @dragstart.stop
+                @change="onAssigneeChange(issue.id, $event)"
+              >
+                <option value="">Unassigned</option>
+                <option v-for="user in users" :key="user.id" :value="user.id">{{ user.name }}</option>
+              </select>
+            </div>
+            <div class="mt-1 flex items-center justify-between text-xs">
+              <span v-if="issue.attachments_count" class="flex items-center gap-1 text-ink-600">
+                <Paperclip class="h-3 w-3" />
+                {{ issue.attachments_count }}
+              </span>
+              <p
+                v-if="issue.due_date_formatted"
+                class="ml-auto text-xs"
+                :class="issue.is_overdue ? 'font-semibold text-signal-danger' : 'text-ink-600'"
+              >
+                {{ issue.is_overdue ? 'Overdue — ' : 'Due ' }}{{ issue.due_date_formatted }}
+              </p>
+            </div>
+          </Link>
+          <p v-if="issuesByStatus(column.key).length === 0" class="text-xs text-ink-600">No issues.</p>
+        </div>
+      </div>
+    </div>
+
+    <div v-else class="mt-4">
       <DataTable
         :columns="columns"
         :items="filteredIssues"
