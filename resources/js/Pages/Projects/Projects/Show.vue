@@ -89,6 +89,16 @@ const onDrop = (event: DragEvent, status: string) => {
   router.patch(route('projects.issues.updateStatus', [props.project.id, issueId]), { status }, { preserveScroll: true })
 }
 
+// --- Board quick-assign (Jira-style: pick a user straight from the card) ---
+const onAssigneeChange = (issueId: number, event: Event) => {
+  const value = (event.target as HTMLSelectElement).value
+  router.patch(
+    route('projects.issues.updateAssignee', [props.project.id, issueId]),
+    { assignee_id: value === '' ? null : Number(value) },
+    { preserveScroll: true },
+  )
+}
+
 const issuesByStatus = (status: string) =>
   props.issues
     .filter((i) => i.status === status)
@@ -231,9 +241,20 @@ const filteredIssues = computed(() => {
           >
             <p class="font-mono text-xs text-ink-600">{{ issue.code }}</p>
             <p class="mt-1 text-sm font-medium text-ink-900">{{ issue.title }}</p>
-            <div class="mt-2 flex items-center justify-between text-xs">
+            <div class="mt-2 flex items-center justify-between gap-2 text-xs">
               <span :class="PRIORITY_CLASS[issue.priority]">{{ PRIORITY_LABEL[issue.priority] }}</span>
-              <span v-if="issue.assignee" class="text-ink-600">{{ issue.assignee }}</span>
+              <select
+                :value="issue.assignee_id ?? ''"
+                draggable="false"
+                class="max-w-[7.5rem] truncate rounded-sm border border-transparent bg-transparent py-0.5 pl-1 pr-4 text-right text-ink-600 hover:border-border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                @click.stop
+                @mousedown.stop
+                @dragstart.stop
+                @change="onAssigneeChange(issue.id, $event)"
+              >
+                <option value="">Unassigned</option>
+                <option v-for="user in users" :key="user.id" :value="user.id">{{ user.name }}</option>
+              </select>
             </div>
             <div class="mt-1 flex items-center justify-between text-xs">
               <span v-if="issue.attachments_count" class="flex items-center gap-1 text-ink-600">

@@ -47,6 +47,13 @@ class IssueService
         return $issue->refresh();
     }
 
+    public function updateAssignee(Issue $issue, ?int $assigneeId): Issue
+    {
+        $issue->update(['assignee_id' => $assigneeId]);
+
+        return $issue->refresh();
+    }
+
     public function delete(Issue $issue): void
     {
         $issue->delete();
