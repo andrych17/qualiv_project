@@ -60,7 +60,7 @@ Base primitives first, then composites. Each should be a single reusable compone
 - Tooltip, Popover
 
 **Composites**
-- Data table (sortable, filterable, with row-level Status Rail)
+- Data table (sortable, filterable, with row-level Status Rail; optional row expansion via `expandable` + `#row-detail`; optional Excel-style Group/Outline via `groupBy` on `Column[]` with per-column `footer: 'sum'|'avg'|'count'|'min'|'max'` for group subtotals + a pinned grand-total `<tfoot>` — see `resources/js/Components/tables/DataTable.vue`. In `groupBy` mode, `items` is only ever the current server-paginated page, so the grand total reflects that page unless the host passes `footerTotals` computed by the backend across the full result set.)
 - Card (with optional Status Rail on the edge)
 - Modal / drawer
 - Toast / inline notification banner

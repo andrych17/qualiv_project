@@ -25,6 +25,8 @@ const badgeClass = computed(() => {
     closed: 'bg-signal-success/10 text-signal-success border-signal-success/25',
     completed: 'bg-signal-success/10 text-signal-success border-signal-success/25',
     pending: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
+    in_progress: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
+    done: 'bg-signal-success/10 text-signal-success border-signal-success/25',
     inactive: 'bg-surface-50 text-ink-600 border-border',
     archived: 'bg-signal-danger/10 text-signal-danger border-signal-danger/25',
     rejected: 'bg-signal-danger/10 text-signal-danger border-signal-danger/25',

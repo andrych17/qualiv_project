@@ -253,17 +253,20 @@ One-off artisan (examples):
 - [x] In-tenant menu trustee enforcement (`menu.perm:` middleware)
 - [x] Custom fields + custom logic + serials (`ARCHITECTURE.md`; field-defs admin UI still open)
 
-## graphify
+## graphify — WAJIB SEMUA PROJECT / SEMUA AI AGENT
 
-STRICT REQUIREMENT: NEVER use `grep` or `grep_search` tool as first search method for codebase/architecture questions. ALWAYS use graphify first.
+Canonical: `~/.agents/rules/graphify.md` (always_on).
 
-Rules:
-- BEFORE searching code: Check if `graphify-out/graph.json` exists. If missing, run `graphify index .` immediately to build graph.
-- For all codebase/architecture questions, MUST run `graphify query "<question>"` (CLI) or `query_graph` (MCP) first. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts.
-- `grep` / `grep_search` is STRICTLY prohibited unless graphify tools yield no results or fail.
-- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
-- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
-- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
+STRICT:
+1. JANGAN `grep` / `grep_search` / ripgrep sebagai **langkah pertama** untuk cari kode, flow, arsitektur, bug tracing codebase, atau navigasi source.
+2. SELALU graphify dulu: cek `graphify-out/graph.json` → jika hilang `graphify index .` → `graphify query "..."` (atau MCP `query_graph`).
+3. Relasi: `graphify path A B`. Konsep: `graphify explain "..."`.
+4. `grep` / baca raw **hanya** setelah graphify kosong/gagal, atau user kasih path file eksplisit.
+5. Wiki `graphify-out/wiki/index.md` preferensi navigasi. `GRAPH_REPORT.md` hanya review luas.
+6. Setelah edit kode di session: `graphify update .` (AST-only).
+7. Subagent ikut aturan ini.
+8. Pengecualian: path eksplisit user; non-codebase (git/SQL/MCP-DB/build/config); graphify CLI/MCP error total (laporkan + fallback).
+
 
 ---
 

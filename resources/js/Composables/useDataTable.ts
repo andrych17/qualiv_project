@@ -32,6 +32,30 @@ function loadJSON<T>(key: string, fallback: T): T {
   }
 }
 
+export type FooterAggregate = 'sum' | 'avg' | 'count' | 'min' | 'max'
+
+/** Shared by DataTableBody (per-group subtotal) and DataTable (grand total) so both aggregate identically. */
+export function aggregateColumn(items: Record<string, any>[], key: string, fn: FooterAggregate): number {
+  if (fn === 'count') return items.length
+  const values = items.map((item) => Number(item[key])).filter((n) => !Number.isNaN(n))
+  if (values.length === 0) return 0
+  switch (fn) {
+    case 'sum':
+      return values.reduce((a, b) => a + b, 0)
+    case 'avg':
+      return values.reduce((a, b) => a + b, 0) / values.length
+    case 'min':
+      return Math.min(...values)
+    case 'max':
+      return Math.max(...values)
+  }
+}
+
+/** Default display for an aggregate when the host doesn't override via a #footer-<key> slot. */
+export function formatAggregate(value: number): string {
+  return Number.isInteger(value) ? String(value) : value.toFixed(2)
+}
+
 export function useDataTable(options: UseDataTableOptions) {
   const { storageKey, columnCount } = options
 
