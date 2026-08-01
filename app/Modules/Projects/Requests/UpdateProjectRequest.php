@@ -18,6 +18,8 @@ class UpdateProjectRequest extends FormRequest
         $this->merge([
             'code' => strtoupper((string) $this->input('code')),
             'lead_id' => $this->input('lead_id') === '' ? null : $this->input('lead_id'),
+            'start_date' => $this->input('start_date') === '' ? null : $this->input('start_date'),
+            'end_date' => $this->input('end_date') === '' ? null : $this->input('end_date'),
         ]);
     }
 
@@ -29,6 +31,8 @@ class UpdateProjectRequest extends FormRequest
             'description' => 'nullable|string',
             'status' => 'required|in:active,archived',
             'lead_id' => 'nullable|integer|exists:users,id',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
         ];
     }
 

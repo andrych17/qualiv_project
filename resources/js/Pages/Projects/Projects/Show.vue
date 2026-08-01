@@ -12,6 +12,8 @@ import DataTable, { type SortState } from '@/Components/tables/DataTable.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
+import Tabs from '@/Components/navigation/Tabs.vue'
+import { Paperclip } from 'lucide-vue-next'
 
 interface IssueRow {
   id: number
@@ -22,12 +24,22 @@ interface IssueRow {
   priority: string
   assignee_id: number | null
   assignee: string | null
+  attachments_count: number
+  due_date: string | null
   due_date_formatted: string | null
   is_overdue: boolean
 }
 
 const props = defineProps<{
-  project: { id: number; code: string; name: string; description: string | null; status: string }
+  project: {
+    id: number
+    code: string
+    name: string
+    description: string | null
+    status: string
+    start_date: string | null
+    end_date: string | null
+  }
   issues: IssueRow[]
   users: Array<{ id: number; name: string }>
 }>()
@@ -77,7 +89,27 @@ const onDrop = (event: DragEvent, status: string) => {
   router.patch(route('projects.issues.updateStatus', [props.project.id, issueId]), { status }, { preserveScroll: true })
 }
 
-const issuesByStatus = (status: string) => props.issues.filter((i) => i.status === status)
+const issuesByStatus = (status: string) =>
+  props.issues
+    .filter((i) => i.status === status)
+    .sort((a, b) => {
+      // Overdue first, then soonest due date; undated issues sink to the bottom.
+      if (a.is_overdue !== b.is_overdue) return a.is_overdue ? -1 : 1
+      return (a.due_date ?? '9999-12-31').localeCompare(b.due_date ?? '9999-12-31')
+    })
+
+const formatProjectDates = () => {
+  if (!props.project.start_date && !props.project.end_date) return null
+  const fmt = (d: string | null) => {
+    if (!d) return null
+    const [y, m, day] = d.split('-')
+    return `${day} ${['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][Number(m) - 1]} ${y}`
+  }
+  const s = fmt(props.project.start_date)
+  const e = fmt(props.project.end_date)
+  if (s && e) return `${s} — ${e}`
+  return s ?? `until ${e}`
+}
 
 // --- List view (client-side sort/search, DataTable groupBy showcase) ---
 const search = ref('')
@@ -89,6 +121,7 @@ const columns = [
   { key: 'type', label: 'Type', sortable: true },
   { key: 'priority', label: 'Priority', sortable: true },
   { key: 'assignee', label: 'Assignee' },
+  { key: 'attachments_count', label: 'Files', sortable: true },
   { key: 'due_date_formatted', label: 'Due', sortKey: 'due_date' },
   { key: 'actions', label: 'Actions', align: 'right' as const },
 ]
@@ -120,12 +153,15 @@ const filteredIssues = computed(() => {
   <AppLayout>
     <PageHeader :title="`${project.code} — ${project.name}`" :description="project.description || 'No description.'">
       <template #actions>
-        <Link
-          :href="route('projects.edit', project.id)"
-          class="inline-flex items-center justify-center rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm font-semibold text-ink-900 shadow-sm transition hover:bg-surface-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-        >
-          Edit project
-        </Link>
+        <div class="flex items-center gap-3">
+          <span v-if="formatProjectDates()" class="text-sm text-ink-600">{{ formatProjectDates() }}</span>
+          <Link
+            :href="route('projects.edit', project.id)"
+            class="inline-flex items-center justify-center rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm font-semibold text-ink-900 shadow-sm transition hover:bg-surface-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            Edit project
+          </Link>
+        </div>
       </template>
     </PageHeader>
 
@@ -166,23 +202,8 @@ const filteredIssues = computed(() => {
       </form>
     </Panel>
 
-    <div class="mt-6 flex items-center gap-1 border-b border-border">
-      <button
-        type="button"
-        class="border-b-2 px-3 py-2 text-sm font-medium"
-        :class="view === 'board' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
-        @click="view = 'board'"
-      >
-        Board
-      </button>
-      <button
-        type="button"
-        class="border-b-2 px-3 py-2 text-sm font-medium"
-        :class="view === 'list' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
-        @click="view = 'list'"
-      >
-        List
-      </button>
+    <div class="mt-6">
+      <Tabs v-model="view" :tabs="[{ key: 'board', label: 'Board' }, { key: 'list', label: 'List' }]" />
     </div>
 
     <div v-if="view === 'board'" class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -214,13 +235,19 @@ const filteredIssues = computed(() => {
               <span :class="PRIORITY_CLASS[issue.priority]">{{ PRIORITY_LABEL[issue.priority] }}</span>
               <span v-if="issue.assignee" class="text-ink-600">{{ issue.assignee }}</span>
             </div>
-            <p
-              v-if="issue.due_date_formatted"
-              class="mt-1 text-xs"
-              :class="issue.is_overdue ? 'font-semibold text-signal-danger' : 'text-ink-600'"
-            >
-              {{ issue.is_overdue ? 'Overdue — ' : 'Due ' }}{{ issue.due_date_formatted }}
-            </p>
+            <div class="mt-1 flex items-center justify-between text-xs">
+              <span v-if="issue.attachments_count" class="flex items-center gap-1 text-ink-600">
+                <Paperclip class="h-3 w-3" />
+                {{ issue.attachments_count }}
+              </span>
+              <p
+                v-if="issue.due_date_formatted"
+                class="ml-auto text-xs"
+                :class="issue.is_overdue ? 'font-semibold text-signal-danger' : 'text-ink-600'"
+              >
+                {{ issue.is_overdue ? 'Overdue — ' : 'Due ' }}{{ issue.due_date_formatted }}
+              </p>
+            </div>
           </Link>
           <p v-if="issuesByStatus(column.key).length === 0" class="text-xs text-ink-600">No issues.</p>
         </div>
@@ -246,6 +273,13 @@ const filteredIssues = computed(() => {
         </template>
         <template #cell-priority="{ item }">
           <span :class="PRIORITY_CLASS[item.priority]">{{ PRIORITY_LABEL[item.priority] }}</span>
+        </template>
+        <template #cell-attachments_count="{ item }">
+          <span v-if="item.attachments_count" class="inline-flex items-center gap-1 text-ink-600">
+            <Paperclip class="h-3.5 w-3.5" />
+            {{ item.attachments_count }}
+          </span>
+          <span v-else class="text-ink-600/60">—</span>
         </template>
         <template #cell-due_date_formatted="{ item }">
           <span :class="item.is_overdue ? 'font-semibold text-signal-danger' : 'text-ink-900'">

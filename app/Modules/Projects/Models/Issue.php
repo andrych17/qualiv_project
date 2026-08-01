@@ -63,6 +63,11 @@ class Issue extends Model
         return $this->hasMany(IssueComment::class)->orderBy('created_at');
     }
 
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(IssueAttachment::class);
+    }
+
     public function scopeFilter(Builder $query, array $filters): void
     {
         $query->when($filters['search'] ?? null, function ($query, $search) {

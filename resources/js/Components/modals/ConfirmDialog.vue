@@ -1,4 +1,6 @@
-<!-- ponytail: Simple global ConfirmDialog displaying active confirmation state ref -->
+<!-- ponytail: Simple global ConfirmDialog displaying active confirmation state ref.
+     Styled with design-system tokens (DESIGN.md §2): dialog = 8px radius card,
+     destructive = signal-danger, default = accent. -->
 <script setup lang="ts">
 import { confirmState, useConfirm } from '@/Composables/useConfirmDialog'
 
@@ -12,42 +14,42 @@ const handleConfirm = () => {
 </script>
 
 <template>
-  <div 
-    v-if="confirmState?.open" 
-    class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity z-50 flex items-center justify-center p-4"
+  <div
+    v-if="confirmState?.open"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/50 p-4"
+    @click.self="close"
   >
-    <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-      <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-        <div class="sm:flex sm:items-start">
-          <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-            <h3 class="text-base font-semibold leading-6 text-gray-900" id="modal-title">
-              {{ confirmState.title }}
-            </h3>
-            <div class="mt-2">
-              <p class="text-sm text-gray-500">
-                {{ confirmState.description }}
-              </p>
-            </div>
-          </div>
-        </div>
+    <div
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="confirm-dialog-title"
+      class="relative w-full max-w-lg transform overflow-hidden rounded-lg border border-border bg-surface-0 text-left shadow-xl"
+    >
+      <div class="p-6">
+        <h3 id="confirm-dialog-title" class="text-base font-semibold text-ink-900">
+          {{ confirmState.title }}
+        </h3>
+        <p v-if="confirmState.description" class="mt-2 text-sm text-ink-600">
+          {{ confirmState.description }}
+        </p>
       </div>
-      <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-2">
-        <button 
-          type="button" 
+      <div class="flex flex-row-reverse gap-2 border-t border-border bg-surface-50 px-6 py-3">
+        <button
+          type="button"
+          class="inline-flex items-center justify-center rounded-sm px-3 py-2 text-sm font-semibold text-white shadow-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          :class="
+            confirmState.variant === 'destructive'
+              ? 'bg-signal-danger hover:bg-signal-danger/90'
+              : 'bg-accent hover:bg-accent/90'
+          "
           @click="handleConfirm"
-          :class="[
-            confirmState.variant === 'destructive' 
-              ? 'bg-red-600 hover:bg-red-500' 
-              : 'bg-gray-900 hover:bg-gray-800'
-          ]"
-          class="inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto"
         >
           {{ confirmState.confirmText }}
         </button>
-        <button 
-          type="button" 
+        <button
+          type="button"
+          class="inline-flex items-center justify-center rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm font-semibold text-ink-900 shadow-sm transition hover:bg-surface-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           @click="close"
-          class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
         >
           {{ confirmState.cancelText }}
         </button>

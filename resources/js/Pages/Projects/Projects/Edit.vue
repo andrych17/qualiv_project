@@ -6,6 +6,7 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
+import FormTextarea from '@/Components/forms/FormTextarea.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 
 const props = defineProps<{
@@ -16,6 +17,8 @@ const props = defineProps<{
     description: string | null
     status: string
     lead_id: number | null
+    start_date: string | null
+    end_date: string | null
   }
   users: Array<{ id: number; name: string }>
 }>()
@@ -26,6 +29,8 @@ const form = useForm({
   description: props.project.description ?? '',
   status: props.project.status,
   lead_id: (props.project.lead_id ?? '') as number | '',
+  start_date: props.project.start_date ?? '',
+  end_date: props.project.end_date ?? '',
 })
 
 const submit = () => form.put(route('projects.update', props.project.id))
@@ -58,14 +63,11 @@ const submit = () => form.put(route('projects.update', props.project.id))
           :options="users.map((u) => ({ label: u.name, value: u.id }))"
           :error="form.errors.lead_id"
         />
-        <div class="space-y-1.5">
-          <label class="text-sm font-medium text-ink-900">Description</label>
-          <textarea
-            v-model="form.description"
-            rows="3"
-            class="w-full rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-          />
+        <div class="grid grid-cols-2 gap-4">
+          <FormInput v-model="form.start_date" name="start_date" type="date" label="Start date" :error="form.errors.start_date" />
+          <FormInput v-model="form.end_date" name="end_date" type="date" label="End date" :error="form.errors.end_date" />
         </div>
+        <FormTextarea v-model="form.description" name="description" label="Description" :rows="3" />
         <div class="flex items-center justify-end gap-3 border-t border-border pt-4">
           <Link
             :href="route('projects.index')"

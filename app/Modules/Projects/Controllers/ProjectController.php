@@ -80,6 +80,8 @@ class ProjectController extends Controller
                 'description' => $project->description,
                 'status' => $project->status,
                 'lead_id' => $project->lead_id,
+                'start_date' => $project->start_date?->format('Y-m-d'),
+                'end_date' => $project->end_date?->format('Y-m-d'),
             ],
             'users' => User::query()->orderBy('name')->get(['id', 'name']),
         ]);
@@ -96,6 +98,7 @@ class ProjectController extends Controller
     {
         $issues = $project->issues()
             ->with('assignee:id,name')
+            ->withCount('attachments')
             ->orderByDesc('id')
             ->get()
             ->map(fn (Issue $issue) => [
@@ -107,6 +110,8 @@ class ProjectController extends Controller
                 'priority' => $issue->priority,
                 'assignee_id' => $issue->assignee_id,
                 'assignee' => $issue->assignee?->name,
+                'attachments_count' => $issue->attachments_count,
+                'due_date' => $issue->due_date?->format('Y-m-d'),
                 'due_date_formatted' => $issue->due_date?->format('d M Y'),
                 'is_overdue' => $issue->due_date !== null
                     && $issue->due_date->isPast()
@@ -120,6 +125,8 @@ class ProjectController extends Controller
                 'name' => $project->name,
                 'description' => $project->description,
                 'status' => $project->status,
+                'start_date' => $project->start_date?->format('Y-m-d'),
+                'end_date' => $project->end_date?->format('Y-m-d'),
             ],
             'issues' => $issues,
             'users' => User::query()->orderBy('name')->get(['id', 'name']),

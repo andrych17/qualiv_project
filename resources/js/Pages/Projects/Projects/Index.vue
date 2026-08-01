@@ -7,6 +7,8 @@ import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tab
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import { ref, watch } from 'vue'
 import { debounce } from '@/Composables/debounce'
+import { useConfirm } from '@/Composables/useConfirmDialog'
+import PrimaryButton from '@/Components/PrimaryButton.vue'
 
 interface ProjectRow {
   id: number
@@ -73,17 +75,29 @@ watch([search, filters, sort, perPage], debounce(() => {
   }, { preserveState: true, replace: true })
 }, 400))
 
+const { confirm } = useConfirm()
+
 const confirmDelete = (item: ProjectRow | Record<string, unknown>) => {
   const row = item as ProjectRow
-  if (!confirm(`Delete project ${row.code}? Its issues will be deleted too.`)) return
-  router.delete(route('projects.destroy', row.id))
+  confirm({
+    title: `Delete project ${row.code}?`,
+    description: 'Its issues, comments and attachments will be deleted too.',
+    variant: 'destructive',
+    confirmText: 'Delete project',
+    onConfirm: () => router.delete(route('projects.destroy', row.id)),
+  })
 }
 
 const confirmBulkDelete = () => {
-  if (!confirm(`Delete ${selected.value.length} selected project(s)?`)) return
-  router.delete(route('projects.bulkDestroy'), {
-    data: { ids: selected.value },
-    onSuccess: () => { selected.value = [] },
+  confirm({
+    title: `Delete ${selected.value.length} selected project(s)?`,
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () =>
+      router.delete(route('projects.bulkDestroy'), {
+        data: { ids: selected.value },
+        onSuccess: () => { selected.value = [] },
+      }),
   })
 }
 </script>
@@ -95,12 +109,7 @@ const confirmBulkDelete = () => {
       description="Internal project & issue tracking for the Nusaevo team."
     >
       <template #actions>
-        <Link
-          :href="route('projects.create')"
-          class="inline-flex items-center justify-center rounded-sm bg-accent px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-accent/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-        >
-          New project
-        </Link>
+        <PrimaryButton :href="route('projects.create')">New project</PrimaryButton>
       </template>
     </PageHeader>
 

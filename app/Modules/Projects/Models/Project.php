@@ -20,8 +20,18 @@ class Project extends Model
         'description',
         'status',
         'lead_id',
+        'start_date',
+        'end_date',
         'next_issue_seq',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'start_date' => 'date',
+            'end_date' => 'date',
+        ];
+    }
 
     protected static function booted(): void
     {

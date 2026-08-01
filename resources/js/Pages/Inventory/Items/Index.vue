@@ -7,6 +7,7 @@ import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tab
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import { ref, watch } from 'vue'
 import { debounce } from '@/Composables/debounce'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface InventoryItem {
   id: number
@@ -92,16 +93,27 @@ watch([search, filters, sort, perPage], debounce(() => {
   })
 }, 400))
 
+const { confirm } = useConfirm()
+
 const confirmDelete = (item: any) => {
-  if (!confirm(`Are you sure you want to delete item ${item.name}?`)) return
-  router.delete(route('inventory.items.destroy', item.id))
+  confirm({
+    title: `Delete item ${item.name}?`,
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () => router.delete(route('inventory.items.destroy', item.id)),
+  })
 }
 
 const confirmBulkDelete = () => {
-  if (!confirm(`Delete ${selected.value.length} selected item(s)?`)) return
-  router.delete(route('inventory.items.bulkDestroy'), {
-    data: { ids: selected.value },
-    onSuccess: () => { selected.value = [] },
+  confirm({
+    title: `Delete ${selected.value.length} selected item(s)?`,
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () =>
+      router.delete(route('inventory.items.bulkDestroy'), {
+        data: { ids: selected.value },
+        onSuccess: () => { selected.value = [] },
+      }),
   })
 }
 </script>

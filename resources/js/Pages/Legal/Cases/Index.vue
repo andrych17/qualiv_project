@@ -1,12 +1,14 @@
 <!-- ponytail: Legal cases — Status Rail + design-system components -->
 <script setup lang="ts">
 import { Link, router } from '@inertiajs/vue3'
+import PrimaryButton from '@/Components/PrimaryButton.vue'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import { ref, watch } from 'vue'
 import { debounce } from '@/Composables/debounce'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface CaseRow {
   id: number
@@ -72,17 +74,28 @@ watch([search, filters, sort, perPage], debounce(() => {
   }, { preserveState: true, replace: true })
 }, 400))
 
+const { confirm } = useConfirm()
+
 const confirmDelete = (item: CaseRow | Record<string, unknown>) => {
   const row = item as CaseRow
-  if (!confirm(`Delete case ${row.code}?`)) return
-  router.delete(route('legal.cases.destroy', row.id))
+  confirm({
+    title: `Delete case ${row.code}?`,
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () => router.delete(route('legal.cases.destroy', row.id)),
+  })
 }
 
 const confirmBulkDelete = () => {
-  if (!confirm(`Delete ${selected.value.length} selected case(s)?`)) return
-  router.delete(route('legal.cases.bulkDestroy'), {
-    data: { ids: selected.value },
-    onSuccess: () => { selected.value = [] },
+  confirm({
+    title: `Delete ${selected.value.length} selected case(s)?`,
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () =>
+      router.delete(route('legal.cases.bulkDestroy'), {
+        data: { ids: selected.value },
+        onSuccess: () => { selected.value = [] },
+      }),
   })
 }
 </script>
@@ -94,12 +107,7 @@ const confirmBulkDelete = () => {
       description="Where each matter stands — open, waiting, or closed."
     >
       <template #actions>
-        <Link
-          :href="route('legal.cases.create')"
-          class="inline-flex items-center justify-center rounded-sm bg-accent px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-accent/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-        >
-          Open case
-        </Link>
+        <PrimaryButton :href="route('legal.cases.create')">Open case</PrimaryButton>
       </template>
     </PageHeader>
 
