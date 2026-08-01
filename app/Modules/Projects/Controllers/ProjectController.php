@@ -30,6 +30,7 @@ class ProjectController extends Controller
         $filters = $request->only('search', 'status', 'sort', 'direction', 'per_page');
 
         $projects = Project::query()
+            ->with(['lead:id,name'])
             ->withCount('issues')
             ->filter($filters)
             ->when(
@@ -46,6 +47,8 @@ class ProjectController extends Controller
                 'name' => $p->name,
                 'description' => $p->description,
                 'status' => $p->status,
+                'lead_id' => $p->lead_id,
+                'lead_name' => $p->lead?->name,
                 'issues_count' => $p->issues_count,
                 'created_at_formatted' => $p->created_at?->format('d M Y'),
             ]);

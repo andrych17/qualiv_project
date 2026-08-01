@@ -6,8 +6,10 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
+import FormSearchableSelect from '@/Components/forms/FormSearchableSelect.vue'
 import FormTextarea from '@/Components/forms/FormTextarea.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
+import { computed } from 'vue'
 
 const props = defineProps<{
   project: {
@@ -23,12 +25,14 @@ const props = defineProps<{
   users: Array<{ id: number; name: string }>
 }>()
 
+const userOptions = computed(() => props.users.map((u) => ({ label: u.name, value: u.id })))
+
 const form = useForm({
   code: props.project.code,
   name: props.project.name,
   description: props.project.description ?? '',
   status: props.project.status,
-  lead_id: (props.project.lead_id ?? '') as number | '',
+  lead_id: props.project.lead_id as number | null,
   start_date: props.project.start_date ?? '',
   end_date: props.project.end_date ?? '',
 })
@@ -55,12 +59,13 @@ const submit = () => form.put(route('projects.update', props.project.id))
           :error="form.errors.status"
           required
         />
-        <FormSelect
+        <FormSearchableSelect
           v-model="form.lead_id"
           name="lead_id"
           label="Lead"
           placeholder="No lead"
-          :options="users.map((u) => ({ label: u.name, value: u.id }))"
+          search-placeholder="Search user..."
+          :options="userOptions"
           :error="form.errors.lead_id"
         />
         <div class="grid grid-cols-2 gap-4">
