@@ -247,7 +247,7 @@ const filteredIssues = computed(() => {
             <p class="mt-1 text-sm font-medium text-ink-900">{{ issue.title }}</p>
             <div class="mt-2 flex items-center justify-between gap-2 text-xs">
               <span :class="PRIORITY_CLASS[issue.priority]">{{ PRIORITY_LABEL[issue.priority] }}</span>
-              <div class="w-32 shrink-0" draggable="false" @click.stop @mousedown.stop @dragstart.stop>
+              <div class="w-32 shrink-0" draggable="false" @click.prevent.stop @mousedown.stop @dragstart.stop>
                 <FormSearchableSelect
                   :model-value="issue.assignee_id"
                   name="assignee"
