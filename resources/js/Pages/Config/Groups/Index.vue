@@ -7,6 +7,7 @@ import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tab
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import { ref, watch } from 'vue'
 import { debounce } from '@/Composables/debounce'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface GroupRow {
   id: number
@@ -72,17 +73,28 @@ watch([search, filters, sort, perPage], debounce(() => {
   }, { preserveState: true, replace: true })
 }, 400))
 
+const { confirm } = useConfirm()
+
 const confirmDelete = (item: GroupRow | Record<string, unknown>) => {
   const row = item as GroupRow
-  if (!confirm(`Delete group ${row.code}?`)) return
-  router.delete(route('config.groups.destroy', row.id))
+  confirm({
+    title: `Delete group ${row.code}?`,
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () => router.delete(route('config.groups.destroy', row.id)),
+  })
 }
 
 const confirmBulkDelete = () => {
-  if (!confirm(`Delete ${selected.value.length} selected group(s)?`)) return
-  router.delete(route('config.groups.bulkDestroy'), {
-    data: { ids: selected.value },
-    onSuccess: () => { selected.value = [] },
+  confirm({
+    title: `Delete ${selected.value.length} selected group(s)?`,
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () =>
+      router.delete(route('config.groups.bulkDestroy'), {
+        data: { ids: selected.value },
+        onSuccess: () => { selected.value = [] },
+      }),
   })
 }
 </script>

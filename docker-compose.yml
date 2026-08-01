@@ -8,9 +8,13 @@ services:
     build:
       context: ./docker/php
     ports:
-      - "8008:8000"
+      - "8000:8000"
     volumes:
       - .:/var/www/html
+      # Object file storage (CLAUDE.md §7B) — host folder bound to the shared path so
+      # the app can write/read files there; on the production VPS the path is the real
+      # server filesystem.
+      - ./storage/objects:/var/www/storage/nusaevo-erp
     environment: &laravel-env
       APP_ENV: local
       APP_DEBUG: "true"

@@ -7,6 +7,7 @@ import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tab
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import { ref, watch } from 'vue'
 import { debounce } from '@/Composables/debounce'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface ConfigMenuRow {
   id: number
@@ -94,17 +95,28 @@ watch([search, filters, sort, perPage], debounce(() => {
   })
 }, 400))
 
+const { confirm } = useConfirm()
+
 const confirmDelete = (item: ConfigMenuRow | Record<string, unknown>) => {
   const row = item as ConfigMenuRow
-  if (!confirm(`Delete menu ${row.menu_caption} (${row.code})?`)) return
-  router.delete(route('config.menus.destroy', row.id))
+  confirm({
+    title: `Delete menu ${row.menu_caption} (${row.code})?`,
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () => router.delete(route('config.menus.destroy', row.id)),
+  })
 }
 
 const confirmBulkDelete = () => {
-  if (!confirm(`Delete ${selected.value.length} selected menu(s)?`)) return
-  router.delete(route('config.menus.bulkDestroy'), {
-    data: { ids: selected.value },
-    onSuccess: () => { selected.value = [] },
+  confirm({
+    title: `Delete ${selected.value.length} selected menu(s)?`,
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () =>
+      router.delete(route('config.menus.bulkDestroy'), {
+        data: { ids: selected.value },
+        onSuccess: () => { selected.value = [] },
+      }),
   })
 }
 </script>

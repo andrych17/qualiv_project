@@ -6,6 +6,7 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import DataTable, { type SortState } from '@/Components/tables/DataTable.vue'
 import { ref, watch } from 'vue'
 import { debounce } from '@/Composables/debounce'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface UserRow {
   id: number
@@ -57,17 +58,28 @@ watch([search, sort, perPage], debounce(() => {
   })
 }, 400))
 
+const { confirm } = useConfirm()
+
 const confirmDelete = (item: UserRow | Record<string, unknown>) => {
   const row = item as UserRow
-  if (!confirm(`Delete user ${row.email}?`)) return
-  router.delete(route('config.users.destroy', row.id))
+  confirm({
+    title: `Delete user ${row.email}?`,
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () => router.delete(route('config.users.destroy', row.id)),
+  })
 }
 
 const confirmBulkDelete = () => {
-  if (!confirm(`Delete ${selected.value.length} selected user(s)?`)) return
-  router.delete(route('config.users.bulkDestroy'), {
-    data: { ids: selected.value },
-    onSuccess: () => { selected.value = [] },
+  confirm({
+    title: `Delete ${selected.value.length} selected user(s)?`,
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () =>
+      router.delete(route('config.users.bulkDestroy'), {
+        data: { ids: selected.value },
+        onSuccess: () => { selected.value = [] },
+      }),
   })
 }
 </script>

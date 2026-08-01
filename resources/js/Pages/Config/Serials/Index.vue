@@ -6,6 +6,7 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import DataTable, { type SortState } from '@/Components/tables/DataTable.vue'
 import { ref, watch } from 'vue'
 import { debounce } from '@/Composables/debounce'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface SnumRow {
   id: number
@@ -60,17 +61,28 @@ watch([search, sort, perPage], debounce(() => {
   }, { preserveState: true, replace: true })
 }, 400))
 
+const { confirm } = useConfirm()
+
 const confirmDelete = (item: SnumRow | Record<string, unknown>) => {
   const row = item as SnumRow
-  if (!confirm(`Delete serial ${row.code}?`)) return
-  router.delete(route('config.serials.destroy', row.id))
+  confirm({
+    title: `Delete serial ${row.code}?`,
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () => router.delete(route('config.serials.destroy', row.id)),
+  })
 }
 
 const confirmBulkDelete = () => {
-  if (!confirm(`Delete ${selected.value.length} selected serial(s)?`)) return
-  router.delete(route('config.serials.bulkDestroy'), {
-    data: { ids: selected.value },
-    onSuccess: () => { selected.value = [] },
+  confirm({
+    title: `Delete ${selected.value.length} selected serial(s)?`,
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () =>
+      router.delete(route('config.serials.bulkDestroy'), {
+        data: { ids: selected.value },
+        onSuccess: () => { selected.value = [] },
+      }),
   })
 }
 </script>

@@ -1,12 +1,18 @@
-<!-- ponytail: tbody only — cell renderer (slots), row actions (via #cell-actions slot upstream), inline editor, expandable row. -->
+<!-- ponytail: tbody orchestrator — flat or grouped rows (Excel Group/Outline + per-group subtotal),
+     delegates a single data row + its expand-detail row to DataTableRow so both modes share one
+     row template instead of duplicating markup. -->
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref, useSlots, watch } from 'vue'
 import { ChevronRight } from 'lucide-vue-next'
+import DataTableRow from '@/Components/tables/DataTableRow.vue'
+import { aggregateColumn, formatAggregate, type FooterAggregate } from '@/Composables/useDataTable'
 
 type Column = {
   key: string
   label: string
   align?: 'left' | 'center' | 'right'
+  /** Built-in aggregate shown in this column's group-subtotal / grand-total cell. */
+  footer?: FooterAggregate
 }
 
 const props = withDefaults(
@@ -25,6 +31,10 @@ const props = withDefaults(
     columnWidths?: Record<string, number>
     stickyColumnCount?: number
     stickyOffsets?: number[]
+    /** Groups rows like Excel's Group/Outline: a column key, or a resolver returning {key,label}. */
+    groupBy?: string | ((item: Record<string, any>) => { key: string | number; label: string })
+    /** Groups start collapsed instead of expanded. */
+    defaultCollapsedGroups?: boolean
   }>(),
   { rowKey: 'id', selected: () => [], editableKeys: () => [], stickyOffsets: () => [] },
 )
@@ -33,6 +43,11 @@ const emit = defineEmits<{
   'toggle-row': [item: Record<string, any>]
   'cell-edit': [item: Record<string, any>, key: string, value: string]
 }>()
+
+const slots = useSlots()
+// Only forward per-column cell slots the host page actually provided — see DataTable.vue's
+// forwardedCellColumns for why (an always-registered but empty slot shadows the row's own fallback).
+const forwardedCellColumns = computed(() => props.columns.filter((c) => !!slots[`cell-${c.key}`]))
 
 const rowId = (item: Record<string, any>) => item[props.rowKey]
 const isSelected = (item: Record<string, any>) => props.selected.includes(rowId(item))
@@ -43,65 +58,74 @@ const alignClass = (align?: string) => {
   return 'text-left'
 }
 
-const railClass = (item: Record<string, any>) => {
-  if (!props.statusRailKey) return ''
-  const status = String(item[props.statusRailKey] ?? '').toLowerCase()
-  const map: Record<string, string> = {
-    open: 'border-l-[3px] border-l-signal-info',
-    pending: 'border-l-[3px] border-l-signal-warning',
-    closed: 'border-l-[3px] border-l-signal-success',
-    active: 'border-l-[3px] border-l-signal-success',
-    overdue: 'border-l-[3px] border-l-signal-danger',
-    rejected: 'border-l-[3px] border-l-signal-danger',
-  }
-  return map[status] ?? 'border-l-[3px] border-l-border'
-}
-
 const colspan = () =>
   props.columns.length + (props.selectable ? 1 : 0) + (props.expandable ? 1 : 0)
 
-// --- Expandable rows ---
-const expandedIds = ref<Set<string | number>>(new Set())
-const isExpanded = (item: Record<string, any>) => expandedIds.value.has(rowId(item))
-const toggleExpanded = (item: Record<string, any>) => {
-  const id = rowId(item)
-  const next = new Set(expandedIds.value)
-  next.has(id) ? next.delete(id) : next.add(id)
-  expandedIds.value = next
+// --- Grouping ---
+type Group = { key: string | number; label: string; items: Record<string, any>[] }
+
+const resolveGroup = (item: Record<string, any>): { key: string | number; label: string } => {
+  if (typeof props.groupBy === 'function') return props.groupBy(item)
+  const key = item[props.groupBy as string]
+  return { key, label: String(key ?? '—') }
 }
 
-// --- Inline editor ---
-const editingCell = ref<{ id: string | number; key: string } | null>(null)
-const editingValue = ref('')
-
-const isEditable = (column: Column) => props.editableKeys?.includes(column.key)
-
-const isEditingCell = (item: Record<string, any>, column: Column) =>
-  editingCell.value !== null && editingCell.value.id === rowId(item) && editingCell.value.key === column.key
-
-const startEdit = (item: Record<string, any>, column: Column) => {
-  if (!isEditable(column)) return
-  editingCell.value = { id: rowId(item), key: column.key }
-  editingValue.value = String(item[column.key] ?? '')
-}
-
-const commitEdit = (item: Record<string, any>, column: Column) => {
-  if (!editingCell.value) return
-  editingCell.value = null
-  if (String(item[column.key] ?? '') !== editingValue.value) {
-    emit('cell-edit', item, column.key, editingValue.value)
+const groups = computed<Group[] | null>(() => {
+  if (!props.groupBy) return null
+  const map = new Map<string | number, Group>()
+  for (const item of props.items) {
+    const { key, label } = resolveGroup(item)
+    const existing = map.get(key)
+    if (existing) {
+      existing.items.push(item)
+    } else {
+      map.set(key, { key, label, items: [item] })
+    }
   }
-}
+  return [...map.values()]
+})
 
-const cancelEdit = () => {
-  editingCell.value = null
-}
+const collapsedGroupKeys = ref<Set<string | number>>(new Set())
+// Seed the default-collapsed state once groups first appear; don't re-seed on later item
+// reloads (a debounced search/sort refresh) or it would stomp on the user's own toggles.
+let seededDefaultCollapse = false
+watch(
+  groups,
+  (list) => {
+    if (!list || seededDefaultCollapse || !props.defaultCollapsedGroups) return
+    seededDefaultCollapse = true
+    collapsedGroupKeys.value = new Set(list.map((g) => g.key))
+  },
+  { immediate: true },
+)
 
-const stickyStyle = (idx: number) => {
-  if (idx >= (props.stickyColumnCount ?? 0)) return {}
-  const leadCount = (props.selectable ? 1 : 0) + (props.expandable ? 1 : 0)
-  return { left: (props.stickyOffsets?.[leadCount + idx] ?? 0) + 'px' }
+const isGroupCollapsed = (key: string | number) => collapsedGroupKeys.value.has(key)
+const toggleGroup = (key: string | number) => {
+  const next = new Set(collapsedGroupKeys.value)
+  next.has(key) ? next.delete(key) : next.add(key)
+  collapsedGroupKeys.value = next
 }
+const expandAllGroups = () => {
+  collapsedGroupKeys.value = new Set()
+}
+const collapseAllGroups = () => {
+  collapsedGroupKeys.value = new Set((groups.value ?? []).map((g) => g.key))
+}
+defineExpose({ expandAllGroups, collapseAllGroups })
+
+type RenderRow = { type: 'group'; group: Group } | { type: 'row'; item: Record<string, any> }
+
+const visibleRows = computed<RenderRow[]>(() => {
+  if (!groups.value) return props.items.map((item) => ({ type: 'row', item }))
+  const rows: RenderRow[] = []
+  for (const group of groups.value) {
+    rows.push({ type: 'group', group })
+    if (!isGroupCollapsed(group.key)) {
+      for (const item of group.items) rows.push({ type: 'row', item })
+    }
+  }
+  return rows
+})
 </script>
 
 <template>
@@ -127,52 +151,72 @@ const stickyStyle = (idx: number) => {
       </td>
     </tr>
 
-    <template v-else v-for="item in items" :key="rowId(item)">
-      <tr class="hover:bg-surface-50" :class="railClass(item)">
-        <td v-if="selectable" class="w-10 px-4 py-3" :class="{ 'sticky z-10 bg-surface-0': (stickyColumnCount ?? 0) > 0 }" style="left: 0">
-          <input
-            type="checkbox"
-            class="rounded border-border text-accent focus:ring-accent"
-            :checked="isSelected(item)"
-            @change="emit('toggle-row', item)"
-          />
-        </td>
-        <td v-if="expandable" class="w-8 px-2 py-3">
-          <button type="button" class="text-ink-600 hover:text-ink-900" @click="toggleExpanded(item)">
-            <ChevronRight class="h-4 w-4 transition-transform" :class="{ 'rotate-90': isExpanded(item) }" />
-          </button>
+    <template
+      v-else
+      v-for="row in visibleRows"
+      :key="row.type === 'group' ? `group-${row.group.key}` : rowId(row.item)"
+    >
+      <tr
+        v-if="row.type === 'group'"
+        class="cursor-pointer bg-surface-50 hover:bg-surface-100"
+        @click="toggleGroup(row.group.key)"
+      >
+        <td v-if="selectable" class="w-10 px-4 py-2" />
+        <td v-if="expandable" class="w-8 px-2 py-2" />
+        <td class="px-4 py-2 text-sm font-semibold text-ink-900">
+          <span class="inline-flex items-center gap-1.5">
+            <ChevronRight
+              class="h-4 w-4 transition-transform"
+              :class="{ 'rotate-90': !isGroupCollapsed(row.group.key) }"
+            />
+            {{ row.group.label }}
+            <span class="font-normal text-ink-600">({{ row.group.items.length }})</span>
+          </span>
         </td>
         <td
-          v-for="(column, idx) in columns"
+          v-for="column in columns.slice(1)"
           :key="column.key"
-          class="whitespace-nowrap px-4 py-3 text-sm text-ink-900"
-          :class="[alignClass(column.align), idx < (stickyColumnCount ?? 0) ? 'sticky z-10 bg-surface-0' : '']"
-          :style="{ ...(columnWidths?.[column.key] ? { width: columnWidths[column.key] + 'px' } : {}), ...stickyStyle(idx) }"
-          @dblclick="startEdit(item, column)"
+          class="whitespace-nowrap px-4 py-2 text-sm font-semibold text-ink-900"
+          :class="alignClass(column.align)"
         >
-          <input
-            v-if="isEditingCell(item, column)"
-            v-model="editingValue"
-            type="text"
-            autofocus
-            class="w-full rounded border border-accent px-1 py-0.5 text-sm"
-            @keyup.enter="commitEdit(item, column)"
-            @keyup.escape="cancelEdit"
-            @blur="commitEdit(item, column)"
-          />
-          <template v-else>
-            <slot :name="`cell-${column.key}`" :item="item" :value="item[column.key]">
-              {{ item[column.key] }}
-            </slot>
-            <span v-if="isEditable(column)" class="ml-1 text-[10px] text-ink-600/60">✎</span>
-          </template>
+          <slot
+            v-if="column.footer"
+            :name="`footer-${column.key}`"
+            :value="aggregateColumn(row.group.items, column.key, column.footer)"
+            :items="row.group.items"
+          >
+            {{ formatAggregate(aggregateColumn(row.group.items, column.key, column.footer)) }}
+          </slot>
         </td>
       </tr>
-      <tr v-if="expandable && isExpanded(item)">
-        <td :colspan="colspan()" class="bg-surface-50 px-4 py-3">
-          <slot name="row-detail" :item="item" />
-        </td>
-      </tr>
+
+      <DataTableRow
+        v-else
+        :item="row.item"
+        :columns="columns"
+        :status-rail-key="statusRailKey"
+        :selectable="selectable"
+        :is-selected="isSelected(row.item)"
+        :expandable="expandable"
+        :editable-keys="editableKeys"
+        :column-widths="columnWidths"
+        :sticky-column-count="stickyColumnCount"
+        :sticky-offsets="stickyOffsets"
+        :colspan="colspan()"
+        @toggle-row="emit('toggle-row', row.item)"
+        @cell-edit="(key, value) => emit('cell-edit', row.item, key, value)"
+      >
+        <template
+          v-for="column in forwardedCellColumns"
+          :key="column.key"
+          #[`cell-${column.key}`]="slotProps"
+        >
+          <slot :name="`cell-${column.key}`" v-bind="slotProps" />
+        </template>
+        <template v-if="slots['row-detail']" #row-detail="slotProps">
+          <slot name="row-detail" v-bind="slotProps" />
+        </template>
+      </DataTableRow>
     </template>
   </tbody>
 </template>
