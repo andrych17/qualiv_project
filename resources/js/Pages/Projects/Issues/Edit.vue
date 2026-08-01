@@ -8,11 +8,12 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
+import FormSearchableSelect from '@/Components/forms/FormSearchableSelect.vue'
 import FormTextarea from '@/Components/forms/FormTextarea.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import DangerButton from '@/Components/DangerButton.vue'
 import { Paperclip } from 'lucide-vue-next'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface CommentRow {
@@ -51,13 +52,15 @@ const props = defineProps<{
   users: Array<{ id: number; name: string }>
 }>()
 
+const userOptions = computed(() => props.users.map((u) => ({ label: u.name, value: u.id })))
+
 const form = useForm({
   title: props.issue.title,
   description: props.issue.description ?? '',
   type: props.issue.type,
   status: props.issue.status,
   priority: props.issue.priority,
-  assignee_id: (props.issue.assignee_id ?? '') as number | '',
+  assignee_id: props.issue.assignee_id as number | null,
   due_date: props.issue.due_date ?? '',
 })
 
@@ -182,12 +185,14 @@ const formatSize = (bytes: number) => {
               ]"
               required
             />
-            <FormSelect
+            <FormSearchableSelect
               v-model="form.assignee_id"
               name="assignee_id"
               label="Assignee"
               placeholder="Unassigned"
-              :options="users.map((u) => ({ label: u.name, value: u.id }))"
+              search-placeholder="Search user..."
+              :options="userOptions"
+              :error="form.errors.assignee_id"
             />
           </div>
           <FormInput v-model="form.due_date" name="due_date" type="date" label="Due date" :error="form.errors.due_date" />

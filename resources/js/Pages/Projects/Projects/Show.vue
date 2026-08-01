@@ -203,12 +203,14 @@ const filteredIssues = computed(() => {
             { label: 'Urgent', value: 'urgent' },
           ]"
         />
-        <FormSelect
+        <FormSearchableSelect
           v-model="form.assignee_id"
           name="assignee_id"
           label="Assignee"
           placeholder="Unassigned"
-          :options="users.map((u) => ({ label: u.name, value: u.id }))"
+          search-placeholder="Search user..."
+          :options="userOptions"
+          :error="form.errors.assignee_id"
         />
         <PrimaryButton type="submit" :disabled="form.processing">Add issue</PrimaryButton>
       </form>
