@@ -17,6 +17,8 @@ interface ProjectRow {
   name: string
   description: string | null
   status: string
+  lead_id: number | null
+  lead_name: string | null
   issues_count: number
   created_at_formatted: string | null
 }
@@ -58,6 +60,7 @@ const filterFields: FilterFieldDef[] = [
 const columns = [
   { key: 'code', label: 'Code', sortable: true },
   { key: 'name', label: 'Name', sortable: true },
+  { key: 'lead_name', label: 'Lead' },
   { key: 'status', label: 'Status', sortable: true },
   { key: 'issues_count', label: 'Issues', align: 'right' as const },
   { key: 'created_at_formatted', label: 'Created', sortable: true, sortKey: 'created_at' },
@@ -153,6 +156,9 @@ const confirmBulkDelete = () => {
         </template>
         <template #cell-status="{ item }">
           <StatusBadge :status="item.status" />
+        </template>
+        <template #cell-lead_name="{ item }">
+          <span class="text-sm font-medium text-ink-900">{{ (item as ProjectRow).lead_name || '—' }}</span>
         </template>
         <template #cell-created_at_formatted="{ item }">
           <span class="font-mono text-xs text-ink-600">{{ item.created_at_formatted }}</span>
