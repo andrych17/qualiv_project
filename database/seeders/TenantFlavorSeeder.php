@@ -11,6 +11,7 @@ use App\Modules\CustomFields\Models\FieldValue;
 use App\Modules\Inventory\Models\InventoryCategory;
 use App\Modules\Inventory\Models\InventoryItem;
 use App\Modules\Legal\Models\LegalCase;
+use App\Modules\Projects\Models\Project;
 use Illuminate\Database\Seeder;
 
 /**
@@ -35,6 +36,7 @@ class TenantFlavorSeeder extends Seeder
         $this->seedCustomFields($flavor);
         $this->seedLegalCases($flavor);
         $this->seedSnums($flavor);
+        $this->seedProjects($flavor);
     }
 
     /** @return array<string, array<string, mixed>> */
@@ -104,6 +106,12 @@ class TenantFlavorSeeder extends Seeder
                         'notes' => 'Trademark class 9',
                         'custom' => ['court_register' => 'DJKI-2026-441', 'hearing_date' => '2026-09-01', 'priority' => 'normal'],
                     ],
+                ],
+                // Internal client/project tracker — Nusaevo's own work, not tenant demo data.
+                'projects' => [
+                    ['code' => 'KNC', 'name' => 'Knitandcro', 'status' => 'active'],
+                    ['code' => 'CT', 'name' => 'Cahaya Terang', 'status' => 'active'],
+                    ['code' => 'WM', 'name' => 'Wijaya Mas', 'status' => 'active'],
                 ],
             ],
             '002' => [
@@ -282,6 +290,20 @@ class TenantFlavorSeeder extends Seeder
                 'seq' => $def['seq'] ?? 0,
                 'status' => 'active',
             ]);
+        }
+    }
+
+    /** @param  array<string, mixed>  $flavor */
+    private function seedProjects(array $flavor): void
+    {
+        foreach ($flavor['projects'] ?? [] as $project) {
+            Project::query()->updateOrCreate(
+                ['code' => $project['code']],
+                [
+                    'name' => $project['name'],
+                    'status' => $project['status'],
+                ],
+            );
         }
     }
 
