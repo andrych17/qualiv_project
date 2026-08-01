@@ -40,14 +40,8 @@ class ConfigService
             ->orderBy('seq')
             ->get()
             ->filter(function (ConfigMenu $m) {
-                // Internal plan (Nusaevo's own Jira board): no admin/config chrome —
-                // only menus the plan actually enables, plus Dashboard as the landing page.
-                if (tenant()?->plan === 'internal') {
-                    return $m->code === 'DASHBOARD'
-                        || app(TenantFeatureService::class)->enabled($m->code);
-                }
-
-                // System CONFIG_* always allowed if trustee ok; domain menus need plan flag
+                // System CONFIG_*/Dashboard/Design System always allowed if trustee ok
+                // (see config/tenant_modules.php); domain menus need the plan's module flag.
                 if (str_starts_with($m->code, 'CONFIG_') || $m->code === 'DASHBOARD' || $m->code === 'DESIGN_SYSTEM') {
                     return true;
                 }
