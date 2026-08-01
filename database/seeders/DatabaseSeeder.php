@@ -23,6 +23,8 @@ class DatabaseSeeder extends Seeder
             ['email' => 'staff@nusaevo.com', 'name' => 'Staff User'],
             ['email' => 'viewer@nusaevo.com', 'name' => 'Viewer User'],
             ['email' => 'andry@nusaevo.com', 'name' => 'Andry Huang'],
+            ['email' => 'tirta@nusaevo.com', 'name' => 'Tirta'],
+            ['email' => 'simon@nusaevo.com', 'name' => 'Simon'],
         ];
 
         foreach ($tenants as $t) {
