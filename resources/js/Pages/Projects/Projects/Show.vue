@@ -11,6 +11,7 @@ import Panel from '@/Components/cards/Panel.vue'
 import DataTable, { type SortState } from '@/Components/tables/DataTable.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
+import FormSearchableSelect from '@/Components/forms/FormSearchableSelect.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import Tabs from '@/Components/navigation/Tabs.vue'
 import { Paperclip } from 'lucide-vue-next'
@@ -90,11 +91,12 @@ const onDrop = (event: DragEvent, status: string) => {
 }
 
 // --- Board quick-assign (Jira-style: pick a user straight from the card) ---
-const onAssigneeChange = (issueId: number, event: Event) => {
-  const value = (event.target as HTMLSelectElement).value
+const userOptions = computed(() => props.users.map((u) => ({ label: u.name, value: u.id })))
+
+const onAssigneeChange = (issueId: number, value: string | number | null) => {
   router.patch(
     route('projects.issues.updateAssignee', [props.project.id, issueId]),
-    { assignee_id: value === '' ? null : Number(value) },
+    { assignee_id: value === null || value === '' ? null : Number(value) },
     { preserveScroll: true },
   )
 }
@@ -243,18 +245,16 @@ const filteredIssues = computed(() => {
             <p class="mt-1 text-sm font-medium text-ink-900">{{ issue.title }}</p>
             <div class="mt-2 flex items-center justify-between gap-2 text-xs">
               <span :class="PRIORITY_CLASS[issue.priority]">{{ PRIORITY_LABEL[issue.priority] }}</span>
-              <select
-                :value="issue.assignee_id ?? ''"
-                draggable="false"
-                class="max-w-[7.5rem] truncate rounded-sm border border-transparent bg-transparent py-0.5 pl-1 pr-4 text-right text-ink-600 hover:border-border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                @click.stop
-                @mousedown.stop
-                @dragstart.stop
-                @change="onAssigneeChange(issue.id, $event)"
-              >
-                <option value="">Unassigned</option>
-                <option v-for="user in users" :key="user.id" :value="user.id">{{ user.name }}</option>
-              </select>
+              <div class="w-32 shrink-0" draggable="false" @click.stop @mousedown.stop @dragstart.stop>
+                <FormSearchableSelect
+                  :model-value="issue.assignee_id"
+                  name="assignee"
+                  placeholder="Unassigned"
+                  search-placeholder="Cari user…"
+                  :options="userOptions"
+                  @update:model-value="(value) => onAssigneeChange(issue.id, value)"
+                />
+              </div>
             </div>
             <div class="mt-1 flex items-center justify-between text-xs">
               <span v-if="issue.attachments_count" class="flex items-center gap-1 text-ink-600">
