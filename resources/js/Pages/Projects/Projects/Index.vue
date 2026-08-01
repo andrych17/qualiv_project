@@ -160,12 +160,6 @@ const confirmBulkDelete = () => {
         <template #cell-actions="{ item }">
           <div class="flex items-center justify-end gap-3">
             <Link
-              :href="route('projects.show', item.id)"
-              class="text-sm font-medium text-ink-900 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-            >
-              Board
-            </Link>
-            <Link
               :href="route('projects.edit', item.id)"
               class="text-sm font-medium text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             >
