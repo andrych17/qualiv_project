@@ -37,6 +37,7 @@ class SysConfigSeeder extends Seeder
         'admin@nusaevo.com' => ['ADMIN'],
         'staff@nusaevo.com' => ['STAFF'],
         'viewer@nusaevo.com' => ['VIEWER'],
+        'andry@nusaevo.com' => ['ADMIN'],
     ];
 
     public function run(): void

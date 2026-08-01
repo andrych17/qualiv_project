@@ -23,7 +23,7 @@ class TenantFlavorSeeder extends Seeder
     {
         $tenant = config('demo.tenant');
         if (! is_array($tenant) || empty($tenant['id'])) {
-            $tenant = ['id' => '001', 'name' => 'Demo Firm A'];
+            $tenant = ['id' => '001', 'name' => 'Nusaevo'];
         }
 
         $flavor = $this->flavors()[$tenant['id']] ?? $this->flavors()['001'];
@@ -42,12 +42,12 @@ class TenantFlavorSeeder extends Seeder
     {
         return [
             '001' => [
-                'app_name' => 'NusaEvo — Firm A (Jakarta)',
+                'app_name' => 'Nusaevo (Jakarta)',
                 'tz' => 'Asia/Jakarta',
                 'city' => 'Jakarta',
                 'low_stock' => 10,
-                'admin_descr' => 'Firm A administrators',
-                'staff_descr' => 'Firm A operations staff',
+                'admin_descr' => 'Nusaevo administrators',
+                'staff_descr' => 'Nusaevo operations staff',
                 'inventory_header' => 'Warehouse A',
                 'categories' => [
                     ['code' => 'RAW', 'name' => 'Raw Material'],
