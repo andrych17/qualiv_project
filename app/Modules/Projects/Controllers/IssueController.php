@@ -76,7 +76,7 @@ class IssueController extends Controller
     {
         $this->service->update($issue, $request->validated());
 
-        return redirect()->route('projects.show', $project)->with('success', 'Issue updated.');
+        return redirect()->route('projects.issues.edit', [$project->id, $issue->id])->with('success', 'Issue updated.');
     }
 
     public function updateStatus(UpdateIssueStatusRequest $request, Project $project, Issue $issue)

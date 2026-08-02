@@ -113,7 +113,7 @@ onUnmounted(() => {
     <div class="relative">
       <button
         type="button"
-        @click.stop="toggleDropdown"
+        @click.prevent.stop="toggleDropdown"
         @mousedown.stop
         :disabled="disabled"
         class="w-full flex items-center justify-between rounded-md border border-border bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-ink-900 focus:ring-2 focus:ring-ink-900/10 text-left"
@@ -133,7 +133,7 @@ onUnmounted(() => {
           <button
             v-if="clearable && selectedOption && !disabled"
             type="button"
-            @click.stop="clearSelection"
+            @click.prevent.stop="clearSelection"
             @mousedown.stop
             class="text-ink-600 hover:text-ink-900 p-0.5 rounded-full hover:bg-surface-50"
             title="Hapus pilihan"
@@ -150,7 +150,7 @@ onUnmounted(() => {
       <!-- Dropdown Panel -->
       <div
         v-if="isOpen"
-        @click.stop
+        @click.prevent.stop
         @mousedown.stop
         class="absolute left-0 right-0 z-30 mt-1 max-h-60 overflow-hidden rounded-md border border-border bg-white shadow-lg ring-1 ring-black/5 flex flex-col"
       >
@@ -162,14 +162,14 @@ onUnmounted(() => {
             v-model="searchQuery"
             type="text"
             :placeholder="searchPlaceholder"
-            @click.stop
+            @click.prevent.stop
             @keydown.stop="handleKeyDown"
             class="w-full bg-transparent text-sm outline-none text-ink-900 placeholder:text-ink-600"
           />
           <button
             v-if="searchQuery"
             type="button"
-            @click.stop="searchQuery = ''"
+            @click.prevent.stop="searchQuery = ''"
             class="text-ink-600 hover:text-ink-900 p-0.5"
           >
             <X class="h-3.5 w-3.5" />
@@ -189,7 +189,7 @@ onUnmounted(() => {
             v-for="opt in filteredOptions"
             :key="opt.value"
             type="button"
-            @click.stop="selectOption(opt, $event)"
+            @click.prevent.stop="selectOption(opt, $event)"
             @mousedown.stop
             class="w-full flex items-center justify-between px-3 py-2 text-left text-sm transition-colors hover:bg-surface-50"
             :class="opt.value === modelValue ? 'bg-surface-50 font-semibold text-accent' : 'text-ink-900'"
