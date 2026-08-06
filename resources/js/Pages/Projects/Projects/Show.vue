@@ -1,7 +1,5 @@
-<!-- ponytail: Project board — Kanban (native HTML5 drag/drop, no new dependency) + List (DataTable
-     groupBy showcasing the Excel-style subtotal footer). Issues load as one flat array (a single
-     project's backlog, not paginated), so sort/search/filter here are client-side computed instead
-     of the Inertia router.get push pattern Index.vue uses for server-paginated tables. -->
+<!-- ponytail: Project board — KanbanBoard (HTML5 DnD) + List (DataTable groupBy).
+     Issues load as one flat array (single project backlog), so list sort/search is client-side. -->
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { Link, router, useForm } from '@inertiajs/vue3'
@@ -14,22 +12,14 @@ import FormSelect from '@/Components/forms/FormSelect.vue'
 import FormSearchableSelect from '@/Components/forms/FormSearchableSelect.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import Tabs from '@/Components/navigation/Tabs.vue'
+import KanbanBoard from '@/Components/kanban/KanbanBoard.vue'
+import {
+  PRIORITY_CLASS,
+  PRIORITY_LABEL,
+  type KanbanColumnDef,
+  type KanbanItem,
+} from '@/Components/kanban/types'
 import { Paperclip } from 'lucide-vue-next'
-
-interface IssueRow {
-  id: number
-  code: string
-  title: string
-  type: string
-  status: string
-  priority: string
-  assignee_id: number | null
-  assignee: string | null
-  attachments_count: number
-  due_date: string | null
-  due_date_formatted: string | null
-  is_overdue: boolean
-}
 
 const props = defineProps<{
   project: {
@@ -41,23 +31,15 @@ const props = defineProps<{
     start_date: string | null
     end_date: string | null
   }
-  issues: IssueRow[]
+  issues: KanbanItem[]
   users: Array<{ id: number; name: string }>
 }>()
 
-const STATUS_COLUMNS: Array<{ key: string; label: string }> = [
+const STATUS_COLUMNS: KanbanColumnDef[] = [
   { key: 'todo', label: 'To do' },
   { key: 'in_progress', label: 'In Progress' },
   { key: 'done', label: 'Done' },
 ]
-
-const PRIORITY_LABEL: Record<string, string> = { low: 'Low', medium: 'Medium', high: 'High', urgent: 'Urgent' }
-const PRIORITY_CLASS: Record<string, string> = {
-  low: 'text-ink-600',
-  medium: 'text-ink-900',
-  high: 'text-signal-warning font-medium',
-  urgent: 'text-signal-danger font-semibold',
-}
 
 const view = ref<'board' | 'list'>('board')
 
@@ -79,19 +61,17 @@ const submitNewIssue = () => {
   })
 }
 
-// --- Board drag/drop ---
-const onDragStart = (event: DragEvent, issueId: number) => {
-  event.dataTransfer?.setData('text/plain', String(issueId))
-}
-
-const onDrop = (event: DragEvent, status: string) => {
-  const issueId = Number(event.dataTransfer?.getData('text/plain'))
-  if (!issueId) return
-  router.patch(route('projects.issues.updateStatus', [props.project.id, issueId]), { status }, { preserveScroll: true })
-}
-
-// --- Board quick-assign (Jira-style: pick a user straight from the card) ---
 const userOptions = computed(() => props.users.map((u) => ({ label: u.name, value: u.id })))
+
+const issueHref = (item: KanbanItem) => route('projects.issues.edit', [props.project.id, item.id])
+
+const onStatusChange = (issueId: number, status: string) => {
+  router.patch(
+    route('projects.issues.updateStatus', [props.project.id, issueId]),
+    { status },
+    { preserveScroll: true },
+  )
+}
 
 const onAssigneeChange = (issueId: number, value: string | number | null) => {
   router.patch(
@@ -100,15 +80,6 @@ const onAssigneeChange = (issueId: number, value: string | number | null) => {
     { preserveScroll: true },
   )
 }
-
-const issuesByStatus = (status: string) =>
-  props.issues
-    .filter((i) => i.status === status)
-    .sort((a, b) => {
-      // Overdue first, then soonest due date; undated issues sink to the bottom.
-      if (a.is_overdue !== b.is_overdue) return a.is_overdue ? -1 : 1
-      return (a.due_date ?? '9999-12-31').localeCompare(b.due_date ?? '9999-12-31')
-    })
 
 const formatProjectDates = () => {
   if (!props.project.start_date && !props.project.end_date) return null
@@ -220,61 +191,15 @@ const filteredIssues = computed(() => {
       <Tabs v-model="view" :tabs="[{ key: 'board', label: 'Board' }, { key: 'list', label: 'List' }]" />
     </div>
 
-    <div v-if="view === 'board'" class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
-      <div
-        v-for="column in STATUS_COLUMNS"
-        :key="column.key"
-        class="rounded-md border border-border bg-surface-50 p-3"
-        @dragover.prevent
-        @drop="onDrop($event, column.key)"
-      >
-        <p class="mb-3 flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-ink-600">
-          {{ column.label }}
-          <span class="rounded-full bg-surface-0 px-2 py-0.5 text-[11px] font-medium text-ink-600">
-            {{ issuesByStatus(column.key).length }}
-          </span>
-        </p>
-        <div class="space-y-2">
-          <Link
-            v-for="issue in issuesByStatus(column.key)"
-            :key="issue.id"
-            :href="route('projects.issues.edit', [project.id, issue.id])"
-            draggable="true"
-            class="block cursor-grab rounded-md border border-border bg-surface-0 p-3 shadow-sm transition hover:shadow active:cursor-grabbing"
-            @dragstart="onDragStart($event, issue.id)"
-          >
-            <p class="font-mono text-xs text-ink-600">{{ issue.code }}</p>
-            <p class="mt-1 text-sm font-medium text-ink-900">{{ issue.title }}</p>
-            <div class="mt-2 flex items-center justify-between gap-2 text-xs">
-              <span :class="PRIORITY_CLASS[issue.priority]">{{ PRIORITY_LABEL[issue.priority] }}</span>
-              <div class="w-32 shrink-0" draggable="false" @click.prevent.stop @mousedown.stop @dragstart.stop>
-                <FormSearchableSelect
-                  :model-value="issue.assignee_id"
-                  name="assignee"
-                  placeholder="Unassigned"
-                  search-placeholder="Cari user…"
-                  :options="userOptions"
-                  @update:model-value="(value) => onAssigneeChange(issue.id, value)"
-                />
-              </div>
-            </div>
-            <div class="mt-1 flex items-center justify-between text-xs">
-              <span v-if="issue.attachments_count" class="flex items-center gap-1 text-ink-600">
-                <Paperclip class="h-3 w-3" />
-                {{ issue.attachments_count }}
-              </span>
-              <p
-                v-if="issue.due_date_formatted"
-                class="ml-auto text-xs"
-                :class="issue.is_overdue ? 'font-semibold text-signal-danger' : 'text-ink-600'"
-              >
-                {{ issue.is_overdue ? 'Overdue — ' : 'Due ' }}{{ issue.due_date_formatted }}
-              </p>
-            </div>
-          </Link>
-          <p v-if="issuesByStatus(column.key).length === 0" class="text-xs text-ink-600">No issues.</p>
-        </div>
-      </div>
+    <div v-if="view === 'board'" class="mt-4">
+      <KanbanBoard
+        :columns="STATUS_COLUMNS"
+        :items="issues"
+        :user-options="userOptions"
+        :item-href="issueHref"
+        @status-change="onStatusChange"
+        @assignee-change="onAssigneeChange"
+      />
     </div>
 
     <div v-else class="mt-4">
