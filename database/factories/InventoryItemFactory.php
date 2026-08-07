@@ -13,7 +13,7 @@ class InventoryItemFactory extends Factory
     public function definition(): array
     {
         $cat = InventoryCategory::inRandomOrder()->first();
-        if (!$cat) {
+        if (! $cat) {
             $cat = InventoryCategory::create(['name' => 'General', 'code' => 'GEN']);
         }
 

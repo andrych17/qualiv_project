@@ -3,8 +3,11 @@
 namespace App\Providers;
 
 use App\Auth\TenantAwareUserProvider;
+use App\Models\User;
 use App\Modules\Legal\Contracts\CaseCodeGenerator;
+use App\Modules\Legal\Models\LegalCase;
 use App\Modules\Legal\Services\PrefixedCaseCodeGenerator;
+use App\Services\AsyncSearchRegistry;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
@@ -30,22 +33,28 @@ class AppServiceProvider extends ServiceProvider
         });
 
         // Register default searchable entities with 50 limit cap
-        \App\Services\AsyncSearchRegistry::register(
+        AsyncSearchRegistry::register(
             'user',
-            \App\Models\User::class,
+            User::class,
             ['name', 'email'],
             'name',
             'email',
-            fn () => 'User'
+            fn () => 'User',
+            queryCallback: null,
+            filterable: [],
+            menuCode: 'CONFIG_USERS',
         );
 
-        \App\Services\AsyncSearchRegistry::register(
+        AsyncSearchRegistry::register(
             'legal_case',
-            \App\Modules\Legal\Models\LegalCase::class,
+            LegalCase::class,
             ['code', 'title'],
             fn ($c) => "{$c->code} — {$c->title}",
             fn ($c) => "Status: {$c->status}",
-            'status'
+            'status',
+            queryCallback: null,
+            filterable: [],
+            menuCode: 'LEGAL',
         );
     }
 }

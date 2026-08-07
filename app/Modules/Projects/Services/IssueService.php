@@ -15,6 +15,12 @@ class IssueService
 {
     private const ATTACHMENT_MAX_MB = 20;
 
+    /** @var list<string> */
+    private const ATTACHMENT_EXTENSIONS = [
+        'jpg', 'jpeg', 'png', 'gif', 'webp',
+        'pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'txt',
+    ];
+
     /** @param  array<string, mixed>  $data */
     public function create(Project $project, array $data): Issue
     {
@@ -106,11 +112,20 @@ class IssueService
             }
         }, $attachment->original_name, [
             'Content-Type' => $attachment->mime_type ?? 'application/octet-stream',
+            // Client-supplied MIME is reflected here — stop browsers from sniffing it
+            // into something executable (e.g. an .svg upload rendered as image/svg+xml).
+            'X-Content-Type-Options' => 'nosniff',
         ]);
     }
 
     public static function maxAttachmentBytes(): int
     {
         return self::ATTACHMENT_MAX_MB * 1024 * 1024;
+    }
+
+    /** @return list<string> */
+    public static function allowedAttachmentExtensions(): array
+    {
+        return self::ATTACHMENT_EXTENSIONS;
     }
 }

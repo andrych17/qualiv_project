@@ -7,10 +7,11 @@ Same PHP/Vue code path. Firm A vs B differ because **tenant DB data** (consts + 
 ```text
 Ladder (prefer lower first):
   1. Consts          → SYSCONFIG.config_consts
-  2. Custom fields   → CUSTOMFIELDS.*
-  3. Custom logic    → services reading consts + field values
-  4. Plan / modules  → central tenants.plan
-  5. Vertical module → app/Modules/Legal …
+  2. Serials         → SYSCONFIG.config_snums
+  3. Custom fields   → CUSTOMFIELDS.*
+  4. Custom logic    → services reading consts + field values
+  5. Plan / modules  → central tenants.plan
+  6. Vertical module → app/Modules/Legal …
 ```
 
 ---

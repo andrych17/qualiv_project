@@ -12,6 +12,14 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // This seeder drops orphaned tenant databases and creates demo accounts with a
+        // weak shared password — never let it run against production.
+        if (app()->isProduction()) {
+            $this->command?->warn('DatabaseSeeder skipped in production.');
+
+            return;
+        }
+
         // ponytail: two tenants with distinct flavor seed (config/inventory/legal/custom fields)
         $tenants = [
             ['id' => '001', 'name' => 'Nusaevo', 'plan' => 'internal'],

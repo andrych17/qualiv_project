@@ -8,20 +8,22 @@ use Illuminate\Database\Eloquent\Model;
 class AsyncSearchRegistry
 {
     /**
-     * @var array<string, array{modelClass: class-string<Model>, searchFields: array, labelField: string|callable, descriptionField: string|callable|null, badgeField: string|callable|null, queryCallback: callable|null}>
+     * @var array<string, array{modelClass: class-string<Model>, searchFields: array, labelField: string|callable, descriptionField: string|callable|null, badgeField: string|callable|null, queryCallback: callable|null, filterable: array<string>, menuCode: string|null}>
      */
     protected static array $registry = [];
 
     /**
      * Register a searchable entity.
      *
-     * @param string $key Entity key (e.g. 'users', 'legal_cases', 'partners')
-     * @param class-string<Model> $modelClass Eloquent Model class
-     * @param array<string> $searchFields Columns to perform search on
-     * @param string|callable $labelField Column name or callback for option label
-     * @param string|callable|null $descriptionField Column name or callback for option description
-     * @param string|callable|null $badgeField Column name or callback for status badge
-     * @param callable|null $queryCallback Optional custom query builder callback for JOINs, scopes, or complex logic
+     * @param  string  $key  Entity key (e.g. 'users', 'legal_cases', 'partners')
+     * @param  class-string<Model>  $modelClass  Eloquent Model class
+     * @param  array<string>  $searchFields  Columns to perform search on
+     * @param  string|callable  $labelField  Column name or callback for option label
+     * @param  string|callable|null  $descriptionField  Column name or callback for option description
+     * @param  string|callable|null  $badgeField  Column name or callback for status badge
+     * @param  callable|null  $queryCallback  Optional custom query builder callback for JOINs, scopes, or complex logic
+     * @param  array<string>  $filterable  Column allowlist for `where($col, $val)` filters sent via extra query params. Empty by default — extra params are ignored unless a column is explicitly listed here.
+     * @param  string|null  $menuCode  SYSCONFIG menu code gating this entity — caller needs `read` on it (see AsyncSearchController). Null means auth-only (no extra gate).
      */
     public static function register(
         string $key,
@@ -30,7 +32,9 @@ class AsyncSearchRegistry
         string|callable $labelField = 'name',
         string|callable|null $descriptionField = null,
         string|callable|null $badgeField = null,
-        ?callable $queryCallback = null
+        ?callable $queryCallback = null,
+        array $filterable = [],
+        ?string $menuCode = null
     ): void {
         static::$registry[$key] = [
             'modelClass' => $modelClass,
@@ -39,7 +43,17 @@ class AsyncSearchRegistry
             'descriptionField' => $descriptionField,
             'badgeField' => $badgeField,
             'queryCallback' => $queryCallback,
+            'filterable' => $filterable,
+            'menuCode' => $menuCode,
         ];
+    }
+
+    /**
+     * The SYSCONFIG menu code gating this entity, if any.
+     */
+    public static function menuCodeFor(string $key): ?string
+    {
+        return static::$registry[$key]['menuCode'] ?? null;
     }
 
     /**
@@ -77,9 +91,10 @@ class AsyncSearchRegistry
         if (isset($config['queryCallback']) && is_callable($config['queryCallback'])) {
             ($config['queryCallback'])($query, $search, $extraFilters);
         } else {
-            // Apply extra filters (excluding system params)
+            // Apply extra filters — only columns explicitly allowlisted via register()'s
+            // $filterable, never an arbitrary column name taken straight from the query string.
             foreach ($extraFilters as $col => $val) {
-                if ($val !== null && $val !== '' && ! in_array($col, ['q', 'entity', 'limit', 'selected_id', 'page'])) {
+                if ($val !== null && $val !== '' && in_array($col, $config['filterable'], true)) {
                     $query->where($col, $val);
                 }
             }

@@ -23,7 +23,9 @@ Route::middleware('auth')->group(function () {
         ->middleware('menu.perm:DESIGN_SYSTEM')
         ->name('design-system');
 
-    Route::get('/api/search', [AsyncSearchController::class, 'index'])->name('api.search');
+    Route::get('/api/search', [AsyncSearchController::class, 'index'])
+        ->middleware('throttle:60,1')
+        ->name('api.search');
 });
 
 require __DIR__.'/auth.php';

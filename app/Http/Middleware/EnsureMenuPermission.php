@@ -42,7 +42,15 @@ class EnsureMenuPermission
             'create', 'store' => 'create',
             'edit', 'update' => 'update',
             'destroy' => 'delete',
-            default => 'read',
+            // Non-resource methods (bulkDestroy, updateStatus, quickUpdate, storeAttachment, …) —
+            // fall back to the HTTP verb, never to 'read', so a write request can't be
+            // authorized by a read-only permission just because its method name is unmapped.
+            default => match ($request->method()) {
+                'DELETE' => 'delete',
+                'POST' => 'create',
+                'PUT', 'PATCH' => 'update',
+                default => 'read',
+            },
         };
     }
 }

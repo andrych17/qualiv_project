@@ -11,7 +11,7 @@ Route::middleware(['auth', 'verified', 'module:PROJECTS', 'menu.perm:PROJECTS'])
         Route::delete('projects/bulk-destroy', [ProjectController::class, 'bulkDestroy'])->name('projects.bulkDestroy');
         Route::resource('projects', ProjectController::class)->names('projects');
 
-        Route::prefix('projects/{project}')->name('projects.')->group(function () {
+        Route::prefix('projects/{project}')->name('projects.')->scopeBindings()->group(function () {
             // Browser hits GET /projects/{project}/issues when someone types the URL or
             // refreshes after the quick-create POST — redirect to the board instead of 405.
             Route::get('issues', fn (Project $project) => redirect()->route('projects.show', $project))->name('issues.index');

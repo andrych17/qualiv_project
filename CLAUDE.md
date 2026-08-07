@@ -79,7 +79,7 @@ Notes:
 
 - Mode B: **one PostgreSQL database per tenant** (`tenant_{id}`), via `stancl/tenancy`. Tenant app data does **not** use a `tenant_id` column — isolation is the DB boundary.
 - Central DB (`nusaevo`) holds tenant registry + login lookup (`tenant_user_lookups`) + **plan** (`tenants.plan`). Users and module data live in the tenant DB.
-- Inside each tenant DB, modules get separate schemas (`SYSCONFIG`, `INVENTORY`, `CRM`, `SCHEDULE`, `NOTIFICATIONS`, `WORKFLOW`, `LEGAL`, `CUSTOMFIELDS`). See §7.
+- Inside each tenant DB, modules get separate schemas (`SYSCONFIG`, `INVENTORY`, `CRM`, `SCHEDULE`, `NOTIFICATIONS`, `WORKFLOW`, `LEGAL`, `CUSTOMFIELDS`, `PROJECTS`). See §7.
 - Tenant resolution is **login-bound** (session `tenant_id` after email lookup), not domain/subdomain. UI may switch among memberships via sidebar tenant dropdown.
 - Queue/cache/filesystem are tenant-aware via stancl bootstrappers. Do **not** use PostgreSQL RLS.
 - Plan/feature-flagging: `config/tenant_modules.php` + `TenantFeatureService` + middleware `module:CODE`. Sidebar menus also hide modules not on the plan.
@@ -96,6 +96,7 @@ Notes:
    - **CustomFields** (`CUSTOMFIELDS` schema) — EAV + config-driven logic; see `ARCHITECTURE.md`
 3. **Legal vertical module** — first paid, rentable product. Built on top of the core modules above. This is the first real revenue test of the platform; prioritize correctness and UX polish here over speculative generalization for future verticals.
 4. Future verticals (e.g. Property) come after Legal is validated in market — reuse core modules, add vertical-specific modules only.
+5. **Projects** (`PROJECTS` schema, `app/Modules/Projects/`) — internal-only project/issue tracker with a Kanban board (see `app/Modules/Projects/PROJECTS_SPECS.md`). Not part of any customer plan; gated to Nusaevo's own tenant via the `internal` plan in `config/tenant_modules.php` (§2 customization ladder rung 5), used as the team's own Jira-style board. Do not reference it from vertical modules or wire it into customer plans.
 
 When working on a task, Claude should check whether it belongs in **Core** (reusable) or in the **active vertical module** (Legal-specific) and place code accordingly. If unsure, ask rather than guessing — misplacing logic here has long-term architectural cost.
 
@@ -131,6 +132,7 @@ tenant_001.			# Database
 ├── NOTIFICATIONS.
 ├── WORKFLOW.
 ├── LEGAL.
+├── PROJECTS.		# Internal-only Kanban/issue tracker, gated via `internal` plan — not sold to tenants
 └── CUSTOMFIELDS.
 ```
 - Table naming: 

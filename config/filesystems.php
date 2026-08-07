@@ -69,7 +69,7 @@ return [
         // driver for sftp here without touching service code.
         'objects' => [
             'driver' => 'local',
-            'root' => '/var/www/storage/nusaevo-erp',
+            'root' => env('OBJECT_STORAGE_ROOT', '/var/www/storage/nusaevo-erp'),
             'throw' => true,
             'report' => true,
         ],

@@ -19,6 +19,7 @@ class StoreIssueAttachmentRequest extends FormRequest
                 'required',
                 'file',
                 'max:'.(IssueService::maxAttachmentBytes() / 1024),
+                'mimes:'.implode(',', IssueService::allowedAttachmentExtensions()),
             ],
         ];
     }
@@ -29,6 +30,7 @@ class StoreIssueAttachmentRequest extends FormRequest
 
         return [
             'file.max' => "The file must not be larger than {$maxMb} MB.",
+            'file.mimes' => 'File type not allowed. Allowed: '.implode(', ', IssueService::allowedAttachmentExtensions()).'.',
         ];
     }
 }

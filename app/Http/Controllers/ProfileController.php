@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Modules\Config\Services\ConfigUserService;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,6 +14,10 @@ use Inertia\Response;
 
 class ProfileController extends Controller
 {
+    public function __construct(
+        protected ConfigUserService $userService,
+    ) {}
+
     /**
      * Display the user's profile form.
      */
@@ -53,7 +58,9 @@ class ProfileController extends Controller
 
         Auth::logout();
 
-        $user->delete();
+        // Go through the same service Config > Users uses so the central
+        // tenant_user_lookups row and group memberships don't get orphaned.
+        $this->userService->delete($user);
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
