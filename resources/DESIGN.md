@@ -62,6 +62,8 @@ Base primitives first, then composites. Each should be a single reusable compone
 **Composites**
 - Data table (sortable, filterable, with row-level Status Rail)
 - Card (with optional Status Rail on the edge)
+- Kanban / Board view (drag-to-advance columns by status — see dedicated spec below; used by
+  CRM's Lead pipeline, Sales's Opportunity pipeline, and Performance's OKR board)
 - Modal / drawer
 - Toast / inline notification banner
 - Empty state (see writing guidance below — always actionable, never just "no data")
@@ -69,6 +71,37 @@ Base primitives first, then composites. Each should be a single reusable compone
 - Sidebar nav item (with module icon + optional badge count)
 - Calendar / timeline view (for Schedule)
 - Comment/activity thread (reusable across Workflows and Legal case notes)
+
+### Kanban / Board View
+
+A stage/status pipeline rendered as columns (one per stage) containing draggable cards — used
+wherever a record moves through a linear or near-linear sequence of states before completion:
+CRM's Lead pipeline (New → Contacted → Qualified → Converted/Disqualified), Sales's
+Opportunity pipeline (New → Qualifying → Quoted → Won/Lost), and Performance's OKR board (by
+status: On Track / At Risk / Off Track / Completed).
+
+- **Column header**: stage name, card count, optional aggregate value (e.g. total estimated
+  value of Leads in this stage) set in *Source Serif 4*, matching this system's convention of
+  reserving the serif for key numbers.
+- **Card**: the same Card composite (above), with its **Status Rail** on the left edge colored
+  by the record's own semantic state — not the column position. A card that's overdue or
+  at-risk stays visually flagged (`danger`/`warning`) even before anyone drags it, so the
+  board never hides a problem just because of which column it's sitting in. Card body: title,
+  owner avatar/initials chip, and one or two secondary fields (e.g. estimated value + next
+  action date for a Lead) — never more. A Kanban card is a scannable summary, not the full
+  record.
+- **Drag-to-advance**: dragging a card to a new column changes its underlying status field. A
+  drop that would violate a hard business rule (e.g. Sales's credit-blocked order, or a CRM
+  disqualification that requires a reason code) opens the relevant inline form instead of
+  silently completing the move — the drag is a shortcut for a valid transition, never a
+  bypass of whatever rule would otherwise gate that change.
+- **List view toggle**: every Kanban board has an equivalent sortable list/table view (reusing
+  the Data table composite) for users who prefer it or are on a narrower viewport — Kanban is
+  a view over the records, not the only way to interact with them, consistent with the
+  Quality Floor's "responsive down to a usable mobile width" requirement (§6).
+- **Empty column state** follows the same actionable-invitation voice as any other empty state
+  (§5) — e.g. *"No leads in Qualified yet — drag one here or add a new lead,"* never a bare
+  "No data."
 
 ## 4. Motion
 

@@ -39,10 +39,13 @@ this repeats the same anti-pattern WNE/DMS/CRM were built to avoid:
 - Fixed Asset register with Indonesian tax depreciation rules (fiscal vs. commercial
   depreciation, per PMK/UU HPP asset group classification) alongside commercial (PSAK)
   depreciation.
-- Inventory **costing** (valuation, COGS) — Accounting owns the money side of inventory;
-  physical stock (quantities, locations, movements) is out of scope here and belongs to a
-  future Inventory/Warehouse module, which will publish stock-movement events this module
-  consumes.
+- Inventory **GL posting** — the **Inventory** module (`INVENTORY_SPECS.md`, now built) owns
+  both physical stock (quantities, locations, movements) and its costing/valuation (FIFO or
+  Weighted-Average, per its own `CostingStrategyInterface`) — Accounting does not
+  re-implement either. Accounting's only job is to translate Inventory's already-valued
+  movement events into the correct GL journal (Inventory-asset ↔ COGS/GRNI/Adjustment), and
+  to verify its own Inventory-asset control-account balance reconciles to Inventory's
+  valuation total.
 - Basic cost accounting (cost centers, simple allocation) and budgeting (budget vs. actual)
   — enough to be sellable, not a full budgeting suite.
 - Multi-company (multiple legal entities under one tenant, e.g. a law firm's operating company
@@ -97,13 +100,24 @@ this repeats the same anti-pattern WNE/DMS/CRM were built to avoid:
 - **Fixed Assets** — asset register, straight-line commercial depreciation, Indonesian fiscal
   depreciation (asset-group-based, declining-balance or straight-line per group per UU HPP),
   disposal, dual (commercial vs. fiscal) depreciation books.
-- **Inventory Costing (interface only)** — weighted-average costing engine that consumes stock
-  movement events (from a future Inventory module or manual entry) and posts COGS/inventory
-  valuation journals. No physical stock management in this module.
+- **Inventory GL Posting (interface only — no costing logic, no physical stock)** — consumes
+  `inventory.goods_received` / `inventory.goods_issued` / `inventory.stock_adjusted` events
+  from the **Inventory** module (`INVENTORY_SPECS.md`), which is the platform's sole source of
+  truth for both stock quantity and stock valuation (`INVENTORY.stock_ledger` /
+  `stock_valuation_layers`, FIFO/Weighted-Average via `CostingStrategyInterface`). Each event
+  already carries the computed unit cost and total value for that movement — Accounting's only
+  job is to post the corresponding Inventory-asset ↔ COGS/GRNI/Adjustment journal entry.
+  Nothing in Accounting re-derives, recomputes, or stores its own costing layers.
 - **Cost Accounting (lightweight)** — cost centers/dimensions on journal lines, simple
   percentage-based allocation runs (e.g. shared overhead split across cost centers).
 - **Budgeting (lightweight)** — annual budget by account × cost center × period, budget vs.
-  actual variance report. No rolling forecasts, no what-if scenarios in v1.
+  actual variance report. No rolling forecasts, no what-if scenarios in v1. This is the
+  finance-grade, GL-account-precise budget; the **Performance** module
+  (`PERFORMANCE_SPECS.md` §3B) offers a separate, subject/category-based budget for
+  management/board reporting alongside KPIs and OKRs — the two are complementary, not
+  duplicative (see `PERFORMANCE_SPECS.md` §1 for the split), and Performance can optionally
+  read this module's GL data for its own "actual" figures via
+  `AccountingService::getAccountBalance(...)` rather than re-entering them.
 - **Multi Company** — multiple legal entities inside one tenant DB, each with its own COA
   instance, ledger, and fiscal calendar; consolidated trial balance across companies as a
   report (not automated eliminations — see Future Version).
@@ -211,6 +225,11 @@ this repeats the same anti-pattern WNE/DMS/CRM were built to avoid:
   calendar-month), each with a `status` (`open` / `soft_closed` / `hard_closed`).
 - **Dimensions**: cost center, and optionally project/subject — configurable list, attachable
   to any journal line for cost-accounting slicing (§3I) without changing the COA itself.
+  `ACCOUNTING.cost_centers` is the platform's canonical financial cost-center master —
+  Purchase (`PURCHASE.cost_centers`) and HCM (`HCM.org_units`) each optionally reference it
+  (nullable, informational — see `PURCHASE_SPECS.md` §5 and `HCM_SPECS.md` §5) rather than
+  maintaining an independently-numbered list, so a cost center means the same thing everywhere
+  it's used on a tenant with Accounting installed.
 
 **Rules / logic**
 - Control accounts (`is_control_account = true`) reject direct manual journal postings — they
@@ -248,12 +267,26 @@ this repeats the same anti-pattern WNE/DMS/CRM were built to avoid:
 ## 3D. Accounts Receivable (AR)
 
 - **Customer invoice**: header (partner — resolved via CRM's `partners`, company, currency,
-  issue/due date, PPN treatment, `subject_type`/`subject_id` back to the originating vertical
-  record e.g. `legal.case_hdrs`) + line items (description, qty, price, discount, tax code).
-  On posting: creates the AR control-account journal + a PPN output tax line if applicable +
-  (if configured) a Faktur Pajak record (§3M).
+  issue/due date, PPN treatment, `invoice_type` — `standard` / `deposit`, additive field —
+  `subject_type`/`subject_id` back to the originating record — in practice
+  always `sales.so_lines`, since **Sales** is the platform's sole AR-side caller (§3R) and
+  every invoice, including a Legal retainer, arrives via its Billing Engine
+  (`SALES_SPECS.md` §3I). Full provenance for a vertical-originated invoice (e.g. which Legal
+  matter a retainer belongs to) is still one hop away: the Sales Order itself carries
+  `subject_type = 'legal.matters'`/`'legal.deeds'` per `SALES_SPECS.md` §3F, so Accounting
+  never needs a direct Legal-shaped pointer of its own) + line items (description, qty, price,
+  discount, tax code). On posting: creates the AR
+  control-account journal + a PPN output tax line if applicable + (if configured) a Faktur
+  Pajak record (§3M). Fires `InvoicePosted` back to the requesting module (carrying the
+  `subject_type`/`subject_id` it was given) so that module can update its own local status
+  (e.g. Sales's `so_lines.qty_invoiced`) — Accounting never needs to know what a "Sales Order
+  line" is beyond that pointer.
 - **Payment application**: receive payment (full/partial), apply against one or more open
-  invoices (oldest-first default, manually overridable), posts to Cash/Bank + AR control.
+  invoices (oldest-first default, manually overridable), posts to Cash/Bank + AR control. A
+  deposit invoice's payment is applied the same way — as a credit against a later invoice —
+  rather than needing a separate "deposit ledger" concept. Fires `PaymentRecorded` (with the
+  invoice's `subject_type`/`subject_id`) so a requesting module (Sales's Commission Engine,
+  for example) can react without polling Accounting's tables directly.
 - **Credit note**: reduces an invoice or stands alone against a partner's balance.
 - **AR Aging report**: current / 1-30 / 31-60 / 61-90 / 90+ buckets, by partner, drill into
   open invoices.
@@ -265,19 +298,41 @@ this repeats the same anti-pattern WNE/DMS/CRM were built to avoid:
   its own customer master, same "Core reuses Core" rule already established between DMS/CRM/
   WNE. A partner needs no special "customer" role to be invoiced; any partner can receive an
   AR invoice.
+- **Accounting is the only AR ledger in the platform.** The Sales module's Billing Engine
+  (`SALES_SPECS.md` §3I) does not maintain its own invoice/payment tables; it requests
+  invoices and payment recording here via `InvoiceRequested`/`PaymentRequested`, same as any
+  vertical module would. This is a platform-wide rule, not a Sales-specific integration
+  detail: no module is permitted to keep a parallel AR ledger — doing so would break the
+  control-account guarantee below and risk issuing invoices without correct PPN treatment.
 - AR control-account balance is always exactly the sum of open invoice balances — enforced by
   posting invoices/payments through the same transactional service call, not reconciled after
   the fact.
+- Credit/debit adjustments to an invoice are handled exclusively via **Credit note** /
+  `ar_credit_notes` (above) — `invoice_type` intentionally carries no `credit_memo` value, so
+  there is exactly one representation of a credit adjustment in the schema, not two competing
+  ones.
 
 ## 3E. Accounts Payable (AP)
 
 - **Vendor bill**: mirrors AR invoice structurally — header (partner via CRM, company,
-  currency, due date) + lines, with PPh withholding calculated where applicable (the tenant is
-  the withholding agent — e.g. PPh 23 on a professional service bill) and a Bukti Potong
-  record created on posting (§3M).
+  currency, due date, `subject_type`/`subject_id` back to the originating record — most
+  commonly `purchase.pur_invoice_hdrs`, the **Purchase** module's already-matched vendor
+  invoice, `PURCHASE_SPECS.md` §3F; a Legal case's direct expense bill is the other common
+  case) + lines, with PPh withholding calculated where applicable (the tenant is the
+  withholding agent — e.g. PPh 23 on a professional service bill) and a Bukti Potong record
+  created on posting (§3M). Created from a `BillRequested` event/facade call — Accounting
+  never captures or matches a vendor bill itself; that intake/three-way-match step is
+  Purchase's job (or, for a tenant without Purchase, direct manual entry here).
 - **Payment scheduling & approval**: bills queue for payment by due date; payment run (single
   or batch) routes through WNE approval above a configurable threshold before disbursement is
-  posted — same approval seam as journals (§3C), reused rather than reinvented.
+  posted — same approval seam as journals (§3C), reused rather than reinvented. This is the
+  concrete answer to "who executes payment," previously an open item in `PURCHASE_SPECS.md`
+  §5: Accounting does, here — Purchase's own `purchase.invoice_approval` (§3F of
+  `PURCHASE_SPECS.md`) only validates that a bill is legitimate and matches what was
+  ordered/received; this is the separate, later gate that actually authorizes disbursement.
+- Fires `BillPosted` on AP recording and `PaymentRecorded` on disbursement, both carrying the
+  originating `subject_type`/`subject_id`, so the requesting module (Purchase, or Legal for a
+  direct expense) can update its own status without Accounting knowing that module's schema.
 - **AP Aging report**: mirrors AR aging.
 - **Debit note**: mirrors AR credit note.
 
@@ -325,28 +380,46 @@ this repeats the same anti-pattern WNE/DMS/CRM were built to avoid:
 - An asset can optionally link (`subject_type`/`subject_id`) to the AP bill that created it,
   for traceability, without a hard FK (same polymorphic seam as everywhere else).
 
-## 3H. Inventory Costing (interface engine — no physical stock)
+## 3H. Inventory GL Posting (interface engine — no costing, no physical stock)
 
-- **Purpose**: post the *financial* side of inventory movement. Physical inventory
-  (quantities, warehouses, stock-take) is explicitly out of scope — belongs to a future
-  Inventory/Warehouse Core module.
-- Consumes a `StockMovementOccurred` event (qty, item, unit cost source, movement type:
-  purchase-receipt / sale-issue / adjustment) from whatever module tracks physical stock
-  (manual entry screen provided in v1 as a stopgap until a real Inventory module exists).
-- **Weighted-average costing**: maintains a moving-average unit cost per item per company;
-  posts Inventory (asset) ↔ COGS/GRNI journals on each movement.
-- **Valuation report**: on-hand inventory value by item/category as of any date, reconciled to
-  the Inventory control account balance (same control-account discipline as AR/AP).
+- **Purpose**: post the *financial* side of inventory movement only. Both physical inventory
+  (quantities, warehouses, stock-take) and cost/valuation (FIFO or weighted-average layers,
+  current unit cost) are fully owned by the **Inventory** module (`INVENTORY_SPECS.md`) —
+  Accounting does not maintain a parallel ledger for either.
+- Consumes `inventory.goods_received`, `inventory.goods_issued`, `inventory.stock_adjusted`
+  (published events, per `INVENTORY_SPECS.md` §5). Each event payload includes item, quantity,
+  movement type, unit cost, and total value as already computed by Inventory's
+  `CostingStrategyInterface` — plus a `subject_type = 'inventory.stock_ledger'` /
+  `subject_id` pointer back to the originating ledger row, for traceability.
+- **On each event**: posts a journal through the same single `JournalService::post()` path as
+  every other Accounting transaction (§3C) — Inventory-asset account debit/credit against
+  COGS (issue), GRNI/AP-accrual (receipt), or an Adjustment/write-off account (adjustment) —
+  using the value Inventory already computed, never a locally recalculated figure.
+- **Inventory valuation reporting** (on-hand value by item/warehouse/category) is Inventory's
+  own report (`INVENTORY_SPECS.md` §3I) — Accounting does not duplicate it. Accounting's own
+  concern is narrower: that its Inventory-asset **control account** balance reconciles to
+  Inventory's valuation total — the same control-account discipline already applied to AR/AP
+  (§3D/§3E), a verification report, not a second source of value.
+- If Inventory is not installed/enabled for a tenant, this engine is simply inert (no events
+  to consume) — same "must not throw if X is absent" posture every other soft cross-module
+  dependency in this platform uses.
 
 **Rules / logic**
-- This engine is intentionally thin in v1: it is the "costing brain," not a warehouse system —
-  keeps scope small while leaving the event-driven seam ready for a real Inventory module to
-  plug into later without any change on the Accounting side.
+- This engine holds **zero** costing logic — no weighted-average calculation, no FIFO layer
+  consumption — by design. Any cost figure that passes through Accounting is always a value
+  received from Inventory, never computed here.
+- A movement event for an item with no GL account mapping (new item, unmapped category) fails
+  loudly and queues for review rather than posting to a suspense account silently — same
+  "no silent auto-apply" discipline DMS uses for retention actions.
 
 ## 3I. Cost Accounting
 
 - **Cost centers**: simple flat (or one-level-hierarchy) list, tenant-editable, attachable as
-  a dimension on any journal/AR/AP/asset line (§3B).
+  a dimension on any journal/AR/AP/asset line (§3B). This is the canonical cost-center list for
+  the tenant (see §3B) — Purchase's own budget checks (`PURCHASE_SPECS.md` §3B/§3J) and HCM's
+  org structure (`HCM_SPECS.md` §3C) can optionally map into it, so "cost center" means one
+  consistent dimension across financial, procurement, and HR reporting rather than three
+  independently-maintained lists.
 - **Allocation runs**: define a rule (source account/cost center → target cost centers +
   percentage split), run monthly to redistribute shared costs (e.g. office rent split across
   case teams) — posts a journal, never mutates the original entry.
@@ -366,6 +439,13 @@ this repeats the same anti-pattern WNE/DMS/CRM were built to avoid:
 **Rules / logic**
 - One flat annual budget version per fiscal year in v1 — no revision/scenario versioning (that
   is Future Version, per §2), keeping the schema and UI both simple.
+- This budget is intentionally account-precise and company-scoped — it is not the same record
+  as **Performance**'s subject/category-based budget (`PERFORMANCE_SPECS.md` §3B). A tenant
+  running both modules can optionally map a Performance budget category to one or more
+  accounts here (`PERF.budget_category_accounts`) so Performance's Variance Engine reads real
+  GL activity instead of a second manually-typed figure — Accounting exposes nothing new for
+  this (`AccountingService::getAccountBalance(...)` already covers it), and has zero knowledge
+  of Performance in return, same one-way read direction used everywhere else in this platform.
 
 ## 3K. Multi Company
 
@@ -522,20 +602,79 @@ this repeats the same anti-pattern WNE/DMS/CRM were built to avoid:
   for any Core or Vertical module that needs to touch financials without knowing double-entry
   rules.
 - **Event bus** (decoupled, preferred for cross-module triggers): `JournalPostingRequested`,
-  `InvoiceRequested`, `BillRequested`, `PaymentRequested` — e.g. Legal fires
-  `InvoiceRequested` when a case's billable time/disbursements are ready to invoice; CRM's
-  `ServiceCaseSLABreached`-style events could similarly trigger a credit memo workflow;
-  Schedule-driven recurring fees fire the same event a manual invoice would.
-- **Consumed events**: `StockMovementOccurred` (§3H, from a future Inventory module),
-  `LeadConverted`/`PartnerCreated` (from CRM, to resolve AR/AP partner references), any
-  vertical module's "billable event" (e.g. `legal.case_closed_for_billing`).
+  `InvoiceRequested`, `BillRequested`, `PaymentRequested` — **Sales is the sole AR-side
+  caller**: its Billing Engine (`SALES_SPECS.md` §3I) fires `InvoiceRequested` for every
+  order/delivery/recurring-contract invoice, and for every vertical module's billable request
+  it receives (e.g. Legal's — see `LEGAL_SPECS.md` §2 and `SALES_SPECS.md` §3I/§5), and
+  `PaymentRequested` for every payment recorded, instead of maintaining its own AR tables.
+  Accounting never receives `InvoiceRequested` from a vertical module directly — only from
+  Sales — so there is exactly one AR-side caller in the platform, not one per vertical. CRM's
+  `ServiceCaseSLABreached`-style events could trigger a credit memo workflow the same way, also
+  via Sales.
+**Purchase is the primary consumer of `BillRequested`**: its three-way-match approval
+(`PURCHASE_SPECS.md` §3F) fires it for every vendor bill, instead of Purchase maintaining its
+own AP ledger.
+
+- **Consumed events**: `inventory.goods_received` / `inventory.goods_issued` /
+  `inventory.stock_adjusted` (§3H, from the **Inventory** module — see
+  `INVENTORY_SPECS.md` §5 — the source of quantity and valuation truth; Accounting only posts
+  the resulting journal), `LeadConverted`/`PartnerCreated` (from CRM, to resolve AR/AP partner
+  references). Accounting does **not** subscribe to any vertical module's billable event
+  directly — that would require Accounting (Core) to have specific knowledge of a Vertical
+  module's event name, which `CLAUDE.md` §2 rules out. Vertical billing requests route through
+  **Sales** first (`SALES_SPECS.md` §3I/§5), which exposes its own generic
+  `SalesOrderRequested` entry point for exactly this purpose and, once a Sales Order is ready,
+  fires the ordinary `InvoiceRequested` Accounting already consumes.
 
 **Rules / logic**
-- Accounting never reaches into a vertical module's schema to compute what to bill — the
+- Accounting never reaches into a triggering module's schema to compute what to bill — the
   triggering module resolves its own billable amount/description and hands Accounting a
   fully-formed request; Accounting's only job is correct financial recording, same
   one-way-dependency rule (Vertical/Core → Accounting, never reverse) as everywhere else in
   this codebase.
+- Accounting reports back via `InvoicePosted`/`PaymentRecorded` (`JournalPosted`/`BillPosted`
+  for AP), each carrying the same `subject_type`/`subject_id` it was given — a read-only
+  status echo, not Accounting reaching back into the triggering module. The triggering module
+  (Sales, Purchase, Legal, ...) decides what to do with it (Sales updates
+  `so_lines.qty_invoiced` and triggers Commission settlement, per `SALES_SPECS.md` §3I/§3M;
+  Purchase updates `pur_invoice_hdrs.status` and closes out the originating PO, per
+  `PURCHASE_SPECS.md` §3F).
+
+## 3S. Payroll GL Posting (interface engine — no statutory calculation, no run processing)
+
+- **Purpose**: post the *financial* side of a completed, paid payroll run only. All statutory
+  calculation (PPh 21, BPJS, THR, severance), run processing, and disbursement are fully owned
+  by the **Payroll** module (`PAYROLL_SPECS.md`) — Accounting does not recompute or duplicate
+  any of it, same division of responsibility already established for Inventory's costing (§3H
+  above).
+- Consumes `payroll.run_paid` (published when a payroll run locks, per `PAYROLL_SPECS.md`
+  §3-Admin). The event payload includes the run's per-component GL-relevant totals — gross
+  salary/wage expense, net pay payable, PPh 21 withheld, BPJS Kesehatan (employee + employer),
+  BPJS Ketenagakerjaan (employee + employer, by sub-program), other statutory/non-statutory
+  deductions and employer costs — as already computed by Payroll's calculation engine
+  (`PAYROLL_SPECS.md` §3J), plus a `subject_type = 'payroll.payroll_runs'` / `subject_id`
+  pointer back to the originating run, for traceability.
+- **On each event**: posts a journal through the same single `JournalService::post()` path as
+  every other Accounting transaction (§3C) — Salary/Wage Expense (and Employer BPJS Expense)
+  debited, Net Pay Payable (or Bank, if disbursed same-transaction) credited, PPh 21 Payable
+  credited, BPJS Payable (employee + employer) credited — using the figures Payroll already
+  computed, never a locally recalculated number.
+- If Payroll is not installed/enabled for a tenant, this engine is simply inert (no events to
+  consume) — same "must not throw if X is absent" posture every other soft cross-module
+  dependency in this platform already uses (§3H, §3P).
+
+**Rules / logic**
+- This engine holds **zero** payroll calculation logic — no PPh 21/TER math, no BPJS
+  contribution math, no severance formula — by design. Any figure that passes through
+  Accounting here is always a value received from Payroll, never computed here, same
+  discipline §3H already applies to Inventory's costing.
+- A payroll run whose components include one with no GL account mapping (a new/unmapped
+  Payroll Component) fails loudly and queues for review rather than posting to a suspense
+  account silently — same "no silent auto-apply" discipline §3H already applies to an unmapped
+  Inventory item/category.
+- Payroll's own flat CSV cost-summary export (`PAYROLL_SPECS.md` §3-Reports) remains a
+  human-readable companion report for HR/finance staff — it is not the GL's source of truth;
+  this engine's posted journals are.
 
 ---
 
@@ -579,10 +718,27 @@ this repeats the same anti-pattern WNE/DMS/CRM were built to avoid:
 - `ACCOUNTING.fa_assets`, `ACCOUNTING.fa_depreciation_schedule_commercial`,
   `ACCOUNTING.fa_depreciation_schedule_fiscal`, `ACCOUNTING.fa_disposals`.
 
-**Inventory Costing**
-- `ACCOUNTING.inv_items` (financial shadow record — code, name, costing method, current
-  average cost; physical detail owned elsewhere), `ACCOUNTING.inv_movements`,
-  `ACCOUNTING.inv_valuation_snapshots`.
+**Inventory GL Posting**
+- `ACCOUNTING.inv_gl_account_map` — maps an `INVENTORY.products` / `product_categories`
+  reference to its Inventory-asset / COGS / GRNI / Adjustment GL accounts (per company) — the
+  only inventory-specific master data Accounting owns.
+- `ACCOUNTING.inv_posting_log` — one row per Inventory event consumed
+  (`inventory.goods_received` / `goods_issued` / `stock_adjusted`), the resulting
+  `gl_journals.id`, and the originating `subject_type`/`subject_id`
+  (`INVENTORY.stock_ledger` row) — an idempotency/traceability log, not a valuation ledger.
+  No quantity, unit-cost, or running-balance columns live here; those remain exclusively in
+  `INVENTORY.stock_ledger` / `stock_valuation_layers` / `stock_balances`.
+
+**Payroll GL Posting**
+- `ACCOUNTING.payroll_gl_account_map` — maps a `PAYROLL.payroll_components` reference (and a
+  small fixed set of statutory categories — net pay payable, PPh 21 payable, BPJS payable) to
+  its GL expense/payable accounts (per company) — the only payroll-specific master data
+  Accounting owns.
+- `ACCOUNTING.payroll_posting_log` — one row per `payroll.run_paid` event consumed, the
+  resulting `gl_journals.id`, and the originating `subject_type`/`subject_id`
+  (`PAYROLL.payroll_runs` row) — an idempotency/traceability log, mirroring
+  `inv_posting_log`'s role exactly. No salary, tax, or contribution figures live here; those
+  remain exclusively in `PAYROLL.payroll_run_lines` / `payroll_run_line_components`.
 
 **Cost Accounting / Budgeting**
 - `ACCOUNTING.cost_allocation_rules`, `ACCOUNTING.cost_allocation_runs`.
@@ -624,7 +780,8 @@ Schedule. Exposes:
   Core/Vertical modules.
 - **Internal event bus** — publishes `JournalPosted`, `InvoicePosted`, `BillPosted`,
   `PaymentRecorded`, `PeriodClosed`, `TaxDocumentIssued`; consumes `JournalPostingRequested`,
-  `InvoiceRequested`, `BillRequested`, `StockMovementOccurred`, `PartnerCreated` (from CRM).
+  `InvoiceRequested`, `BillRequested`, `inventory.goods_received`, `inventory.goods_issued`,
+  `inventory.stock_adjusted`, `payroll.run_paid`, `PartnerCreated` (from CRM).
   Same one-way Vertical/Core → Accounting rule as everywhere else — Accounting never reaches
   into a calling module's schema.
 - **Cross-schema FK, Core-to-Core**: Accounting's `ar_invoices`/`ap_bills` FK directly into
@@ -634,6 +791,9 @@ Schedule. Exposes:
   reuses Schedule's `simshaun/recurr` approach, document attachment reuses DMS, notifications
   (due dates, unmatched items, tax deadlines) reuse WNE's routing — Accounting is the fifth
   Core module and should feel structurally identical to the first four, not a special case.
+  This applies in the *other* direction too: **Sales must not rebuild an AR ledger** — its
+  Billing Engine is a requester, Accounting is the one AR/AP system of record platform-wide
+  (see §3D/§3R above and `SALES_SPECS.md` §3I/§5).
 
 **On `company_id` vs. `CLAUDE.md` §4/§7's "no `tenant_id` column" rule:** these are different
 axes and both are correct simultaneously. Tenant isolation is the *database* boundary (one DB
@@ -642,11 +802,7 @@ Accounting table needs a `tenant_id` column for that reason. **Multi-company** i
 *intra-tenant* concept — one law firm's single tenant DB legitimately contains two legal
 entities (e.g. the operating company and a client-trust entity) that must never have their
 ledgers mixed. That requires a `company_id` column on every Accounting transaction table, same
-as it would in any single-tenant accounting system with multi-entity support. This is
-unrelated to the existing WNE `tenant_id` inconsistency Simon has flagged for reconciliation —
-that one is a genuine deviation from the DB-per-tenant rule and should be fixed to match
-`CLAUDE.md`; `company_id` here is not a deviation, it's a normal multi-entity feature and
-should be kept as designed.
+as it would in any single-tenant accounting system with multi-entity support.
 
 **MVP scope boundary (be explicit about what's deferred):**
 - Fiscal depreciation rate table is seeded with current defaults but is tenant-editable data,
@@ -671,8 +827,12 @@ validated early since retrofitting `company_id` after data exists is painful, an
 rules are already company-scoped) → 3F (Cash & Banks) → 3Q (bank reconciliation) → 3G (Fixed
 Assets, including fiscal depreciation) → 3N (Financial Analysis/Reporting, since it depends on
 everything above being correct) → 3O (Audit & Compliance hardening) → 3P (Recurring) → 3I/3J
-(Cost Accounting/Budgeting) → 3H (Inventory Costing interface) → 3R (Automation from ERP
-facade/events, wired incrementally as each consuming module — Legal — is ready to call it).
+(Cost Accounting/Budgeting) → 3H (Inventory GL Posting — a thin consumer of Inventory's
+already-published events and already-computed costs, not a costing engine of its own) → 3R
+(Automation from ERP facade/events, wired incrementally as each consuming module — Legal, then **Sales**, whose
+Billing Engine is the platform's primary AR-generating caller — is ready to call it) → 3S
+(Payroll GL Posting, once Payroll is live — same thin-consumer shape as 3H, wired last since it
+depends on Payroll's own build, not on anything else in this module).
 
 **Marketability notes**
 - Indonesian-compliant tax handling (Coretax-ready export, correct PPN/PPh treatment) is a
@@ -684,3 +844,10 @@ facade/events, wired incrementally as each consuming module — Legal — is rea
   company) — matches the Legal vertical's actual structure, not a speculative generalization.
 - Standalone sellability (per Backgrounds) means Accounting can be a revenue line on its own,
   same positioning already established for DMS and Schedule.
+- AP recording and payment now always routing through Accounting means every vendor bill
+  captured via Purchase's three-way match gets correct PPh withholding and a Bukti Potong by
+  construction — the same "compliance by construction, not by remembering to configure it"
+  story already told for the AR/Sales side.
+- Being the single AR/AP ledger for every other revenue-generating module (Sales included) is
+  itself a selling point once a tenant has more than one active — "one true number for what's
+  owed to us," not a Sales report and an Accounting report that quietly disagree.

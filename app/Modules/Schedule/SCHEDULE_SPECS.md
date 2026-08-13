@@ -65,7 +65,7 @@ events instead of direct calls).
     their phone's native calendar app — cheap to build, high perceived value, genuinely
     sellable as "your schedule, in your own calendar app."
 - **Decoupled integration hooks** — Schedule publishes internal events
-  (`schedule.item_created`, `schedule.reminder_due`, `schedule.item_cancelled`) that WNE (if
+  (`schedule.item_created`, `schedule.item_due_soon`, `schedule.item_cancelled`) that WNE (if
   installed/enabled for the tenant) can route to notifications, exactly like Purchasing/HR do
   in the WNE spec. Schedule itself never calls a mail/SMS provider directly.
 - **Standalone-safe**: if WNE is not enabled for a tenant, Schedule still functions fully for

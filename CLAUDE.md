@@ -79,7 +79,11 @@ Notes:
 
 - Mode B: **one PostgreSQL database per tenant** (`tenant_{id}`), via `stancl/tenancy`. Tenant app data does **not** use a `tenant_id` column — isolation is the DB boundary.
 - Central DB (`nusaevo`) holds tenant registry + login lookup (`tenant_user_lookups`) + **plan** (`tenants.plan`). Users and module data live in the tenant DB.
-- Inside each tenant DB, modules get separate schemas (`SYSCONFIG`, `INVENTORY`, `CRM`, `SCHEDULE`, `NOTIFICATIONS`, `WORKFLOW`, `LEGAL`, `CUSTOMFIELDS`). See §7.
+- Inside each tenant DB, modules get separate schemas (`SYSCONFIG`, `WNE`, `DMS`, `CRM`,
+  `SCHEDULE`, `INVENTORY`, `ACCOUNTING`, `SALES`, `PURCHASE`, `HCM`, `PAYROLL`, `PERF`,
+  `AIINSIGHT`, `LEGAL`, `CUSTOMFIELDS`). See §7A for the authoritative list. (This consolidates
+  the old separate `NOTIFICATIONS`/`WORKFLOW` schemas into the single `WNE` schema, per
+  `WNE_SPECS.md` — an earlier version of this section still had the pre-merge names.)
 - Tenant resolution is **login-bound** (session `tenant_id` after email lookup), not domain/subdomain. UI may switch among memberships via sidebar tenant dropdown.
 - Queue/cache/filesystem are tenant-aware via stancl bootstrappers. Do **not** use PostgreSQL RLS.
 - Plan/feature-flagging: `config/tenant_modules.php` + `TenantFeatureService` + middleware `module:CODE`. Sidebar menus also hide modules not on the plan.
@@ -87,16 +91,47 @@ Notes:
 
 ## 5. Build Order
 
-1. **Design system / component library first** — build base UI components and widgets per `DESIGN.md` before building feature screens. Every module UI should be composed from this shared library, not one-off styled per module.
-2. **Core modules** (shared by every vertical):
-   - Scheduler
-   - Notifications
-   - Workflows (approvals, state machines, task routing)
-   - CRM
-   - **CustomFields** (`CUSTOMFIELDS` schema) — EAV + config-driven logic; see `ARCHITECTURE.md`
-3. **Legal vertical module** — first paid, rentable product. Built on top of the core modules above. This is the first real revenue test of the platform; prioritize correctness and UX polish here over speculative generalization for future verticals.
-4. Future verticals (e.g. Property) come after Legal is validated in market — reuse core modules, add vertical-specific modules only.
-
+1. **SYSCONFIG** (System Configuration, Access Control & Runtime Settings) — foundational,
+   built before anything else, including the design system and every Core module. Every later
+   piece — menu/permission checks, tenant-editable consts, serial numbering, module
+   activation — depends on it, and several modules' own specs already assume it exists
+   (e.g. Legal's `CASE_PREFIX`/`URGENT_SETS_PENDING` example in `ARCHITECTURE.md`). See
+   `SYSCONFIG_SPECS.md`.
+2. **CustomFields** (`CUSTOMFIELDS` schema) — foundational alongside SYSCONFIG, built
+   immediately after it and before the design system or any Core module. EAV + config-driven
+   logic; see `ARCHITECTURE.md` and `CUSTOMFIELDS_SPECS.md`. This is not optional scaffolding:
+   DMS's Metadata Management, CRM's Custom Fields, Legal's deed/matter/land-object fields,
+   Inventory's product custom fields, Payroll's component/run fields, and others all already
+   assume `CUSTOMFIELDS.field_defs`/`field_values` exist as part of *their own* MVP ship.
+   `SYSCONFIG_SPECS.md` §5 and `CUSTOMFIELDS_SPECS.md` §5 each independently recommend this
+   correction; this entry applies it.
+3. **Design system / component library** — build base UI components and widgets per
+   `DESIGN.md` before building feature screens. Every module UI should be composed from this
+   shared library, not one-off styled per module.
+4. **Core modules** (shared by every vertical). Each has its own `*_SPECS.md` covering
+   Backgrounds/Goals/Forms-Engines/Storage/Technical Notes — check the relevant spec before
+   starting work on a module; this section only tracks sequence, not detail. A build order
+   consistent with each module's own stated dependencies (see each spec's §5 for specifics):
+   - **WNE** (Workflow & Notification Engine — approvals, state machines, task routing,
+     multi-channel notifications) — foundational; every other module reaches for it first.
+   - **DMS** (Document Management System)
+   - **CRM**
+   - **Schedule**
+   - **Inventory**
+   - **Accounting** — built before Purchase/Sales are considered feature-complete, since both
+     have a hard dependency on it for one specific action (AP recording, AR billing).
+   - **Purchase**
+   - **Sales**
+   - **HCM**
+   - **Payroll** — hard dependency on HCM (employee identity); build immediately after it.
+   - **Performance**
+   - **AIInsight** — specced (`AIINSIGHT_SPECS.md`) but not yet built; gated on a Zero Data
+     Retention agreement with Anthropic before going live for any confidentiality-sensitive
+     tenant (see the project's "on the horizon" notes).
+5. **Legal vertical module** — the first paid, rentable product, built on top of the Core
+   modules above. Prioritize correctness and UX polish here over speculative generalization
+   for future verticals.
+6. Future verticals (e.g. Property) come after Legal is validated in market — reuse core modules, add vertical-specific modules only.
 When working on a task, Claude should check whether it belongs in **Core** (reusable) or in the **active vertical module** (Legal-specific) and place code accordingly. If unsure, ask rather than guessing — misplacing logic here has long-term architectural cost.
 
 ## 6. Coding Conventions
@@ -126,18 +161,28 @@ When working on a task, Claude should check whether it belongs in **Core** (reus
 tenant_001.			# Database
 ├── SYSCONFIG.		# Menus, groups, rights, consts (runtime authz)
 ├── INVENTORY.		# Prefer new inventory tables here (legacy demo tables may still be in public)
+├── WNE.
 ├── CRM.
 ├── SCHEDULE.
-├── NOTIFICATIONS.
-├── WORKFLOW.
+├── DMS.
 ├── LEGAL.
+├── ACCOUNTING.
+├── SALES.
+├── PURCHASE.
+├── HCM.
+├── PAYROLL.
+├── PERF.
+├── AIINSIGHT.
 └── CUSTOMFIELDS.
 ```
 - Table naming: 
 	- Master: 
 		- mostly use 1 part, ie. materials, partners, etc.
 	- Transaction: 
-		- mostly use 2 part: name + level, ie. sales.order_hdrs = Sales module, Order table, Header level
+		- mostly use 2 part: abbreviated-name + level, ie. `SALES.so_hdrs` = Sales module,
+		  Sales Order table, Header level — matches the actual convention used across every
+		  `*_SPECS.md` (`ACCOUNTING.gl_journals`, `WNE.wrkflow_instances`,
+		  `SCHEDULE.sched_items`, `PURCHASE.pur_receipt_hdrs`, etc.)
 - Use bigint for PK, FK, and JOIN. Add UUID for external facing objects.
 - Use stancl/tenancy whenever possible.
 - Tenant resolution strategy is login-bound.
@@ -150,12 +195,21 @@ tenant_001.			# Database
 ```text
 tenant_001/
 ├── DB/
+├── DMS/          # primary shared document store for most modules' documents,
+│                 # subfoldered by owning module — e.g. DMS/LEGAL, DMS/HCM, DMS/Sales
 ├── CRM/
 ├── SCHEDULE/
-├── NOTIFICATIONS/
-├── DMS/
-└── LEGAL/
+├── ACCOUNTING/   # system-generated artifacts not routed through DMS (bank statement
+│                 # imports, tax exports, generated reports) — see ACCOUNTING_SPECS.md §4
+├── PURCHASE/     # reserved per-module convention for restore-planning consistency;
+│                 # most actual document content still routes through DMS — see
+│                 # PURCHASE_SPECS.md §4
+├── PAYROLL/      # same reserved-folder convention as Purchase — see PAYROLL_SPECS.md §4
+└── INVENTORY/    # same reserved-folder convention as Purchase — see INVENTORY_SPECS.md §4
 ```
+- Modules not listed above (WNE, HCM, Sales, Performance, AIInsight) own no top-level R2
+  folder of their own — their files, if any, route entirely through DMS's structure with a
+  `subject_type`/`subject_id` pointer back to the owning record, per each module's own spec.
 - Object file will use one Cloudflare R2 bucket. With naming convention to differentiate between tenants, modules, time, etc.
 
 ## 8. Development Conventions
@@ -244,7 +298,15 @@ One-off artisan (examples):
 
 - [x] API contract (Web): **Inertia.js**. Controllers → Services → `Inertia::render`. REST only later for mobile/external; same Services.
 - [x] Auth strategy (session + login-bound tenancy; Sanctum reserved for future token clients)
-- [ ] Billing/subscription module ownership (Core vs. separate service) — plan string exists; payment provider not yet
+- [ ] Tenant SaaS subscription billing (how the platform itself charges each tenant for their
+      plan) — `tenants.plan` string exists in the central DB; no payment provider integration
+      yet. Distinct from the in-app AR/AP item below — do not conflate the two.
+- [x] In-app AR/AP module ownership (how a *tenant's* Sales/Purchase/vertical modules bill
+      *their* customers and pay *their* vendors) — **resolved**: Accounting is the platform's
+      one AR/AP ledger; Sales is the sole AR-side caller (`InvoiceRequested`/
+      `PaymentRequested`, including on behalf of vertical modules like Legal via
+      `SalesOrderRequested` — see `SALES_SPECS.md` §3I/§5 and `LEGAL_SPECS.md` §2); Purchase
+      is the sole AP-side caller (`BillRequested` — see `PURCHASE_SPECS.md` §3F/§5).
 - [ ] CI/CD pipeline and deployment process for the Ubuntu VPS
 - [ ] Per-tenant infrastructure limits/monitoring approach
 - [x] `DESIGN.md` — design tokens, component inventory (`resources/DESIGN.md`; tokens in `app.css` / Tailwind)

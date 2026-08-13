@@ -33,9 +33,16 @@ Kerja. Left unsolved, or bolted onto a generic "salary" field:
   should remove.
 
 **Client requirements:**
-- Must be usable **standalone** — a tenant can run Payroll with nothing else installed
-  (own minimal employee master data), same "standalone-capable Core module" posture as DMS
-  and Schedule.
+- **Depends on HCM for employee identity** — Payroll consumes `HCM.employees` (cross-schema
+  FK, Core-to-Core, same allowed direction CRM/DMS/WNE already document for each other) via a
+  1:1 `PAYROLL.employee_payroll_profiles` extension table, the same "extend, don't duplicate"
+  pattern already established for `PURCHASE.vendor_profiles` and
+  `SALES.customer_sales_profiles`/`customer_credit_profiles` over `CRM.partners`. A tenant
+  cannot enable Payroll without HCM enabled — this is a **hard** dependency (the Sales↔CRM
+  posture), not the soft/optional integration every other Core module uses toward WNE/DMS/
+  Schedule. This is a deliberate reversal of Payroll's original standalone scope: two
+  independently-maintained PPh21/BPJS calculators (one in HCM, one here) was a real compliance
+  risk, not just duplicated code — see `HCM_SPECS.md` §3G/§5.
 - Must follow current Indonesian payroll law: PPh 21 (TER method + December annualization),
   BPJS Kesehatan, BPJS Ketenagakerjaan (JHT, JP, JKK, JKM, JKP), THR, and UU Cipta
   Kerja–compliant severance/termination pay.
@@ -56,9 +63,16 @@ Kerja. Left unsolved, or bolted onto a generic "salary" field:
 > integrations (GL/accounting export, direct bank API, multi-country) to Future Version.
 
 **MVP (ship first — quick implementation, statutory correctness is non-negotiable)**
-- **Employee master data** (minimal, Payroll-owned for now — see §5 for the future-HR-module
-  migration path): identity, employment status, tax status (PTKP), BPJS enrollment numbers,
-  bank account, assigned salary structure and payroll group.
+- **Employee Payroll Profile** (extends `HCM.employees`, does not duplicate it): tax status
+  (PTKP), BPJS enrollment numbers, bank account, assigned salary structure, payroll group, and
+  JKK risk category. Identity, employment status, and tenure all read directly from HCM — see
+  §5.
+- **Attendance- and leave-driven inputs (now MVP, not Future Version — see §5).** Overtime
+  hours are computed from `HCM.attendance_logs` via the `hcm.attendance_logged` event, using
+  the Kepmenaker formula; approved unpaid leave (`hcm.leave_approved`) automatically produces
+  an unpaid-leave deduction line. Manual entry remains available as a fallback, but automatic
+  consumption from HCM is the default whenever HCM is enabled (it always is, per §1's
+  hard-dependency note).
 - **Payroll Setup**: Payroll Groups, Payroll Calendars, Salary Structures, Payroll Components
   (earning/deduction definitions), Deduction Rules (loans/advances amortization logic), and —
   critically — **versioned Tax Rules, BPJS Rules, and Regulatory Rules** so a rate change next
@@ -88,8 +102,13 @@ Kerja. Left unsolved, or bolted onto a generic "salary" field:
   see §5).
 
 **Future Version (post-launch, once there's real usage/revenue to justify the build)**
-- **Accounting/GL export** — journal-ready entries per payroll run, once a Finance/Accounting
-  Core module exists to receive them. Payroll shouldn't invent GL logic prematurely.
+- ~~**Accounting/GL export** — journal-ready entries per payroll run, once a Finance/Accounting
+  Core module exists to receive them.~~ **Resolved** — Accounting now exists and owns this via
+  its Payroll GL Posting engine (`ACCOUNTING_SPECS.md` §3S), a thin consumer of Payroll's own
+  `payroll.run_paid` event (§3-Admin below), mirroring the pattern already used for Inventory's
+  GL posting (`ACCOUNTING_SPECS.md` §3H). Payroll still computes zero GL logic itself — it
+  publishes an already-computed figure, same division of responsibility Inventory already has
+  toward Accounting.
 - **Direct bank disbursement API** integration (per bank), replacing the MVP file-export flow.
   Naturally a justified extraction candidate later (external API integration, per-bank
   variance) — file export is the right MVP because it works with *any* bank today.
@@ -101,9 +120,6 @@ Kerja. Left unsolved, or bolted onto a generic "salary" field:
 - **Multi-country/multi-currency payroll** — out of scope; this module is Indonesia-first by
   design (PTKP/TER/BPJS/THR/severance are all Indonesia-specific), but the rule-versioning
   architecture (§5) is what would let a second country's rules be added without a rewrite.
-- **Time & Attendance integration** (clock-in/out driving overtime automatically) — v1 accepts
-  overtime as a manual/imported input; a future Attendance module would publish events Payroll
-  consumes, same decoupled pattern as everything else.
 - **Benefits administration** (insurance beyond BPJS, allowances-in-kind) beyond what fits in
   Payroll Components today.
 
@@ -425,7 +441,14 @@ configuration/entry points rather than six parallel calculators.
   never implements its own approval state machine, per the project-wide WNE-reuse rule.
 - **Payroll Lock**: once a run is marked `paid`, its `payroll_period` (and every
   `payroll_run_line` in it) flips `locked` — no direct edit is possible at the app layer;
-  the only path forward is a Payroll Adjustment (3I) referencing the locked period.
+  the only path forward is a Payroll Adjustment (3I) referencing the locked period. Flipping to
+  `paid` also fires `payroll.run_paid` (`subject_type = 'payroll.payroll_runs'`, carrying the
+  run's per-component totals by GL-relevant category — gross, net, PPh 21 withheld, BPJS
+  employee, BPJS employer, other deductions) — **Accounting**, if installed, consumes this to
+  post the run's GL journal (`ACCOUNTING_SPECS.md` §3S). Payroll fires the event
+  unconditionally; if Accounting isn't installed for the tenant, the event simply has no
+  listener, same "must not throw if X is absent" posture every other soft cross-module
+  dependency in this platform already uses.
 - **Audit Trail**: `payroll_access_logs` — append-only, one row per action (`view_payslip`,
   `run_created`, `run_submitted`, `run_approved`, `run_paid`, `run_locked`, `adjustment_created`,
   `regulatory_rule_changed`, `employee_salary_changed`, ...), actor, timestamp, subject
@@ -446,16 +469,23 @@ configuration/entry points rather than six parallel calculators.
 column, isolation is the database boundary):**
 
 **Master / setup tables**
-- `PAYROLL.employees` — minimal employee master (see §5 for future HR-module migration path):
-  name, employment status, join/termination dates, PTKP status ref, BPJS numbers, payroll
-  group ref, salary structure ref, JKK risk category ref.
+- `PAYROLL.employee_payroll_profiles` — 1:1 extension of `HCM.employees.id` (cross-schema FK):
+  PTKP status ref, BPJS numbers, payroll group ref, salary structure ref, JKK risk category
+  ref. No name/employment-status/tenure fields here — those are read from `HCM.employees` at
+  calculation time, never copied in.
 - `PAYROLL.employee_bank_accounts` — bank, account number, account holder name, primary flag.
 - `PAYROLL.payroll_groups`
 - `PAYROLL.payroll_calendars`
 - `PAYROLL.salary_structures`
 - `PAYROLL.salary_structure_components` — pivot: structure × component × default amount/formula.
 - `PAYROLL.payroll_components` — earning/deduction definitions (see 3B).
-- `PAYROLL.grades` — optional simple job-grade lookup, referenced by Salary Structures.
+- `PAYROLL.grades` — optional simple job-grade lookup, referenced by Salary Structures. This
+  is a lightweight tagging field for salary-structure assignment, not the structured
+  banding/grading system HCM's Compensation submodule describes as Future Version
+  (`HCM_SPECS.md` §3M) — that item covers formal salary bands *per job* with comp-review
+  cycles; `PAYROLL.grades` is just an optional label Payroll uses today to group employees
+  onto a Salary Structure. When HCM's Compensation submodule is eventually built, it can
+  supersede or map onto this field without Payroll needing to change first.
 - `PAYROLL.deduction_rule_configs` — Loans/Advances/recurring-deduction behavior config.
 - `PAYROLL.loan_types`
 - `PAYROLL.reimbursement_categories`
@@ -525,14 +555,15 @@ calculation is CPU-light, synchronous-enough batch work, not a candidate under `
 extraction criteria. Revisit only if/when PDF payslip generation at very high volume becomes a
 throughput problem (same reasoning already applied to DMS's OCR).
 
-**Why Employees live in Payroll for now, not a separate HR module:** there is no dedicated HR
-module yet, and payroll cannot function without *some* employee master data. Payroll owns a
-deliberately minimal `employees` table (identity, employment status, tax/BPJS status, bank,
-structure assignment) — enough to run payroll, nothing more (no performance reviews, no leave
-management, no org chart). When a dedicated HR module is eventually built, it becomes the
-system of record and Payroll's `employees` table is refactored to reference it (Vertical/
-sibling-Core → Core direction, same as CRM's Partner registry), rather than Payroll trying to
-be an HR module today.
+**Why Payroll no longer owns its own Employee table:** Payroll was originally speced with its
+own minimal `employees` table on the assumption no HR module existed yet in the build order.
+HCM (`HCM_SPECS.md`) now owns that role. Payroll's `employee_payroll_profiles` extends
+`HCM.employees` exactly the way `PURCHASE.vendor_profiles` extends `CRM.partners` —
+statutory/processing attributes live in Payroll, everything about who the person is (name,
+NIK, contract type, tenure, org position, termination status) lives in HCM and is read via
+cross-schema FK, never copied. This removes the two-places-to-maintain risk a pair of
+independent employee tables would otherwise create for the highest-compliance-risk data in the
+platform.
 
 **Why statutory rates are data, not code — the core architectural decision of this module:**
 PTKP, TER categories/brackets, BPJS percentages/wage caps, overtime multipliers, and severance
@@ -556,7 +587,15 @@ the most test coverage.
 lower than) any cap BPJS Kesehatan applies; JHT/JKK/JKM in current rules have no cap. Model the
 cap on `bpjs_*_rules` per sub-program, not as a single "BPJS wage cap" field.
 
-**Cross-module integration (decoupled, event-driven — same seam as every other Core module):**
+**Cross-module integration (HCM is now a hard dependency; everything else stays decoupled/
+event-driven, same seam as every other Core module):**
+- **HCM** — hard dependency. Payroll reads `HCM.employees` directly (cross-schema FK) for
+  identity/employment status/tenure, and subscribes to `hcm.employee_hired`,
+  `hcm.employee_terminated`, `hcm.employee_position_changed`, `hcm.attendance_logged`, and
+  `hcm.leave_approved` to drive new-hire onboarding into a payroll group, Final Payroll
+  triggering, overtime calculation, and unpaid-leave deduction respectively. Unlike every
+  other cross-module relationship in this platform, Payroll is not expected to degrade
+  gracefully if HCM is absent — HCM is a prerequisite install, not an optional enhancement.
 - **WNE**: `WorkflowRequested` for every run approval and any Regulatory Rule activation a
   tenant wants gated; `NotificationRequested` for payslip-ready notices, THR due-date
   reminders, and loan-installment-failed alerts. Payroll implements zero approval or
@@ -567,6 +606,12 @@ cap on `bpjs_*_rules` per sub-program, not as a single "BPJS wage cap" field.
   data to shift a pay date earlier when it lands on a holiday; Payroll must not throw if
   Schedule is absent for a tenant — same feature-flag-safe posture Schedule itself uses toward
   WNE.
+- **Accounting** (optional, if installed): Payroll publishes `payroll.run_paid` when a run
+  locks (§3-Admin); Accounting, if installed, consumes it to post the run's GL journal
+  (`ACCOUNTING_SPECS.md` §3S) — Payroll holds zero GL-posting logic itself, same thin-publisher
+  role Inventory already has toward Accounting (`INVENTORY_SPECS.md` §5). If Accounting isn't
+  installed, the event has no listener and Payroll functions identically otherwise — same
+  optional-downstream-consumer posture as every other soft dependency in this platform.
 - **CRM**: not integrated — employees are not Partners; keep these concepts separate rather
   than forcing them into one table, matching CRM's own guidance on when *not* to collapse two
   distinct entities.
@@ -581,23 +626,28 @@ mid-calculation regulatory-rule change must never partially apply to a run alrea
 `payroll_run_lines` for future external-facing use (employee self-service portal, per §2 Future
 Version), mirroring CRM's `uuid` rationale.
 
-**Custom fields:** `employees`, `payroll_components`, and `payroll_runs` register against the
-existing `CUSTOMFIELDS` schema (per `CLAUDE.md` §7A) — a tenant-specific field (e.g. "Cost
-Center") never requires a Payroll migration.
+**Custom fields:** `payroll_components` and `payroll_runs` register against the existing
+`CUSTOMFIELDS` schema (per `CLAUDE.md` §7A) — a tenant-specific field (e.g. "Cost Center")
+never requires a Payroll migration. Employee-level custom fields are registered by **HCM**
+against `HCM.employees` (`HCM_SPECS.md` §4, `entity_type = 'hcm_employee'`), not here — Payroll
+reads `HCM.employees` via cross-schema FK (§5 above) and does not own that table, so it does
+not register its custom fields.
 
 **MVP scope boundary (be explicit about what's deferred, per §2):**
-- No GL/accounting export beyond a flat CSV cost summary — full journal entries wait for a
-  Finance/Accounting Core module.
+- GL posting is no longer deferred — Accounting now exists and consumes `payroll.run_paid` via
+  its own Payroll GL Posting engine (`ACCOUNTING_SPECS.md` §3S); the flat CSV cost summary
+  (§3-Reports) remains a human-readable companion report, not the GL's source of truth.
 - No live bank disbursement API — file export only.
 - No employee self-service UI — admin/HR-operated screens only; the data model already
   supports self-service as a Future Version UI layer without a schema change.
-- No Time & Attendance integration — Overtime is a manual/imported input row.
 
-**Suggested build order for Claude Code:** 3B (Setup: Groups, Calendars, Components, Salary
-Structures) → versioned Tax/BPJS Rule tables + seed current-year data → 3-PPh21 + 3-BPJS
-engines in isolation with unit tests against known example calculations → 3C/3D (Periods +
-Regular Payroll run engine, 3J) → 3-Payment (batch + file export) → 3-Reports (Payslips via
-DMS) → 3-Admin (Approval via WNE, Lock, Audit Trail) → 3F/3G/3H (THR, Bonus, Final — reuse 3J)
-→ 3I (Adjustment) → 3K remaining inputs (Loans, Advances, Reimbursement via DMS) — ship at this
+**Suggested build order for Claude Code:** confirm HCM is built and `hcm.employee_hired` /
+`hcm.attendance_logged` / `hcm.leave_approved` events are live first (hard dependency) → 3B
+(Setup: Groups, Calendars, Components, Salary Structures, `employee_payroll_profiles`) →
+versioned Tax/BPJS Rule tables + seed current-year data → 3-PPh21 + 3-BPJS engines in isolation
+with unit tests against known example calculations → 3C/3D (Periods + Regular Payroll run
+engine, 3J) → 3-Payment (batch + file export) → 3-Reports (Payslips via DMS) → 3-Admin
+(Approval via WNE, Lock, Audit Trail) → 3F/3G/3H (THR, Bonus, Final — reuse 3J) → 3I
+(Adjustment) → 3K remaining inputs (Loans, Advances, Reimbursement via DMS) — ship at this
 point — then revisit Future Version items (GL export, bank API, self-service) once there's
 real tenant usage to justify them.
