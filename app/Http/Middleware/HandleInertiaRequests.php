@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Modules\Config\Services\ConfigService;
+use App\Modules\SysConfig\Services\ConfigService;
 use App\Services\TenantFeatureService;
 use App\Services\TenantMembershipService;
 use Illuminate\Http\Request;

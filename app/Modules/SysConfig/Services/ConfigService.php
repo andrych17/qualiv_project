@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Modules\Config\Services;
+namespace App\Modules\SysConfig\Services;
 
-use App\Modules\Config\Models\ConfigConst;
-use App\Modules\Config\Models\ConfigGroupUser;
-use App\Modules\Config\Models\ConfigMenu;
-use App\Modules\Config\Models\ConfigRight;
+use App\Modules\SysConfig\Models\ConfigConst;
+use App\Modules\SysConfig\Models\ConfigGroupUser;
+use App\Modules\SysConfig\Models\ConfigMenu;
+use App\Modules\SysConfig\Models\ConfigRight;
 use App\Services\TenantFeatureService;
 use Illuminate\Support\Collection;
 

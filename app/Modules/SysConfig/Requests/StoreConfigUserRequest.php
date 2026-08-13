@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Modules\Config\Requests;
+namespace App\Modules\SysConfig\Requests;
 
 use App\Models\User;
-use App\Modules\Config\Models\ConfigGroup;
+use App\Modules\SysConfig\Models\ConfigGroup;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Validator;

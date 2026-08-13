@@ -1,10 +1,10 @@
 <?php
 
-use App\Modules\Config\Controllers\ConfigConstController;
-use App\Modules\Config\Controllers\ConfigGroupController;
-use App\Modules\Config\Controllers\ConfigMenuController;
-use App\Modules\Config\Controllers\ConfigSnumController;
-use App\Modules\Config\Controllers\ConfigUserController;
+use App\Modules\SysConfig\Controllers\ConfigConstController;
+use App\Modules\SysConfig\Controllers\ConfigGroupController;
+use App\Modules\SysConfig\Controllers\ConfigMenuController;
+use App\Modules\SysConfig\Controllers\ConfigSnumController;
+use App\Modules\SysConfig\Controllers\ConfigUserController;
 use Illuminate\Support\Facades\Route;
 
 // Bare /config → first SysConfig screen (avoids 404 when link/bookmark drops the child path)

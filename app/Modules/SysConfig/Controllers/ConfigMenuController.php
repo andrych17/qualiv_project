@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Modules\Config\Controllers;
+namespace App\Modules\SysConfig\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Modules\Config\Models\ConfigMenu;
-use App\Modules\Config\Requests\StoreConfigMenuRequest;
-use App\Modules\Config\Requests\UpdateConfigMenuRequest;
-use App\Modules\Config\Services\ConfigMenuService;
+use App\Modules\SysConfig\Models\ConfigMenu;
+use App\Modules\SysConfig\Requests\StoreConfigMenuRequest;
+use App\Modules\SysConfig\Requests\UpdateConfigMenuRequest;
+use App\Modules\SysConfig\Services\ConfigMenuService;
 use App\Shared\Helpers\TableQuery;
 use App\Shared\Traits\BulkDeletable;
 use Illuminate\Http\Request;

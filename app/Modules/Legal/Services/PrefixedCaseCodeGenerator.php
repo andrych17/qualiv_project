@@ -2,8 +2,8 @@
 
 namespace App\Modules\Legal\Services;
 
-use App\Modules\Config\Models\ConfigConst;
-use App\Modules\Config\Services\ConfigSnumService;
+use App\Modules\SysConfig\Models\ConfigConst;
+use App\Modules\SysConfig\Services\ConfigSnumService;
 use App\Modules\Legal\Contracts\CaseCodeGenerator;
 use App\Modules\Legal\Models\LegalCase;
 use RuntimeException;

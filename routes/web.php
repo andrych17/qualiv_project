@@ -32,6 +32,6 @@ require __DIR__.'/auth.php';
 
 // Load module routes
 require app_path('Modules/Inventory/Routes/web.php');
-require app_path('Modules/Config/Routes/web.php');
+require app_path('Modules/SysConfig/Routes/web.php');
 require app_path('Modules/Legal/Routes/web.php');
 require app_path('Modules/Projects/Routes/web.php');

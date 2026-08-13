@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Modules\Config\Services;
+namespace App\Modules\SysConfig\Services;
 
-use App\Modules\Config\Models\ConfigGroup;
-use App\Modules\Config\Models\ConfigGroupUser;
-use App\Modules\Config\Models\ConfigMenu;
-use App\Modules\Config\Models\ConfigRight;
+use App\Modules\SysConfig\Models\ConfigGroup;
+use App\Modules\SysConfig\Models\ConfigGroupUser;
+use App\Modules\SysConfig\Models\ConfigMenu;
+use App\Modules\SysConfig\Models\ConfigRight;
 use Illuminate\Support\Facades\DB;
 
 class ConfigGroupService

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Modules\Config\Services\ConfigService;
+use App\Modules\SysConfig\Services\ConfigService;
 use App\Services\AsyncSearchRegistry;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

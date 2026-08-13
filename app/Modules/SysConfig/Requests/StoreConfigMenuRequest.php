@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Modules\Config\Requests;
+namespace App\Modules\SysConfig\Requests;
 
-use App\Modules\Config\Models\ConfigMenu;
+use App\Modules\SysConfig\Models\ConfigMenu;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 

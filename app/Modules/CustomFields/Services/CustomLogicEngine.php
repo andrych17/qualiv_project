@@ -2,7 +2,7 @@
 
 namespace App\Modules\CustomFields\Services;
 
-use App\Modules\Config\Models\ConfigConst;
+use App\Modules\SysConfig\Models\ConfigConst;
 
 /**
  * Config-driven hooks — never branch on tenant_id.
