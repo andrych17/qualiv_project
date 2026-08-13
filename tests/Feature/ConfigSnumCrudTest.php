@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Modules\Config\Models\ConfigSnum;
-use App\Modules\Config\Services\ConfigSnumService;
+use App\Modules\SysConfig\Models\ConfigSnum;
+use App\Modules\SysConfig\Services\ConfigSnumService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\SetsUpTenant;
 use Tests\TestCase;

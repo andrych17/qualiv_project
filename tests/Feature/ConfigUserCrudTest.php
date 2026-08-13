@@ -4,8 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\TenantUserLookup;
 use App\Models\User;
-use App\Modules\Config\Models\ConfigGroup;
-use App\Modules\Config\Models\ConfigGroupUser;
+use App\Modules\SysConfig\Models\ConfigGroup;
+use App\Modules\SysConfig\Models\ConfigGroupUser;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\SetsUpTenant;
 use Tests\TestCase;

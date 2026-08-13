@@ -7,10 +7,11 @@ Jalur kode PHP/Vue yang sama. Firma A vs B berbeda karena **data DB tenant** (co
 ```text
 Tangga (utamakan yang lebih rendah dahulu):
   1. Consts          → SYSCONFIG.config_consts
-  2. Custom fields   → CUSTOMFIELDS.*
-  3. Custom logic    → service yang membaca consts + nilai field
-  4. Plan / modul    → tenants.plan pusat
-  5. Modul vertikal  → app/Modules/Legal …
+  2. Serials         → SYSCONFIG.config_snums
+  3. Custom fields   → CUSTOMFIELDS.*
+  4. Custom logic    → service yang membaca consts + nilai field
+  5. Plan / modul    → tenants.plan pusat
+  6. Modul vertikal  → app/Modules/Legal …
 ```
 
 ---

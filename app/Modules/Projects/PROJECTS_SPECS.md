@@ -124,7 +124,18 @@ Every organization manages internal and client-facing work items — client deli
    - `lead_id`: `bigint nullable references USERS(id)`
    - `start_date`: `date nullable`
    - `end_date`: `date nullable`
-   - `next_issue_seq`: `integer default 1`
+   - `next_issue_seq`: `integer default 1` — deliberately **not** routed through
+     `SYSCONFIG.config_snums` (customization ladder rung 2). `config_snums` is one row per
+     fixed, known `snum_code` — a good fit for a small set of tenant/module-wide counters
+     (e.g. `LEGAL_CASE_LASTID`), but a poor one here: every project needs its own independent
+     issue counter, and project codes are user-defined at creation time, not a fixed set.
+     Routing this through `config_snums` would mean writing a new `SYSCONFIG` row from
+     `PROJECTS` on every project creation. Same carve-out already established for
+     `LEGAL.protocol_entries.sequence_number` (`SYSCONFIG_SPECS.md` §3D: "not a replacement
+     for a module's own composite-scoped ledger numbering... `config_snums` is for simple
+     tenant/module-wide running numbers only") — a per-row, per-parent counter correctly stays
+     local to its own table, locked on its own row (`IssueService::create()`,
+     `lockForUpdate()`), not routed through the generic engine.
    - `created_at`, `updated_at`: `timestamps`
 
 2. `PROJECTS.issues`

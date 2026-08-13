@@ -65,7 +65,7 @@ events instead of direct calls).
     their phone's native calendar app — cheap to build, high perceived value, genuinely
     sellable as "your schedule, in your own calendar app."
 - **Decoupled integration hooks** — Schedule publishes internal events
-  (`schedule.item_created`, `schedule.item_due_soon`, `schedule.item_cancelled`) that WNE (if
+  (`ScheduleItemCreated`, `ScheduleItemDueSoon`, `ScheduleItemCancelled`) that WNE (if
   installed/enabled for the tenant) can route to notifications, exactly like Purchasing/HR do
   in the WNE spec. Schedule itself never calls a mail/SMS provider directly.
 - **Standalone-safe**: if WNE is not enabled for a tenant, Schedule still functions fully for
@@ -110,7 +110,8 @@ events instead of direct calls).
 
 **Rules / logic**
 - Calendar queries are scoped to the current tenant DB automatically (DB-per-tenant — no
-  app-level tenant filter needed, unlike WNE's `tenant_id` scope).
+  app-level tenant filter needed; same DB-per-tenant boundary WNE and every other Core module
+  use, no `tenant_id` column anywhere).
 - Recurring items are expanded server-side into virtual occurrences for the visible date range
   only (never materialize the full recurrence series into rows).
 - Availability conflicts (double-booked resource) surface as a `danger` Status Rail directly on
@@ -229,10 +230,10 @@ runtime or independent scaling per `CLAUDE.md` §2's extraction criteria.
 **Cross-module integration (decoupled, event-driven — same seam as WNE):**
 - Other modules attach to a calendar item via `subject_type` / `subject_id` (polymorphic),
   never a hard foreign key into Legal/CRM/etc. — Schedule stays vertical-agnostic.
-- Schedule publishes internal events (`schedule.item_created`, `schedule.item_due_soon`,
-  `schedule.item_cancelled`); WNE listens and applies its own routing rules **if the tenant has
+- Schedule publishes internal events (`ScheduleItemCreated`, `ScheduleItemDueSoon`,
+  `ScheduleItemCancelled`); WNE listens and applies its own routing rules **if the tenant has
   WNE enabled**. Schedule has zero compile-time dependency on WNE classes.
-- Feature-flag aware: `SCHEDULE` and `NOTIFICATIONS` (WNE) can each be toggled per tenant/plan
+- Feature-flag aware: `SCHEDULE` and `WNE` can each be toggled per tenant/plan
   independently, per `CLAUDE.md` §4's plan/feature-flagging note — Schedule must not throw if
   WNE is simply absent for a tenant.
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Modules\Config\Services;
+namespace App\Modules\SysConfig\Services;
 
-use App\Modules\Config\Models\ConfigConst;
+use App\Modules\SysConfig\Models\ConfigConst;
 
 class ConfigConstService
 {

@@ -117,7 +117,8 @@ eventually Payroll/Time/Leave/ESS, hangs off this record.
 - **Employment fields:** employee number (tenant-configurable format), hire date, employment
   status (`active` / `on_leave` / `suspended` / `terminated`), position (FK →
   `hcm.positions`), department/org unit, direct manager (derived from position's reporting
-  line), bank account (for payroll disbursement, 3G).
+  line). Bank account is **not** stored here — see 3G: it lives in
+  `PAYROLL.employee_bank_accounts`, read through `PayrollService` if HCM's UI ever needs it.
 - **Contract summary tab:** current + historical `hcm.employment_contracts` (see 3D).
 - **Documents tab:** attached via `DocumentService::attach()` into DMS
   (`subject_type = 'hcm.employees'`) — contract PDFs, ID scans, certificates. HCM stores no
@@ -249,6 +250,8 @@ owns the person, Payroll owns the pay run.
 - `PAYROLL.employee_payroll_profiles` is a 1:1 extension of `HCM.employees.id` (cross-schema
   FK, Core-to-Core, same allowed direction CRM/DMS/WNE already document for each other) —
   payroll group, salary structure, JKK risk category, and PTKP status live there, not on
+  `HCM.employees`. Bank account (for disbursement) is likewise Payroll-owned, in
+  `PAYROLL.employee_bank_accounts` (`PAYROLL_SPECS.md` §4) — not duplicated onto
   `HCM.employees`.
 - HCM publishes `hcm.employee_hired`, `hcm.employee_terminated`,
   `hcm.employee_position_changed`, `hcm.attendance_logged`, `hcm.leave_approved` — Payroll
@@ -269,7 +272,9 @@ owns the person, Payroll owns the pay run.
   Schedule/DMS.
 - PTKP status, once set on `employee_payroll_profiles`, is Payroll's field to manage — HCM's
   employee record carries no tax-status field of its own, closing off the exact
-  two-places-to-update risk this restructuring exists to eliminate.
+  two-places-to-update risk this restructuring exists to eliminate. Bank account follows the
+  same rule: `PAYROLL.employee_bank_accounts` is the one place it's edited; HCM never carries
+  its own copy.
 
 ## 3H. Employee Self-Service (ESS) Portal
 

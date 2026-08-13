@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Modules\Config\Controllers;
+namespace App\Modules\SysConfig\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Modules\Config\Models\ConfigSnum;
-use App\Modules\Config\Requests\StoreConfigSnumRequest;
-use App\Modules\Config\Requests\UpdateConfigSnumRequest;
-use App\Modules\Config\Services\ConfigSnumService;
+use App\Modules\SysConfig\Models\ConfigSnum;
+use App\Modules\SysConfig\Requests\StoreConfigSnumRequest;
+use App\Modules\SysConfig\Requests\UpdateConfigSnumRequest;
+use App\Modules\SysConfig\Services\ConfigSnumService;
 use App\Shared\Helpers\TableQuery;
 use App\Shared\Traits\BulkDeletable;
 use Illuminate\Http\Request;

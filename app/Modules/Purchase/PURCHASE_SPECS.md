@@ -426,27 +426,30 @@ payment) is **Accounting's** job, per the resolution below.
   maintaining two independently-numbered lists — see §5.
 - `PURCHASE.rfx_criteria` — Future Version: weighted evaluation criteria lookup.
 
-**Transaction tables** (`pur_` prefix + level, matching the `sched_`/`hd_`/`svc_` convention
-already established in `SCHEDULE_SPECS.md` / `CRM_SPECS.md`)
-- `pur_vendor_documents` — certs/licenses/insurance, doc via DMS, expiry date.
-- `pur_catalog_items` — approved items, preferred supplier, negotiated price.
-- `pur_requisition_hdrs`, `pur_requisition_lines`
-- `pur_rfx_hdrs`, `pur_rfx_lines`, `pur_rfx_invitations`, `pur_rfx_responses`,
-  `pur_rfx_response_lines` — (Future: `pur_rfx_scorecards` for weighted evaluation)
-- `pur_order_hdrs`, `pur_order_lines`, `pur_order_revisions` (amendment history)
-- `pur_receipt_hdrs` (includes nullable `inventory_goods_receipt_id` — informational
+**Transaction tables** (`PURCHASE.pur_*`, `pur_` prefix + level, matching the `sched_`/`hd_`/
+`svc_` convention already established in `SCHEDULE_SPECS.md` / `CRM_SPECS.md`)
+- `PURCHASE.pur_vendor_documents` — certs/licenses/insurance, doc via DMS, expiry date.
+- `PURCHASE.pur_catalog_items` — approved items, preferred supplier, negotiated price.
+- `PURCHASE.pur_requisition_hdrs`, `PURCHASE.pur_requisition_lines`
+- `PURCHASE.pur_rfx_hdrs`, `PURCHASE.pur_rfx_lines`, `PURCHASE.pur_rfx_invitations`,
+  `PURCHASE.pur_rfx_responses`, `PURCHASE.pur_rfx_response_lines` — (Future:
+  `PURCHASE.pur_rfx_scorecards` for weighted evaluation)
+- `PURCHASE.pur_order_hdrs`, `PURCHASE.pur_order_lines`, `PURCHASE.pur_order_revisions`
+  (amendment history)
+- `PURCHASE.pur_receipt_hdrs` (includes nullable `inventory_goods_receipt_id` — informational
   reference to `INVENTORY.goods_receipts.id` when Inventory is installed and the GR has been
   posted there; not an enforced FK, since Inventory is an optional install for Purchase),
-  `pur_receipt_lines`
-- `pur_invoice_hdrs`, `pur_invoice_lines` (the vendor bill as received/matched — a procurement
-  intake record, not the AP ledger), `pur_invoice_matches` (three-way match results). The
-  actual payable — due date, payment status, aging — lives in `ACCOUNTING.ap_bills`, created
-  from a `BillRequested` request once matched. See §3F/§5.
-- `pur_contract_hdrs` (linked document via DMS, linked supplier via CRM)
-- `pur_exceptions` — append-style exception log feeding 3A/3K
-- `pur_budgets` — simple period × cost-center × category soft-budget figures (MVP)
-- Future Version: `pur_capa_records`, `pur_audit_records`, `pur_esg_scores`,
-  `pur_supplier_scorecards`
+  `PURCHASE.pur_receipt_lines`
+- `PURCHASE.pur_invoice_hdrs`, `PURCHASE.pur_invoice_lines` (the vendor bill as
+  received/matched — a procurement intake record, not the AP ledger),
+  `PURCHASE.pur_invoice_matches` (three-way match results). The actual payable — due date,
+  payment status, aging — lives in `ACCOUNTING.ap_bills`, created from a `BillRequested`
+  request once matched. See §3F/§5.
+- `PURCHASE.pur_contract_hdrs` (linked document via DMS, linked supplier via CRM)
+- `PURCHASE.pur_exceptions` — append-style exception log feeding 3A/3K
+- `PURCHASE.pur_budgets` — simple period × cost-center × category soft-budget figures (MVP)
+- Future Version: `PURCHASE.pur_capa_records`, `PURCHASE.pur_audit_records`,
+  `PURCHASE.pur_esg_scores`, `PURCHASE.pur_supplier_scorecards`
 
 **Object file storage** (per `CLAUDE.md` §7B — new `PURCHASE/` folder per tenant, same
 convention as every other module):

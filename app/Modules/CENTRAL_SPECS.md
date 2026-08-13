@@ -447,24 +447,17 @@ central/
 
 > All necessary technical detail to help AI Coding.
 
-**Architecture pattern — a new category, not Core or Vertical.** `CLAUDE.md` §2/§10 already
-distinguishes Core (shared, zero knowledge of Vertical) from Vertical (depends on Core) from
-Microservice (justified extraction only). `CENTRAL` is none of these — it's **Platform-level**:
-the one module that exists entirely outside any tenant DB, and that every tenant DB's own
-existence depends on, rather than the reverse. Recommend `CLAUDE.md` §2/§10 be amended to name
-this fourth category explicitly, the same kind of documentation-catches-up-to-reality
-correction `SYSCONFIG_SPECS.md` §5 and `CUSTOMFIELDS_SPECS.md` §5 already made for their own
-layers.
+**Architecture pattern — a new category, not Core or Vertical.** `CLAUDE.md` §2 now names
+**Platform-level** as a fourth category alongside Core/Vertical/Microservice: the one kind of
+module that exists entirely outside any tenant DB, and that every tenant DB's own existence
+depends on, rather than the reverse. `CENTRAL` is the first (and so far only) module in this
+category.
 
-**Build order correction (recommend amending `CLAUDE.md` §5):** `CLAUDE.md` §5 currently opens
-with `SYSCONFIG` as step 1, "foundational, built before anything else, including the design
-system and every Core module." That's correct *for the tenant-DB layer* — but `SYSCONFIG`
-lives inside a tenant DB, and a tenant DB doesn't exist until `CENTRAL` provisions one (§3B).
-Recommend `CENTRAL` be inserted as an explicit **step 0**, before `SYSCONFIG`: build enough of
-the Tenant Registry (§3B) and a minimal manual-provisioning path to stand up the *first*
-tenant DB Claude Code will then build `SYSCONFIG` inside — Billing/Dunning (§3E–§3G) can
-follow once there's a real second or third paying tenant to bill, but the registry/
-provisioning piece has to exist first, structurally.
+**Build order:** `CLAUDE.md` §5 now lists `CENTRAL` as an explicit **step 0**, before
+`SYSCONFIG`: build enough of the Tenant Registry (§3B) and a minimal manual-provisioning path
+to stand up the *first* tenant DB Claude Code will then build `SYSCONFIG` inside —
+Billing/Dunning (§3E–§3G) can follow once there's a real second or third paying tenant to bill,
+but the registry/provisioning piece has to exist first, structurally.
 
 **Module boundary (same "Layer | Owns | Must not" convention `ARCHITECTURE.md` §2.2 already
 uses):**

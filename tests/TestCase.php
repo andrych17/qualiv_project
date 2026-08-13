@@ -17,7 +17,9 @@ abstract class TestCase extends BaseTestCase
             'SESSION_DRIVER' => 'array',
             'QUEUE_CONNECTION' => 'sync',
             'DB_CONNECTION' => 'pgsql',
-            'DB_HOST' => 'postgres',
+            // TEST_DB_HOST lets a non-docker host (e.g. native Windows) point at 127.0.0.1;
+            // unset everywhere else, so docker-compose keeps resolving the "postgres" alias.
+            'DB_HOST' => getenv('TEST_DB_HOST') ?: 'postgres',
             'DB_PORT' => '5432',
             'DB_DATABASE' => 'nusaevo_testing',
             'DB_USERNAME' => 'nusaevo',

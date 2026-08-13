@@ -43,6 +43,10 @@ Prefer lower rungs first. Same PHP/Vue path; Firm A vs B differ via tenant DB da
 3. Never extract a service purely for "clean architecture" aesthetics — extraction has real operational cost for a solo dev (deployment, monitoring, versioning). Justify it against that cost every time.
 4. When in doubt, ask: *"Would Claude Code and I still be able to reason about this system in 6 months without a team?"* If a proposed split makes that harder, don't do it.
 
+### Platform-level modules (a fourth category)
+- Most modules are **Core** (shared, zero knowledge of any vertical) or **Vertical** (depends on Core, e.g. Legal), with **Microservice** extraction justified only per the criteria above. A small number of modules are neither — they run entirely **outside every tenant DB**, in the central DB (`nusaevo`), and tenant DBs' own existence depends on them rather than the reverse (e.g. **CENTRAL** — tenant registry, plan/entitlement, subscription billing, dunning; see `CENTRAL_SPECS.md`).
+- A Platform-level module must never depend on anything inside a tenant-scoped module (WNE, DMS, SYSCONFIG, ...) — none of those exist until the Platform-level module has provisioned the tenant DB they live in.
+
 ### Module boundaries (inside the monolith)
 - Each module (Schedule, Notifications, Workflows, Legal-Cases, etc.) should be structured as a self-contained unit: its own migrations, models, services, policies, routes, and (if applicable) frontend feature folder.
 - Core modules must have **zero knowledge** of vertical modules. Vertical modules depend on core, never the reverse.
@@ -78,7 +82,7 @@ Notes:
 ## 4. Multi-Tenancy
 
 - Mode B: **one PostgreSQL database per tenant** (`tenant_{id}`), via `stancl/tenancy`. Tenant app data does **not** use a `tenant_id` column — isolation is the DB boundary.
-- Central DB (`nusaevo`) holds tenant registry + login lookup (`tenant_user_lookups`) + **plan** (`tenants.plan`). Users and module data live in the tenant DB.
+- Central DB (`nusaevo`) holds tenant registry + login lookup (`tenant_user_lookups`) + **plan** (`tenants.plan`), plus plan/entitlement, billing, and dunning tables — see `CENTRAL_SPECS.md` for the full schema; this is the Platform-level module described in §2. Users and module data live in the tenant DB.
 - Inside each tenant DB, modules get separate schemas (`SYSCONFIG`, `WNE`, `DMS`, `CRM`,
   `SCHEDULE`, `INVENTORY`, `ACCOUNTING`, `SALES`, `PURCHASE`, `HCM`, `PAYROLL`, `PERF`,
   `AIINSIGHT`, `LEGAL`, `CUSTOMFIELDS`, `PROJECTS`). See §7A for the authoritative list. (This consolidates
@@ -91,6 +95,12 @@ Notes:
 
 ## 5. Build Order
 
+0. **CENTRAL** (`nusaevo` central DB — tenant registry, plan/entitlement, subscription
+   billing, dunning) — Platform-level, structurally first: a tenant DB has to exist before
+   `SYSCONFIG` or any Core module can be built against a real one. MVP is just enough of the
+   Tenant Registry (see `CENTRAL_SPECS.md` §3B) and a manual provisioning path to stand up the
+   *first* tenant DB; Billing/Dunning can follow once there's a real second or third paying
+   tenant to bill. See `CENTRAL_SPECS.md` §5 for the suggested build order within this step.
 1. **SYSCONFIG** (System Configuration, Access Control & Runtime Settings) — foundational,
    built before anything else, including the design system and every Core module. Every later
    piece — menu/permission checks, tenant-editable consts, serial numbering, module
@@ -290,7 +300,7 @@ One-off artisan (examples):
 
 ## 10. Working with Claude Code
 
-- Before adding a new module or service, state which category it falls into (Core / Vertical / Microservice) and why, per Section 2 and Section 5.
+- Before adding a new module or service, state which category it falls into (Core / Vertical / Microservice / Platform-level) and why, per Section 2 and Section 5.
 - When a task could reasonably be solved either inside the monolith or as a separate service, default to the monolith and flag the tradeoff rather than silently extracting a service.
 - When touching multi-tenant data paths, double-check tenant scoping is present — this is a recurring risk area.
 - Prefer the customization ladder in §2 / `ARCHITECTURE.md` (consts → serials → custom fields → logic) over tenant_id branches.

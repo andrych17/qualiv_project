@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Modules\Config\Models\ConfigConst;
-use App\Modules\Config\Models\ConfigSnum;
+use App\Modules\SysConfig\Models\ConfigConst;
+use App\Modules\SysConfig\Models\ConfigSnum;
 use App\Modules\CustomFields\Models\FieldDef;
 use App\Modules\CustomFields\Models\FieldValue;
 use App\Modules\Legal\Models\LegalCase;

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Modules\Config\Services;
+namespace App\Modules\SysConfig\Services;
 
-use App\Modules\Config\Models\ConfigSnum;
+use App\Modules\SysConfig\Models\ConfigSnum;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
