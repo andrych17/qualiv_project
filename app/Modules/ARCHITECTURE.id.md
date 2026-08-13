@@ -252,6 +252,6 @@ UI: System → Constants (`/config/consts`).
 
 ## Terkait
 
-- Panduan agen: [CLAUDE.md](CLAUDE.md)
-- Sistem desain: [resources/DESIGN.md](resources/DESIGN.md)
+- Panduan agen: [CLAUDE.md](../../CLAUDE.md)
+- Sistem desain: [resources/DESIGN.md](../../resources/DESIGN.md)
 - Gerbang plan: `config/tenant_modules.php`, `TenantFeatureService`
