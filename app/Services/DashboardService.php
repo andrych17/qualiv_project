@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Modules\Config\Services\ConfigService;
 use App\Modules\Inventory\Models\InventoryItem;
 use App\Modules\Legal\Models\LegalCase;
+use App\Modules\Projects\Models\Issue;
 use Illuminate\Support\Carbon;
 
 /**
@@ -22,6 +23,7 @@ class DashboardService
     {
         $inventoryEnabled = $this->features->enabled('INVENTORY');
         $legalEnabled = $this->features->enabled('LEGAL');
+        $projectsEnabled = $this->features->enabled('PROJECTS');
 
         $itemCount = $inventoryEnabled ? InventoryItem::query()->count() : 0;
         $lowStock = $inventoryEnabled
@@ -30,26 +32,38 @@ class DashboardService
         $openCases = $legalEnabled
             ? LegalCase::query()->whereIn('status', ['open', 'pending'])->count()
             : 0;
+        $openIssues = $projectsEnabled
+            ? Issue::query()->where('status', '!=', 'done')->count()
+            : 0;
         $modules = count($this->features->enabledModules());
 
         $firm = $this->config->constValue('APP', 'NAME')?->str1
             ?? (tenant()?->name ?? 'Tenant');
 
-        $cards = [
-            [
+        // ponytail: module-off cards (Inventory 0 / Module off) are noise — only show
+        // cards for modules the plan actually enables, plus the Active Modules card.
+        $cards = array_values(array_filter([
+            $inventoryEnabled ? [
                 'title' => 'Total Inventory Items',
                 'value' => number_format($itemCount),
-                'description' => $inventoryEnabled ? 'SKUs in this firm' : 'Module off',
+                'description' => 'SKUs in this firm',
                 'icon' => 'Boxes',
-                'href' => $inventoryEnabled ? '/inventory/items' : null,
-            ],
-            [
+                'href' => '/inventory/items',
+            ] : null,
+            $inventoryEnabled ? [
                 'title' => 'Low Stock Items',
                 'value' => number_format($lowStock),
                 'description' => $lowStock > 0 ? 'Need attention' : 'All above minimum',
                 'icon' => 'TriangleAlert',
-                'href' => $inventoryEnabled ? '/inventory/items' : null,
-            ],
+                'href' => '/inventory/items',
+            ] : null,
+            $projectsEnabled ? [
+                'title' => 'Open Issues',
+                'value' => number_format($openIssues),
+                'description' => 'Not done across all projects',
+                'icon' => 'CircleDot',
+                'href' => '/projects',
+            ] : null,
             [
                 'title' => 'Active Modules',
                 'value' => (string) $modules,
@@ -57,23 +71,25 @@ class DashboardService
                 'icon' => 'LayoutGrid',
                 'href' => null,
             ],
-            [
+            $legalEnabled ? [
                 'title' => 'Open Legal Cases',
                 'value' => number_format($openCases),
-                'description' => $legalEnabled ? 'Open + pending' : 'Module off',
+                'description' => 'Open + pending',
                 'icon' => 'Scale',
-                'href' => $legalEnabled ? '/legal/cases' : null,
-            ],
-        ];
+                'href' => '/legal/cases',
+            ] : null,
+        ]));
 
         return [
             'firm' => $firm,
             'cards' => $cards,
-            'activities' => $this->recentActivities($inventoryEnabled, $legalEnabled),
+            'activities' => $this->recentActivities($inventoryEnabled, $legalEnabled, $projectsEnabled),
             'shortcuts' => array_values(array_filter([
                 $inventoryEnabled ? ['label' => 'Manage Inventory', 'href' => '/inventory/items', 'icon' => 'Boxes'] : null,
                 $legalEnabled ? ['label' => 'Legal Cases', 'href' => '/legal/cases', 'icon' => 'Scale'] : null,
-                ['label' => 'Users', 'href' => '/config/users', 'icon' => 'UserRoundCog'],
+                $projectsEnabled ? ['label' => 'Projects', 'href' => '/projects', 'icon' => 'Kanban'] : null,
+                // Users is admin/config chrome — hidden on the internal plan (Jira board only).
+                (tenant()?->plan ?? 'starter') !== 'internal' ? ['label' => 'Users', 'href' => '/config/users', 'icon' => 'UserRoundCog'] : null,
             ])),
         ];
     }
@@ -81,7 +97,7 @@ class DashboardService
     /**
      * @return list<array{id: string, module: string, action: string, user: string, time: string}>
      */
-    private function recentActivities(bool $inventoryEnabled, bool $legalEnabled): array
+    private function recentActivities(bool $inventoryEnabled, bool $legalEnabled, bool $projectsEnabled): array
     {
         $rows = collect();
 
@@ -115,6 +131,24 @@ class DashboardService
                         'action' => ($created ? 'Opened' : 'Updated').' '.$case->code.' ('.$case->status.')',
                         'user' => '—',
                         'at' => $case->updated_at,
+                    ]);
+                });
+        }
+
+        if ($projectsEnabled) {
+            Issue::query()
+                ->with('project:id,code')
+                ->orderByDesc('updated_at')
+                ->limit(8)
+                ->get(['id', 'code', 'title', 'status', 'project_id', 'updated_at', 'created_at'])
+                ->each(function (Issue $issue) use ($rows) {
+                    $created = $issue->created_at?->eq($issue->updated_at);
+                    $rows->push([
+                        'id' => 'issue-'.$issue->id,
+                        'module' => 'Projects',
+                        'action' => ($created ? 'Opened' : 'Updated').' '.$issue->code.' ('.$issue->status.')',
+                        'user' => '—',
+                        'at' => $issue->updated_at,
                     ]);
                 });
         }

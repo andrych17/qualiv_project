@@ -37,6 +37,9 @@ class SysConfigSeeder extends Seeder
         'admin@nusaevo.com' => ['ADMIN'],
         'staff@nusaevo.com' => ['STAFF'],
         'viewer@nusaevo.com' => ['VIEWER'],
+        'andry@nusaevo.com' => ['ADMIN'],
+        'tirta@nusaevo.com' => ['ADMIN'],
+        'simon@nusaevo.com' => ['ADMIN'],
     ];
 
     public function run(): void
@@ -89,6 +92,8 @@ class SysConfigSeeder extends Seeder
             ['code' => 'NOTIFICATIONS', 'menu_header' => 'Core', 'menu_caption' => 'Notifications', 'menu_link' => '#', 'icon' => 'Bell', 'seq' => 40, 'status_code' => 'I'],
             ['code' => 'WORKFLOW', 'menu_header' => 'Core', 'menu_caption' => 'Workflow', 'menu_link' => '#', 'icon' => 'Workflow', 'seq' => 50, 'status_code' => 'I'],
             ['code' => 'LEGAL', 'menu_header' => 'Vertical', 'menu_caption' => 'Legal', 'menu_link' => '/legal/cases', 'icon' => 'Scale', 'seq' => 60, 'status_code' => 'A'],
+            // Internal-only (Nusaevo's own team) — not part of any sellable plan, see config/tenant_modules.php.
+            ['code' => 'PROJECTS', 'menu_header' => 'Internal', 'menu_caption' => 'Projects', 'menu_link' => '/projects', 'icon' => 'Kanban', 'seq' => 65, 'status_code' => 'A'],
             ['code' => 'SALES', 'menu_header' => 'Operations', 'menu_caption' => 'Sales', 'menu_link' => '#', 'icon' => 'ShoppingCart', 'seq' => 80, 'status_code' => 'I'],
             ['code' => 'PROCUREMENT', 'menu_header' => 'Operations', 'menu_caption' => 'Procurement', 'menu_link' => '#', 'icon' => 'Truck', 'seq' => 90, 'status_code' => 'I'],
             ['code' => 'DELIVERY', 'menu_header' => 'Operations', 'menu_caption' => 'Delivery', 'menu_link' => '#', 'icon' => 'Package', 'seq' => 100, 'status_code' => 'I'],
@@ -129,12 +134,14 @@ class SysConfigSeeder extends Seeder
                 'DASHBOARD' => 'R',
                 'INVENTORY' => 'CRUD',
                 'LEGAL' => 'CRUD',
+                'PROJECTS' => 'CRUD',
                 'DESIGN_SYSTEM' => 'R',
             ],
             'VIEWER' => [
                 'DASHBOARD' => 'R',
                 'INVENTORY' => 'R',
                 'LEGAL' => 'R',
+                'PROJECTS' => 'R',
                 'DESIGN_SYSTEM' => 'R',
             ],
         ];

@@ -60,7 +60,7 @@ Base primitives first, then composites. Each should be a single reusable compone
 - Tooltip, Popover
 
 **Composites**
-- Data table (sortable, filterable, with row-level Status Rail)
+- Data table (sortable, filterable, with row-level Status Rail; optional row expansion via `expandable` + `#row-detail`; optional Excel-style Group/Outline via `groupBy` on `Column[]` with per-column `footer: 'sum'|'avg'|'count'|'min'|'max'` for group subtotals + a pinned grand-total `<tfoot>` — see `resources/js/Components/tables/DataTable.vue`. In `groupBy` mode, `items` is only ever the current server-paginated page, so the grand total reflects that page unless the host passes `footerTotals` computed by the backend across the full result set.)
 - Card (with optional Status Rail on the edge)
 - Kanban / Board view (drag-to-advance columns by status — see dedicated spec below; used by
   CRM's Lead pipeline, Sales's Opportunity pipeline, and Performance's OKR board)
@@ -127,5 +127,5 @@ Minimal and functional only: state transitions (hover, focus, expand/collapse), 
 
 - [ ] Finalize whether Source Serif 4 / Inter / IBM Plex Mono are locally hosted or loaded via a font CDN, given the VPS/Nginx setup.
 - [x] Icon set choice (needs to cover legal-specific iconography: gavel, case file, court date, etc. — likely a general set + a small custom set for Legal).
-- [x] Dark mode palette (deferred until core light-mode components are stable).
+- [ ] Dark mode palette (deferred until core light-mode components are stable).
 - [x] Formalize this into an actual token file (CSS variables / Tailwind config) once the Vue.js component library scaffolding begins. (`resources/css/app.css` + `tailwind.config.js`)

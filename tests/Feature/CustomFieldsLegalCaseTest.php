@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Modules\Config\Models\ConfigConst;
+use App\Modules\Config\Models\ConfigSnum;
 use App\Modules\CustomFields\Models\FieldDef;
 use App\Modules\CustomFields\Models\FieldValue;
 use App\Modules\Legal\Models\LegalCase;
@@ -30,7 +31,7 @@ class CustomFieldsLegalCaseTest extends TestCase
                 ['seq' => 2, 'num1' => 1, 'note1' => 'on'],
             );
 
-            \App\Modules\Config\Models\ConfigSnum::query()->updateOrCreate(
+            ConfigSnum::query()->updateOrCreate(
                 ['code' => 'LEGAL_CASE_LASTID'],
                 [
                     'last_cnt' => 0,

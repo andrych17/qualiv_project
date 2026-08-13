@@ -19,7 +19,12 @@ const breadcrumbs = computed(() => {
 
   return segments.map((segment, index) => {
     const built = '/' + segments.slice(0, index + 1).join('/')
-    const href = SECTION_HOME[built.slice(1)] ?? (SECTION_HOME[segment] && built === `/${segment}` ? SECTION_HOME[segment] : built)
+    // ponytail: numeric ID segments have no detail page — only edit exists
+    // (e.g. /issues/2 links to GET /issues/2 which 405s; route is PUT-only).
+    const href =
+      segments[index + 1] === 'edit' && /^\d+$/.test(segment)
+        ? `${built}/edit`
+        : SECTION_HOME[built.slice(1)] ?? (SECTION_HOME[segment] && built === `/${segment}` ? SECTION_HOME[segment] : built)
     const label = segment.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
     return { label, href, active: index === segments.length - 1 }
   })

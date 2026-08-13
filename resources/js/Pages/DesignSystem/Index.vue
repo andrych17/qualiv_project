@@ -1,6 +1,6 @@
 <!-- ponytail: Single-page documentation & showcase for all NusaEvo ERP UI components -->
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
@@ -10,14 +10,18 @@ import SecondaryButton from '@/Components/SecondaryButton.vue'
 import DangerButton from '@/Components/DangerButton.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
+import FormSearchableSelect from '@/Components/forms/FormSearchableSelect.vue'
+import FormAsyncSearchableSelect from '@/Components/forms/FormAsyncSearchableSelect.vue'
+import FormSwitch from '@/Components/forms/FormSwitch.vue'
+import FormRadioGroup from '@/Components/forms/FormRadioGroup.vue'
+import FormTextarea from '@/Components/forms/FormTextarea.vue'
 import SearchInput from '@/Components/filters/SearchInput.vue'
 import Checkbox from '@/Components/Checkbox.vue'
 import InputLabel from '@/Components/InputLabel.vue'
 import InputError from '@/Components/InputError.vue'
 import CustomFieldInputs, { type CustomFieldDef } from '@/Components/forms/CustomFieldInputs.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
-import DataTable from '@/Components/tables/DataTable.vue'
-import DataTablePagination from '@/Components/tables/DataTablePagination.vue'
+import DataTable, { type FilterFieldDef } from '@/Components/tables/DataTable.vue'
 import ApplicationLogo from '@/Components/ApplicationLogo.vue'
 import Dropdown from '@/Components/Dropdown.vue'
 import DropdownLink from '@/Components/DropdownLink.vue'
@@ -32,7 +36,12 @@ const searchDemo = ref('')
 const inputDemo = ref('PT NusaEvo Indonesia')
 const inputErrorDemo = ref('Format email tidak valid')
 const selectDemo = ref('legal')
+const searchableSelectDemo = ref<string | number | null>('id-001')
+const asyncSelectDemo = ref<string | number | null>(1)
 const checkboxDemo = ref(true)
+const switchDemo = ref(true)
+const radioDemo = ref('email')
+const textareaDemo = ref('Catatan ringkas mengenai jalannya sidang perdata permohonan eksekusi.')
 const customFieldsModel = ref<Record<string, string>>({
   court_name: 'Pengadilan Negeri Jakarta Selatan',
   hearing_date: '2026-08-15',
@@ -75,28 +84,68 @@ const customFieldDefs = ref<CustomFieldDef[]>([
 
 // Table demo data
 const tableColumns = [
-  { key: 'case_number', label: 'Nomor Perkara', align: 'left' as const },
-  { key: 'client', label: 'Klien', align: 'left' as const },
-  { key: 'type', label: 'Tipe Layanan', align: 'left' as const },
+  { key: 'case_number', label: 'Nomor Perkara', align: 'left' as const, sortable: true },
+  { key: 'client', label: 'Klien', align: 'left' as const, sortable: true },
+  { key: 'type', label: 'Tipe Layanan', align: 'left' as const, sortable: true },
   { key: 'status', label: 'Status Perkara', align: 'center' as const },
   { key: 'amount', label: 'Nilai Klaim', align: 'right' as const },
 ]
 
-const tableItems = [
+const tableItems = ref([
   { id: 1, case_number: 'LEGAL-2026-001', client: 'PT Maju Bersama', type: 'Sengketa Kontrak', status: 'active', statusRail: 'active', amount: 'Rp 450.000.000' },
   { id: 2, case_number: 'LEGAL-2026-002', client: 'Firma Hukum Prima', type: 'Konsultasi HAKI', status: 'pending', statusRail: 'pending', amount: 'Rp 125.000.000' },
   { id: 3, case_number: 'LEGAL-2026-003', client: 'Budi Santoso & Partners', type: 'Arbitrase Niaga', status: 'open', statusRail: 'open', amount: 'Rp 890.000.000' },
   { id: 4, case_number: 'LEGAL-2026-004', client: 'CV Global Perkasa', type: 'Audit Kepatuhan', status: 'overdue', statusRail: 'overdue', amount: 'Rp 75.000.000' },
   { id: 5, case_number: 'LEGAL-2026-005', client: 'Lembaga Keuangan Mandiri', type: 'Restrukturisasi', status: 'completed', statusRail: 'completed', amount: 'Rp 1.200.000.000' },
+])
+
+const tableSort = ref<{ key: string; direction: 'asc' | 'desc' } | null>(null)
+const tableSelected = ref<Array<string | number>>([])
+const tableSearch = ref('')
+const tableFilters = ref({ status: '' })
+const tablePerPage = ref(10)
+
+const tableFilterFields: FilterFieldDef[] = [
+  {
+    key: 'status',
+    label: 'Status Perkara',
+    type: 'select',
+    options: [
+      { label: 'Active', value: 'active' },
+      { label: 'Pending', value: 'pending' },
+      { label: 'Open', value: 'open' },
+      { label: 'Overdue', value: 'overdue' },
+      { label: 'Completed', value: 'completed' },
+    ],
+  },
 ]
 
-const paginationLinks = [
-  { url: null, label: '&laquo; Previous', active: false },
-  { url: '#', label: '1', active: true },
-  { url: '#', label: '2', active: false },
-  { url: '#', label: '3', active: false },
-  { url: '#', label: 'Next &raquo;', active: false },
-]
+// ponytail: this demo table has no backend, so search/filter/sort run client-side here —
+// on a real page these are v-model'd straight into the host page's router.get() params instead.
+const filteredTableItems = computed(() => {
+  let rows = tableItems.value
+  if (tableSearch.value) {
+    const q = tableSearch.value.toLowerCase()
+    rows = rows.filter((r) => r.case_number.toLowerCase().includes(q) || r.client.toLowerCase().includes(q))
+  }
+  if (tableFilters.value.status) {
+    rows = rows.filter((r) => r.status === tableFilters.value.status)
+  }
+  if (tableSort.value) {
+    const { key, direction } = tableSort.value
+    rows = [...rows].sort((a, b) => {
+      const cmp = String((a as any)[key]).localeCompare(String((b as any)[key]))
+      return direction === 'asc' ? cmp : -cmp
+    })
+  }
+  return rows
+})
+
+const onTableCellEdit = (item: Record<string, any>, key: string, value: string) => {
+  const row = tableItems.value.find((r) => r.id === item.id)
+  if (row) (row as any)[key] = value
+}
+
 
 const triggerToastDemo = (type: 'success' | 'error') => {
   if (type === 'success') {
@@ -327,12 +376,40 @@ const triggerConfirmDemo = (variant: 'default' | 'destructive') => {
               <FormSelect
                 v-model="selectDemo"
                 name="module_type"
-                label="Pilih Vertikal Modul"
+                label="Pilih Vertikal Modul (Standard Select)"
                 :options="[
                   { label: 'Legal Practice Management', value: 'legal' },
                   { label: 'Property Management', value: 'property' },
                   { label: 'General Corporate ERP', value: 'general' },
                 ]"
+                required
+              />
+
+              <FormSearchableSelect
+                v-model="searchableSelectDemo"
+                name="client_id"
+                label="Pilih Klien / Perusahaan (Local Searchable Select)"
+                placeholder="Cari atau pilih klien..."
+                search-placeholder="Ketik nama klien..."
+                :options="[
+                  { label: 'PT NusaEvo Indonesia', value: 'id-001', description: 'Jakarta Selatan — Perdata' },
+                  { label: 'PT Maju Bersama Tech', value: 'id-002', description: 'Bandung — Kontrak' },
+                  { label: 'CV Global Perkasa Logistics', value: 'id-003', description: 'Surabaya — HAKI' },
+                  { label: 'Firma Law Office Mandiri', value: 'id-004', description: 'Semarang — Arbitrase' },
+                ]"
+                clearable
+                required
+              />
+
+              <FormAsyncSearchableSelect
+                v-model="asyncSelectDemo"
+                name="user_id"
+                label="Pilih Pengguna Sistem (Async API Select — Limit 50)"
+                api-url="/api/search"
+                api-entity="user"
+                placeholder="Pencarian via API Eloquent Model (Limit 50)..."
+                search-placeholder="Ketik nama / email pengguna..."
+                clearable
                 required
               />
             </div>
@@ -353,6 +430,32 @@ const triggerConfirmDemo = (variant: 'default' | 'destructive') => {
               <div class="flex items-center gap-2 pt-2">
                 <Checkbox id="demo-check" v-model:checked="checkboxDemo" />
                 <label for="demo-check" class="text-sm text-ink-900 cursor-pointer">Aktifkan Notifikasi Jatuh Tempo (Checkbox)</label>
+              </div>
+
+              <div class="border-t border-border pt-3 space-y-4">
+                <FormSwitch
+                  v-model="switchDemo"
+                  label="Aktifkan Notifikasi Email (FormSwitch)"
+                  description="Kirim ringkasan mingguan otomatis ke alamat email pengguna."
+                />
+
+                <FormRadioGroup
+                  v-model="radioDemo"
+                  name="notification_channel"
+                  label="Saluran Komunikasi Utama (FormRadioGroup)"
+                  :options="[
+                    { label: 'Surat Elektronik (Email)', value: 'email', description: 'Rekomendasi untuk laporan formal' },
+                    { label: 'Pesan WhatsApp Business', value: 'whatsapp', description: 'Notifikasi cepat realtime' },
+                  ]"
+                />
+
+                <FormTextarea
+                  v-model="textareaDemo"
+                  name="case_notes"
+                  label="Catatan Ringkas Perkara (FormTextarea)"
+                  placeholder="Ketik catatan di sini..."
+                  :max-length="200"
+                />
               </div>
 
               <!-- Custom Fields Engine -->
@@ -442,19 +545,43 @@ const triggerConfirmDemo = (variant: 'default' | 'destructive') => {
           <Table class="h-5 w-5 text-accent" />
           <h2 class="font-serif text-xl font-bold">6. Data Tables & Pagination</h2>
         </div>
-        <Panel subtitle="Tabel data standar dengan pengkodean Status Rail pada batas kiri baris.">
+        <Panel subtitle="Tabel data lengkap: Toolbar (search, filter, saved views, column visibility, export), sort, seleksi + bulk action, inline editor, expandable row, dan footer (record count, page size, pagination).">
           <div class="space-y-4">
             <DataTable
               :columns="tableColumns"
-              :items="tableItems"
+              :items="filteredTableItems"
+              v-model:sort="tableSort"
+              v-model:selected="tableSelected"
+              v-model:search="tableSearch"
+              v-model:filters="tableFilters"
+              v-model:per-page="tablePerPage"
+              selectable
+              expandable
+              sticky-header
+              storage-key="design-system.demo"
               status-rail-key="statusRail"
+              search-placeholder="Cari nomor perkara atau klien…"
+              :filter-fields="tableFilterFields"
+              :editable-keys="['client']"
+              export-filename="design-system-demo"
+              :total="filteredTableItems.length"
+              :from="filteredTableItems.length ? 1 : 0"
+              :to="filteredTableItems.length"
+              @cell-edit="onTableCellEdit"
             >
+              <template #bulk-actions>
+                <button type="button" class="text-sm font-medium text-signal-danger hover:underline" @click="tableSelected = []">
+                  Hapus Terpilih
+                </button>
+              </template>
               <template #cell-status="{ value }">
                 <StatusBadge :status="value" />
               </template>
+              <template #row-detail="{ item }">
+                <p class="text-xs font-semibold uppercase tracking-wide text-ink-600">Detail Perkara</p>
+                <p class="mt-1 text-sm text-ink-900">{{ item.type }} — {{ item.amount }}</p>
+              </template>
             </DataTable>
-
-            <DataTablePagination :links="paginationLinks" />
           </div>
         </Panel>
       </section>

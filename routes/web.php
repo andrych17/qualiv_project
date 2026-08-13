@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AsyncSearchController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DesignSystemController;
 use App\Http\Controllers\ProfileController;
@@ -21,6 +22,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/design-system', DesignSystemController::class)
         ->middleware('menu.perm:DESIGN_SYSTEM')
         ->name('design-system');
+
+    Route::get('/api/search', [AsyncSearchController::class, 'index'])
+        ->middleware('throttle:60,1')
+        ->name('api.search');
 });
 
 require __DIR__.'/auth.php';
@@ -29,3 +34,4 @@ require __DIR__.'/auth.php';
 require app_path('Modules/Inventory/Routes/web.php');
 require app_path('Modules/Config/Routes/web.php');
 require app_path('Modules/Legal/Routes/web.php');
+require app_path('Modules/Projects/Routes/web.php');

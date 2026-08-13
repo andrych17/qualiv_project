@@ -40,4 +40,12 @@ class ConfigConstService
     {
         $const->delete();
     }
+
+    /** Single-field edit for DataTable's InlineEditor — caller whitelists which fields reach here. */
+    public function quickUpdate(ConfigConst $const, string $field, mixed $value): ConfigConst
+    {
+        $const->update([$field => $value]);
+
+        return $const->refresh();
+    }
 }

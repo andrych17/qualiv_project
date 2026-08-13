@@ -7,7 +7,7 @@ NusaEvo ERP is a modular monolith enterprise business application built using **
 ## Tech Stack & Requirements
 - **Backend**: Laravel (PHP 8.3) via Docker Compose
 - **Frontend (Web)**: Vue 3 + Inertia.js (Vite, Tailwind CSS, Lucide Icons) — npm on host
-- **Database / cache**: PostgreSQL 16 + Redis 7 (Compose services)
+- **Database / cache**: PostgreSQL 16 + Redis 7 — provided by the external `shared-infra` Compose stack (not this repo's `docker-compose.yml`); start it first
 - **Prerequisites**: Docker Compose, Node.js & npm
 
 Web UI uses **Inertia** (not REST). Business logic stays in Service classes so a future mobile REST API can reuse the same services.

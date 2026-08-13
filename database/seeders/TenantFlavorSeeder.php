@@ -11,6 +11,7 @@ use App\Modules\CustomFields\Models\FieldValue;
 use App\Modules\Inventory\Models\InventoryCategory;
 use App\Modules\Inventory\Models\InventoryItem;
 use App\Modules\Legal\Models\LegalCase;
+use App\Modules\Projects\Models\Project;
 use Illuminate\Database\Seeder;
 
 /**
@@ -23,7 +24,7 @@ class TenantFlavorSeeder extends Seeder
     {
         $tenant = config('demo.tenant');
         if (! is_array($tenant) || empty($tenant['id'])) {
-            $tenant = ['id' => '001', 'name' => 'Demo Firm A'];
+            $tenant = ['id' => '001', 'name' => 'Nusaevo'];
         }
 
         $flavor = $this->flavors()[$tenant['id']] ?? $this->flavors()['001'];
@@ -35,6 +36,7 @@ class TenantFlavorSeeder extends Seeder
         $this->seedCustomFields($flavor);
         $this->seedLegalCases($flavor);
         $this->seedSnums($flavor);
+        $this->seedProjects($flavor);
     }
 
     /** @return array<string, array<string, mixed>> */
@@ -42,12 +44,12 @@ class TenantFlavorSeeder extends Seeder
     {
         return [
             '001' => [
-                'app_name' => 'NusaEvo — Firm A (Jakarta)',
+                'app_name' => 'Nusaevo (Jakarta)',
                 'tz' => 'Asia/Jakarta',
                 'city' => 'Jakarta',
                 'low_stock' => 10,
-                'admin_descr' => 'Firm A administrators',
-                'staff_descr' => 'Firm A operations staff',
+                'admin_descr' => 'Nusaevo administrators',
+                'staff_descr' => 'Nusaevo operations staff',
                 'inventory_header' => 'Warehouse A',
                 'categories' => [
                     ['code' => 'RAW', 'name' => 'Raw Material'],
@@ -104,6 +106,12 @@ class TenantFlavorSeeder extends Seeder
                         'notes' => 'Trademark class 9',
                         'custom' => ['court_register' => 'DJKI-2026-441', 'hearing_date' => '2026-09-01', 'priority' => 'normal'],
                     ],
+                ],
+                // Internal client/project tracker — Nusaevo's own work, not tenant demo data.
+                'projects' => [
+                    ['code' => 'KNC', 'name' => 'Knitandcro', 'status' => 'active'],
+                    ['code' => 'CT', 'name' => 'Cahaya Terang', 'status' => 'active'],
+                    ['code' => 'WM', 'name' => 'Wijaya Mas', 'status' => 'active'],
                 ],
             ],
             '002' => [
@@ -282,6 +290,20 @@ class TenantFlavorSeeder extends Seeder
                 'seq' => $def['seq'] ?? 0,
                 'status' => 'active',
             ]);
+        }
+    }
+
+    /** @param  array<string, mixed>  $flavor */
+    private function seedProjects(array $flavor): void
+    {
+        foreach ($flavor['projects'] ?? [] as $project) {
+            Project::query()->updateOrCreate(
+                ['code' => $project['code']],
+                [
+                    'name' => $project['name'],
+                    'status' => $project['status'],
+                ],
+            );
         }
     }
 

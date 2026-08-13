@@ -60,6 +60,20 @@ return [
             'report' => false,
         ],
 
+        // Object file storage (CLAUDE.md §7B) — the file server shares the app
+        // server's filesystem at /var/www/storage/nusaevo-erp (docker-compose binds
+        // a host folder there). Per-tenant keys are built at call time as
+        // "{tenant_id}/projects/{project_id}/{issue_id}/{uuid}.{ext}" (see IssueService).
+        // ponytail: local disk, not SFTP — app and file server are the same box, so
+        // SFTP would only add auth/fingerprint overhead. If they ever split, swap the
+        // driver for sftp here without touching service code.
+        'objects' => [
+            'driver' => 'local',
+            'root' => env('OBJECT_STORAGE_ROOT', '/var/www/storage/nusaevo-erp'),
+            'throw' => true,
+            'report' => true,
+        ],
+
     ],
 
     /*

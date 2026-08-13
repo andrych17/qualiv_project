@@ -3,11 +3,10 @@
 import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
-import DataTable from '@/Components/tables/DataTable.vue'
-import DataTablePagination from '@/Components/tables/DataTablePagination.vue'
-import SearchInput from '@/Components/filters/SearchInput.vue'
+import DataTable, { type SortState } from '@/Components/tables/DataTable.vue'
 import { ref, watch } from 'vue'
 import { debounce } from '@/Composables/debounce'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface UserRow {
   id: number
@@ -20,34 +19,68 @@ interface UserRow {
 interface PaginatedData<T> {
   data: T[]
   links: Array<{ url: string | null; label: string; active: boolean }>
+  total: number
+  from: number | null
+  to: number | null
+  per_page: number
 }
 
 const props = defineProps<{
   users: PaginatedData<UserRow>
-  filters: { search?: string }
+  filters: { search?: string; sort?: string; direction?: string; per_page?: string }
 }>()
 
 const search = ref(props.filters.search ?? '')
+const sort = ref<SortState>(
+  props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
+)
+const selected = ref<Array<string | number>>([])
+const perPage = ref(Number(props.filters.per_page) || props.users.per_page)
 
 const columns = [
-  { key: 'name', label: 'Name' },
-  { key: 'email', label: 'Email' },
+  { key: 'name', label: 'Name', sortable: true },
+  { key: 'email', label: 'Email', sortable: true },
   { key: 'groups', label: 'Groups' },
-  { key: 'created_at_formatted', label: 'Created' },
+  { key: 'created_at_formatted', label: 'Created', sortable: true, sortKey: 'created_at' },
   { key: 'actions', label: 'Actions', align: 'right' as const },
 ]
 
-watch(search, debounce(() => {
-  router.get(route('config.users.index'), { search: search.value }, {
+watch([search, sort, perPage], debounce(() => {
+  selected.value = []
+  router.get(route('config.users.index'), {
+    search: search.value,
+    sort: sort.value?.key,
+    direction: sort.value?.direction,
+    per_page: perPage.value,
+  }, {
     preserveState: true,
     replace: true,
   })
 }, 400))
 
+const { confirm } = useConfirm()
+
 const confirmDelete = (item: UserRow | Record<string, unknown>) => {
   const row = item as UserRow
-  if (!confirm(`Delete user ${row.email}?`)) return
-  router.delete(route('config.users.destroy', row.id))
+  confirm({
+    title: `Delete user ${row.email}?`,
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () => router.delete(route('config.users.destroy', row.id)),
+  })
+}
+
+const confirmBulkDelete = () => {
+  confirm({
+    title: `Delete ${selected.value.length} selected user(s)?`,
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () =>
+      router.delete(route('config.users.bulkDestroy'), {
+        data: { ids: selected.value },
+        onSuccess: () => { selected.value = [] },
+      }),
+  })
 }
 </script>
 
@@ -68,16 +101,30 @@ const confirmDelete = (item: UserRow | Record<string, unknown>) => {
     </PageHeader>
 
     <div class="mt-6 space-y-4">
-      <div class="w-full sm:max-w-xs">
-        <SearchInput v-model="search" placeholder="Search name or email..." />
-      </div>
-
       <DataTable
         :columns="columns"
         :items="users.data"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        v-model:search="search"
+        v-model:per-page="perPage"
+        selectable
+        sticky-header
+        storage-key="config.users"
+        search-placeholder="Search name or email..."
+        export-filename="config-users"
+        :total="users.total"
+        :from="users.from"
+        :to="users.to"
+        :links="users.links"
         empty-title="No users"
         empty-description="Create a user for this tenant."
       >
+        <template #bulk-actions>
+          <button type="button" class="text-sm font-medium text-red-600 hover:text-red-950" @click="confirmBulkDelete">
+            Delete selected
+          </button>
+        </template>
         <template #cell-groups="{ item }">
           <span class="text-sm text-gray-600">
             {{ (item.groups as string[]).join(', ') || '—' }}
@@ -101,8 +148,6 @@ const confirmDelete = (item: UserRow | Record<string, unknown>) => {
           </div>
         </template>
       </DataTable>
-
-      <DataTablePagination :links="users.links" />
     </div>
   </AppLayout>
 </template>

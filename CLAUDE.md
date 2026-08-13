@@ -81,7 +81,7 @@ Notes:
 - Central DB (`nusaevo`) holds tenant registry + login lookup (`tenant_user_lookups`) + **plan** (`tenants.plan`). Users and module data live in the tenant DB.
 - Inside each tenant DB, modules get separate schemas (`SYSCONFIG`, `WNE`, `DMS`, `CRM`,
   `SCHEDULE`, `INVENTORY`, `ACCOUNTING`, `SALES`, `PURCHASE`, `HCM`, `PAYROLL`, `PERF`,
-  `AIINSIGHT`, `LEGAL`, `CUSTOMFIELDS`). See §7A for the authoritative list. (This consolidates
+  `AIINSIGHT`, `LEGAL`, `CUSTOMFIELDS`, `PROJECTS`). See §7A for the authoritative list. (This consolidates
   the old separate `NOTIFICATIONS`/`WORKFLOW` schemas into the single `WNE` schema, per
   `WNE_SPECS.md` — an earlier version of this section still had the pre-merge names.)
 - Tenant resolution is **login-bound** (session `tenant_id` after email lookup), not domain/subdomain. UI may switch among memberships via sidebar tenant dropdown.
@@ -128,10 +128,11 @@ Notes:
    - **AIInsight** — specced (`AIINSIGHT_SPECS.md`) but not yet built; gated on a Zero Data
      Retention agreement with Anthropic before going live for any confidentiality-sensitive
      tenant (see the project's "on the horizon" notes).
-5. **Legal vertical module** — the first paid, rentable product, built on top of the Core
+5. **Projects** (`PROJECTS` schema, `app/Modules/Projects/`) — project/issue tracker with a Kanban board (see `app/Modules/Projects/PROJECTS_SPECS.md`). Can be used for Nusaevo's own tenant via the `internal` plan in `config/tenant_modules.php` (§2 customization ladder rung 5), used as the team's own Jira-style board.
+6. **Legal vertical module** — the first paid, rentable product, built on top of the Core
    modules above. Prioritize correctness and UX polish here over speculative generalization
    for future verticals.
-6. Future verticals (e.g. Property) come after Legal is validated in market — reuse core modules, add vertical-specific modules only.
+7. Future verticals (e.g. Property) come after Legal is validated in market — reuse core modules, add vertical-specific modules only.
 When working on a task, Claude should check whether it belongs in **Core** (reusable) or in the **active vertical module** (Legal-specific) and place code accordingly. If unsure, ask rather than guessing — misplacing logic here has long-term architectural cost.
 
 ## 6. Coding Conventions
@@ -172,6 +173,7 @@ tenant_001.			# Database
 ├── HCM.
 ├── PAYROLL.
 ├── PERF.
+├── PROJECTS.		
 ├── AIINSIGHT.
 └── CUSTOMFIELDS.
 ```
@@ -220,8 +222,9 @@ Host has Node/npm; PHP runs inside Docker Compose (image includes `pdo_pgsql`, `
 Stack (see `docker-compose.yml`):
 - `app` — `php artisan serve` on `:8000`
 - `queue` — `php artisan queue:work` (Redis)
-- `postgres` — PostgreSQL 16 (host port **5435** → container 5432; 5432 often taken locally)
-- `redis` — Redis 7 (host port **6381** → container 6379)
+- Postgres/Redis now come from the shared-infra stack (`shared-postgres`/`shared-redis`,
+  host port **5432**/**6379**), joined via the external `shared-infra` network. Start
+  that stack before this one.
 
 Compose injects DB/Redis env for containers. Vite stays on the host.
 
@@ -237,11 +240,11 @@ docker compose exec app php artisan key:generate   # once
 docker compose exec app php artisan migrate --seed
 
 # Local / container
-docker compose up -d          # app + queue + postgres + redis
+docker compose up -d          # app + queue (needs shared-infra stack running)
 npm run dev                   # Vite on host → http://localhost:8000
 
-# Host tools (psql/redis-cli): localhost:5435 / localhost:6381
-# PHP always via docker — .env uses postgres/redis service names.
+# Host tools (psql/redis-cli): localhost:5432 / localhost:6379 (shared-infra stack)
+# PHP always via docker — .env uses postgres/redis service names (network aliases).
 ```
 
 One-off artisan (examples):
@@ -314,3 +317,60 @@ One-off artisan (examples):
 - [x] In-tenant menu trustee enforcement (`menu.perm:` middleware)
 - [x] Custom fields + custom logic + serials (`ARCHITECTURE.md`; field-defs admin UI still open)
 
+## graphify — WAJIB SEMUA PROJECT / SEMUA AI AGENT
+
+Canonical: `~/.agents/rules/graphify.md` (always_on).
+
+STRICT:
+1. JANGAN `grep` / `grep_search` / ripgrep sebagai **langkah pertama** untuk cari kode, flow, arsitektur, bug tracing codebase, atau navigasi source.
+2. SELALU graphify dulu: cek `graphify-out/graph.json` → jika hilang `graphify index .` → `graphify query "..."` (atau MCP `query_graph`).
+3. Relasi: `graphify path A B`. Konsep: `graphify explain "..."`.
+4. `grep` / baca raw **hanya** setelah graphify kosong/gagal, atau user kasih path file eksplisit.
+5. Wiki `graphify-out/wiki/index.md` preferensi navigasi. `GRAPH_REPORT.md` hanya review luas.
+6. Setelah edit kode di session: `graphify update .` (AST-only).
+7. Subagent ikut aturan ini.
+8. Pengecualian: path eksplisit user; non-codebase (git/SQL/MCP-DB/build/config); graphify CLI/MCP error total (laporkan + fallback).
+
+
+---
+
+<!-- caveman-begin -->
+## Caveman - Chat Response Mode
+
+Respond terse like smart caveman. All technical substance stay. Only fluff die.
+
+Rules:
+- Drop: articles (a/an/the), filler (just/really/basically), pleasantries, hedging
+- Fragments OK. Short synonyms. Technical terms exact. Code unchanged.
+- Pattern: [thing] [action] [reason]. [next step].
+- Not: "Sure! I'd be happy to help you with that."
+- Yes: "Bug in auth middleware. Fix:"
+
+Auto-Clarity: drop caveman for security warnings, irreversible actions, user confused. Resume after.
+Boundaries: code/commits/PRs written normal.
+<!-- caveman-end -->
+
+## Ponytail - Coding Mode
+
+You are a lazy senior developer. Lazy means efficient, not careless. The best code is the code never written.
+
+Before writing any code, stop at the first rung that holds:
+
+1. Does this need to be built at all? (YAGNI)
+2. Does the standard library already do this? Use it.
+3. Does a native platform feature cover it? Use it.
+4. Does an already-installed dependency solve it? Use it.
+5. Can this be one line? Make it one line.
+6. Only then: write the minimum code that works.
+
+Rules:
+- No abstractions that were not explicitly requested.
+- No new dependency if it can be avoided.
+- No boilerplate nobody asked for.
+- Deletion over addition. Boring over clever. Fewest files possible.
+- Question complex requests: Do you actually need X, or does Y cover it?
+- Mark intentional simplifications with a ponytail: comment.
+
+Not lazy about: input validation, error handling that prevents data loss, security, accessibility, anything explicitly requested.
+
+Domain Boundaries: Ponytail governs CODE. Caveman governs CHAT. Code blocks/commits written normal.

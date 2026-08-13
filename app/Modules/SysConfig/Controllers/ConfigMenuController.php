@@ -7,24 +7,30 @@ use App\Modules\Config\Models\ConfigMenu;
 use App\Modules\Config\Requests\StoreConfigMenuRequest;
 use App\Modules\Config\Requests\UpdateConfigMenuRequest;
 use App\Modules\Config\Services\ConfigMenuService;
+use App\Shared\Helpers\TableQuery;
+use App\Shared\Traits\BulkDeletable;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ConfigMenuController extends Controller
 {
+    use BulkDeletable;
+
+    private const SORTABLE = ['code', 'menu_caption', 'menu_header', 'seq'];
+
     public function __construct(
         protected ConfigMenuService $service,
     ) {}
 
     public function index(Request $request): Response
     {
-        $filters = $request->only('search', 'status', 'header');
+        $filters = $request->only('search', 'status', 'header', 'sort', 'direction', 'per_page');
 
         $menus = ConfigMenu::query()
             ->filter($filters)
-            ->orderBy('seq')
-            ->paginate(20)
+            ->tap(fn ($query) => TableQuery::applySort($query, $filters['sort'] ?? null, $filters['direction'] ?? null, self::SORTABLE, 'seq'))
+            ->paginate(TableQuery::perPage(isset($filters['per_page']) ? (int) $filters['per_page'] : null, 20))
             ->withQueryString()
             ->through(fn (ConfigMenu $m) => [
                 'id' => $m->id,
@@ -101,6 +107,11 @@ class ConfigMenuController extends Controller
 
         return redirect()->route('config.menus.index')
             ->with('success', 'Menu deleted.');
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        return $this->bulkDestroyUsing($request, ConfigMenu::class, fn (ConfigMenu $menu) => $this->service->delete($menu));
     }
 
     /** @return list<array{label: string, value: int}> */

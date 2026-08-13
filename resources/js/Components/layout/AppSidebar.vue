@@ -1,9 +1,25 @@
 <!-- ponytail: Sidebar from shared navMenus (never name page props `menus`) -->
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, defineAsyncComponent, type Component } from 'vue'
 import { Link, usePage } from '@inertiajs/vue3'
-import * as icons from 'lucide-vue-next'
+import { HelpCircle } from 'lucide-vue-next'
 import TenantSwitcher from './TenantSwitcher.vue'
+
+// Config > Menus lets admins type any Lucide icon name freely, so we can't hardcode
+// a fixed allowlist. Glob each icon as its own chunk instead of `import * as icons
+// from 'lucide-vue-next'` (which pulled the whole ~152kB gzip library into the main
+// bundle) — only the icons actually used by a tenant's menus get fetched.
+const iconModules = import.meta.glob<{ default: Component }>(
+  '/node_modules/lucide-vue-next/dist/esm/icons/*.js',
+)
+
+const toKebabCase = (name: string) =>
+  name
+    .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+    .replace(/([A-Z])([A-Z][a-z])/g, '$1-$2')
+    .toLowerCase()
+
+const iconCache = new Map<string, Component>()
 
 type MenuItem = {
   code: string
@@ -36,9 +52,23 @@ const menuSections = computed((): MenuSection[] => {
   return sections
 })
 
-const getIcon = (name: string | null) => {
-  if (!name) return icons.HelpCircle
-  return (icons as Record<string, unknown>)[name] as typeof icons.HelpCircle || icons.HelpCircle
+const getIcon = (name: string | null): Component => {
+  if (!name) return HelpCircle
+
+  const cached = iconCache.get(name)
+  if (cached) return cached
+
+  const path = `/node_modules/lucide-vue-next/dist/esm/icons/${toKebabCase(name)}.js`
+  const loader = iconModules[path]
+  if (!loader) return HelpCircle
+
+  const component = defineAsyncComponent({
+    loader: () => loader().then((mod) => mod.default),
+    errorComponent: HelpCircle,
+  })
+  iconCache.set(name, component)
+
+  return component
 }
 
 const isActive = (href: string) => {

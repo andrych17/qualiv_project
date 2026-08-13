@@ -3,11 +3,10 @@
 import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
-import DataTable from '@/Components/tables/DataTable.vue'
-import DataTablePagination from '@/Components/tables/DataTablePagination.vue'
-import SearchInput from '@/Components/filters/SearchInput.vue'
+import DataTable, { type SortState } from '@/Components/tables/DataTable.vue'
 import { ref, watch } from 'vue'
 import { debounce } from '@/Composables/debounce'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface SnumRow {
   id: number
@@ -23,34 +22,68 @@ interface SnumRow {
 interface PaginatedData<T> {
   data: T[]
   links: Array<{ url: string | null; label: string; active: boolean }>
+  total: number
+  from: number | null
+  to: number | null
+  per_page: number
 }
 
 const props = defineProps<{
   snums: PaginatedData<SnumRow>
-  filters: { search?: string }
+  filters: { search?: string; sort?: string; direction?: string; per_page?: string }
 }>()
 
 const search = ref(props.filters.search ?? '')
+const sort = ref<SortState>(
+  props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
+)
+const selected = ref<Array<string | number>>([])
+const perPage = ref(Number(props.filters.per_page) || props.snums.per_page)
 
 const columns = [
-  { key: 'code', label: 'Code' },
-  { key: 'last_cnt', label: 'Last', align: 'right' as const },
-  { key: 'wrap_low', label: 'Low', align: 'right' as const },
-  { key: 'wrap_high', label: 'High', align: 'right' as const },
-  { key: 'step_cnt', label: 'Step', align: 'right' as const },
-  { key: 'descr', label: 'Description' },
-  { key: 'status_code', label: 'Status' },
+  { key: 'code', label: 'Code', sortable: true },
+  { key: 'last_cnt', label: 'Last', align: 'right' as const, sortable: true },
+  { key: 'wrap_low', label: 'Low', align: 'right' as const, sortable: true },
+  { key: 'wrap_high', label: 'High', align: 'right' as const, sortable: true },
+  { key: 'step_cnt', label: 'Step', align: 'right' as const, sortable: true },
+  { key: 'descr', label: 'Description', sortable: true },
+  { key: 'status_code', label: 'Status', sortable: true },
   { key: 'actions', label: 'Actions', align: 'right' as const },
 ]
 
-watch(search, debounce(() => {
-  router.get(route('config.serials.index'), { search: search.value }, { preserveState: true, replace: true })
+watch([search, sort, perPage], debounce(() => {
+  selected.value = []
+  router.get(route('config.serials.index'), {
+    search: search.value,
+    sort: sort.value?.key,
+    direction: sort.value?.direction,
+    per_page: perPage.value,
+  }, { preserveState: true, replace: true })
 }, 400))
+
+const { confirm } = useConfirm()
 
 const confirmDelete = (item: SnumRow | Record<string, unknown>) => {
   const row = item as SnumRow
-  if (!confirm(`Delete serial ${row.code}?`)) return
-  router.delete(route('config.serials.destroy', row.id))
+  confirm({
+    title: `Delete serial ${row.code}?`,
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () => router.delete(route('config.serials.destroy', row.id)),
+  })
+}
+
+const confirmBulkDelete = () => {
+  confirm({
+    title: `Delete ${selected.value.length} selected serial(s)?`,
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () =>
+      router.delete(route('config.serials.bulkDestroy'), {
+        data: { ids: selected.value },
+        onSuccess: () => { selected.value = [] },
+      }),
+  })
 }
 </script>
 
@@ -71,16 +104,30 @@ const confirmDelete = (item: SnumRow | Record<string, unknown>) => {
     </PageHeader>
 
     <div class="mt-6 space-y-4">
-      <div class="w-full sm:max-w-xs">
-        <SearchInput v-model="search" placeholder="Search code or description…" />
-      </div>
-
       <DataTable
         :columns="columns"
         :items="snums.data"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        v-model:search="search"
+        v-model:per-page="perPage"
+        selectable
+        sticky-header
+        storage-key="config.serials"
+        search-placeholder="Search code or description…"
+        export-filename="config-serials"
+        :total="snums.total"
+        :from="snums.from"
+        :to="snums.to"
+        :links="snums.links"
         empty-title="No serials"
         empty-description="Create a document number counter for this tenant."
       >
+        <template #bulk-actions>
+          <button type="button" class="text-sm font-medium text-red-600 hover:text-red-950" @click="confirmBulkDelete">
+            Delete selected
+          </button>
+        </template>
         <template #cell-actions="{ item }">
           <div class="flex items-center justify-end gap-2">
             <Link
@@ -99,8 +146,6 @@ const confirmDelete = (item: SnumRow | Record<string, unknown>) => {
           </div>
         </template>
       </DataTable>
-
-      <DataTablePagination :links="snums.links" />
     </div>
   </AppLayout>
 </template>

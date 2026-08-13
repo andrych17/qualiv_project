@@ -10,6 +10,7 @@ Route::middleware(['auth', 'verified', 'module:LEGAL', 'menu.perm:LEGAL'])
     ->prefix('legal')
     ->name('legal.')
     ->group(function () {
+        Route::delete('cases/bulk-destroy', [LegalCaseController::class, 'bulkDestroy'])->name('cases.bulkDestroy');
         Route::resource('cases', LegalCaseController::class)
             ->except(['show'])
             ->parameters(['cases' => 'legalCase']);

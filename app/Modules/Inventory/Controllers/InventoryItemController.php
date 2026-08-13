@@ -10,12 +10,18 @@ use App\Modules\Inventory\Models\InventoryItem;
 use App\Modules\Inventory\Requests\StoreInventoryItemRequest;
 use App\Modules\Inventory\Requests\UpdateInventoryItemRequest;
 use App\Modules\Inventory\Services\InventoryItemService;
+use App\Shared\Helpers\TableQuery;
+use App\Shared\Traits\BulkDeletable;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class InventoryItemController extends Controller
 {
+    use BulkDeletable;
+
+    private const SORTABLE = ['code', 'name', 'stock', 'unit', 'status', 'created_at'];
+
     protected InventoryItemService $service;
 
     public function __construct(InventoryItemService $service)
@@ -25,11 +31,12 @@ class InventoryItemController extends Controller
 
     public function index(Request $request): Response
     {
-        $filters = $request->only('search', 'status');
+        $filters = $request->only('search', 'status', 'sort', 'direction', 'per_page');
 
         $items = InventoryItem::with('category')
             ->filter($filters)
-            ->paginate(15)
+            ->tap(fn ($query) => TableQuery::applySort($query, $filters['sort'] ?? null, $filters['direction'] ?? null, self::SORTABLE, 'created_at', 'desc'))
+            ->paginate(TableQuery::perPage(isset($filters['per_page']) ? (int) $filters['per_page'] : null, 20))
             ->withQueryString()
             ->through(fn ($item) => [
                 'id' => $item->id,
@@ -108,5 +115,10 @@ class InventoryItemController extends Controller
 
         return redirect()->route('inventory.items.index')
             ->with('success', 'Inventory item deleted successfully.');
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        return $this->bulkDestroyUsing($request, InventoryItem::class, fn (InventoryItem $item) => $this->service->deleteItem($item));
     }
 }

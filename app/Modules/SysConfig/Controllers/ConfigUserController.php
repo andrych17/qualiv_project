@@ -9,12 +9,18 @@ use App\Modules\Config\Models\ConfigGroupUser;
 use App\Modules\Config\Requests\StoreConfigUserRequest;
 use App\Modules\Config\Requests\UpdateConfigUserRequest;
 use App\Modules\Config\Services\ConfigUserService;
+use App\Shared\Helpers\TableQuery;
+use App\Shared\Traits\BulkDeletable;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ConfigUserController extends Controller
 {
+    use BulkDeletable;
+
+    private const SORTABLE = ['name', 'email', 'created_at'];
+
     public function __construct(
         protected ConfigUserService $service,
     ) {}
@@ -22,6 +28,9 @@ class ConfigUserController extends Controller
     public function index(Request $request): Response
     {
         $search = $request->string('search')->toString();
+        $sort = $request->string('sort')->toString() ?: null;
+        $direction = $request->string('direction')->toString() ?: null;
+        $perPage = $request->filled('per_page') ? (int) $request->input('per_page') : null;
 
         $users = User::query()
             ->when($search !== '', function ($q) use ($search) {
@@ -30,8 +39,8 @@ class ConfigUserController extends Controller
                         ->orWhere('email', 'ilike', '%'.$search.'%');
                 });
             })
-            ->orderBy('name')
-            ->paginate(20)
+            ->tap(fn ($query) => TableQuery::applySort($query, $sort, $direction, self::SORTABLE, 'name'))
+            ->paginate(TableQuery::perPage($perPage, 20))
             ->withQueryString()
             ->through(function (User $u) {
                 $groups = ConfigGroupUser::query()
@@ -50,7 +59,7 @@ class ConfigUserController extends Controller
 
         return Inertia::render('Config/Users/Index', [
             'users' => $users,
-            'filters' => ['search' => $search],
+            'filters' => ['search' => $search, 'sort' => $sort, 'direction' => $direction, 'per_page' => $perPage],
         ]);
     }
 
@@ -103,6 +112,19 @@ class ConfigUserController extends Controller
 
         return redirect()->route('config.users.index')
             ->with('success', 'User deleted.');
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $ids = collect($request->input('ids', []))->map(fn ($id) => (int) $id);
+
+        if ($ids->contains(auth()->id())) {
+            return back()->with('error', 'Cannot delete your own account.');
+        }
+
+        $request->merge(['ids' => $ids->all()]);
+
+        return $this->bulkDestroyUsing($request, User::class, fn (User $user) => $this->service->delete($user));
     }
 
     /** @return list<array{label: string, value: int}> */

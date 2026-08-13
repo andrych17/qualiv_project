@@ -12,16 +12,27 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // This seeder drops orphaned tenant databases and creates demo accounts with a
+        // weak shared password — never let it run against production.
+        if (app()->isProduction()) {
+            $this->command?->warn('DatabaseSeeder skipped in production.');
+
+            return;
+        }
+
         // ponytail: two tenants with distinct flavor seed (config/inventory/legal/custom fields)
         $tenants = [
-            ['id' => '001', 'name' => 'Demo Firm A', 'plan' => 'legal'],
-            ['id' => '002', 'name' => 'Demo Firm B', 'plan' => 'legal'],
+            ['id' => '001', 'name' => 'Nusaevo', 'plan' => 'internal'],
+            ['id' => '002', 'name' => 'Demo Legal', 'plan' => 'legal'],
         ];
 
         $users = [
             ['email' => 'admin@nusaevo.com', 'name' => 'Admin User'],
             ['email' => 'staff@nusaevo.com', 'name' => 'Staff User'],
             ['email' => 'viewer@nusaevo.com', 'name' => 'Viewer User'],
+            ['email' => 'andry@nusaevo.com', 'name' => 'Andry Huang'],
+            ['email' => 'tirta@nusaevo.com', 'name' => 'Tirta'],
+            ['email' => 'simon@nusaevo.com', 'name' => 'Simon'],
         ];
 
         foreach ($tenants as $t) {

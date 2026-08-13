@@ -13,22 +13,28 @@ Route::redirect('/config', '/config/menus');
 // SysConfig admin screens — ADMIN trustee on CONFIG_* menus
 Route::middleware(['auth', 'verified'])->prefix('config')->name('config.')->group(function () {
     Route::middleware('menu.perm:CONFIG_MENUS')->group(function () {
+        Route::delete('menus/bulk-destroy', [ConfigMenuController::class, 'bulkDestroy'])->name('menus.bulkDestroy');
         Route::resource('menus', ConfigMenuController::class)->except(['show']);
     });
     Route::middleware('menu.perm:CONFIG_GROUPS')->group(function () {
+        Route::delete('groups/bulk-destroy', [ConfigGroupController::class, 'bulkDestroy'])->name('groups.bulkDestroy');
         Route::resource('groups', ConfigGroupController::class)->except(['show']);
     });
     Route::middleware('menu.perm:CONFIG_CONSTS')->group(function () {
+        Route::delete('consts/bulk-destroy', [ConfigConstController::class, 'bulkDestroy'])->name('consts.bulkDestroy');
+        Route::patch('consts/{configConst}/quick-update', [ConfigConstController::class, 'quickUpdate'])->name('consts.quickUpdate');
         Route::resource('consts', ConfigConstController::class)
             ->except(['show'])
             ->parameters(['consts' => 'configConst']);
     });
     Route::middleware('menu.perm:CONFIG_SERIALS')->group(function () {
+        Route::delete('serials/bulk-destroy', [ConfigSnumController::class, 'bulkDestroy'])->name('serials.bulkDestroy');
         Route::resource('serials', ConfigSnumController::class)
             ->except(['show'])
             ->parameters(['serials' => 'configSnum']);
     });
     Route::middleware('menu.perm:CONFIG_USERS')->group(function () {
+        Route::delete('users/bulk-destroy', [ConfigUserController::class, 'bulkDestroy'])->name('users.bulkDestroy');
         Route::resource('users', ConfigUserController::class)->except(['show']);
     });
 });
