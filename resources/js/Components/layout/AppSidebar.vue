@@ -1,25 +1,13 @@
 <!-- ponytail: Sidebar from shared navMenus (never name page props `menus`) -->
 <script setup lang="ts">
-import { computed, defineAsyncComponent, type Component } from 'vue'
+import { computed, type Component } from 'vue'
 import { Link, usePage } from '@inertiajs/vue3'
 import { HelpCircle } from 'lucide-vue-next'
 import TenantSwitcher from './TenantSwitcher.vue'
 
-// Config > Menus lets admins type any Lucide icon name freely, so we can't hardcode
-// a fixed allowlist. Glob each icon as its own chunk instead of `import * as icons
-// from 'lucide-vue-next'` (which pulled the whole ~152kB gzip library into the main
-// bundle) — only the icons actually used by a tenant's menus get fetched.
-const iconModules = import.meta.glob<{ default: Component }>(
-  '/node_modules/lucide-vue-next/dist/esm/icons/*.js',
-)
-
-const toKebabCase = (name: string) =>
-  name
-    .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
-    .replace(/([A-Z])([A-Z][a-z])/g, '$1-$2')
-    .toLowerCase()
-
-const iconCache = new Map<string, Component>()
+// Config > Menus allows dynamic icon names from Lucide. Direct lookup from
+// lucide-vue-next avoids broken dynamic import paths in production builds.
+import * as LucideIcons from 'lucide-vue-next'
 
 type MenuItem = {
   code: string
@@ -55,20 +43,14 @@ const menuSections = computed((): MenuSection[] => {
 const getIcon = (name: string | null): Component => {
   if (!name) return HelpCircle
 
-  const cached = iconCache.get(name)
-  if (cached) return cached
+  const icons = LucideIcons as unknown as Record<string, Component>
+  if (icons[name]) return icons[name]
 
-  const path = `/node_modules/lucide-vue-next/dist/esm/icons/${toKebabCase(name)}.js`
-  const loader = iconModules[path]
-  if (!loader) return HelpCircle
-
-  const component = defineAsyncComponent({
-    loader: () => loader().then((mod) => mod.default),
-    errorComponent: HelpCircle,
-  })
-  iconCache.set(name, component)
-
-  return component
+  const pascal = name
+    .split(/[-_]/)
+    .map((s) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase())
+    .join('')
+  return icons[pascal] ?? HelpCircle
 }
 
 const isActive = (href: string) => {
