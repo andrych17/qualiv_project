@@ -121,8 +121,18 @@ generic practice-management or document tools, this dual nature is exactly what 
   (currently manual portal entry, tracked as a checklist item only).
 - Client self-service portal (status of their matter, document requests) — reuses DMS/CRM,
   not a new stack.
-- Billing/invoicing tied to matters and deed types (deferred to a future Finance/Billing
-  module per `CLAUDE.md` §11 open items — Legal will emit the events, not own billing logic).
+- Billing/invoicing tied to matters and deed types — when a matter/case is ready to invoice,
+  Legal calls **Sales**'s generic billable-request entry point,
+  `SalesOrderService::createFromExternalRequest(...)` (preferred) or the `SalesOrderRequested`
+  event (`SALES_SPECS.md` §3I/§5), with the matter/deed reference, billable time/disbursement
+  line items, and amounts Legal has already computed. Sales creates a Sales Order
+  (`subject_type = 'legal.matters'` or `'legal.deeds'`, reusing the same polymorphic seam
+  `SALES_SPECS.md` §3F already defines) and, once confirmed, fires the ordinary
+  `InvoiceRequested` into **Accounting** (`ACCOUNTING_SPECS.md` §3D/§3R) through its normal
+  Billing Engine path. Legal never calls Accounting directly and never owns billing logic
+  itself — Sales is the platform's one AR-orchestrating module (per
+  `ACCOUNTING_SPECS.md` §3R), and this is the concrete path Legal uses once built. (Supersedes
+  the earlier note pointing at `CLAUDE.md` §11 open items — that item is resolved.)
 - Digital/e-signature capture for legalization workflows where regulation permits.
 - OCR of scanned certificates and KTPs to pre-fill land object / party data (depends on DMS's
   own OCR Future Version, §3G of `DMS_SPECS.md`).
@@ -149,9 +159,7 @@ generic practice-management or document tools, this dual nature is exactly what 
 - Row click opens a drawer with matter/deed detail, timeline, and linked documents (DMS).
 
 **Rules / logic**
-- Tenant-scoped by database isolation (no `tenant_id` column, per `CLAUDE.md` §4/§7 — Legal
-  follows the DB-per-tenant rule cleanly since it's a new module with no legacy inconsistency
-  to reconcile, unlike WNE).
+- Tenant-scoped by database isolation (no `tenant_id` column, per `CLAUDE.md` §4/§7 ).
 - A PPAT deed with unpaid/unvalidated tax surfaces with a `danger` rail regardless of sort —
   same "breach surfaces first" pattern as CRM SLA breaches.
 
@@ -322,6 +330,19 @@ signing, without becoming a tax-filing system.
   the module boundary already drawn for DMS (search does not replace source documents) and WNE
   (notification does not replace the business transaction).
 
+**Rules / logic**
+- `LEGAL.deed_taxes` tracks the **client's own tax obligations on their land transaction** —
+  the seller's PPh Final and the buyer's BPHTB — not the firm's own books. This is
+  deliberately separate from, and has no relationship to, **Accounting**'s Indonesian Tax
+  Engine (`ACCOUNTING_SPECS.md` §3M), which tracks the *firm's own* PPN/PPh withholding as a
+  taxpayer/withholding agent on its own AR/AP transactions (e.g. PPh 4(2) on a vendor rent
+  bill the firm itself pays). The naming overlap between "PPh Final on a land transfer" (here)
+  and "PPh 4(2)" as a general withholding type on the firm's own bills
+  (`ACCOUNTING_SPECS.md` §3M) is coincidental, not a shared concept — `LEGAL.deed_taxes` never
+  produces an Accounting journal entry or Bukti Potong. A client's BPHTB/PPh Final payment is
+  money that moves between the client and the government (evidenced to the notary), not a
+  transaction on the firm's own general ledger.
+
 ## 3L. BPN Registration Tracking
 
 **Purpose:** the post-signing land registry step (balik nama, APHT/HT-el registration,
@@ -403,11 +424,21 @@ an Akta Pendirian PT, exchange terms for Tukar Menukar) are tenant/type-configur
 fields, not one migration per deed type.
 
 **Object file storage** (per `CLAUDE.md` §7B — reserves a `LEGAL/` folder per tenant; actual
-files live in DMS's storage structure, referenced by `subject_type = 'legal.deeds'` etc.):
+files live in DMS's storage structure, referenced by `subject_type = 'legal.deeds'` etc.),
+following DMS's own canonical path convention exactly (`DMS_SPECS.md` §4:
+`{owning_module}/{yyyy}/{mm}/{document_uuid}/v{n}.{ext}`), not a Legal-specific layout:
 ```text
-tenant_001/DMS/LEGAL/{matter_id}/{deed_id}/...
-tenant_001/DMS/LEGAL/field_visits/{visit_id}/...
+tenant_001/DMS/LEGAL/{yyyy}/{mm}/{document_uuid}/
+├── v1.{ext}
+└── ...
 ```
+A matter, deed, or field visit's documents are found by querying DMS for
+`subject_type = 'legal.matters'` / `'legal.deeds'` / `'legal.field_visits'` and the relevant
+`subject_id` (per §3B/§3M above) — grouping is a database query against DMS's
+`subject_type`/`subject_id` columns, not a folder-path convention. The physical path exists
+for storage/restore-planning purposes only (per `CLAUDE.md` §7B), so it stays identical to
+every other module's DMS-routed documents rather than encoding Legal-specific structure into
+it.
 - Legal itself stores no files directly — every document (deed exports, scanned certificates,
   KTP scans, tax payment proofs, field photos) goes through `DocumentService` (DMS facade),
   same as every other module. This keeps versioning, audit trail, and retention consistent

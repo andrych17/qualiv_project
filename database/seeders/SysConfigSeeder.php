@@ -3,11 +3,11 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use App\Modules\Config\Models\ConfigConst;
-use App\Modules\Config\Models\ConfigGroup;
-use App\Modules\Config\Models\ConfigGroupUser;
-use App\Modules\Config\Models\ConfigMenu;
-use App\Modules\Config\Models\ConfigRight;
+use App\Modules\SysConfig\Models\ConfigConst;
+use App\Modules\SysConfig\Models\ConfigGroup;
+use App\Modules\SysConfig\Models\ConfigGroupUser;
+use App\Modules\SysConfig\Models\ConfigMenu;
+use App\Modules\SysConfig\Models\ConfigRight;
 use Illuminate\Database\Seeder;
 
 /**
@@ -89,15 +89,12 @@ class SysConfigSeeder extends Seeder
             // Placeholder — keep rows, status I until module ships
             ['code' => 'CRM', 'menu_header' => 'Core', 'menu_caption' => 'CRM', 'menu_link' => '#', 'icon' => 'Users', 'seq' => 20, 'status_code' => 'I'],
             ['code' => 'SCHEDULE', 'menu_header' => 'Core', 'menu_caption' => 'Schedule', 'menu_link' => '#', 'icon' => 'CalendarDays', 'seq' => 30, 'status_code' => 'I'],
-            ['code' => 'NOTIFICATIONS', 'menu_header' => 'Core', 'menu_caption' => 'Notifications', 'menu_link' => '#', 'icon' => 'Bell', 'seq' => 40, 'status_code' => 'I'],
-            ['code' => 'WORKFLOW', 'menu_header' => 'Core', 'menu_caption' => 'Workflow', 'menu_link' => '#', 'icon' => 'Workflow', 'seq' => 50, 'status_code' => 'I'],
+            ['code' => 'WNE', 'menu_header' => 'Core', 'menu_caption' => 'Workflow & Notifications', 'menu_link' => '#', 'icon' => 'Workflow', 'seq' => 40, 'status_code' => 'I'],
             ['code' => 'LEGAL', 'menu_header' => 'Vertical', 'menu_caption' => 'Legal', 'menu_link' => '/legal/cases', 'icon' => 'Scale', 'seq' => 60, 'status_code' => 'A'],
             // Internal-only (Nusaevo's own team) — not part of any sellable plan, see config/tenant_modules.php.
             ['code' => 'PROJECTS', 'menu_header' => 'Internal', 'menu_caption' => 'Projects', 'menu_link' => '/projects', 'icon' => 'Kanban', 'seq' => 65, 'status_code' => 'A'],
             ['code' => 'SALES', 'menu_header' => 'Operations', 'menu_caption' => 'Sales', 'menu_link' => '#', 'icon' => 'ShoppingCart', 'seq' => 80, 'status_code' => 'I'],
-            ['code' => 'PROCUREMENT', 'menu_header' => 'Operations', 'menu_caption' => 'Procurement', 'menu_link' => '#', 'icon' => 'Truck', 'seq' => 90, 'status_code' => 'I'],
-            ['code' => 'DELIVERY', 'menu_header' => 'Operations', 'menu_caption' => 'Delivery', 'menu_link' => '#', 'icon' => 'Package', 'seq' => 100, 'status_code' => 'I'],
-            ['code' => 'ASSET', 'menu_header' => 'Operations', 'menu_caption' => 'Asset', 'menu_link' => '#', 'icon' => 'Building2', 'seq' => 110, 'status_code' => 'I'],
+            ['code' => 'PURCHASE', 'menu_header' => 'Operations', 'menu_caption' => 'Purchase', 'menu_link' => '#', 'icon' => 'Truck', 'seq' => 90, 'status_code' => 'I'],
             ['code' => 'ACCOUNTING', 'menu_header' => 'Operations', 'menu_caption' => 'Accounting', 'menu_link' => '#', 'icon' => 'Calculator', 'seq' => 120, 'status_code' => 'I'],
             ['code' => 'HCM', 'menu_header' => 'People', 'menu_caption' => 'HCM', 'menu_link' => '#', 'icon' => 'UserCog', 'seq' => 130, 'status_code' => 'I'],
             ['code' => 'PAYROLL', 'menu_header' => 'People', 'menu_caption' => 'Payroll', 'menu_link' => '#', 'icon' => 'Wallet', 'seq' => 140, 'status_code' => 'I'],

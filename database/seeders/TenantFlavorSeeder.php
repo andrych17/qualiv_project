@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Modules\Config\Models\ConfigConst;
-use App\Modules\Config\Models\ConfigGroup;
-use App\Modules\Config\Models\ConfigMenu;
-use App\Modules\Config\Models\ConfigSnum;
+use App\Modules\SysConfig\Models\ConfigConst;
+use App\Modules\SysConfig\Models\ConfigGroup;
+use App\Modules\SysConfig\Models\ConfigMenu;
+use App\Modules\SysConfig\Models\ConfigSnum;
 use App\Modules\CustomFields\Models\FieldDef;
 use App\Modules\CustomFields\Models\FieldValue;
 use App\Modules\Inventory\Models\InventoryCategory;

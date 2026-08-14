@@ -29,10 +29,12 @@ repeats the exact anti-pattern WNE/DMS/CRM were built to avoid:
   (simple product + stock tracking), since it's sellable as its own line item, exactly like DMS
   and Schedule.
 - Must also integrate cleanly when other Core modules are present: **CRM** (vendor/customer are
-  Partners, not a separate Inventory contact table), **DMS** (packing lists, QC certificates,
-  supplier invoices attach via the existing facade), **WNE** (low-stock alerts, cycle-count
-  reminders, receipt-approval workflow), **Schedule** (dock appointments, cycle-count
-  scheduling).
+  Partners, not a separate Inventory contact table), **Purchase** (a PO-linked Goods Receipt
+  calls `InventoryService::receive()` directly to post the physical stock movement — §5),
+  **Sales** (a shipped Delivery calls `InventoryService::issue()` directly to post the physical
+  stock movement — §5), **DMS** (packing lists, QC certificates, supplier invoices attach via
+  the existing facade), **WNE** (low-stock alerts, cycle-count reminders, receipt-approval
+  workflow), **Schedule** (dock appointments, cycle-count scheduling).
 - Perpetual inventory, not periodic — every quantity change must be a recorded, immutable
   movement, so on-hand balances are always derivable/auditable, not just a mutable counter.
 - Costing must be correct and swappable per tenant (FIFO or Weighted Average) since this feeds
@@ -199,6 +201,12 @@ repeats the exact anti-pattern WNE/DMS/CRM were built to avoid:
 - Posting is the only action that touches the ledger — `draft` receipts can be edited freely,
   `posted` receipts are immutable (correct via a reversing Adjustment, never an edit), same
   audit-integrity principle DMS applies to its access log.
+- When created via `InventoryService::receive(...)` from Purchase's Goods Receipt
+  (`PURCHASE_SPECS.md` §3E), `subject_type = 'purchase.pur_receipt_hdrs'` and unit cost
+  defaults from the originating PO line price. Inventory does not re-validate PO/GR/Invoice
+  matching itself — the three-way match stays entirely Purchase's job
+  (`PURCHASE_SPECS.md` §3F); Inventory only needs a valid quantity and cost to post its own
+  ledger correctly.
 
 ## 3E. Goods Issue (Entry / Engine)
 
@@ -214,6 +222,16 @@ repeats the exact anti-pattern WNE/DMS/CRM were built to avoid:
 - Blocks posting if requested quantity exceeds available (on-hand minus reserved) at that
   location — clear error per `DESIGN.md` voice: *"Only 12 units of SKU-1042 available at
   Warehouse A / Bin 03. Reduce quantity or choose another location."*
+
+**Rules / logic**
+- When created via `InventoryService::issue(...)` from Sales's Delivery Engine
+  (`SALES_SPECS.md` §3H), `subject_type = 'sales.dlv_hdrs'` and the same over-issue block above
+  applies — a delivery cannot ship more than is actually available, surfaced back to Sales as a
+  rejected `shipped` transition rather than a partial/incorrect ledger entry. Inventory does
+  not validate order legitimacy, pricing, or customer status — that stays entirely Sales's job;
+  Inventory only needs a valid quantity and location to post its own ledger correctly, the same
+  division of responsibility already established for Purchase's Goods Receipt
+  (`INVENTORY_SPECS.md` §3D).
 
 ## 3F. Transfers (Entry)
 
@@ -383,8 +401,7 @@ repeats the exact anti-pattern WNE/DMS/CRM were built to avoid:
 
 # 4. Storage
 
-**Database (schema `INVENTORY`, tenant DB — DB-per-tenant isolation, no `tenant_id` column,
-consistent with `CLAUDE.md` §4/§7 and matching DMS/CRM/SCHEDULE, not WNE's older pattern):**
+**Database (schema `INVENTORY`, tenant DB):**
 
 **Master / lookup tables**
 - `INVENTORY.products`
@@ -396,7 +413,6 @@ consistent with `CLAUDE.md` §4/§7 and matching DMS/CRM/SCHEDULE, not WNE's old
 - `INVENTORY.location_barcodes`
 - `INVENTORY.adjustment_reasons`
 - `INVENTORY.putaway_rules` *(Operational)*
-- `INVENTORY.conference` — n/a (not applicable, omitted)
 
 **Transaction / ledger tables**
 - `INVENTORY.stock_ledger` — append-only, immutable, the single source of truth for every
@@ -445,7 +461,9 @@ reasoning already applied to DMS's OCR and AIInsights) — not before then.
 
 - **Internal facade** — `InventoryService::receive()`, `::issue()`, `::transfer()`,
   `::adjust()`, `::checkAvailability()`, `::reserve()` — preferred integration point for other
-  modules (e.g. a future Sales module reserving stock, or Legal tracking evidence items).
+  modules, notably **Sales**'s Delivery Engine (issuing stock on ship-confirm, §5 above),
+  **Purchase**'s Goods Receipt (receiving stock, §5 above), and any vertical module (e.g. Legal
+  tracking evidence items).
 - **Internal event bus** — `inventory.goods_received`, `inventory.goods_issued`,
   `inventory.stock_adjusted`, `inventory.low_stock`, `inventory.count_variance_found` — lets
   **WNE** route low-stock alerts / approval workflows without Inventory knowing anything about
@@ -460,6 +478,32 @@ reasoning already applied to DMS's OCR and AIInsights) — not before then.
   scheduling (Operational) — Inventory does not build its own resource/availability engine.
 - **Cross-module reuse of DMS** for all document attachments (receipts, BOLs, QC certs) — no
   parallel file-storage code.
+- **Cross-module reuse toward Purchase (soft dependency, receiving only).** Purchase's Goods
+  Receipt (`PURCHASE_SPECS.md` §3E) calls `InventoryService::receive()` when Inventory is
+  enabled for the tenant, to post the actual stock-ledger movement and valuation layer;
+  Purchase's own `pur_receipt_hdrs`/`pur_receipt_lines` remain the authoritative procurement
+  record (used for the three-way match, `PURCHASE_SPECS.md` §3F) regardless of whether
+  Inventory is installed. Inventory itself has zero compile-time dependency on Purchase — it
+  accepts a receipt from any caller (a vendor Partner via CRM, a Purchase PO, or a blank
+  "opening balance") through the same `InventoryService::receive()` entry point.
+- **Cross-module reuse toward Sales (soft dependency, fulfillment only).** Sales's Delivery
+  Engine (`SALES_SPECS.md` §3H) calls `InventoryService::issue()` when Inventory is enabled
+  for the tenant, to post the actual stock-ledger movement and valuation layer on ship-confirm;
+  Sales's own `dlv_hdrs`/`dlv_lines` remain the authoritative order-fulfillment record
+  (`so_lines.qty_delivered` derives from it) regardless of whether Inventory is installed.
+  Inventory itself has zero compile-time dependency on Sales — it accepts an issue from any
+  caller (a customer Partner via CRM, a Sales delivery, or an unlinked internal-consumption
+  reason) through the same `InventoryService::issue()` entry point.
+- **Cross-module reuse toward Accounting (GL posting only — not a costing dependency).**
+  Inventory publishes `inventory.goods_received`, `inventory.goods_issued`,
+  `inventory.stock_adjusted` — **Accounting** (`ACCOUNTING_SPECS.md` §3H) subscribes purely to
+  post the corresponding GL journal (Inventory-asset ↔ COGS/GRNI/Adjustment), using the unit
+  cost/value Inventory has already computed. Inventory remains the sole source of truth for
+  both quantity (`stock_ledger`/`stock_balances`) and valuation
+  (`stock_valuation_layers`/`CostingStrategyInterface`) — Accounting never recomputes or
+  stores a competing figure. If Accounting is not installed/enabled for a tenant, Inventory
+  functions fully on its own (no GL journals are posted, nothing else changes) — same
+  optional-downstream-consumer posture every other module uses toward Accounting.
 
 **Ledger-first integrity (the core design decision):** `stock_ledger` is append-only and is the
 only source of truth for quantity; `stock_balances` is a cache, rebuildable at any time by

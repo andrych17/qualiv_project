@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Modules\Config\Models\ConfigMenu;
+use App\Modules\SysConfig\Models\ConfigMenu;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\SetsUpTenant;
 use Tests\TestCase;

@@ -34,7 +34,19 @@ same anti-pattern WNE, DMS, and CRM were each built to avoid:
 - Customers are never re-modeled here — **Sales consumes `CRM.partners`** (role = Customer),
   full stop. No parallel customer table.
 - Full quote-to-cash lifecycle: Opportunity → Quotation → Sales Order → Delivery → Invoice →
-  Payment, with Returns and Credit control layered on top.
+  Payment, with Returns and Credit control layered on top. **Invoice, Payment, and the AR
+  ledger are owned by the Accounting module, not Sales** — Sales orchestrates *when* and
+  *what* to bill (from an order, a delivery, or a recurring schedule) and hands off to
+  Accounting via `InvoiceRequested`/`PaymentRequested`, the same seam `ACCOUNTING_SPECS.md`
+  §3R already reserves for exactly this. This mirrors the "one ledger, many requesters" rule
+  Accounting already applies to Legal case billing — Sales is the second, concrete consumer of
+  that seam, not a parallel implementation of it.
+- **Delivery/fulfillment and the physical stock ledger are owned by the Inventory module, not
+  Sales**, when Inventory is installed — the same "one ledger, many requesters" seam applied
+  one layer earlier. Sales's Delivery Engine orchestrates *what* is being shipped and drives
+  customer-facing status/tracking, and hands off the actual stock decrement to Inventory via
+  `InventoryService::issue()` at ship-confirm. A tenant running Sales without Inventory still
+  gets full delivery tracking — see §3H/§5.
 - Recurring revenue (Contracts & Subscriptions) must drive recurring billing automatically, not
   require a human to remember to invoice every month.
 - Commission calculation must be auditable and tied to actual invoiced/paid revenue, not just
@@ -63,10 +75,13 @@ same anti-pattern WNE, DMS, and CRM were each built to avoid:
 - **Pricing & Promotions** — price-list resolution per customer/territory, simple
   percentage/fixed discounts, date-bound promo codes.
 - **Delivery Engine** — pick → pack → ship → delivered lifecycle, manual carrier/tracking
-  entry, partial deliveries against an order.
-- **Billing Engine** — invoices generated from orders/deliveries, deposits/advance payments,
-  manual payment recording, a simple interval-based recurring invoice generator (feeds from
-  Contracts & Subscriptions).
+  entry, partial deliveries against an order. When **Inventory** is installed, marking a
+  delivery `shipped` posts the actual stock decrement via `InventoryService::issue()` (see
+  §3H) — Sales does not maintain a second definition of "what's in stock."
+- **Billing Engine (request orchestrator, not a ledger)** — decides *when* an order/delivery/
+  recurring schedule is ready to bill and fires `InvoiceRequested` into **Accounting**, which
+  performs the actual invoice creation, PPN/tax treatment, Faktur Pajak generation, and GL
+  posting. Sales stores no invoice header/line/payment rows of its own — see §3I and §5.
 - **Returns Engine** — RMA-style header/lines against an original order/invoice, refund or
   replacement path.
 - **Customer Credit Engine** — credit limit + aging buckets, hard block on new orders over
@@ -204,7 +219,7 @@ qualified chance to sell something, whether or not a Lead was involved.
 - Header: `customer_id`, source (`quote_id` nullable — direct orders allowed), price list
   (locked at order time), status (draft → confirmed → partially fulfilled → fulfilled →
   cancelled), `subject_type`/`subject_id` (optional polymorphic link back to a vertical record,
-  e.g. `legal.case_hdrs` — same seam as every other module).
+  e.g. `legal.matters` — same seam as every other module).
 - Lines: item/service, qty ordered, qty delivered (rolls up from Delivery), qty invoiced (rolls
   up from Billing), unit price, discount, tax.
 - Confirming an order runs the **Credit Check** (3J) synchronously — a customer over their
@@ -232,47 +247,103 @@ qualified chance to sell something, whether or not a Lead was involved.
 ## 3H. Delivery Engine (Pick / Pack / Ship / Tracking)
 
 - Header: `so_id`, status (pending → picked → packed → shipped → delivered → cancelled),
-  carrier (free text/lookup), tracking number, shipped date, delivered date.
+  carrier (free text/lookup), tracking number, shipped date, delivered date, source
+  warehouse/location (shown only when **Inventory** is installed — defaults to the tenant's
+  configured default warehouse, manually overridable; hidden entirely if Inventory isn't
+  installed).
 - Lines: order line reference, qty shipped this delivery (supports partial/split shipments —
   one order can have N deliveries).
-- Marking `shipped` fires `schedule.item_created`-style internal event (`sales.delivery_shipped`)
-  → WNE (if enabled) notifies the customer/portal with tracking info.
+- **Posting to Inventory (when installed):** marking a delivery `shipped` calls
+  `InventoryService::issue(...)` (`INVENTORY_SPECS.md` §3E/§5) with the shipped lines and
+  source location — Inventory creates its own `goods_issues`/`stock_ledger` entry (movement
+  type `issue`), consumes valuation layers per its costing method, and returns its id, stored
+  on `dlv_hdrs.inventory_goods_issue_id` (informational reference, not an enforced FK, since
+  Inventory is an optional install) for traceability. If Inventory blocks the issue (requested
+  quantity exceeds available at that location), the `shipped` transition is rejected with the
+  same clear error `INVENTORY_SPECS.md` §3E already defines, rather than Sales silently
+  recording a shipment that isn't physically possible. If Inventory is not installed, marking
+  `shipped` proceeds exactly as before, with no physical-stock effect.
+- Marking `shipped` fires `schedule.item_created`-style internal event
+  (`sales.delivery_shipped`) → WNE (if enabled) notifies the customer/portal with tracking
+  info — unchanged, fires regardless of whether the Inventory call above also ran.
 
 **Rules / logic**
 - `so_lines.qty_delivered` is a derived rollup from `dlv_lines`, recalculated on every delivery
-  status change — never manually edited on the order.
+  status change — never manually edited on the order. This remains Sales's own figure
+  regardless of Inventory's install status — "how much has been shipped to this customer" is
+  an order-fulfillment question Sales answers itself.
+- Once Inventory posts its own ledger entry from a shipment, Inventory's `stock_ledger` becomes
+  the authoritative figure for on-hand quantity and valuation from that point forward — the
+  same split already established for Purchase's Goods Receipt
+  (`PURCHASE_SPECS.md` §3E): two different questions, answered by the module that actually
+  owns each one.
 - Fully delivering all lines auto-updates the parent order status to `fulfilled`.
 
-## 3I. Billing Engine (Invoices, Deposits, Recurring Billing)
+## 3I. Billing Engine (Invoice Request Orchestration)
 
-- **Invoice** header: `customer_id`, `so_id` (nullable — invoices can also come from a
-  Contract/Subscription with no discrete order), status (draft → sent → partially paid → paid →
-  overdue → void), due date, payment terms.
-- Lines: order/delivery line reference or free-text (for retainers/services), qty, price, tax,
-  total.
-- **Deposits**: a deposit invoice type flag; a deposit reduces the balance due on the final
-  invoice via a simple applied-credit line — no separate ledger engine in MVP.
-- **Payment recording**: manual entry (amount, method, reference, date) against an invoice;
-  partial payments supported; invoice status derives from `sum(payments) vs invoice total`.
-- **Recurring billing**: `SALES.recurring_billing_schedules` (from Contracts, §3L) drives a
-  daily scheduled job that generates the next invoice `interval` days/months ahead of
-  `next_bill_date`, then advances the pointer — deliberately a simple interval/date-based
-  generator rather than reusing Schedule's RRULE engine, to keep Billing decoupled from
-  Schedule being enabled.
-- Overdue invoices fire `sales.invoice_overdue` → WNE (if enabled) sends a reminder per the
-  tenant's routing rules — no dunning logic built into Sales itself.
+**Purpose:** decide *when* something is ready to bill and hand off to **Accounting**, the
+single AR ledger of record for the platform (`ACCOUNTING_SPECS.md` §3D). Sales does not
+maintain its own invoice or payment tables — a deliberate correction: an independent
+Sales-owned ledger would break Accounting's control-account guarantee ("AR balance is always
+exactly the sum of open invoice balances") and risk issuing a customer invoice without correct
+PPN/Faktur Pajak treatment, which Accounting's own spec calls a compliance liability from the
+first transaction, not a gap safe to patch in later.
+
+- **Trigger sources**: a confirmed Sales Order ready to bill (in full or by delivered lines), a
+  Delivery marked `shipped`/`delivered`, a Contract & Subscription's recurring schedule
+  (§3L) reaching its `next_bill_date`, or an external billable request from any Core or
+  Vertical module via `SalesOrderService::createFromExternalRequest(...)` (preferred,
+  same-process) or the `SalesOrderRequested` event (decoupled). Sales defines this as a
+  generic entry point (payload: `subject_type`/`subject_id`, customer partner reference, line
+  items, description) that any caller can populate — the same "Core defines the contract, any
+  caller populates it" pattern already used for Accounting's `InvoiceRequested`/
+  `BillRequested`. Legal is the first concrete user of this path (a matter ready to bill calls
+  it directly, per `LEGAL_SPECS.md` §2), but Sales requires no Legal-specific code to support
+  it. The resulting Sales Order (`subject_type`/`subject_id` pointing back to the originating
+  record, per §3F) then flows through the same confirmed-and-ready-to-bill path as any other
+  order, so the Billing Engine has exactly one shape of input regardless of where the request
+  originated.
+- **On trigger**: Sales calls `AccountingService::createInvoice(...)` / fires
+  `InvoiceRequested` (`subject_type = 'sales.so_lines'`, `subject_id` = the order line(s) being
+  billed) with customer (`CRM.partners` reference), line items, amounts, and tax codes.
+  Accounting creates the `ar_invoices` row, computes PPN output tax, generates a Faktur Pajak
+  if applicable, and posts the AR control-account journal — all per `ACCOUNTING_SPECS.md`
+  §3D/§3M, not reimplemented here.
+- **Deposits**: requested the same way, flagged `invoice_type = deposit` on the request (an
+  additive field on `ACCOUNTING.ar_invoices`). The deposit is applied against a later final
+  invoice using Accounting's existing payment-application mechanism (§3D) — Sales does not
+  implement its own credit-balance logic.
+- **Payment recording**: captured wherever the tenant actually takes payment (Sales UI,
+  Customer Portal, or Accounting's own screens) but always written to
+  `ACCOUNTING.ar_payments`/`ar_payment_applications` via `PaymentRequested` — never to a
+  Sales-owned table.
+- **Order/line status rollup**: Accounting fires `InvoicePosted` and `PaymentRecorded` events
+  carrying the `subject_type`/`subject_id` back-reference; Sales subscribes to update
+  `so_lines.qty_invoiced` and the order's billing status — Accounting never needs to know
+  `SALES.so_lines` exists beyond that pointer.
+- **Recurring billing**: `SALES.recurring_billing_schedules` (from Contracts, §3L) still drives
+  a daily scheduled job — its only action on each due date is firing the same
+  `InvoiceRequested` a manual order-to-invoice conversion would, not writing a row directly.
+- **Invoice-overdue reminders**: Sales, not Accounting, owns customer-facing dunning
+  communication (it's the customer-relationship module) — a scheduled job reads Accounting's
+  AR aging (§3D) for the customers/orders Sales cares about and fires `sales.invoice_overdue`
+  → WNE, same as before. Accounting's aging report stays the source of truth; Sales only reads
+  it, never recomputes it.
 
 **Rules / logic**
-- Void requires a reason and is logged — invoices are never hard-deleted (legal/financial
-  audit trail, same posture as DMS's audit log).
+- If Accounting is not installed/enabled for a tenant, Sales cannot generate a real invoice —
+  see §5 for why this specific action, not the whole Billing Engine's UI, is a hard dependency.
+- Credit-note requests (from Returns, §3J) go through the same `AccountingService` facade —
+  never a direct edit to an Accounting-owned row.
 
 ## 3J. Returns Engine (Returns, Refunds, Replacements)
 
 - Header: original `so_id`/`invoice_id`, `customer_id`, reason code, status (requested →
   approved → received → refunded/replaced → closed).
 - Lines: original order line reference, qty returned, condition notes.
-- **Refund path**: creates a negative-amount adjustment against the original invoice (or a
-  standalone credit note if the invoice is already paid/closed).
+- **Refund path**: requests a credit note from **Accounting** (`ACCOUNTING.ar_credit_notes`,
+  §3D) against the original invoice, rather than Sales writing its own adjustment — same
+  "Accounting is the ledger, Sales is the requester" rule as Billing (§3I).
 - **Replacement path**: one action generates a new Sales Order pre-filled with the returned
   lines, `subject_type = 'sales.ret_hdrs'` linking back for traceability.
 
@@ -285,15 +356,17 @@ qualified chance to sell something, whether or not a Lead was involved.
 - `SALES.customer_credit_profiles`: `partner_id` (FK → `CRM.partners`), credit_limit,
   payment_terms_days, `on_hold` flag (manual override, blocks all new orders regardless of
   limit).
-- **Aging report**: buckets (current / 1–30 / 31–60 / 61–90 / 90+) computed from open invoice
-  balances vs. due date — a read-only report, not a stored table (computed on demand from
-  `inv_hdrs`).
-- **Credit check**: run synchronously on Order confirmation — `outstanding balance + this
-  order's value > credit_limit` blocks confirmation with a clear error (per `DESIGN.md`:
-  *"This order exceeds [Customer]'s credit limit by $X. Request an override or reduce the
-  order."*) and offers a `WorkflowRequested` override (`workflow_code =
-  sales.credit_override`) if the tenant has WNE enabled; without WNE, only an explicit
-  `on_hold`-clearing admin action can bypass it.
+- **Aging report**: Sales does not compute this itself — it calls Accounting's AR aging
+  report (`ACCOUNTING_SPECS.md` §3D) filtered to the customer, since `ar_invoices` is the only
+  place open balances actually live now.
+- **Credit check**: run synchronously on Order confirmation —
+  `AccountingService::getOpenARBalance(partnerId) + this order's value > credit_limit` blocks
+  confirmation with a clear error (per `DESIGN.md`: *"This order exceeds [Customer]'s credit
+  limit by $X. Request an override or reduce the order."*) and offers a `WorkflowRequested`
+  override (`workflow_code = sales.credit_override`) if the tenant has WNE enabled; without
+  WNE, only an explicit `on_hold`-clearing admin action can bypass it. The credit *limit* and
+  *on_hold* flag remain Sales-owned config (`customer_credit_profiles`) — only the
+  balance-vs-limit arithmetic now reads from Accounting instead of a local invoice table.
 
 **Rules / logic**
 - Credit profile lives entirely in `SALES` schema, never on `CRM.partners` — Core CRM has zero
@@ -321,8 +394,10 @@ qualified chance to sell something, whether or not a Lead was involved.
 - `SALES.commission_plans`: name, basis (flat % or tiered by revenue band), applies to
   (Sales Team or individual rep), effective dates.
 - Commission is calculated off **invoiced-and-paid** revenue (not order value), computed when
-  a payment is recorded against an invoice tied to that rep's order — avoids paying commission
-  on cancelled/unpaid/returned business.
+  Sales receives Accounting's `PaymentRecorded` event for an invoice whose `subject_type`/
+  `subject_id` traces back to that rep's order — avoids paying commission on
+  cancelled/unpaid/returned business, and avoids Sales needing its own payment-tracking table
+  to know it happened.
 - **Settlement**: a batch (`comm_settlements`, period-based — e.g. monthly) aggregates
   earned-but-unsettled commission per rep, status (draft → approved → paid), optionally routed
   through WNE for manager approval before payout.
@@ -364,8 +439,13 @@ qualified chance to sell something, whether or not a Lead was involved.
 - `SALES.quot_hdrs`, `SALES.quot_lines` — Quotations (versioned; `revision_no`,
   `converted_so_id`).
 - `SALES.so_hdrs`, `SALES.so_lines` — Sales Orders.
-- `SALES.dlv_hdrs`, `SALES.dlv_lines` — Deliveries.
-- `SALES.inv_hdrs`, `SALES.inv_lines`, `SALES.inv_payments` — Invoices, lines, payment records.
+- `SALES.dlv_hdrs` (includes nullable `inventory_goods_issue_id` — informational reference to
+  `INVENTORY.goods_issues.id` when Inventory is installed and the delivery has been posted
+  there; not an enforced FK, since Inventory is an optional install for Sales),
+  `SALES.dlv_lines` — Deliveries.
+(removed — invoices, invoice lines, and payments are owned by `ACCOUNTING.ar_invoices` /
+`ACCOUNTING.ar_invoice_lines` / `ACCOUNTING.ar_payments`, referenced from Sales only via
+`subject_type`/`subject_id`, never a local table. See §5.)
 - `SALES.recurring_billing_schedules` — drives the recurring invoice generator.
 - `SALES.ret_hdrs`, `SALES.ret_lines` — Returns.
 - `SALES.comm_settlements`, `SALES.comm_settlement_lines` — Commission settlement batches.
@@ -394,6 +474,13 @@ payment-adjacent data) — not built now.
   (cross-schema FK, Core-to-Core, same precedent as CRM/DMS/WNE already referencing each
   other within a tenant DB) rather than duplicating contact data. A tenant cannot enable Sales
   without CRM enabled.
+- **Accounting — hard dependency for Billing only.** Sales cannot generate a real invoice,
+  record a payment, or check AR aging/credit exposure without Accounting enabled — those
+  actions call straight into `AccountingService`/fire `InvoiceRequested`/`PaymentRequested`,
+  with no local fallback (same "no parallel ledger" reasoning as the Payroll↔HCM fix in
+  `PAYROLL_SPECS.md` §5). Opportunity, Quotation, Sales Order, Pricing, and Delivery are
+  **not** gated on Accounting — a tenant can run Sales+CRM alone through "order confirmed" and
+  only needs Accounting once something has to actually become a real, tax-correct invoice.
 - **WNE — soft dependency.** All approval steps (quote approval, credit override, return
   approval, commission settlement approval) and all notifications (order confirmed, delivery
   shipped, invoice overdue, contract expiring) are published as internal events
@@ -403,27 +490,56 @@ payment-adjacent data) — not built now.
 - **DMS — soft dependency.** Quote PDFs, contracts, and delivery notes attach via
   `DocumentService` if DMS is enabled; without DMS, Sales falls back to generating a
   downloadable PDF on the fly with no persistent version history (degraded, not broken).
+- **Inventory — soft dependency, scoped to physical fulfillment only.** The Delivery Engine
+  (§3H) calls `InventoryService::issue()` when Inventory is enabled, to post the real stock
+  decrement and valuation on ship-confirm; every other part of Sales (Opportunity, Quotation,
+  Sales Order, Pricing, Billing, Returns, Commission) is unaffected by whether Inventory is
+  installed, since `so_lines.qty_delivered` always derives from Sales's own `dlv_lines`, never
+  from Inventory's ledger. A Sales tenant selling non-physical services (e.g. Legal retainers)
+  has no reason to install Inventory at all — Delivery is only meaningfully used by tenants
+  selling physical goods.
 - **Schedule — soft dependency.** Not required for MVP (recurring billing uses its own simple
   interval field, deliberately not RRULE, to avoid a hard coupling); if Schedule is enabled
   later, delivery due dates / contract renewal dates could optionally surface on the shared
   calendar as a Future Version enhancement.
 
 **Internal facade/service** — `SalesOrderService::confirm(...)`,
-`QuotationService::convertToOrder(...)`, `BillingService::generateInvoice(...)`,
-`CreditService::check(...)`, `CommissionService::calculate(...)` — preferred integration point
-for other Core/vertical modules (e.g. a Legal case triggering a retainer Sales Order).
+`SalesOrderService::createFromExternalRequest(...)` (the generic entry point for a Core or
+Vertical module's billable request — see §3I), `QuotationService::convertToOrder(...)`,
+`BillingService::generateInvoice(...)`, `CreditService::check(...)`,
+`CommissionService::calculate(...)` — preferred integration point for other Core/vertical
+modules (e.g. a Legal case triggering a retainer Sales Order via
+`createFromExternalRequest(...)`).
 
 **Internal event bus** — publishes `OpportunityWon`, `QuotationSent`, `QuotationConverted`,
-`SalesOrderConfirmed`, `sales.delivery_shipped`, `sales.invoice_overdue`,
-`sales.contract_renewed`, `sales.contract_expiring`, `sales.credit_blocked`. Vertical modules
-subscribe as needed; Sales never subscribes to or calls into vertical modules — same one-way
-rule as CRM/DMS/WNE.
+`SalesOrderConfirmed`, `sales.delivery_shipped`, `sales.invoice_overdue` (derived from
+Accounting's AR aging, not a local invoice table), `sales.contract_renewed`,
+`sales.contract_expiring`, `sales.credit_blocked`; **consumes** its own generic
+`SalesOrderRequested` (§3I — the vertical/Core billable-request entry point), the same kind of
+self-owned contract as Accounting's `InvoiceRequested`/`BillRequested`. Sales also
+**subscribes** to Accounting's `InvoicePosted`/`PaymentRecorded` (to update
+`so_lines.qty_invoiced` and trigger Commission, §3M) — justified because Accounting is a Core
+peer, not a vertical, and this is a read-only status echo, not Accounting reaching into Sales.
+Vertical modules never fire an event *named for Sales's internals*, and Sales never listens for
+an event *named for a Vertical module's internals* — the same one-way "Core has zero knowledge
+of Vertical modules" rule as CRM/DMS/WNE (`CLAUDE.md` §2). `SalesOrderRequested` doesn't
+violate this: it's a **Sales-owned, generically-shaped contract**
+(`subject_type`/`subject_id` + line items + description) that any caller — Core or Vertical —
+populates and fires, exactly like Accounting's `InvoiceRequested`/`BillRequested`, WNE's
+`WorkflowRequested`/`NotificationRequested`, and DMS's `DocumentAttachRequested`. Sales still
+never reaches backward into a Vertical module's schema or subscribes to a Vertical-namespaced
+event by name.
 
 **Vertical linkage without coupling:** `so_hdrs`, `quot_hdrs`, and `ret_hdrs` all carry
 `subject_type`/`subject_id` as plain informational columns, not foreign keys — identical seam
-to CRM's `svc_cases` and WNE's workflow instances. A Legal case billing a retainer sets
-`subject_type = 'legal.case_hdrs'` on the resulting Sales Order; Sales never needs to know the
-Legal schema exists.
+to CRM's `svc_cases` and WNE's workflow instances. A Legal matter billing a retainer calls
+`SalesOrderService::createFromExternalRequest(...)` (§3I / facade list above), which sets
+`subject_type = 'legal.matters'` (or `'legal.deeds'` for a deed-specific charge) on the
+resulting Sales Order; Sales never needs to know the Legal schema beyond that pointer. The
+same seam runs the other way for Billing: Accounting's `ar_invoices`/`ar_invoice_lines` carry
+`subject_type = 'sales.so_lines'` back to the order line that was billed — Accounting never
+needs to know Sales's schema beyond that pointer, and it's how Sales recognizes
+`InvoicePosted`/`PaymentRecorded` events as "mine" without a hard FK either way.
 
 **Non-destructive financial data:** invoices are voided, never deleted; quote revisions are
 additive, never overwritten; commission reversals are new ledger lines, never edits to a paid
@@ -431,18 +547,24 @@ settlement — consistent with the audit-trail discipline established in DMS and
 necessary for a legal-buyer-conservative, financially-audited product.
 
 **Suggested build order for Claude Code:** 3B (Sales Master) → 3E (Quotation, MVP without
-approval) → 3F (Sales Order + Credit Check 3J) → 3G (Pricing, folded into 3E/3F) → 3H
-(Delivery) → 3I (Billing, manual payments first) → wire WNE approvals into 3E/3F/3J once WNE
-integration is confirmed working → 3L (Contracts, feeding 3I's recurring generator) → 3K
-(Returns) → 3M (Commissions) → 3C/3D (Opportunity + Portal) → 3N (Analytics) — this ships a
-working quote-to-cash loop (3B→3I) before any of the "nice to have but not blocking revenue"
-pieces.
+approval) → 3F (Sales Order + Credit Check 3K) → 3G (Pricing, folded into 3E/3F) → 3H
+(Delivery — wire the optional `InventoryService::issue()` call if Inventory is already live,
+or ship 3H without it and add the call later, since it's purely additive) → confirm
+Accounting's AR engine (§3D of `ACCOUNTING_SPECS.md`) is live → 3I (Billing — now an
+`InvoiceRequested`/`PaymentRequested` orchestrator, not a ledger) → wire WNE
+approvals into 3E/3F/3J once WNE integration is confirmed working → 3L (Contracts, feeding
+3I's recurring generator) → 3J (Returns) → 3M (Commissions, driven by Accounting's
+`PaymentRecorded`) → 3C/3D (Opportunity + Portal) → 3N (Analytics) — this ships a working
+quote-to-cash loop (3B→3I) before any of the "nice to have but not blocking revenue" pieces,
+with Accounting as the one hard prerequisite inside that loop.
 
 **Marketability notes**
 - Quote-to-cash + recurring billing + credit control is a strong differentiator against
   spreadsheet-based practice management — directly sellable to the Legal vertical as "bill
   your retainers and track who owes you money," without Sales needing to know what a
-  "retainer" is (it's just a Contract + Subscription).
+  "retainer" is (it's just a Contract + Subscription). Because Billing now always routes
+  through Accounting, every Sales-generated invoice is PPN/Faktur-Pajak-correct by
+  construction — a genuine differentiator to lead with, not just an internal consistency fix.
 - Commission tracking is a natural upsell for any tenant with an outbound sales team,
   independent of vertical.
 - Keeping Sales standalone-capable (works with just CRM, no vertical required) means it can be

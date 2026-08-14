@@ -30,10 +30,17 @@ repeats the same anti-pattern already avoided in WNE/DMS/CRM/Schedule:
   vendor entry, simple PO, manual receipt/invoice match) since it is sellable as its own line
   item, same posture as DMS and Schedule.
 - Must integrate cleanly when other Core modules are present: **CRM** for the vendor/partner
-  record, **WNE** for every approval step and notification, **DMS** for contract/document
-  storage and retention, **Schedule** for renewal/audit/review reminders and RFx deadlines.
+  record, **Inventory** (if installed) so a Goods Receipt actually posts a physical stock
+  movement and cost layer — a tenant running Purchase without Inventory still gets full
+  procurement discipline (PR → PO → GR → Invoice → match), just with the GR functioning as a
+  receiving/matching record only, with no physical stock effect, **WNE** for every approval
+  step and notification, **DMS** for contract/document storage and retention, **Schedule** for
+  renewal/audit/review reminders and RFx deadlines.
 - Full traceability from Requisition → Sourcing (RFx) → Purchase Order → Goods Receipt →
-  Invoice → (payment handoff) — a real audit trail, not just a status field.
+  Invoice → **payment, executed by Accounting** — a real audit trail, not just a status field.
+  Purchase owns intake and three-way matching; it does not maintain a second AP ledger or
+  execute disbursement itself, per the same "one ledger, many requesters" rule
+  `ACCOUNTING_SPECS.md` already applies to Sales's Billing Engine.
 - Budget/approval control before commitment, not after — a PO above threshold should not be
   issuable without the right sign-off, using the same workflow engine every other module uses.
 - Strategic sourcing (RFI/RFQ/RFP with weighted scoring) for the buyer who wants to run a
@@ -64,7 +71,11 @@ repeats the same anti-pattern already avoided in WNE/DMS/CRM/Schedule:
 **MVP (ship with/soon after Legal vertical launch)**
 - **Requisition → PO core flow.** Purchase Requisition (PR) raised by any user/module →
   approval via **WNE** → converted to Purchase Order (PO) → sent to supplier → Goods Receipt
-  → Invoice → **three-way match** (PO / GR / Invoice) with configurable tolerance.
+  (posts the physical stock movement into **Inventory**, via `InventoryService::receive()`,
+  when Inventory is installed for the tenant — see §3E) → Invoice → **three-way match**
+  (PO / GR / Invoice, always evaluated against Purchase's own receipt record regardless of
+  Inventory's install status) with configurable tolerance. A successful match hands off to
+  **Accounting** (`BillRequested`) for AP recording, PPh withholding, and payment — see §3F.
 - **Vendor = CRM Partner.** No separate vendor table — Purchase reuses `CRM.partners` filtered
   to partners holding a `Vendor` role, adding only procurement-specific attributes (payment
   terms, incoterms, tax status) in a `PURCHASE.vendor_profiles` extension table (1:1 with
@@ -145,8 +156,7 @@ repeats the same anti-pattern already avoided in WNE/DMS/CRM/Schedule:
   timeline, related workflow status (via WNE).
 
 **Rules / logic**
-- Tenant-scoped by the DB-per-tenant boundary (no `tenant_id` column — see §5 note on
-  reconciling with WNE's current pattern).
+- Tenant-scoped by the DB-per-tenant boundary (no `tenant_id` column).
 - "My work" resolves via direct assignment **and** role/team membership, same resolution
   pattern already used in WNE ("My Approvals") and CRM ("My work").
 
@@ -219,7 +229,19 @@ repeats the same anti-pattern already avoided in WNE/DMS/CRM/Schedule:
 - Fields: linked PO, lines received (quantity, condition notes), receiver, received-at,
   photo attachment(s) (stored via **DMS**), barcode/QR scan input (scans the PO or item
   barcode to pre-fill the line and quantity — camera-based, no dedicated scanner hardware
-  required for MVP).
+  required for MVP), destination warehouse/location (shown only when **Inventory** is
+  installed for the tenant — defaults from Inventory's Put-away rules,
+  `INVENTORY_SPECS.md` §3R, manually overridable; hidden entirely if Inventory isn't
+  installed).
+- **Posting to Inventory (when installed):** on GR post, Purchase calls
+  `InventoryService::receive(...)` (`INVENTORY_SPECS.md` §3D/§5) with the received lines,
+  destination location, and unit cost (defaulted from the PO line price, editable at receipt
+  for a landed-cost variance) — Inventory creates its own `goods_receipts`/`stock_ledger`
+  entry and valuation layer and returns its id, stored on
+  `pur_receipt_hdrs.inventory_goods_receipt_id` (informational reference, not an enforced FK,
+  since Inventory is an optional install) for traceability. If Inventory is not installed, the
+  GR posts normally with no physical/valuation effect — Purchase's own receipt record is
+  unaffected either way.
 - Partial receipts supported — a PO can have multiple GRs until fully received or manually
   closed short.
 - Over-receipt (qty received > qty ordered) beyond a configurable tolerance flags an exception
@@ -229,22 +251,67 @@ repeats the same anti-pattern already avoided in WNE/DMS/CRM/Schedule:
   `subject_id` link, same as every other cross-module reference in this platform) — not a hard
   dependency, works fine if CRM's Helpdesk isn't in use.
 
+**Rules / logic**
+- `pur_receipt_lines.quantity_received` is always the authoritative figure for the three-way
+  match (3F), regardless of whether Inventory is installed — "was this delivery legitimate and
+  does it match what we ordered/invoiced" is a procurement question Purchase answers itself.
+  Once Inventory posts its own ledger entry from that same receipt, Inventory's `stock_ledger`
+  becomes the authoritative figure for on-hand quantity and valuation from that point forward —
+  two different questions, answered by the module that actually owns each one, not duplicated
+  bookkeeping.
+
 ## 3F. Invoice Capture & Three-Way Match
+
+**Purpose:** capture and validate the vendor's bill against what was ordered and received.
+This matching logic — quantity/price tolerance, discrepancy handling — is genuinely Purchase's
+job and stays here; what happens *after* a bill is validated (AP recording, tax withholding,
+payment) is **Accounting's** job, per the resolution below.
 
 - Fields: linked PO, supplier invoice number/date, lines, amount, currency, attached invoice
   document (via **DMS**), submission channel (manual entry, or the lightweight supplier
   upload link from §2).
 - **Three-way match**: PO line vs. GR line vs. Invoice line, on quantity and price, within a
   configurable tolerance (%, or flat amount) per tenant/category.
-  - Full match → routes for payment approval via **WNE** (`workflow_code =
-    purchase.invoice_approval`) — Purchase does not process payment itself; it hands off an
-    "approved for payment" event, since AP/payment execution is Finance's domain (kept as an
-    explicit open item, §5).
+  - Full match → routes for internal validation via **WNE** (`workflow_code =
+    purchase.invoice_approval` — "is this bill legitimate and does it match what we
+    ordered/received," a procurement question). On approval, Purchase fires `BillRequested`
+    into **Accounting** (`subject_type = 'purchase.pur_invoice_hdrs'`) with the matched
+    header/lines. Accounting creates the `ap_bills`/`ap_bill_lines` row, computes PPh
+    withholding where applicable, generates a Bukti Potong, and posts the AP control-account
+    journal (`ACCOUNTING_SPECS.md` §3E/§3M) — **this closes the "who owns AP/payment" open
+    item previously flagged in §5**: Accounting does, via its own Payment Scheduling &
+    Approval engine (§3E), a deliberately separate gate from Purchase's `invoice_approval`
+    above — "is this bill valid" (Purchase/procurement's question) and "are we disbursing
+    money now" (Accounting/Finance's question) are different decisions, not duplicated
+    bureaucracy.
   - Mismatch beyond tolerance → exception (3K), routed for manual review/approval instead of
-    silently blocking or silently paying.
+    silently blocking, silently paying, or being forwarded to Accounting in an unresolved
+    state — Accounting never sees a bill Purchase hasn't already validated.
+- **Status feedback**: Accounting fires `BillPosted` (on AP recording) and `PaymentRecorded`
+  (on actual disbursement) back with the same `subject_type`/`subject_id` — Purchase
+  subscribes to update `pur_invoice_hdrs.status` (e.g. "sent for payment" → "paid") and close
+  out the originating PO for reporting, without maintaining its own payable/aging ledger.
 - **Budget vs. actual note**: budget consumption is recognized at PO commitment (soft-check,
   3B), and reconciled against actual invoiced amount here — no separate budgeting engine
-  needed for MVP-level visibility.
+  needed for MVP-level visibility. "Actual spend" for reporting purposes (3J) should
+  ultimately reconcile to Accounting's AP data; Purchase's own figures are the commitment/
+  intake view, not a second source of financial truth.
+
+**Rules / logic**
+- The three-way match's "GR" leg always reads Purchase's own `pur_receipt_lines`
+  (`quantity_received`), never Inventory's `stock_ledger` — this keeps matching logic fully
+  functional whether or not Inventory is installed, and avoids a second definition of "how
+  much arrived" existing anywhere in the platform.
+- `pur_invoice_hdrs`/`pur_invoice_lines`/`pur_invoice_matches` (§4) remain Purchase-owned —
+  they represent the vendor bill *as received and matched*, a procurement record, not the AP
+  ledger. Accounting's `ap_bills` is the payable/ledger record, created from Purchase's
+  request and linked back via `subject_type`/`subject_id` — the same "one ledger, many
+  requesters" split already applied to Sales (`SALES_SPECS.md` §3I) and Inventory
+  (`ACCOUNTING_SPECS.md` §3H), each shaped for what that module genuinely owns.
+- If Accounting is not installed/enabled for a tenant, Purchase can still capture and match
+  invoices (3F stays fully functional) but cannot generate a real, tax-correct payable or
+  execute payment — same hard-dependency-for-one-specific-action pattern as Sales's Billing
+  Engine (`SALES_SPECS.md` §5), not a blanket requirement on the whole module.
 
 ## 3G. Vendor Profile (extends CRM Partner)
 
@@ -346,32 +413,43 @@ repeats the same anti-pattern already avoided in WNE/DMS/CRM/Schedule:
 
 # 4. Storage
 
-**Database (schema `PURCHASE`, tenant DB — consistent with `CLAUDE.md` §7A; no `tenant_id`
-column, isolation is the DB boundary, per the platform's DB-per-tenant convention — Purchase
-is built clean against this rule from day one rather than inheriting WNE's current
-`tenant_id`-column inconsistency, see §5 note):**
+**Database (schema `PURCHASE`, tenant DB):**
 
 **Master / lookup tables**
 - `PURCHASE.vendor_profiles` — 1:1 extension of `CRM.partners` (procurement-specific fields).
 - `PURCHASE.categories` — tenant-editable spend category lookup (direct/indirect, CAPEX/OPEX).
-- `PURCHASE.cost_centers` — tenant-editable cost center/department lookup.
+- `PURCHASE.cost_centers` — tenant-editable cost center/department lookup, functions fully
+  standalone; includes an optional nullable `accounting_cost_center_id` (informational
+  reference to `ACCOUNTING.cost_centers.id`, not an enforced FK, since Accounting is an
+  optional install) so a tenant running both modules can map Purchase's budget-check dimension
+  onto Accounting's canonical cost-center list (`ACCOUNTING_SPECS.md` §3B/§3I) instead of
+  maintaining two independently-numbered lists — see §5.
 - `PURCHASE.rfx_criteria` — Future Version: weighted evaluation criteria lookup.
 
-**Transaction tables** (`pur_` prefix + level, matching the `sched_`/`hd_`/`svc_` convention
-already established in `SCHEDULE_SPECS.md` / `CRM_SPECS.md`)
-- `pur_vendor_documents` — certs/licenses/insurance, doc via DMS, expiry date.
-- `pur_catalog_items` — approved items, preferred supplier, negotiated price.
-- `pur_requisition_hdrs`, `pur_requisition_lines`
-- `pur_rfx_hdrs`, `pur_rfx_lines`, `pur_rfx_invitations`, `pur_rfx_responses`,
-  `pur_rfx_response_lines` — (Future: `pur_rfx_scorecards` for weighted evaluation)
-- `pur_order_hdrs`, `pur_order_lines`, `pur_order_revisions` (amendment history)
-- `pur_receipt_hdrs`, `pur_receipt_lines`
-- `pur_invoice_hdrs`, `pur_invoice_lines`, `pur_invoice_matches` (three-way match results)
-- `pur_contract_hdrs` (linked document via DMS, linked supplier via CRM)
-- `pur_exceptions` — append-style exception log feeding 3A/3K
-- `pur_budgets` — simple period × cost-center × category soft-budget figures (MVP)
-- Future Version: `pur_capa_records`, `pur_audit_records`, `pur_esg_scores`,
-  `pur_supplier_scorecards`
+**Transaction tables** (`PURCHASE.pur_*`, `pur_` prefix + level, matching the `sched_`/`hd_`/
+`svc_` convention already established in `SCHEDULE_SPECS.md` / `CRM_SPECS.md`)
+- `PURCHASE.pur_vendor_documents` — certs/licenses/insurance, doc via DMS, expiry date.
+- `PURCHASE.pur_catalog_items` — approved items, preferred supplier, negotiated price.
+- `PURCHASE.pur_requisition_hdrs`, `PURCHASE.pur_requisition_lines`
+- `PURCHASE.pur_rfx_hdrs`, `PURCHASE.pur_rfx_lines`, `PURCHASE.pur_rfx_invitations`,
+  `PURCHASE.pur_rfx_responses`, `PURCHASE.pur_rfx_response_lines` — (Future:
+  `PURCHASE.pur_rfx_scorecards` for weighted evaluation)
+- `PURCHASE.pur_order_hdrs`, `PURCHASE.pur_order_lines`, `PURCHASE.pur_order_revisions`
+  (amendment history)
+- `PURCHASE.pur_receipt_hdrs` (includes nullable `inventory_goods_receipt_id` — informational
+  reference to `INVENTORY.goods_receipts.id` when Inventory is installed and the GR has been
+  posted there; not an enforced FK, since Inventory is an optional install for Purchase),
+  `PURCHASE.pur_receipt_lines`
+- `PURCHASE.pur_invoice_hdrs`, `PURCHASE.pur_invoice_lines` (the vendor bill as
+  received/matched — a procurement intake record, not the AP ledger),
+  `PURCHASE.pur_invoice_matches` (three-way match results). The actual payable — due date,
+  payment status, aging — lives in `ACCOUNTING.ap_bills`, created from a `BillRequested`
+  request once matched. See §3F/§5.
+- `PURCHASE.pur_contract_hdrs` (linked document via DMS, linked supplier via CRM)
+- `PURCHASE.pur_exceptions` — append-style exception log feeding 3A/3K
+- `PURCHASE.pur_budgets` — simple period × cost-center × category soft-budget figures (MVP)
+- Future Version: `PURCHASE.pur_capa_records`, `PURCHASE.pur_audit_records`,
+  `PURCHASE.pur_esg_scores`, `PURCHASE.pur_supplier_scorecards`
 
 **Object file storage** (per `CLAUDE.md` §7B — new `PURCHASE/` folder per tenant, same
 convention as every other module):
@@ -405,12 +483,30 @@ catalog integration (external protocol handling, per-supplier connectors) — fl
   writes into CRM's schema, only references `partner_id`). If a vendor doesn't exist yet,
   Purchase calls `PartnerService::findOrCreate(...)` rather than inserting into CRM's tables
   directly.
+- **Accounting** — hard dependency for the one specific action of recording/paying a matched
+  invoice (§3F): Purchase fires `BillRequested`/reads `BillPosted`/`PaymentRecorded`, and never
+  maintains its own AP ledger, tax withholding, or payment execution. Everything upstream of
+  that (PR, Sourcing, PO, Goods Receipt, invoice capture and matching) works with Accounting
+  absent — same scoped-hard-dependency shape as Sales's relationship to Accounting
+  (`SALES_SPECS.md` §5), not a blanket module-level requirement. Separately, and optionally:
+  when Accounting is installed, `PURCHASE.cost_centers` rows can map to
+  `ACCOUNTING.cost_centers` (§4) so Purchase's soft budget check (§3B) and Accounting's
+  budget-vs-actual by cost center (`ACCOUNTING_SPECS.md` §3J) reconcile to the same dimension;
+  without that mapping (or without Accounting at all), Purchase's cost centers remain a
+  perfectly usable local list on their own.
 - **WNE** — every approval (PR, PO, invoice) and every notification (exceptions, reminders,
   supplier communications) routes through `MessagingService::requestWorkflow(...)` /
   `::notify(...)`. Purchase implements zero approval or delivery logic itself.
 - **DMS** — every document (PO PDF, contract, invoice, vendor cert, RFx attachment) is stored
   via `DocumentService::upload()`/`::attach()`, inheriting DMS's versioning, retention, and
   audit trail for free instead of Purchase re-implementing any of it.
+- **Inventory** — soft dependency, scoped narrowly to physical receiving: when Inventory is
+  enabled for the tenant, Goods Receipt (§3E) calls `InventoryService::receive(...)` to post
+  the actual stock-ledger movement and valuation layer. Every other part of Purchase (PR,
+  Sourcing, PO, invoice capture, three-way match) works identically whether or not Inventory
+  is installed, since the three-way match always reads Purchase's own `pur_receipt_lines`,
+  never Inventory's ledger — same scoped-soft-dependency shape as Purchase's relationship with
+  WNE/DMS/Schedule, not a blanket module-level requirement.
 - **Schedule** — every date-driven reminder (contract renewal, cert expiry, RFx due date) is a
   calendar item created via Schedule's facade, not a bespoke cron/date-check inside Purchase.
 - **AIInsights Core** — all Future Version AI features (3L) are AIInsights queries/tools
@@ -429,28 +525,31 @@ catalog integration (external protocol handling, per-supplier connectors) — fl
 - No punch-out, no AI models, no ESG scoring logic, no CAPA workflow engine in v1 — all listed
   explicitly in §2 Future Version with a stated reuse path so none of it requires a schema
   rewrite when built.
-- **Payment execution is explicitly out of scope.** Purchase's job stops at "invoice matched
-  and approved for payment" (an event/status), same way CRM's `subject_type`/`subject_id`
-  stops at "here's the pointer, resolving it is someone else's job." A Finance/AP module (not
-  yet designed) would own actual payment processing/bank integration — flagged as an open item
-  below rather than guessed at here.
+- **Payment execution is out of scope for Purchase — and now has a concrete owner.**
+  Purchase's job stops at "invoice matched and validated" (§3F); **Accounting** owns AP
+  recording, PPh withholding, and actual payment processing/disbursement via its existing AP
+  engine (`ACCOUNTING_SPECS.md` §3E), triggered by `BillRequested`. This was previously an
+  open item pointing at an undesigned "Finance/AP module" — Accounting now fills that role.
 
 **Tenant isolation note:** Purchase is specified **without** a `tenant_id` column, consistent
-with `CLAUDE.md` §4/§7 (DB-per-tenant is the isolation boundary). This is a deliberate choice
-to build new modules clean against the documented rule rather than propagate the known WNE
-inconsistency (flagged in project memory as an open reconciliation item) into a new module.
+with `CLAUDE.md` §4/§7 (DB-per-tenant is the isolation boundary).
 
 **Suggested build order for Claude Code:** 3G (vendor profile, thin extension of CRM) → 3B/3D
 (PR → PO core flow, the spine everything else hangs off) → 3E (Goods Receipt, incl. barcode/
-photo capture) → 3F (invoice capture + three-way match) → 3K (exception log, cheap and
-high-value once 3B–3F exist) → 3I (catalog) → 3H (contracts, wire into DMS + Schedule) → 3C
-(RFQ) → 3J (spend analytics views) → 3M (ESG document flags) — then revisit 3C's weighted RFx,
-3G's full SRM, and 3L (AI-assisted) as Future Version once MVP has real usage.
+photo capture; wire the optional `InventoryService::receive()` call if Inventory is already
+live, or ship 3E without it and add the call later — it's purely additive) → 3F (invoice
+capture + three-way match — confirm Accounting's AP engine, §3E of `ACCOUNTING_SPECS.md`, is
+live before wiring the `BillRequested` handoff) → 3K (exception log, cheap and high-value once
+3B–3F exist) → 3I (catalog) → 3H (contracts, wire into DMS + Schedule) → 3C (RFQ) → 3J (spend
+analytics views) → 3M (ESG document flags) — then revisit 3C's weighted RFx, 3G's full SRM,
+and 3L (AI-assisted) as Future Version once MVP has real usage.
 
 **Marketability notes**
 - Three-way match + full audit trail is a strong "why not just use email/spreadsheets" pitch
   for the same conservative legal-buyer audience CRM's spec targets — procurement discipline
-  reads as institutional maturity.
+  reads as institutional maturity. Because AP recording now always routes through Accounting,
+  every vendor bill gets correct PPh withholding and a Bukti Potong by construction — the same
+  compliance-by-construction story already told for Sales's AR side.
 - Reusing CRM's Partner registry for vendors (rather than a separate vendor master) means
   Purchase is cheap to enable for a tenant that already has CRM active, and the "one partner,
   many roles" story (a firm's landlord could also be a vendor) is a genuine differentiator.
@@ -461,8 +560,13 @@ high-value once 3B–3F exist) → 3I (catalog) → 3H (contracts, wire into DMS
   Core once a tenant has enough transaction history for the AI features to feel valuable.
 
 **Open items to fill in as this module grows**
-- [ ] Finance/AP module ownership — who executes payment once Purchase marks an invoice
-      approved (Core module, or an external accounting-system integration)?
+- [x] ~~Finance/AP module ownership~~ — **resolved**: Accounting executes payment via its own
+      Payment Scheduling & Approval engine (`ACCOUNTING_SPECS.md` §3E), triggered by Purchase's
+      `BillRequested` on three-way-match approval. See §3F.
+- [x] ~~Goods Receipt ↔ physical stock ownership~~ — **resolved**: Purchase's GR remains the
+      procurement/three-way-match record; when Inventory is installed, GR posting additionally
+      calls `InventoryService::receive()` to post the actual stock-ledger movement and cost
+      layer. See §3E and `INVENTORY_SPECS.md` §5.
 - [ ] Multi-currency handling depth (FX rate source, revaluation) — v1 assumes a single
       transaction currency per PO/invoice, stored as entered.
 - [ ] Whether the eventual full Supplier Portal is a separate authenticated area of the same

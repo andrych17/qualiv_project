@@ -180,15 +180,15 @@ unsolved centrally, this repeats the exact anti-pattern the WNE module was built
 # 4. Storage
 
 **Database (schema `DMS`, tenant DB — consistent with `CLAUDE.md` §7A):**
-- `dms.folders`
-- `dms.doc_types`
-- `dms.documents` (current-version pointer, lifecycle state, owning module ref, folder,
+- `DMS.folders`
+- `DMS.doc_types`
+- `DMS.documents` (current-version pointer, lifecycle state, owning module ref, folder,
   retention policy ref, legal_hold flag)
-- `dms.document_versions` (immutable, checksum, storage key, size, mime type, uploaded_by)
-- `dms.document_relations`
-- `dms.tags`, `dms.document_tags`
-- `dms.retention_policies`
-- `dms.access_logs` (audit trail, append-only)
+- `DMS.document_versions` (immutable, checksum, storage key, size, mime type, uploaded_by)
+- `DMS.document_relations`
+- `DMS.tags`, `DMS.document_tags`
+- `DMS.retention_policies`
+- `DMS.access_logs` (audit trail, append-only)
 - Custom metadata piggybacks on the existing `CUSTOMFIELDS` schema/mechanism rather than a
   DMS-specific one.
 

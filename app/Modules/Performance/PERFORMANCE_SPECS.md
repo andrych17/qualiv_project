@@ -34,6 +34,17 @@ anti-pattern every other Core module in this platform was built to avoid:
   aligns with) a higher-level one.
 - Budgeting, Targets, and Forecasts must all be comparable against Actuals through one shared
   **Variance Analysis** engine — variance logic should not be reimplemented per feature.
+- **Performance's Budgeting is deliberately not a duplicate of Accounting's Budgeting**
+  (`ACCOUNTING_SPECS.md` §3J) — they answer different questions. Accounting's budget is
+  GL-account × cost-center-scoped and feeds statutory/financial reporting, with actuals
+  sourced directly from posted journals (finance-grade, audit-precise). Performance's budget
+  is subject-based (company/department/team/individual, or any vertical record) and
+  category-based (a free label like "Marketing," not necessarily a single GL account),
+  designed to sit alongside KPIs and OKRs in one Scorecard — a management/board view, not a
+  second GL. When Accounting is installed, Performance's Variance Engine can optionally
+  resolve a budget category's "actual" from Accounting's GL data (§3B/§3G) instead of
+  requiring manual entry — but Performance never becomes a second ledger, the same "one
+  ledger, many requesters" discipline used everywhere else in this platform.
 - Must integrate with WNE for threshold-breach notifications and optional approval workflow
   (e.g. budget approval) — Performance does not build its own notification or approval logic.
 - Must integrate with Schedule for periodic review cadence (e.g. "OKR check-in due weekly") —
@@ -67,7 +78,10 @@ anti-pattern every other Core module in this platform was built to avoid:
 - **Budgeting.** Simple header + line budgets (by category, by period slice — typically
   monthly within a fiscal year), status flow `draft → submitted → approved → locked`. Approval
   can optionally route through a WNE Workflow (`workflow_code = performance.budget_approval`)
-  — Performance doesn't implement approval logic itself.
+  — Performance doesn't implement approval logic itself. A budget category can optionally map
+  to one or more Accounting GL accounts (§3B) so its "actual" figure is sourced from real
+  posted transactions when Accounting is installed, rather than always requiring manual entry
+  — see §3B/§3G and the split explained in §1.
 - **Forecast.** A rolling forecast is just a second, editable "projected" line series per
   period slice, versioned so history isn't lost when a forecast is revised — same shape as a
   Budget line, deliberately, so Variance Analysis can treat Budget/Target/Forecast uniformly
@@ -134,8 +148,7 @@ anti-pattern every other Core module in this platform was built to avoid:
 - Row click opens a drawer: detail, trend (period-over-period), related Achievements.
 
 **Rules / logic**
-- Tenant-scoped automatically (DB-per-tenant boundary, no `tenant_id` column — see §5 note on
-  the existing WNE inconsistency, which Performance should **not** repeat).
+- Tenant-scoped automatically (DB-per-tenant boundary, no `tenant_id` column).
 - "Needs attention" always surfaces breaches first regardless of chosen sort, mirroring the
   SLA-breach-first rule already established in CRM's dashboard.
 
@@ -145,6 +158,19 @@ anti-pattern every other Core module in this platform was built to avoid:
   period (year, or year+quarter), status (`draft → submitted → approved → locked`), owner.
 - **Budget lines** (`perf.budget_lines`): `budget_id`, category (free lookup, e.g. "Payroll,"
   "Marketing"), period slice (typically month), `amount_planned`.
+- **Actual sourcing (how "actual" is determined for a budget line):**
+  - **If Accounting is installed and the category is mapped**
+    (`perf.budget_category_accounts` — tenant-editable, category → one or more
+    `ACCOUNTING.accounts.id`, optionally scoped to a company): the Variance Engine (§3G) reads
+    actual spend for the line's period directly from Accounting via
+    `AccountingService::getAccountBalance(...)` (summed across mapped accounts) — no manual
+    entry, no drift between "what Performance shows" and "what the books say."
+  - **Otherwise** (Accounting absent, or the category isn't mapped): actual is entered
+    manually per line/period (`perf.budget_actuals` — same shape as KPI Actuals Capture, §3D,
+    reusing that pattern rather than inventing a second one), same as every other MVP-manual
+    engine in this module.
+  - A budget line's actual-sourcing mode is visible on the line itself (mapped/GL-sourced vs.
+    manual) so a viewer never mistakes a manually-entered figure for a reconciled one.
 - **On submit:** optionally fires `WorkflowRequested` (`workflow_code =
   performance.budget_approval`) into WNE if the tenant wants manager sign-off — Performance
   does not implement approval logic itself, same reuse pattern as every other module's WNE
@@ -152,6 +178,12 @@ anti-pattern every other Core module in this platform was built to avoid:
 - **Locking:** an `approved` budget can be edited only by creating a new version (append-only
   history for audit — the same "never silently overwrite" principle DMS uses for document
   versions), not by mutating the locked row.
+
+**Rules / logic**
+- Mapping a category to a GL account is optional and additive — a tenant can run Performance's
+  Budgeting entirely on manual actuals (its original MVP shape) and adopt GL-sourced actuals
+  later, category by category, with no schema change and no disruption to budgets already
+  entered.
 
 ## 3C. Targets & KPI Setup (Entry)
 
@@ -221,7 +253,11 @@ anti-pattern every other Core module in this platform was built to avoid:
 **Purpose:** the one reusable service every other Form/Engine calls to compare actual vs. plan.
 
 - `VarianceService::evaluate(subjectType, subjectId, metricRef, period): VarianceResult` where
-  `metricRef` can be a KPI+Target, a Budget line, or a Forecast line.
+  `metricRef` can be a KPI+Target, a Budget line, or a Forecast line. For a Budget line,
+  `actual_value` resolves per §3B's actual-sourcing rule — from Accounting's GL (when mapped
+  and installed) or from `perf.budget_actuals` (manual fallback) — `VarianceService` itself
+  doesn't care which source produced the number, it just compares plan vs. actual, same as for
+  any other `metricRef` type.
 - Returns: `plan_value`, `actual_value`, `variance_abs`, `variance_pct`, and `status`
   (`on_track` / `warning` / `breach`), using the KPI's direction (higher/lower-is-better) or,
   for Budget, a simple over/under-spend threshold configurable per tenant (default: within 5%
@@ -272,6 +308,12 @@ Master / lookup tables
 Transaction / log tables
 - `PERF.budget_hdrs` — header: subject, period, status, owner, version.
 - `PERF.budget_lines` — `budget_id`, category, period slice, `amount_planned`.
+- `PERF.budget_category_accounts` — tenant-editable mapping: category → one or more
+  `ACCOUNTING.accounts.id` (informational reference, not an enforced FK, since Accounting is
+  an optional install), optional company scope.
+- `PERF.budget_actuals` — manual-entry fallback: `budget_line_id`, period, `actual_value`,
+  entered_by, entered_at — same shape as `PERF.kpi_values`, used only when a category isn't
+  GL-mapped or Accounting isn't installed.
 - `PERF.targets` — `kpi_id`, subject, period, `target_value`, `stretch_value`.
 - `PERF.kpi_values` — `kpi_id`, subject, period, `actual_value`, source, entered_by, entered_at.
 - `PERF.okr_objectives` — `cycle_id`, subject, objective text, `parent_okr_id`, status.
@@ -306,6 +348,12 @@ Exposes:
 - **WNE** — all threshold-breach notifications, "congratulations" achievement notices, and the
   optional budget-approval workflow route through WNE's facade/events. Performance does not
   send mail/SMS or implement approval state machines itself.
+- **Accounting** — soft dependency, scoped to budget-actual sourcing only (§3B/§3G). When
+  installed and a budget category is mapped to one or more GL accounts, Performance reads
+  actual spend via `AccountingService::getAccountBalance(...)` instead of requiring manual
+  entry. Performance never posts to Accounting, never becomes a second GL, and functions fully
+  on manual actuals if Accounting is absent — same scoped-soft-dependency shape Purchase and
+  Sales use toward Inventory (`PURCHASE_SPECS.md` §5, `SALES_SPECS.md` §5).
 - **Schedule** — periodic review cadence ("weekly OKR check-in due," "monthly budget review")
   is a Schedule Task with `subject_type = 'performance.okr_objectives'` (or budget_hdrs),
   created by Performance but *owned/rendered* by Schedule — Performance doesn't build its own
@@ -330,10 +378,7 @@ call it rather than each computing their own variance logic — keeps the "what 
 on-track" rule consistent and changeable in one place.
 
 **Tenant isolation note:** Performance tables carry **no** `tenant_id` column, consistent with
-`CLAUDE.md` §4/§7's DB-per-tenant rule. This is a deliberate correction, not an oversight —
-WNE's existing tables use an explicit `tenant_id` column, which Simon has already flagged as an
-open inconsistency to reconcile. New modules (Performance included) should follow the
-CLAUDE.md-documented DB-per-tenant convention rather than propagate WNE's pattern further.
+`CLAUDE.md` §4/§7's DB-per-tenant rule.
 
 **Versioning/non-destructive history:** Budgets (on approval-lock) and Forecasts both version
 forward instead of overwriting — same principle DMS uses for document versions — so "what did
@@ -357,6 +402,10 @@ queue for MVP.
 - Achievements, kept factual rather than game-ified, fits the calm/professional tone in
   `DESIGN.md` §5 (no forced friendliness) while still giving a positive, sellable "recognize
   good performance" talking point.
+- Once a tenant also has Accounting installed, Performance's budget-vs-actual numbers can
+  reconcile to real posted GL data instead of a manually-typed figure — the same "one true
+  number, not two disagreeing reports" trust story already used for Sales/Accounting AR and
+  Purchase/Accounting AP.
 
 **Suggested build order for Claude Code:** 3C (KPI library + Targets) → 3D (actuals capture,
 manual) → 3G (Variance Engine — highest leverage, everything else calls it) → 3B (Budgeting) →

@@ -61,7 +61,7 @@ front door to all of them)**
 | **HR / Core HCM** | Full — this is the foundation every other submodule (and every future one) depends on. |
 | **Time & Attendance** | Simple clock in/out (web + mobile-responsive), shift assignment, basic late/absence flag. |
 | **Leave Management** | Policy setup, entitlement/balance, request → WNE approval → balance deduction. Indonesian statutory leave types pre-seeded (annual, sick, maternity, marriage, bereavement, Hajj). |
-| **Payroll** | Indonesia-compliant: PPh 21 (TER method), BPJS Kesehatan + Ketenagakerjaan, THR calculation, statutory overtime, payslip generation, bank-transfer-ready payment file. Multi-run/retroactive correction workflows deferred. |
+| **Payroll** | Not owned by HCM — a hard-dependency, standalone **Payroll** module (`PAYROLL_SPECS.md`) consumes `HCM.employees`, `HCM.attendance_logs`, and `HCM.leave_requests` via facade/events. HCM's own screens surface run status/payslips read-only through `PayrollService`, per §3G below. |
 | **Employee Self-Service** | Employee + manager portal: profile, payslip download, leave request/approval, attendance view, document access (via DMS). |
 
 **Future Version (post-launch — data model stubbed now so no breaking migration later)**
@@ -117,7 +117,8 @@ eventually Payroll/Time/Leave/ESS, hangs off this record.
 - **Employment fields:** employee number (tenant-configurable format), hire date, employment
   status (`active` / `on_leave` / `suspended` / `terminated`), position (FK →
   `hcm.positions`), department/org unit, direct manager (derived from position's reporting
-  line), bank account (for payroll disbursement, 3G).
+  line). Bank account is **not** stored here — see 3G: it lives in
+  `PAYROLL.employee_bank_accounts`, read through `PayrollService` if HCM's UI ever needs it.
 - **Contract summary tab:** current + historical `hcm.employment_contracts` (see 3D).
 - **Documents tab:** attached via `DocumentService::attach()` into DMS
   (`subject_type = 'hcm.employees'`) — contract PDFs, ID scans, certificates. HCM stores no
@@ -141,7 +142,13 @@ eventually Payroll/Time/Leave/ESS, hangs off this record.
 **Purpose:** the org chart and job catalog that Positions, Payroll, and reporting-line
 resolution all depend on.
 
-- `hcm.org_units` — tree (department/division/branch), self-referencing `parent_org_unit_id`.
+- `hcm.org_units` — tree (department/division/branch), self-referencing `parent_org_unit_id`,
+  optional nullable `accounting_cost_center_id` (informational reference to
+  `ACCOUNTING.cost_centers.id`, not an enforced FK, since Accounting is an optional install)
+  so payroll/HR costs for this org unit can be attributed to a financial cost center when
+  Accounting is installed — see §5. `hcm.org_units` itself remains purely an organizational/
+  reporting-line concept (who reports to whom) — it is not, and doesn't need to be, a 1:1
+  mirror of Accounting's cost-center dimension; the mapping is optional per unit, not assumed.
 - `hcm.jobs` — job title/catalog (master), independent of any specific person filling it.
 - `hcm.positions` — a specific seat: `job_id`, `org_unit_id`, `reports_to_position_id`
   (self-referencing — this is what drives manager resolution across the whole module, same
@@ -232,57 +239,42 @@ Indonesian statutory leave types so a tenant is compliant out of the box.
 - Approved leave overlapping a shift automatically excuses that day from Attendance exceptions
   (3E) — no double-flagging a legitimately absent employee as "no-show."
 
-## 3G. Payroll Engine — Indonesia-Compliant
+## 3G. Payroll — Consumed from the Payroll Module (not owned by HCM)
 
-**Purpose:** the highest-stakes submodule — must be correct, not just fast. Runs monthly payroll
-producing a compliant payslip and a bank-transfer-ready payment file.
+**Purpose:** HCM is the identity/employment system of record; all statutory calculation, run
+processing, and disbursement lives in the standalone **Payroll** module (`PAYROLL_SPECS.md`).
+This mirrors the "extend, don't duplicate" seam already used for Purchase's `vendor_profiles`
+and Sales's `customer_sales_profiles`/`customer_credit_profiles` over `CRM.partners` — HCM
+owns the person, Payroll owns the pay run.
 
-**Statutory rate tables (versioned master data — the core design decision for this engine):**
-- `hcm.ptkp_statuses`: PTKP (non-taxable income) categories (TK/0, TK/1, TK/2, TK/3, K/0, K/1,
-  K/2, K/3, ...) mapped to annual non-taxable amount and **TER category** (A/B/C, per PMK
-  168/2023's simplified monthly withholding method).
-- `hcm.ter_rates`: TER category × income bracket → monthly effective withholding rate. Loaded
-  as versioned, effective-dated data (`effective_from`/`effective_to`) — when the government
-  revises rates, a tenant admin loads a new table version; no code deploy required.
-- `hcm.bpjs_rates`: contribution type (Kesehatan / JKK / JKM / JHT / JP), employer %, employee
-  %, wage floor/ceiling for the contribution base — also versioned/effective-dated (JKK rate
-  additionally varies by tenant's registered risk class, a field on the tenant's HCM settings).
-- `hcm.regional_minimum_wages`: province/city (UMP/UMK) × year — informational compliance
-  check at contract creation (3D), warns if `base_salary` is below the applicable minimum, does
-  not hard-block (tenant may have valid exemptions).
-
-**Payroll run:**
-- `hcm.payroll_periods`: month/year, status (`draft` → `calculated` → `approved` → `paid` →
-  `closed`).
-- `hcm.payroll_run_items`: per employee per period — base salary, attendance-derived overtime
-  (per Kepmenaker formula: 1.5× hourly rate for the 1st overtime hour, 2× for subsequent hours,
-  computed from `hcm.attendance_logs`), allowances, BPJS Kesehatan + Ketenagakerjaan
-  (JKK/JKM/JHT/JP) employer and employee portions (computed from `bpjs_rates` against gross,
-  respecting the wage ceiling), PPh 21 withholding (computed via TER against `ptkp_status`, with
-  year-end reconciliation using the progressive statutory rates — 5/15/25/30/35% brackets —
-  deferred to a December/final-period run rather than every month, per how TER is designed to
-  work), other deductions, net pay.
-- **THR (`Tunjangan Hari Raya`):** a separate, non-monthly run — one month's base salary,
-  pro-rated for employees with under 12 months' tenure (`tenure_months / 12 × base_salary`),
-  generated ahead of the employee's registered religious holiday (per `hcm.employees.religion`)
-  with the statutory H-7 (7 days before) payment deadline surfaced as a Dashboard reminder via
-  WNE.
-- **Payslip:** generated per employee per period (PDF via the existing document-generation
-  approach used elsewhere in the platform), stored in DMS (`subject_type =
-  'hcm.payroll_run_items'`), accessible to the employee via ESS (3H).
-- **Payment file:** simple bank-transfer-ready export (CSV, generic format — tenant's bank
-  specific format templates are a Future Version add-on, not a blocker) once a run is
-  `approved`.
+- `PAYROLL.employee_payroll_profiles` is a 1:1 extension of `HCM.employees.id` (cross-schema
+  FK, Core-to-Core, same allowed direction CRM/DMS/WNE already document for each other) —
+  payroll group, salary structure, JKK risk category, and PTKP status live there, not on
+  `HCM.employees`. Bank account (for disbursement) is likewise Payroll-owned, in
+  `PAYROLL.employee_bank_accounts` (`PAYROLL_SPECS.md` §4) — not duplicated onto
+  `HCM.employees`.
+- HCM publishes `hcm.employee_hired`, `hcm.employee_terminated`,
+  `hcm.employee_position_changed`, `hcm.attendance_logged`, `hcm.leave_approved` — Payroll
+  subscribes to these to drive overtime input (from attendance) and unpaid-leave deduction
+  (from approved leave) automatically, rather than either being a manual/imported input as
+  originally scoped in Payroll's MVP. HCM has zero compile-time dependency on Payroll classes
+  — same feature-flag-safe posture Schedule already uses toward WNE.
+- HCM's own screens (Dashboard 3A "Payroll Run Status" card, ESS payslip tab 3H) read
+  run/payslip data through `PayrollService::getRunStatus()` / `PayrollService::getPayslips()`
+  — HCM stores no run/payslip rows itself.
+- **Terminating an employee in HCM** (§3B) fires `hcm.employee_terminated`; Payroll listens
+  and offers Final Payroll (severance) against its own rate tables — HCM supplies the
+  tenure/termination-reason facts, Payroll's engine does the calculation.
 
 **Rules / logic**
-- Payroll run approval routes through WNE (`workflow_code = hcm.payroll_approval`) before
-  moving from `calculated` to `approved` — reuse WNE, no parallel approval logic.
-- Once a period is `closed`, its `payroll_run_items` are immutable; corrections happen via a
-  new adjustment row in the *next* period, never by editing history — same audit-integrity
-  principle DMS applies to its access log (3I) and CRM applies to merge logs (3G).
-- Severance (`pesangon`)/termination pay calculation (UU Cipta Kerja formula, tenure-banded) is
-  a manual-trigger one-off calculation off the Employee record at termination time, using the
-  same rate tables — not a recurring payroll run.
+- A tenant cannot enable Payroll without HCM enabled — a **hard** dependency (same posture
+  Sales has toward CRM), not the soft/optional integration pattern HCM uses toward
+  Schedule/DMS.
+- PTKP status, once set on `employee_payroll_profiles`, is Payroll's field to manage — HCM's
+  employee record carries no tax-status field of its own, closing off the exact
+  two-places-to-update risk this restructuring exists to eliminate. Bank account follows the
+  same rule: `PAYROLL.employee_bank_accounts` is the one place it's edited; HCM never carries
+  its own copy.
 
 ## 3H. Employee Self-Service (ESS) Portal
 
@@ -331,8 +323,11 @@ single biggest "why should I pay for this" argument for a solo-dev-built HCM pro
 ## 3M. Compensation — **Future Version**
 
 - Salary bands/grades per job (3C), structured comp review cycles, merit increase workflows
-  (would route through WNE). MVP Payroll's flat `base_salary` field on the contract (3D) is
-  forward-compatible — banding is additive metadata on top, not a schema rework.
+  (would route through WNE). MVP Payroll's flat `base_salary` field on the contract (3D), and
+  Payroll's own lightweight `PAYROLL.grades` lookup (`PAYROLL_SPECS.md` §4 — an optional label
+  for grouping employees onto a Salary Structure, not a banding system), are both
+  forward-compatible — this Future Version item formalizes banding/grading on top of them, not
+  a schema rework of either.
 
 ## 3N. Benefits — **Future Version**
 
@@ -354,26 +349,27 @@ single biggest "why should I pay for this" argument for a solo-dev-built HCM pro
 
 # 4. Storage
 
-**Database (schema `HCM`, tenant DB — consistent with `CLAUDE.md` §7A, no `tenant_id` column,
-DB-per-tenant is the isolation boundary, matching DMS/CRM/Schedule rather than WNE's
-`tenant_id`-column outlier):**
+**Database (schema `HCM`, tenant DB):**
 
 **Master / lookup tables**
-- `HCM.org_units`, `HCM.jobs`, `HCM.positions`
+- `HCM.org_units` (includes optional `accounting_cost_center_id`, see §3C/§5), `HCM.jobs`,
+  `HCM.positions`
 - `HCM.leave_types`, `HCM.leave_policies`
 - `HCM.shifts`
-- `HCM.ptkp_statuses`, `HCM.ter_rates`, `HCM.bpjs_rates`, `HCM.regional_minimum_wages`
-  (versioned statutory rate tables)
+- `HCM.regional_minimum_wages` (versioned; the one statutory rate table that stays in HCM,
+  since it's a contract-creation compliance check — see §3D — not a payroll-run input)
 
 **Employee & employment tables**
 - `HCM.employees` (identity, statutory IDs, employment status, position ref, bank account)
 - `HCM.employee_position_history`
 - `HCM.employment_contracts`
 
-**Time, leave, payroll transaction tables**
+**Time, leave transaction tables**
 - `HCM.shift_assignments`, `HCM.attendance_logs`, `HCM.attendance_corrections`
 - `HCM.leave_balances`, `HCM.leave_requests`
-- `HCM.payroll_periods`, `HCM.payroll_run_items`, `HCM.thr_run_items`
+
+Payroll run/payslip/THR tables move entirely to `PAYROLL.payroll_periods` /
+`PAYROLL.payroll_run_lines` / `PAYROLL.thr_calculations` — see `PAYROLL_SPECS.md` §4.
 
 **Future-Version stub tables (empty/minimal at launch, additive migrations only):**
 - `HCM.candidates`, `HCM.job_requisitions` (ATS)
@@ -381,6 +377,15 @@ DB-per-tenant is the isolation boundary, matching DMS/CRM/Schedule rather than W
 - `HCM.courses`, `HCM.enrollments`, `HCM.certifications` (LMS)
 - `HCM.salary_bands` (Compensation)
 - `HCM.benefit_plans`, `HCM.benefit_enrollments` (Benefits)
+
+**Custom fields:** `HCM.employees` is registered as an extensible entity
+(`entity_type = 'hcm_employee'`, the same key `CUSTOMFIELDS_SPECS.md` §3G already uses as its
+own worked example) against the existing `CUSTOMFIELDS` schema (per `CLAUDE.md` §7A) — a
+tenant-specific field on an employee record (e.g. a local staff ID scheme, a union membership
+number) never requires an HCM migration. This registration belongs to HCM, not Payroll: Payroll
+reads `HCM.employees` via cross-schema FK (§5) but does not own the table, so it does not
+register it — Payroll's own custom-fields registration (`PAYROLL_SPECS.md` §5) is limited to
+the tables Payroll actually owns.
 
 **Object file storage:** none owned by HCM directly — all documents (contracts, ID scans,
 certificates, payslips, doctor's notes) flow through `DocumentService` into DMS's existing
@@ -394,14 +399,24 @@ storage code in HCM, same rule DMS itself applies to every other module.
 **Architecture pattern:** Core module, same monolithic-modular posture as WNE/DMS/CRM/Schedule,
 at `app/Modules/HCM/`. Exposes:
 - **Internal facade/service** — `EmployeeService::hire(...)`, `LeaveService::request(...)`,
-  `AttendanceService::clockIn(...)`, `PayrollService::runPeriod(...)`,
-  `PayrollService::calculatePph21(...)` — preferred integration point for other modules and for
-  ESS itself (ESS is a UI/permission layer, not a separate service layer).
-- **Internal event bus** — publishes `hcm.employee_hired`, `hcm.contract_expiring`,
-  `hcm.leave_requested`, `hcm.leave_approved`, `hcm.payroll_run_completed`,
-  `hcm.shift_assigned`. Vertical modules may subscribe (e.g. Legal wanting to know when its
-  assigned paralegal is on leave); HCM never subscribes to or calls into vertical modules —
-  same one-way Core→never→Vertical rule as everywhere else.
+  `AttendanceService::clockIn(...)` — preferred integration point for other modules and for
+  ESS itself (ESS is a UI/permission layer, not a separate service layer). Payroll calculation
+  (`PayrollService::runPeriod(...)`, `PayrollService::calculatePph21(...)`) is owned by the
+  Payroll module, not HCM — HCM calls *into* Payroll's facade for read-only run/payslip
+  status, never the reverse.
+- **Internal event bus** — publishes `hcm.employee_hired`, `hcm.employee_terminated`,
+  `hcm.employee_position_changed`, `hcm.contract_expiring`, `hcm.leave_requested`,
+  `hcm.leave_approved`, `hcm.attendance_logged`, `hcm.shift_assigned` — this list now matches
+  what §3B/§3D/§3E/§3F/§3G actually describe HCM firing (the previous version of this list
+  omitted `employee_terminated`/`employee_position_changed`/`attendance_logged`, all three of
+  which Payroll's own hard dependency on HCM, per `PAYROLL_SPECS.md` §5, requires). Vertical
+  modules may subscribe (e.g. Legal wanting to know when its assigned paralegal is on leave);
+  HCM never subscribes to or calls into vertical modules — same one-way Core→never→Vertical
+  rule as everywhere else. (`hcm.payroll_run_completed` has been removed from this list — HCM's
+  own Payroll Run Status card (§3A) and payslip tab (§3H) read that data synchronously via
+  `PayrollService::getRunStatus()`/`::getPayslips()` per §3G, not via an event subscription;
+  Payroll owns its own run-status events, if any are ever needed, under its own `payroll.*`
+  namespace, not HCM's.)
 
 **Why HCM does not reuse `CRM.partners` for employees, despite the surface similarity:**
 Employees carry statutory fields (NIK, NPWP, BPJS numbers, PTKP status, employment contract
@@ -413,12 +428,29 @@ wants "is this partner also an employee" cross-linking (e.g. a Legal partner who
 referral source), that's a loose `hcm.employees.linked_partner_id` (nullable, informational, not
 a FK-enforced merge) — not a shared table.
 
+**Why Payroll is a separate module, not a submodule of HCM:** Payroll was originally speced as
+its own standalone Core module with its own minimal `employees` table, on the assumption no HR
+module existed yet. Now that HCM does, keeping two independently-maintained PPh21/TER/BPJS
+calculators would be the single highest compliance risk in the platform — a rate update
+applied in one and missed in the other produces incorrect payslips silently. Payroll keeps its
+own schema and module folder (`app/Modules/Payroll/`) because the calculation engine,
+statutory rate tables, and run lifecycle are large enough to warrant staying a distinct module
+— but employee identity is removed from Payroll's schema entirely and sourced from HCM via
+`employee_payroll_profiles`. This is a **restructuring**, not a merge: two modules, one source
+of truth for "who is this employee."
+
 **Cross-module reuse (decoupled, event-driven — same seam as every other Core module):**
 - **WNE** — all approvals (leave, attendance correction, payroll run) and all reminders
   (contract expiring, probation ending, THR due) route through WNE. HCM implements zero
   parallel approval or notification logic.
 - **DMS** — all documents (contracts, ID/certificate scans, payslips, leave attachments) flow
   through `DocumentService`. HCM implements zero parallel storage/versioning logic.
+- **Accounting** — soft dependency, scoped to cost-center attribution only. `HCM.org_units`
+  can optionally map to `ACCOUNTING.cost_centers` (§3C) so a tenant running both modules sees
+  payroll/HR costs attributed to the same financial cost-center dimension Accounting and
+  Purchase already share (`ACCOUNTING_SPECS.md` §3B/§3I, `PURCHASE_SPECS.md` §4/§5) — HCM's
+  org chart and reporting-line resolution function identically whether or not this mapping, or
+  Accounting itself, exists.
 - **Schedule** — shift assignments and approved leave can optionally mirror into Schedule as
   read-only calendar entries for unified calendar visibility, if the tenant has Schedule
   enabled. HCM has zero compile-time dependency on Schedule classes — same feature-flag-safe
@@ -451,9 +483,11 @@ tenant-editable/admin-loadable data — no code deploy needed, same lever CRM's 
 Role/Lead-source/Ticket-category lookups already establish for cross-vertical reusability.
 
 **Marketability notes**
-- Indonesia-compliant Payroll (TER-method PPh 21 + BPJS + THR) is a genuine differentiator
-  versus generic international HR software — worth leading with in sales demos for the
-  Indonesian SMB/legal-firm market, not burying as a checkbox feature.
+- Indonesia-compliant Payroll (TER-method PPh 21 + BPJS + THR), *via the Payroll module*, is a
+  genuine differentiator versus generic international HR software — worth leading with in
+  sales demos for the Indonesian SMB/legal-firm market. HCM's role in that story is supplying
+  clean employee/attendance/leave data Payroll's engine runs against, not computing the
+  numbers itself.
 - ESS (self-service payslips, leave requests, attendance) is the feature employees *see* daily
   even if HR/finance bought the product — strong day-to-day engagement driver, which matters
   for subscription retention.
@@ -464,7 +498,9 @@ Role/Lead-source/Ticket-category lookups already establish for cross-vertical re
   now.
 
 **Suggested build order for Claude Code:** 3B/3C (Employee + Org core) → 3D (Contracts, incl.
-minimal hire entry point) → 3F (Leave, wired into WNE) → 3E (Attendance) → 3G (Payroll —
-statutory rate tables first, then the run engine; this is the largest single build item and
-should not be rushed) → 3H (ESS, mostly a permission-scoped UI over the above) → 3A (Dashboard)
-→ then revisit 3I/3J/3K/3L/3M/3N/3O as Future Version once MVP is validated with a real tenant.
+minimal hire entry point) → 3F (Leave, wired into WNE) → 3E (Attendance) → **Payroll module
+built and integrated here** (see `PAYROLL_SPECS.md` — statutory rate tables, then the run
+engine; the largest single build item in the platform, treat as its own build phase against
+HCM's already-published employee/attendance/leave events) → 3H (ESS, mostly a
+permission-scoped UI over HCM + a read-through to Payroll) → 3A (Dashboard) → then revisit
+3I/3J/3K/3L/3M/3N/3O as Future Version once MVP is validated with a real tenant.
