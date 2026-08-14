@@ -544,11 +544,11 @@ this repeats the same anti-pattern WNE/DMS/CRM were built to avoid:
 
 ## 3O. Audit & Compliance
 
-- `acct.audit_logs`: append-only, one row per action (`journal_created`, `journal_posted`,
+- `ACCOUNTING.audit_logs`: append-only, one row per action (`journal_created`, `journal_posted`,
   `journal_reversed`, `period_closed`, `period_reopened`, `invoice_posted`, `bill_posted`,
   `payment_posted`, `tax_document_issued`, `tax_document_cancelled`, `master_data_changed`),
   actor, timestamp, before/after snapshot for master-data changes — same immutable pattern as
-  `dms.access_logs`.
+  `DMS.access_logs`.
 - **Period locking**: soft-close (blocks ordinary posting, allows elevated-approval exception)
   and hard-close (blocks all posting into that period, including exceptions — only reversible
   by explicitly reopening, itself an audited, approval-gated action).
@@ -556,7 +556,7 @@ this repeats the same anti-pattern WNE/DMS/CRM were built to avoid:
   log captures the WNE approval chain reference, not a duplicate approval record.
 
 **Rules / logic**
-- No update/delete permitted on `acct.audit_logs` or on any posted journal/tax document at the
+- No update/delete permitted on `ACCOUNTING.audit_logs` or on any posted journal/tax document at the
   app layer — matches DMS's audit-integrity rule; this is a compliance requirement, not a
   style preference, for both PSAK audit trail expectations and Coretax's own
   replace-not-edit model.
@@ -611,9 +611,9 @@ this repeats the same anti-pattern WNE/DMS/CRM were built to avoid:
   Sales — so there is exactly one AR-side caller in the platform, not one per vertical. CRM's
   `ServiceCaseSLABreached`-style events could trigger a credit memo workflow the same way, also
   via Sales.
-**Purchase is the primary consumer of `BillRequested`**: its three-way-match approval
-(`PURCHASE_SPECS.md` §3F) fires it for every vendor bill, instead of Purchase maintaining its
-own AP ledger.
+- **Purchase is the sole AP-side caller of `BillRequested`**: its three-way-match approval
+  (`PURCHASE_SPECS.md` §3F) fires it for every vendor bill, instead of Purchase maintaining its
+  own AP ledger.
 
 - **Consumed events**: `inventory.goods_received` / `inventory.goods_issued` /
   `inventory.stock_adjusted` (§3H, from the **Inventory** module — see

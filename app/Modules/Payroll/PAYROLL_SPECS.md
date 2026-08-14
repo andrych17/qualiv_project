@@ -115,8 +115,10 @@ Kerja. Left unsolved, or bolted onto a generic "salary" field:
 - **e-SPT / Coretax direct API submission** — MVP produces correctly formatted export data;
   direct API filing is a fast-follow once Coretax's integration API stabilizes for
   third-party payroll systems.
-- **Employee self-service portal** (view own payslips, submit reimbursements/leave) — v1 is
-  admin/HR-operated; self-service is a UX layer on the same data, not a schema change.
+- **Employee-submitted reimbursement requests** — v1 is admin/HR-operated; self-service
+  submission is a UX layer on the same data, not a schema change. (Payslip *viewing* is **not**
+  deferred — see the MVP scope boundary below: HCM's ESS portal, `HCM_SPECS.md` §3H, is the
+  MVP front door and reads payslips through `PayrollService::getPayslips()`.)
 - **Multi-country/multi-currency payroll** — out of scope; this module is Indonesia-first by
   design (PTKP/TER/BPJS/THR/severance are all Indonesia-specific), but the rule-versioning
   architecture (§5) is what would let a second country's rules be added without a rewrite.
@@ -622,9 +624,9 @@ deterministic/idempotent (safe to re-run against the same inputs) — this matte
 mid-calculation regulatory-rule change must never partially apply to a run already in progress
 (resolve rule versions once, at run start, and hold them for the whole run).
 
-**IDs:** `BIGSERIAL` for all internal PKs/FKs per `CLAUDE.md` §7; add UUID on `employees` and
-`payroll_run_lines` for future external-facing use (employee self-service portal, per §2 Future
-Version), mirroring CRM's `uuid` rationale.
+**IDs:** `BIGSERIAL` for all internal PKs/FKs per `CLAUDE.md` §7; add UUID on
+`employee_payroll_profiles` and `payroll_run_lines` for future external-facing use (employee
+self-service portal, per §2 Future Version), mirroring CRM's `uuid` rationale.
 
 **Custom fields:** `payroll_components` and `payroll_runs` register against the existing
 `CUSTOMFIELDS` schema (per `CLAUDE.md` §7A) — a tenant-specific field (e.g. "Cost Center")
@@ -638,8 +640,11 @@ not register its custom fields.
   its own Payroll GL Posting engine (`ACCOUNTING_SPECS.md` §3S); the flat CSV cost summary
   (§3-Reports) remains a human-readable companion report, not the GL's source of truth.
 - No live bank disbursement API — file export only.
-- No employee self-service UI — admin/HR-operated screens only; the data model already
-  supports self-service as a Future Version UI layer without a schema change.
+- No Payroll-owned ESS UI of its own — HCM's ESS portal (`HCM_SPECS.md` §3H) is the MVP front
+  door for employees/managers and reads payslips + run status through
+  `PayrollService::getPayslips()` / `getRunStatus()` (§5 above). Payroll ships those service
+  methods at MVP but builds no self-service screens of its own. Employee-submitted
+  reimbursement requests remain Future Version (§2).
 
 **Suggested build order for Claude Code:** confirm HCM is built and `hcm.employee_hired` /
 `hcm.attendance_logged` / `hcm.leave_approved` events are live first (hard dependency) → 3B

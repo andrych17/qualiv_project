@@ -14,6 +14,15 @@ Ladder (prefer lower first):
   6. Vertical module → app/Modules/Legal …
 ```
 
+> **Scope note:** the worked example below (`LEGAL.cases` / `CASE_PREFIX` / `PrefixedCaseCodeGenerator`) is the
+> currently-shipped Legal MVP — real, routed, tested code (`app/Modules/Legal/Controllers/LegalCaseController.php`,
+> `tests/Feature/LegalCaseCrudTest.php`) — used here purely to demonstrate the ladder mechanism end-to-end.
+> `LEGAL_SPECS.md` specs a much larger notary/PPAT deed-management model (`LEGAL.matters`/`LEGAL.deeds`/
+> `protocol_entries`, deed numbering via a protocol-book row-lock) that supersedes `cases` on paper but has no
+> migration yet and isn't built. Until that lands, treat this page's ladder mechanics (consts → serials → custom
+> fields → custom logic) as canonical, and its `cases`-specific table/column names as MVP-only, not a claim about
+> Legal's final shape.
+
 ---
 
 ## 1. DB

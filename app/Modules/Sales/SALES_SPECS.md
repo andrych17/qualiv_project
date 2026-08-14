@@ -219,7 +219,7 @@ qualified chance to sell something, whether or not a Lead was involved.
 - Header: `customer_id`, source (`quote_id` nullable — direct orders allowed), price list
   (locked at order time), status (draft → confirmed → partially fulfilled → fulfilled →
   cancelled), `subject_type`/`subject_id` (optional polymorphic link back to a vertical record,
-  e.g. `legal.case_hdrs` — same seam as every other module).
+  e.g. `legal.matters` — same seam as every other module).
 - Lines: item/service, qty ordered, qty delivered (rolls up from Delivery), qty invoiced (rolls
   up from Billing), unit price, discount, tax.
 - Confirming an order runs the **Credit Check** (3J) synchronously — a customer over their
