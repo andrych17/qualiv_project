@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Modules\Config\Controllers;
+namespace App\Modules\SysConfig\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Modules\Config\Models\ConfigConst;
-use App\Modules\Config\Requests\StoreConfigConstRequest;
-use App\Modules\Config\Requests\UpdateConfigConstRequest;
-use App\Modules\Config\Services\ConfigConstService;
+use App\Modules\SysConfig\Models\ConfigConst;
+use App\Modules\SysConfig\Requests\StoreConfigConstRequest;
+use App\Modules\SysConfig\Requests\UpdateConfigConstRequest;
+use App\Modules\SysConfig\Services\ConfigConstService;
 use App\Shared\Helpers\TableQuery;
 use App\Shared\Traits\BulkDeletable;
 use Illuminate\Http\Request;

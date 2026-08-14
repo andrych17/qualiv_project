@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Config\Models;
+namespace App\Modules\SysConfig\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;

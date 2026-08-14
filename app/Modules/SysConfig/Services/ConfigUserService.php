@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Modules\Config\Services;
+namespace App\Modules\SysConfig\Services;
 
 use App\Models\User;
-use App\Modules\Config\Models\ConfigGroup;
-use App\Modules\Config\Models\ConfigGroupUser;
+use App\Modules\SysConfig\Models\ConfigGroup;
+use App\Modules\SysConfig\Models\ConfigGroupUser;
 use App\Services\TenantMembershipService;
 use Illuminate\Support\Facades\DB;
 

@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Modules\Config\Controllers;
+namespace App\Modules\SysConfig\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Modules\Config\Models\ConfigGroup;
-use App\Modules\Config\Models\ConfigMenu;
-use App\Modules\Config\Models\ConfigRight;
-use App\Modules\Config\Requests\StoreConfigGroupRequest;
-use App\Modules\Config\Requests\UpdateConfigGroupRequest;
-use App\Modules\Config\Services\ConfigGroupService;
+use App\Modules\SysConfig\Models\ConfigGroup;
+use App\Modules\SysConfig\Models\ConfigMenu;
+use App\Modules\SysConfig\Models\ConfigRight;
+use App\Modules\SysConfig\Requests\StoreConfigGroupRequest;
+use App\Modules\SysConfig\Requests\UpdateConfigGroupRequest;
+use App\Modules\SysConfig\Services\ConfigGroupService;
 use App\Shared\Helpers\TableQuery;
 use App\Shared\Traits\BulkDeletable;
 use Illuminate\Http\Request;
