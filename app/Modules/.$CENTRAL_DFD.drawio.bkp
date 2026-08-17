@@ -1,0 +1,118 @@
+<mxfile host="app.diagrams.net" modified="2026-08-14T00:00:00Z" agent="node-script" version="24.7.5" type="device">
+  <diagram id="central-dfd" name="CENTRAL - DFD (Level 1)">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1950" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+<mxCell id="n1t" value="CENTRAL Module — Level-1 Data Flow Diagram (Gane-Sarson)" style="text;html=1;fontSize=22;fontStyle=1;fontColor=#12181F;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="-60" width="1100" height="30" as="geometry"/></mxCell>
+<mxCell id="n1a" value="Sharp rectangle = External Entity" style="text;html=1;fontSize=11;fontColor=#12181F;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="-20" width="520" height="20" as="geometry"/></mxCell>
+<mxCell id="n1b" value="Rounded rectangle = Process (engine, §3 of spec)" style="text;html=1;fontSize=11;fontColor=#1F5FBF;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="0" width="520" height="20" as="geometry"/></mxCell>
+<mxCell id="n1c" value="Open-sided rectangle = Data Store (table group)" style="text;html=1;fontSize=11;fontColor=#4A5563;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="20" width="520" height="20" as="geometry"/></mxCell>
+<mxCell id="n1d" value="(dashed) Dashed border/flow = cross-boundary hop (platform&#8596;tenant DB, or Future Version)" style="text;html=1;fontSize=11;fontColor=#4A5563;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="40" width="700" height="20" as="geometry"/></mxCell>
+<mxCell id="n2" value="Simon
+(platform admin, external entity)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="90" width="200" height="60" as="geometry"/></mxCell>
+<mxCell id="n3" value="Tenant Admin
+(logged in inside their own tenant app)
+[cross-boundary — §3H]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="40" y="220" width="200" height="80" as="geometry"/></mxCell>
+<mxCell id="n4" value="Bank Transfer
+(manual, off-platform)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="610" width="200" height="60" as="geometry"/></mxCell>
+<mxCell id="n5" value="Scheduled Job Runner
+(cron — invoice gen, dunning)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="730" width="200" height="70" as="geometry"/></mxCell>
+<mxCell id="n6" value="stancl/tenancy
+(actual DB creation)
+[infrastructure]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1650" y="90" width="220" height="70" as="geometry"/></mxCell>
+<mxCell id="n7" value="SYSCONFIG (per tenant DB)
+(tenant_modules visibility toggle)
+[Core — narrows, never widens]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="1650" y="220" width="220" height="80" as="geometry"/></mxCell>
+<mxCell id="n8" value="module: / EnsureTenantStanding middleware
+(every tenant module, every request)
+[Core]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="1650" y="360" width="220" height="80" as="geometry"/></mxCell>
+<mxCell id="n9" value="Redis
+(central:tenant:{id}:access_status cache)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1650" y="500" width="220" height="60" as="geometry"/></mxCell>
+<mxCell id="n10" value="Cloudflare R2
+(central/ prefix — receipts, invoice PDFs)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1650" y="610" width="220" height="60" as="geometry"/></mxCell>
+<mxCell id="n11" value="Email Provider
+(dunning reminders — MVP's only channel)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1650" y="720" width="220" height="60" as="geometry"/></mxCell>
+<mxCell id="n12" value="P1  Tenant Registry &amp;amp; Provisioning
+(§3B — canonical tenants record + provisioning trigger)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="400" y="90" width="260" height="80" as="geometry"/></mxCell>
+<mxCell id="n13" value="P2  Plan &amp;amp; Module Entitlement
+(§3C/§3D — TenantFeatureService::isEntitled)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="400" y="210" width="260" height="80" as="geometry"/></mxCell>
+<mxCell id="n14" value="P3  Billing / Invoice Engine
+(§3E — scheduled generation, itemized)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="400" y="330" width="260" height="80" as="geometry"/></mxCell>
+<mxCell id="n15" value="P4  Payment Capture &amp;amp; Confirmation
+(§3F — receipt upload, manual review)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="400" y="450" width="260" height="80" as="geometry"/></mxCell>
+<mxCell id="n16" value="P5  Dunning Engine
+(§3G — reminders + soft cutoff)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="400" y="570" width="260" height="80" as="geometry"/></mxCell>
+<mxCell id="n17" value="P6  Central Admin Dashboard
+(§3A)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="750" y="90" width="240" height="70" as="geometry"/></mxCell>
+<mxCell id="n18" value="P7  Tenant-Facing Billing Screen
+(§3H — cross-boundary Eloquent connection)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="750" y="210" width="240" height="80" as="geometry"/></mxCell>
+<mxCell id="n19" value="P8  Access Enforcement
+(§5 — EnsureTenantStanding, Redis-cached)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="750" y="330" width="240" height="80" as="geometry"/></mxCell>
+<mxCell id="n20" value="P9  Central Audit Logger
+(§3I — append-only)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="750" y="450" width="240" height="70" as="geometry"/></mxCell>
+<mxCell id="n21" value="D0  Registry
+(tenants, tenant_user_lookups, central_admin_users)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1050" y="30" width="260" height="50" as="geometry"/></mxCell>
+<mxCell id="n22" value="D1  Plan Catalog
+(central_plans, central_plan_modules)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1050" y="100" width="260" height="40" as="geometry"/></mxCell>
+<mxCell id="n23" value="D2  Entitlement
+(central_tenant_addons)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1050" y="160" width="260" height="40" as="geometry"/></mxCell>
+<mxCell id="n24" value="D3  Invoices
+(central_invoices, central_invoice_lines)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1050" y="220" width="260" height="40" as="geometry"/></mxCell>
+<mxCell id="n25" value="D4  Payments
+(central_payments)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1050" y="280" width="260" height="40" as="geometry"/></mxCell>
+<mxCell id="n26" value="D5  Dunning
+(central_dunning_policies, central_dunning_log)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1050" y="340" width="260" height="40" as="geometry"/></mxCell>
+<mxCell id="n27" value="D6  Audit Log
+(central_audit_logs, append-only)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1050" y="400" width="260" height="40" as="geometry"/></mxCell>
+<mxCell id="n28" value="register tenant" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n2" target="n12"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n29" value="confirm provisioning" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n2" target="n12"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n30" value="adjust plan / add-ons" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n2" target="n13"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n31" value="review payment receipt" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n2" target="n15"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n32" value="view dashboard" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n17" target="n2"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n33" value="adjust dunning policy" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n2" target="n16"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n34" value="view invoices / submit receipt
+(even while read_only)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n3" target="n18"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n35" value="trigger DB creation, migrations, SYSCONFIG seed" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n12" target="n6"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n36" value="registry write" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n12" target="n21"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n37" value="read registry" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n21" target="n13"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n38" value="read plan catalog" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n22" target="n13"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n39" value="read add-ons" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n23" target="n13"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n40" value="resolved entitlement (ceiling)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n13" target="n7"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n41" value="addon write" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n13" target="n23"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n42" value="snapshot plan + add-ons" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n13" target="n14"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n43" value="read tenant billing interval" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n21" target="n14"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n44" value="generate draft -&gt; issued invoice" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n14" target="n24"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n45" value="invoice + line items" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n14" target="n18"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n46" value="submit receipt (amount, date, file)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n18" target="n15"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n47" value="receipt object" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n15" target="n10"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n48" value="payment row (pending_review)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n15" target="n25"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n49" value="review decision (confirm/reject)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n2" target="n15"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n50" value="invoice.status -&gt; paid / issued" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n15" target="n24"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n51" value="reactivate access_status" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n15" target="n19"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n52" value="read overdue invoices" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n24" target="n16"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n53" value="daily reminder scan" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n5" target="n16"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n54" value="reminder email" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n16" target="n11"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n55" value="dunning log write (idempotency)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n16" target="n26"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n56" value="cutoff: access_status -&gt; read_only" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n16" target="n19"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n57" value="dunning policy read (scope-resolved)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n26" target="n16"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n58" value="invoice generation trigger" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n5" target="n14"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n59" value="cache invalidate on write" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n19" target="n9"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n60" value="read cached access_status" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n9" target="n8"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n61" value="block state-changing request if read_only" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n19" target="n8"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n62" value="tenants.access_status write" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n19" target="n21"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n63" value="dashboard queries (tenants, invoices, payments)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n21" target="n17"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n64" value="dashboard queries" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n24" target="n17"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n65" value="dashboard queries" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n25" target="n17"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n66" value="dashboard queries" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n26" target="n17"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n67" value="registration / provisioning event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n12" target="n20"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n68" value="entitlement change event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n13" target="n20"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n69" value="invoice issued/voided event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n14" target="n20"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n70" value="payment reviewed event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n15" target="n20"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n71" value="access status changed event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n19" target="n20"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n72" value="dunning policy changed event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n16" target="n20"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n73" value="append-only write" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n20" target="n27"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
