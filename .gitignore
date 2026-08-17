@@ -1,3 +1,4 @@
+*.bkp
 *.log
 .DS_Store
 .env
@@ -30,6 +31,10 @@ Thumbs.db
 # Graphify knowledge graph
 graphify-out/
 .graphifyignore
+
+# draw.io autosave/backup files
+.$*.bkp
+*.dtmp
 
 # AI & Agent configurations / metadata
 .agents/

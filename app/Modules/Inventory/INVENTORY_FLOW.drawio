@@ -1,0 +1,65 @@
+<mxfile host="app.diagrams.net" modified="2026-08-14T00:00:00Z" agent="node-script" version="24.7.5" type="device">
+  <diagram id="inventory-flow" name="INVENTORY - Stock Movement (plain language)">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1370" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+<mxCell id="ftitle" value="How Stock Moves and Stays Accurate" style="text;html=1;fontSize=24;fontStyle=1;fontColor=#12181F;align=left;" vertex="1" parent="1"><mxGeometry x="40" y="-70" width="1000" height="36" as="geometry"/></mxCell>
+<mxCell id="fsub" value="Plain-language walkthrough of stock coming in, moving around, going out, and being counted" style="text;html=1;fontSize=14;fontColor=#4A5563;align=left;" vertex="1" parent="1"><mxGeometry x="40" y="-32" width="1000" height="24" as="geometry"/></mxCell>
+<mxCell id="f2" value="Stock Arrives
+(from a vendor, or a starting count)" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="500" y="40" width="340" height="70" as="geometry"/></mxCell>
+<mxCell id="f3" value="It's Scanned or Entered In
+(quantity, cost, and where it's stored)" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="500" y="160" width="340" height="70" as="geometry"/></mxCell>
+<mxCell id="f4" value="A Permanent Record Is Created
+(what, how much, worth how much, when)" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="500" y="280" width="340" height="70" as="geometry"/></mxCell>
+<mxCell id="f5" value="What Happens
+to It Next?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="530" y="400" width="280" height="100" as="geometry"/></mxCell>
+<mxCell id="f6" value="It's Moved to Another
+Shelf or Warehouse" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="40" y="550" width="340" height="70" as="geometry"/></mxCell>
+<mxCell id="f7" value="It's Picked, Packed,
+and Shipped to a Customer" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="500" y="550" width="340" height="70" as="geometry"/></mxCell>
+<mxCell id="f8" value="It's Counted During
+a Routine Stock Check" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="960" y="550" width="340" height="70" as="geometry"/></mxCell>
+<mxCell id="f9" value="Does the Count
+Match the Records?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="960" y="670" width="280" height="100" as="geometry"/></mxCell>
+<mxCell id="f10" value="A Reviewed Correction
+Is Made, With a Reason" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#FBF1E1;strokeColor=#B5760A;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="960" y="810" width="340" height="70" as="geometry"/></mxCell>
+<mxCell id="f11" value="Every Movement Updates
+the Same Permanent Record" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#E7F5EF;strokeColor=#1E7F5C;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="500" y="810" width="340" height="70" as="geometry"/></mxCell>
+<mxCell id="f12" value="At Any Moment, We Know Exactly
+What We Have and What It's Worth" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#E7F5EF;strokeColor=#1E7F5C;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="500" y="940" width="340" height="80" as="geometry"/></mxCell>
+<mxCell id="f13" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="f2" target="f3"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="f14" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="f3" target="f4"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="f15" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="f4" target="f5"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="f16" value="Needs relocating" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="f5" target="f6"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="f17" value="Sold or used" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="f5" target="f7"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="f18" value="Scheduled check" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="f5" target="f8"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="f19" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="f8" target="f9"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="f20" value="No — variance found" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="f9" target="f10"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="f21" value="Yes, matches" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.3;entryDx=0;entryDy=0;" edge="1" parent="1" source="f9" target="f11"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="f22" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.7;entryDx=0;entryDy=0;" edge="1" parent="1" source="f10" target="f11"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="f23" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.3;entryDx=0;entryDy=0;" edge="1" parent="1" source="f6" target="f11"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="f24" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="f7" target="f11"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="f25" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="f11" target="f12"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="f26" value="Nothing is ever &quot;just edited.&quot; Every single change — receiving, moving,
+selling, or correcting — becomes its own permanent, timestamped entry.
+If something needs fixing, we add a correcting entry, we never erase history." style="text;html=1;fontSize=11;fontColor=#4A5563;fontStyle=2;align=left;verticalAlign=top;" vertex="1" parent="1"><mxGeometry x="950" y="280" width="460" height="80" as="geometry"/></mxCell>
+<mxCell id="f27" value="The system knows what each unit is worth using a consistent accounting
+method (oldest stock first, or a running average) — so the value on the
+books is always defensible, not a guess." style="text;html=1;fontSize=11;fontColor=#4A5563;fontStyle=2;align=left;verticalAlign=top;" vertex="1" parent="1"><mxGeometry x="950" y="550" width="460" height="70" as="geometry"/></mxCell>
+<mxCell id="f28" value="A stock count never changes the numbers by itself. A mismatch is flagged
+for a person to review and approve first — nothing silently corrects itself." style="text;html=1;fontSize=11;fontColor=#4A5563;fontStyle=2;align=left;verticalAlign=top;" vertex="1" parent="1"><mxGeometry x="950" y="700" width="460" height="70" as="geometry"/></mxCell>
+<mxCell id="f29" value="Barcode scanning works the same way at every step — receiving, moving,
+picking, and counting — so warehouse staff use one familiar motion
+for everything, with any handheld or camera scanner." style="text;html=1;fontSize=11;fontColor=#4A5563;fontStyle=2;align=left;verticalAlign=top;" vertex="1" parent="1"><mxGeometry x="40" y="1080" width="700" height="70" as="geometry"/></mxCell>
+<mxCell id="flegtitle" value="Legend" style="text;html=1;fontSize=14;fontStyle=1;fontColor=#12181F;align=left;" vertex="1" parent="1"><mxGeometry x="40" y="1180" width="200" height="24" as="geometry"/></mxCell>
+<mxCell id="f30" value="" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="40" y="1214" width="34" height="22" as="geometry"/></mxCell>
+<mxCell id="f31" value="Normal step as stock moves or changes hands" style="text;html=1;fontSize=12;fontColor=#12181F;align=left;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="86" y="1211" width="480" height="28" as="geometry"/></mxCell>
+<mxCell id="f32" value="" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#FBF1E1;strokeColor=#B5760A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="40" y="1246" width="34" height="22" as="geometry"/></mxCell>
+<mxCell id="f33" value="A count difference under review" style="text;html=1;fontSize=12;fontColor=#12181F;align=left;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="86" y="1243" width="480" height="28" as="geometry"/></mxCell>
+<mxCell id="f34" value="" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#E7F5EF;strokeColor=#1E7F5C;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="40" y="1278" width="34" height="22" as="geometry"/></mxCell>
+<mxCell id="f35" value="Reflected in the always-accurate record" style="text;html=1;fontSize=12;fontColor=#12181F;align=left;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="86" y="1275" width="480" height="28" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

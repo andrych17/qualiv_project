@@ -1,0 +1,95 @@
+<mxfile host="app.diagrams.net" modified="2026-08-14T00:00:00Z" agent="node-script" version="24.7.5" type="device">
+  <diagram id="sysconfig-dfd" name="SYSCONFIG - DFD (Level 1)">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1950" pageHeight="750" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+<mxCell id="n1t" value="SYSCONFIG Module — Level-1 Data Flow Diagram (Gane-Sarson)" style="text;html=1;fontSize=22;fontStyle=1;fontColor=#12181F;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="-60" width="1100" height="30" as="geometry"/></mxCell>
+<mxCell id="n1a" value="Sharp rectangle = External Entity" style="text;html=1;fontSize=11;fontColor=#12181F;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="-20" width="520" height="20" as="geometry"/></mxCell>
+<mxCell id="n1b" value="Rounded rectangle = Process (engine, §3 of spec)" style="text;html=1;fontSize=11;fontColor=#1F5FBF;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="0" width="520" height="20" as="geometry"/></mxCell>
+<mxCell id="n1c" value="Open-sided rectangle = Data Store (table group)" style="text;html=1;fontSize=11;fontColor=#4A5563;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="20" width="520" height="20" as="geometry"/></mxCell>
+<mxCell id="n1d" value="(dashed) Dashed border/flow = every other module reading FROM this base module (one-directional, §5)" style="text;html=1;fontSize=11;fontColor=#4A5563;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="40" width="900" height="20" as="geometry"/></mxCell>
+<mxCell id="n2" value="Tenant Admin
+(external entity — manages settings/permissions)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="90" width="210" height="70" as="geometry"/></mxCell>
+<mxCell id="n3" value="Any Logged-In User
+(every screen, every request)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="200" width="210" height="60" as="geometry"/></mxCell>
+<mxCell id="n4" value="TenantFlavorSeeder
+(runs once, at provisioning time)
+[CENTRAL hands off here]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="40" y="300" width="210" height="80" as="geometry"/></mxCell>
+<mxCell id="n5" value="CENTRAL Module
+(tenants.plan — the entitlement ceiling)
+[Platform-level]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="40" y="420" width="210" height="80" as="geometry"/></mxCell>
+<mxCell id="n6" value="Every Other Core / Vertical Module
+(WNE, DMS, CRM, Legal, Accounting, ...)
+[reads config + permissions FROM here]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="1650" y="90" width="240" height="90" as="geometry"/></mxCell>
+<mxCell id="n7" value="Redis
+(config resolution cache)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1650" y="220" width="240" height="60" as="geometry"/></mxCell>
+<mxCell id="n8" value="WNE Module
+(optional NotificationRequested on a
+sensitive const change, if installed)
+[Core]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="1650" y="330" width="240" height="90" as="geometry"/></mxCell>
+<mxCell id="n9" value="P1  Menus, Groups &amp;amp; Access Rights
+(§3F — trustee schema)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="400" y="90" width="260" height="70" as="geometry"/></mxCell>
+<mxCell id="n10" value="P2  Config Consts Write Engine
+(§3B/§3C — settings + mini-master/enum)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="400" y="200" width="260" height="70" as="geometry"/></mxCell>
+<mxCell id="n11" value="P3  Config Resolution Service
+(§3E — two-tier precedence, Redis-cached)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="400" y="310" width="260" height="80" as="geometry"/></mxCell>
+<mxCell id="n12" value="P4  Serial Number Engine
+(§3D — atomic counter, SELECT...FOR UPDATE)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="400" y="430" width="260" height="80" as="geometry"/></mxCell>
+<mxCell id="n13" value="P5  Module Activation
+(§3A — visibility toggle, narrows only)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="400" y="550" width="260" height="70" as="geometry"/></mxCell>
+<mxCell id="n14" value="P6  Config Audit Logger
+(§3G — append-only)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="750" y="310" width="240" height="70" as="geometry"/></mxCell>
+<mxCell id="n15" value="P7  Permission Check
+(menu.perm:MENU_CODE middleware)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="750" y="90" width="240" height="80" as="geometry"/></mxCell>
+<mxCell id="n16" value="P8  module:CODE Middleware
+(route/sidebar gate)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="750" y="550" width="240" height="70" as="geometry"/></mxCell>
+<mxCell id="n17" value="D1  Trustee
+(menus, groups, group_members, menu_rights)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1050" y="30" width="260" height="50" as="geometry"/></mxCell>
+<mxCell id="n18" value="D2  Config Consts
+(settings + enum rows, scoped overrides)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1050" y="100" width="260" height="40" as="geometry"/></mxCell>
+<mxCell id="n19" value="D3  Serials
+(config_snums)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1050" y="160" width="260" height="40" as="geometry"/></mxCell>
+<mxCell id="n20" value="D4  Module Activation
+(tenant_modules)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1050" y="220" width="260" height="40" as="geometry"/></mxCell>
+<mxCell id="n21" value="D5  Audit Log
+(config_audit_logs, append-only)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1050" y="280" width="260" height="40" as="geometry"/></mxCell>
+<mxCell id="n22" value="manage menus / groups / assign members" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n2" target="n9"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n23" value="create/edit setting, enum member, or scoped override" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n2" target="n10"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n24" value="correct a serial counter" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n2" target="n12"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n25" value="toggle module on/off" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n2" target="n13"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n26" value="log in" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n3" target="n15"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n27" value="sidebar / menu tree, filtered by rights" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n15" target="n3"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n28" value="trustee write" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n9" target="n17"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n29" value="read groups/menus for rights matrix" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n17" target="n9"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n30" value="const/enum row write
+(new row per scope, never edit in place)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n10" target="n18"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n31" value="write event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n10" target="n14"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n32" value="seed default consts per tenant
+(Firm A vs Firm B differ via data)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n4" target="n10"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n33" value="module.get(constGroup, groupCode, ...)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n6" target="n11"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n34" value="menu.perm:MENU_CODE check" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n6" target="n15"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n35" value="module:CODE gate check" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n6" target="n16"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n36" value="read scoped rows
+(module tier -&gt; user/group tier)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n18" target="n11"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n37" value="cache resolved value" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n11" target="n7"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n38" value="read cached value first" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n7" target="n11"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n39" value="resolved value / enum list" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n11" target="n6"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n40" value="permission check reads rights" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n17" target="n15"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n41" value="next(snumCode)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n6" target="n12"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n42" value="generated serial" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n12" target="n6"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n43" value="counter write" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n12" target="n19"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n44" value="write event (serial_corrected)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n12" target="n14"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n45" value="activation write" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n13" target="n20"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n46" value="write event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n13" target="n14"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n47" value="read entitlement (hard ceiling)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n5" target="n13"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n48" value="effective visibility = entitled AND active" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n13" target="n16"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n49" value="read activation state" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n20" target="n16"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n50" value="block hidden module route" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n16" target="n6"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n51" value="append-only write" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n14" target="n21"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n52" value="optional notification
+(sensitive const changed, if WNE installed)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n10" target="n8"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,260 +1,131 @@
-<mxfile host="app.diagrams.net" modified="2026-07-24T00:00:00.000Z" agent="payroll-dfd-gen" version="24.7.0" type="device">
-  <diagram id="payroll-dfd" name="Payroll DFD (Level 1)">
-    <mxGraphModel dx="1800" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2400" pageHeight="1700" math="0" shadow="0">
+<mxfile host="app.diagrams.net" modified="2026-08-14T00:00:00Z" agent="node-script" version="24.7.5" type="device">
+  <diagram id="payroll-dfd" name="PAYROLL - DFD (Level 1)">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1950" pageHeight="1000" math="0" shadow="0">
       <root>
         <mxCell id="0"/>
         <mxCell id="1" parent="0"/>
-        <mxCell id="n101" value="Employee" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;fontColor=#12181F;fontStyle=1;fontSize=12;align=center;verticalAlign=middle;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="40" y="40" width="160" height="60" as="geometry"/>
-        </mxCell>
-        <mxCell id="n102" value="Payroll
-Admin / Operator" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;fontColor=#12181F;fontStyle=1;fontSize=12;align=center;verticalAlign=middle;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="40" y="160" width="160" height="60" as="geometry"/>
-        </mxCell>
-        <mxCell id="n103" value="Finance / Payroll
-Approver" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;fontColor=#12181F;fontStyle=1;fontSize=12;align=center;verticalAlign=middle;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="40" y="280" width="160" height="60" as="geometry"/>
-        </mxCell>
-        <mxCell id="n104" value="Bank
-(disbursement)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;fontColor=#12181F;fontStyle=1;fontSize=12;align=center;verticalAlign=middle;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="2020" y="640" width="160" height="60" as="geometry"/>
-        </mxCell>
-        <mxCell id="n105" value="DJP / Coretax
-(tax filing)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;fontColor=#12181F;fontStyle=1;fontSize=12;align=center;verticalAlign=middle;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="2020" y="760" width="160" height="60" as="geometry"/>
-        </mxCell>
-        <mxCell id="n106" value="BPJS Kesehatan" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;fontColor=#12181F;fontStyle=1;fontSize=12;align=center;verticalAlign=middle;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="2020" y="880" width="160" height="60" as="geometry"/>
-        </mxCell>
-        <mxCell id="n107" value="BPJS Ketenagakerjaan" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;fontColor=#12181F;fontStyle=1;fontSize=12;align=center;verticalAlign=middle;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="2020" y="1000" width="160" height="60" as="geometry"/>
-        </mxCell>
-        <mxCell id="n108" value="WNE
-(Workflow &amp; Notification)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#5B4FCF;fontColor=#12181F;fontStyle=1;fontSize=12;align=center;verticalAlign=middle;strokeWidth=2;dashed=1;" vertex="1" parent="1">
-          <mxGeometry x="900" y="40" width="160" height="60" as="geometry"/>
-        </mxCell>
-        <mxCell id="n109" value="DMS
-(Document Management)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#5B4FCF;fontColor=#12181F;fontStyle=1;fontSize=12;align=center;verticalAlign=middle;strokeWidth=2;dashed=1;" vertex="1" parent="1">
-          <mxGeometry x="900" y="1180" width="160" height="60" as="geometry"/>
-        </mxCell>
-        <mxCell id="n110" value="Schedule
-(Calendar Engine)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#5B4FCF;fontColor=#12181F;fontStyle=1;fontSize=12;align=center;verticalAlign=middle;strokeWidth=2;dashed=1;" vertex="1" parent="1">
-          <mxGeometry x="40" y="1180" width="160" height="60" as="geometry"/>
-        </mxCell>
-        <mxCell id="n111" value="1.0
-Payroll Setup &amp;
-Regulatory Configuration" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=#1F5FBF;strokeColor=#1F5FBF;fontColor=#FFFFFF;fontStyle=1;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="340" y="40" width="190" height="80" as="geometry"/>
-        </mxCell>
-        <mxCell id="n112" value="2.0
-Manage Payroll
-Inputs" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=#1F5FBF;strokeColor=#1F5FBF;fontColor=#FFFFFF;fontStyle=1;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="340" y="460" width="190" height="80" as="geometry"/>
-        </mxCell>
-        <mxCell id="n113" value="3.0
-Process Payroll Run
-(Regular / Off-Cycle / THR /
-Bonus / Final / Adjustment)" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=#12181F;strokeColor=#12181F;fontColor=#FFFFFF;fontStyle=1;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="620" y="460" width="190" height="80" as="geometry"/>
-        </mxCell>
-        <mxCell id="n114" value="4.0
-Calculate Statutory
-Withholdings
-(PPh21 / BPJS)" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=#B5760A;strokeColor=#B5760A;fontColor=#FFFFFF;fontStyle=1;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="620" y="260" width="190" height="80" as="geometry"/>
-        </mxCell>
-        <mxCell id="n115" value="5.0
-Approve &amp; Lock
-Payroll Run" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=#12181F;strokeColor=#12181F;fontColor=#FFFFFF;fontStyle=1;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="920" y="640" width="190" height="80" as="geometry"/>
-        </mxCell>
-        <mxCell id="n116" value="6.0
-Disburse Payment" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=#C1332B;strokeColor=#C1332B;fontColor=#FFFFFF;fontStyle=1;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="1220" y="640" width="190" height="80" as="geometry"/>
-        </mxCell>
-        <mxCell id="n117" value="7.0
-Generate Reports
-&amp; Payslips" style="rounded=1;arcSize=40;whiteSpace=wrap;html=1;fillColor=#1E7F5C;strokeColor=#1E7F5C;fontColor=#FFFFFF;fontStyle=1;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="1220" y="900" width="190" height="80" as="geometry"/>
-        </mxCell>
-        <mxCell id="n118" value="D1  Setup / Master Data" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=0;bottom=1;left=1;right=0;fillColor=#F4F6F8;strokeColor=#1F5FBF;fontColor=#12181F;fontSize=12;fontStyle=1;align=left;spacingLeft=10;verticalAlign=middle;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="340" y="220" width="200" height="44" as="geometry"/>
-        </mxCell>
-        <mxCell id="n119" value="D2  Statutory Rules (versioned)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=0;bottom=1;left=1;right=0;fillColor=#F4F6F8;strokeColor=#5B4FCF;fontColor=#12181F;fontSize=12;fontStyle=1;align=left;spacingLeft=10;verticalAlign=middle;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="620" y="40" width="200" height="44" as="geometry"/>
-        </mxCell>
-        <mxCell id="n120" value="D3  Employees" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=0;bottom=1;left=1;right=0;fillColor=#F4F6F8;strokeColor=#1E7F5C;fontColor=#12181F;fontSize=12;fontStyle=1;align=left;spacingLeft=10;verticalAlign=middle;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="340" y="700" width="200" height="44" as="geometry"/>
-        </mxCell>
-        <mxCell id="n121" value="D4  Payroll Periods &amp; Runs" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=0;bottom=1;left=1;right=0;fillColor=#F4F6F8;strokeColor=#12181F;fontColor=#12181F;fontSize=12;fontStyle=1;align=left;spacingLeft=10;verticalAlign=middle;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="620" y="640" width="200" height="44" as="geometry"/>
-        </mxCell>
-        <mxCell id="n122" value="D5  Statutory Calculation Records" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=0;bottom=1;left=1;right=0;fillColor=#F4F6F8;strokeColor=#B5760A;fontColor=#12181F;fontSize=12;fontStyle=1;align=left;spacingLeft=10;verticalAlign=middle;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="620" y="900" width="200" height="44" as="geometry"/>
-        </mxCell>
-        <mxCell id="n123" value="D6  Payroll Inputs
-(overtime, loans, reimbursements...)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=0;bottom=1;left=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;fontColor=#12181F;fontSize=12;fontStyle=1;align=left;spacingLeft=10;verticalAlign=middle;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="340" y="580" width="200" height="44" as="geometry"/>
-        </mxCell>
-        <mxCell id="n124" value="D7  Payment Records" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=0;bottom=1;left=1;right=0;fillColor=#F4F6F8;strokeColor=#C1332B;fontColor=#12181F;fontSize=12;fontStyle=1;align=left;spacingLeft=10;verticalAlign=middle;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="1220" y="780" width="200" height="44" as="geometry"/>
-        </mxCell>
-        <mxCell id="n125" value="D8  Audit Log" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=0;bottom=1;left=1;right=0;fillColor=#F4F6F8;strokeColor=#6B7280;fontColor=#12181F;fontSize=12;fontStyle=1;align=left;spacingLeft=10;verticalAlign=middle;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="920" y="1180" width="200" height="44" as="geometry"/>
-        </mxCell>
-        <mxCell id="n126" value="setup &amp; rule changes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n102" target="n111">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n127" value="master data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n111" target="n118">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n128" value="new regulation version" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n111" target="n119">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n129" value="public holiday data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#5B4FCF;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n110" target="n111">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n130" value="regulatory activation
-approval request" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#5B4FCF;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n111" target="n108">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n131" value="activation approved" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#5B4FCF;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n108" target="n111">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n132" value="reimbursement / overtime
-/ loan request" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n101" target="n112">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n133" value="bonus / commission
-entry" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n102" target="n112">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n134" value="input record" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n112" target="n123">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n135" value="read employee" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n112" target="n120">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n136" value="reimbursement approval
-request" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#5B4FCF;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n112" target="n108">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n137" value="approval result" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#5B4FCF;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n108" target="n112">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n138" value="start run" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n102" target="n113">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n139" value="salary structure /
-components" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n118" target="n113">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n140" value="employee data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n120" target="n113">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n141" value="period inputs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n123" target="n113">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n142" value="period / run context" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n121" target="n113">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n143" value="run + run lines" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n113" target="n121">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n144" value="gross earnings" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n113" target="n114">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n145" value="applicable rule set
-(as of period date)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n119" target="n114">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n146" value="PPh21 / BPJS
-calculation detail" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n114" target="n122">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n147" value="statutory deduction
-amounts" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n114" target="n113">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n148" value="WorkflowRequested
-(run approval)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#5B4FCF;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n113" target="n108">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n149" value="approval decision" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#5B4FCF;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n108" target="n115">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n150" value="submitted run" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n121" target="n115">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n151" value="approved / locked status" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n115" target="n121">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n152" value="approve / reject" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#5B4FCF;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n103" target="n108">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n153" value="approved run lines" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n115" target="n116">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n154" value="employee bank account" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n120" target="n116">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n155" value="payment batch" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n116" target="n124">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n156" value="disbursement file" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n116" target="n104">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n157" value="payment status
-(reconciliation)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n104" target="n116">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n158" value="run / period data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n121" target="n117">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n159" value="statutory detail" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n122" target="n117">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n160" value="payment status" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n124" target="n117">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n161" value="payslip PDF
-(DocumentService::attach)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#5B4FCF;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n117" target="n109">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n162" value="PPh21 monthly recap /
-Bukti Potong 1721-A1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n117" target="n105">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n163" value="BPJS Kesehatan
-contribution recap" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n117" target="n106">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n164" value="BPJS Ketenagakerjaan
-contribution recap" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n117" target="n107">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n165" value="payslip notice" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n117" target="n101">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n166" value="run audit events" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n113" target="n125">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n167" value="approval audit events" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n115" target="n125">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n168" value="payment audit events" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4A5563;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n116" target="n125">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n169" value="notification request
-(payslip ready / THR due)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#5B4FCF;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=10;fontColor=#4A5563;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n113" target="n108">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n170" value="PAYROLL Module — Level 1 Data Flow Diagram (Gane-Sarson notation)" style="text;html=1;fontStyle=1;fontSize=18;fontColor=#12181F;align=left;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="40" y="-40" width="900" height="30" as="geometry"/>
-        </mxCell>
-        <mxCell id="n171" value="Legend:  Square = External Entity   Rounded rectangle = Process   Open rectangle = Data Store   Dashed border/flow = cross-module integration (WNE / DMS / Schedule) or external-agency touchpoint." style="text;html=1;fontSize=12;fontColor=#4A5563;align=left;verticalAlign=top;whiteSpace=wrap;" vertex="1" parent="1">
-          <mxGeometry x="40" y="1340" width="1400" height="40" as="geometry"/>
-        </mxCell>
+<mxCell id="n1t" value="PAYROLL Module — Level-1 Data Flow Diagram (Gane-Sarson)" style="text;html=1;fontSize=22;fontStyle=1;fontColor=#12181F;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="-60" width="1100" height="30" as="geometry"/></mxCell>
+<mxCell id="n1a" value="Sharp rectangle = External Entity" style="text;html=1;fontSize=11;fontColor=#12181F;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="-20" width="520" height="20" as="geometry"/></mxCell>
+<mxCell id="n1b" value="Rounded rectangle = Process (engine, §3 of spec)" style="text;html=1;fontSize=11;fontColor=#1F5FBF;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="0" width="520" height="20" as="geometry"/></mxCell>
+<mxCell id="n1c" value="Open-sided rectangle = Data Store (table group)" style="text;html=1;fontSize=11;fontColor=#4A5563;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="20" width="520" height="20" as="geometry"/></mxCell>
+<mxCell id="n1d" value="(dashed) Dashed = cross-module (solid HCM box = hard dependency, not soft/optional like the rest)" style="text;html=1;fontSize=11;fontColor=#4A5563;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="40" width="900" height="20" as="geometry"/></mxCell>
+<mxCell id="n2" value="Payroll Admin / HR Operator
+(external entity)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="90" width="220" height="70" as="geometry"/></mxCell>
+<mxCell id="n3" value="HCM Module
+(employee identity, tenure, attendance, leave)
+[Core — HARD dependency]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="210" width="220" height="90" as="geometry"/></mxCell>
+<mxCell id="n4" value="WNE Module
+(run approval, regulatory rule activation, reminders)
+[Core]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="40" y="340" width="220" height="90" as="geometry"/></mxCell>
+<mxCell id="n5" value="DMS Module
+(payslips, receipts, loan agreements)
+[Core]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="40" y="470" width="220" height="80" as="geometry"/></mxCell>
+<mxCell id="n6" value="Schedule Module
+(public-holiday-aware pay date shift)
+[Core]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="40" y="600" width="220" height="80" as="geometry"/></mxCell>
+<mxCell id="n7" value="Accounting Module
+(GL posting, read-only consumer of payroll.run_paid)
+[Core]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="40" y="730" width="220" height="90" as="geometry"/></mxCell>
+<mxCell id="n8" value="Bank
+(file-based transfer, no live API in MVP)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="860" width="220" height="70" as="geometry"/></mxCell>
+<mxCell id="n9" value="P1  Payroll Setup
+(§3B — groups, calendars, structures, components, rules)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="380" y="90" width="260" height="80" as="geometry"/></mxCell>
+<mxCell id="n10" value="P2  Payroll Run Calculation Engine
+(§3J — the one engine all run types call)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="380" y="200" width="260" height="90" as="geometry"/></mxCell>
+<mxCell id="n11" value="P3  PPh 21 Engine
+(§3-PPh21 — TER / annualized / irregular / final)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="380" y="320" width="260" height="90" as="geometry"/></mxCell>
+<mxCell id="n12" value="P4  BPJS Engines
+(§3-BPJS — Kesehatan + Ketenagakerjaan)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="380" y="440" width="260" height="80" as="geometry"/></mxCell>
+<mxCell id="n13" value="P5  Payroll Inputs
+(§3K — overtime, variable earnings, bonus, reimbursement, loans)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="380" y="560" width="260" height="90" as="geometry"/></mxCell>
+<mxCell id="n14" value="P6  Payment Batch / Bank Export / Reconciliation
+(§3-Payment)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="380" y="680" width="260" height="90" as="geometry"/></mxCell>
+<mxCell id="n15" value="P7  Reports Engine
+(§3-Reports — payslips, tax, BPJS, audit)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="380" y="800" width="260" height="80" as="geometry"/></mxCell>
+<mxCell id="n16" value="P8  Regular / Off-Cycle Run
+(§3D/3E)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="750" y="90" width="240" height="70" as="geometry"/></mxCell>
+<mxCell id="n17" value="P9  THR Run
+(§3F)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="750" y="200" width="240" height="70" as="geometry"/></mxCell>
+<mxCell id="n18" value="P10  Bonus Run
+(§3G)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="750" y="300" width="240" height="70" as="geometry"/></mxCell>
+<mxCell id="n19" value="P11  Final (Termination) Run
+(§3H — severance)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="750" y="400" width="240" height="70" as="geometry"/></mxCell>
+<mxCell id="n20" value="P12  Payroll Adjustment
+(§3I — the only path to change a locked period)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="750" y="500" width="240" height="80" as="geometry"/></mxCell>
+<mxCell id="n21" value="P13  Audit &amp;amp; Security
+(§3-Admin — stricter permission tier)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="750" y="620" width="240" height="80" as="geometry"/></mxCell>
+<mxCell id="n22" value="D0  Setup / Master
+(groups, calendars, structures, components, deduction config)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1080" y="0" width="260" height="50" as="geometry"/></mxCell>
+<mxCell id="n23" value="D1  Statutory Rules (versioned)
+(PTKP/TER/PPh21 brackets, BPJS rules, severance tables)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1420" y="90" width="260" height="50" as="geometry"/></mxCell>
+<mxCell id="n24" value="D2  Employee Profile
+(employee_payroll_profiles, employee_bank_accounts)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1420" y="160" width="260" height="40" as="geometry"/></mxCell>
+<mxCell id="n25" value="D3  Runs
+(payroll_periods, payroll_runs, payroll_run_lines — locked after paid)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1420" y="220" width="260" height="50" as="geometry"/></mxCell>
+<mxCell id="n26" value="D4  Statutory Calculation Detail
+(pph21_calculations, bpjs_*_contributions, thr_calculations, severance_calculations)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1420" y="290" width="260" height="60" as="geometry"/></mxCell>
+<mxCell id="n27" value="D5  Inputs
+(overtime, variable earnings, commission, reimbursement, loans, advances)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1420" y="370" width="260" height="50" as="geometry"/></mxCell>
+<mxCell id="n28" value="D6  Payment
+(payment_batches, payment_batch_lines, payment_reconciliations)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1420" y="440" width="260" height="50" as="geometry"/></mxCell>
+<mxCell id="n29" value="D7  Audit Log
+(payroll_access_logs, append-only)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1420" y="510" width="260" height="40" as="geometry"/></mxCell>
+<mxCell id="n30" value="configure groups / calendars / structures / components" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n2" target="n9"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n31" value="enter regulatory rule update" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n2" target="n9"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n32" value="start a run" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n2" target="n16"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n33" value="start THR run" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n2" target="n17"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n34" value="start bonus run" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n2" target="n18"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n35" value="process termination" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n2" target="n19"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n36" value="create adjustment" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n2" target="n20"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n37" value="reconcile payment status" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n2" target="n14"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n38" value="write setup data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n9" target="n22"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n39" value="write versioned rule row" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n9" target="n23"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n40" value="employee identity, tenure, employment status" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n3" target="n10"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n41" value="hcm.attendance_logged" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n3" target="n13"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n42" value="hcm.leave_approved (unpaid leave deduction)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n3" target="n13"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n43" value="hcm.employee_hired / terminated / position_changed" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n3" target="n9"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n44" value="resolve rule set as of period date" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n23" target="n10"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n45" value="resolve employee profile" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n24" target="n10"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n46" value="gather inputs for period" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n27" target="n10"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n47" value="compute PPh 21 (mode per run type)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n10" target="n11"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n48" value="compute BPJS contributions" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n10" target="n12"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n49" value="write calculation detail" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n11" target="n26"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n50" value="write calculation detail" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n12" target="n26"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n51" value="produce payroll_run_lines + components" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n10" target="n25"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n52" value="call shared engine" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n16" target="n10"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n53" value="call shared engine" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n17" target="n10"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n54" value="call shared engine" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n18" target="n10"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n55" value="call shared engine" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n19" target="n10"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n56" value="call shared engine (delta)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n20" target="n10"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n57" value="THR formula / tenure snapshot" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n17" target="n26"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n58" value="severance formula (UU Cipta Kerja)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n19" target="n26"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n59" value="references original run (never mutates history)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n20" target="n25"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n60" value="overtime / earning / loan / reimbursement entry" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n13" target="n27"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n61" value="receipt / loan agreement attachment" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n13" target="n5"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n62" value="WorkflowRequested
+(payroll.run_approval)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n16" target="n4"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n63" value="WorkflowRequested
+(regulatory_rule_activation, optional)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n9" target="n4"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n64" value="NotificationRequested
+(THR due date, loan installment failed)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n17" target="n4"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n65" value="approval decision" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n4" target="n16"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n66" value="group approved run lines into batch" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n25" target="n14"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n67" value="export bank file (CSV/Excel)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n14" target="n8"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n68" value="write batch / reconciliation" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n14" target="n28"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n69" value="mark paid → flips payroll_run_lines.is_locked" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n14" target="n25"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n70" value="payroll.run_paid
+(GL-relevant totals, read-only consumer)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n25" target="n7"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n71" value="read public-holiday calendar
+(shift pay date earlier)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n6" target="n9"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n72" value="payslip PDF" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n15" target="n5"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n73" value="payslips / tax / BPJS / audit reports" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n25" target="n15"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n74" value="read statutory calc detail" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n26" target="n15"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n75" value="reports" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n15" target="n2"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n76" value="action log entry
+(view_payslip, run_created, ...)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n10" target="n21"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n77" value="action log entry" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n14" target="n21"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n78" value="append-only write" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n21" target="n29"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n79" value="audit reports" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n29" target="n15"><mxGeometry relative="1" as="geometry"/></mxCell>
       </root>
     </mxGraphModel>
   </diagram>

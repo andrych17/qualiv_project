@@ -1,0 +1,63 @@
+<mxfile host="app.diagrams.net" modified="2026-08-14T00:00:00Z" agent="node-script" version="24.7.5" type="device">
+  <diagram id="customfields-dfd" name="CUSTOMFIELDS - DFD (Level 1)">
+    <mxGraphModel dx="1860" dy="1791" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1950" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+<mxCell id="n1t" value="CustomFields Module — Level-1 Data Flow Diagram (Gane-Sarson)" style="text;html=1;fontSize=22;fontStyle=1;fontColor=#12181F;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="-60" width="1100" height="30" as="geometry"/></mxCell>
+<mxCell id="n1a" value="Sharp rectangle = External Entity" style="text;html=1;fontSize=11;fontColor=#12181F;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="-20" width="520" height="20" as="geometry"/></mxCell>
+<mxCell id="n1b" value="Rounded rectangle = Process (engine, §3 of spec)" style="text;html=1;fontSize=11;fontColor=#1F5FBF;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="0" width="520" height="20" as="geometry"/></mxCell>
+<mxCell id="n1c" value="Open-sided rectangle = Data Store (table group)" style="text;html=1;fontSize=11;fontColor=#4A5563;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="20" width="520" height="20" as="geometry"/></mxCell>
+<mxCell id="n1d" value="(dashed) Dashed border/flow = cross-module hop (into the calling module, or a read-only reach into SYSCONFIG)" style="text;html=1;fontSize=11;fontColor=#4A5563;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="40" width="900" height="20" as="geometry"/></mxCell>
+<mxCell id="n2" value="Admin / Tenant Staff
+(configures field definitions via the Admin screen, §3A)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="90" width="240" height="80" as="geometry"/></mxCell>
+<mxCell id="n3" value="Owning Module Service
+(Legal, CRM, DMS, Inventory, Payroll, ...)
+[Core/Vertical — calls the wire pattern, never the reverse]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="40" y="210" width="240" height="110" as="geometry"/></mxCell>
+<mxCell id="n4" value="SYSCONFIG (Core)
+(config_consts — read-only source for beforeSave logic, §3F)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="40" y="360" width="240" height="90" as="geometry"/></mxCell>
+<mxCell id="n5" value="Redis
+(field_defs cache — read-heavy, write-rare, §5)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1440" y="90" width="240" height="60" as="geometry"/></mxCell>
+<mxCell id="n6" value="P1  Field Definition Management
+(§3A — Admin CRUD, closes ARCHITECTURE.md&#39;s &quot;not yet&quot; gap)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="400" y="90" width="280" height="80" as="geometry"/></mxCell>
+<mxCell id="n7" value="P2  Custom Field Value Capture
+(§3B — CustomFieldInputs.vue, one shared component)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="400" y="210" width="280" height="80" as="geometry"/></mxCell>
+<mxCell id="n8" value="P5  Read / Form Payload Engine
+(§3E — formPayload(), defs merged with values)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="400" y="330" width="280" height="80" as="geometry"/></mxCell>
+<mxCell id="n9" value="P3  Validation &amp;amp; Normalization Engine
+(§3C — required/select checks, type casting)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="400" y="450" width="280" height="80" as="geometry"/></mxCell>
+<mxCell id="n10" value="P6  Custom Logic Engine
+(§3F — beforeSave hooks, flat per-entity-type rules)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="400" y="570" width="280" height="90" as="geometry"/></mxCell>
+<mxCell id="n11" value="P4  Persistence / Sync Engine
+(§3D — upserts field_values, same txn as core row)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="760" y="330" width="280" height="80" as="geometry"/></mxCell>
+<mxCell id="n12" value="P7  Field Definition Audit Logger
+(§3H — append-only, no update/delete)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="760" y="90" width="280" height="70" as="geometry"/></mxCell>
+<mxCell id="n13" value="D0  Field Definitions
+(field_defs)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1120" y="30" width="260" height="50" as="geometry"/></mxCell>
+<mxCell id="n14" value="D1  Field Values
+(field_values)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1120" y="100" width="260" height="50" as="geometry"/></mxCell>
+<mxCell id="n15" value="D2  Audit Log
+(field_def_audit_logs, append-only)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1120" y="170" width="260" height="50" as="geometry"/></mxCell>
+<mxCell id="e1" value="create / update field definition" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n2" target="n6"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e2" value="write field def (unique on entity_type, code)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n6" target="n13"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e3" value="change event (created/updated/deactivated)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n6" target="n12"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e4" value="append-only write" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n12" target="n15"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e5" value="cache invalidate on write" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n6" target="n5"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e6" value="formPayload(entity_type, id?)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n3" target="n8"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e7" value="read active defs, ordered by seq" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n8" target="n13"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e8" value="read current values for entity_id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n8" target="n14"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e9" value="read cached defs (Redis, tenant:{db}:customfields:defs:{entity_type})" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n8" target="n5"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e10" value="defs + values -&gt; render one input per def" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n8" target="n7"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e11" value="rendered form payload (embedded in module&#39;s Create/Edit page)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n7" target="n3"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e12" value="validateAndNormalize(entity_type, custom_fields)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n3" target="n9"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e13" value="read active defs (required / select-option checks)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n9" target="n13"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e14" value="normalized values, keyed by field_def_id (or errors)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n9" target="n3"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e15" value="beforeSave(entityType, data, customValues)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n3" target="n10"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e16" value="read config_consts via ConfigService::get() (read-only)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n10" target="n4"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e17" value="mutated core payload" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n10" target="n3"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e18" value="sync(entity_type, entity_id, normalizedValues)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n3" target="n11"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e19" value="upsert values / delete cleared rows (same txn as core row)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n11" target="n14"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

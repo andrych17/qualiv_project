@@ -1,334 +1,168 @@
-<mxfile host="app.diagrams.net" modified="2026-07-19T00:00:00Z" agent="python-script" version="24.7.5" type="device">
+<mxfile host="app.diagrams.net" modified="2026-08-14T00:00:00Z" agent="node-script" version="24.7.5" type="device">
   <diagram id="accounting-dfd" name="ACCOUNTING - DFD (Level 1)">
-    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1400" math="0" shadow="0">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2200" pageHeight="1200" math="0" shadow="0">
       <root>
         <mxCell id="0"/>
         <mxCell id="1" parent="0"/>
-        <mxCell id="n2" value="ACCOUNTING Module — Level-1 Data Flow Diagram (Gane-Sarson)" style="text;html=1;fontSize=22;fontStyle=1;fontColor=#12181F;align=left;" vertex="1" parent="1">
-          <mxGeometry x="20" y="-60" width="1100" height="30" as="geometry"/>
-        </mxCell>
-        <mxCell id="n3" value="Sharp rectangle = External Entity" style="text;html=1;fontSize=11;fontColor=#12181F;align=left;" vertex="1" parent="1">
-          <mxGeometry x="20" y="-20" width="520" height="20" as="geometry"/>
-        </mxCell>
-        <mxCell id="n4" value="Rounded rectangle = Process (engine, §3 of spec)" style="text;html=1;fontSize=11;fontColor=#1F5FBF;align=left;" vertex="1" parent="1">
-          <mxGeometry x="20" y="0" width="520" height="20" as="geometry"/>
-        </mxCell>
-        <mxCell id="n5" value="Open-sided rectangle = Data Store (table group)" style="text;html=1;fontSize=11;fontColor=#4A5563;align=left;" vertex="1" parent="1">
-          <mxGeometry x="20" y="20" width="520" height="20" as="geometry"/>
-        </mxCell>
-        <mxCell id="n6" value="(dashed) Dashed border/flow = cross-module or DJP-external handoff" style="text;html=1;fontSize=11;fontColor=#4A5563;align=left;" vertex="1" parent="1">
-          <mxGeometry x="20" y="40" width="520" height="20" as="geometry"/>
-        </mxCell>
-        <mxCell id="n7" value="Accountant / Firm Admin
-(external entity)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="40" y="90" width="180" height="60" as="geometry"/>
-        </mxCell>
-        <mxCell id="n8" value="CRM Module
-(partners registry)
-[Core]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1">
-          <mxGeometry x="40" y="220" width="180" height="70" as="geometry"/>
-        </mxCell>
-        <mxCell id="n9" value="Vertical/ERP Modules
-(Legal, CRM SLA, Schedule fees)
-[Core/Vertical]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1">
-          <mxGeometry x="40" y="340" width="180" height="80" as="geometry"/>
-        </mxCell>
-        <mxCell id="n10" value="WNE Module
+<mxCell id="n1t" value="ACCOUNTING Module — Level-1 Data Flow Diagram (Gane-Sarson)" style="text;html=1;fontSize=22;fontStyle=1;fontColor=#12181F;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="-60" width="1100" height="30" as="geometry"/></mxCell>
+<mxCell id="n1a" value="Sharp rectangle = External Entity" style="text;html=1;fontSize=11;fontColor=#12181F;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="-20" width="520" height="20" as="geometry"/></mxCell>
+<mxCell id="n1b" value="Rounded rectangle = Process (engine, §3 of spec)" style="text;html=1;fontSize=11;fontColor=#1F5FBF;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="0" width="520" height="20" as="geometry"/></mxCell>
+<mxCell id="n1c" value="Open-sided rectangle = Data Store (table group)" style="text;html=1;fontSize=11;fontColor=#4A5563;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="20" width="520" height="20" as="geometry"/></mxCell>
+<mxCell id="n1d" value="(dashed) Dashed border/flow = cross-module or DJP-external handoff" style="text;html=1;fontSize=11;fontColor=#4A5563;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="40" width="520" height="20" as="geometry"/></mxCell>
+<mxCell id="n2" value="Accountant / Firm Admin
+(external entity)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="90" width="190" height="60" as="geometry"/></mxCell>
+<mxCell id="n3" value="Sales Module
+(sole AR-side caller)
+[Core]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="40" y="210" width="190" height="70" as="geometry"/></mxCell>
+<mxCell id="n4" value="Purchase Module
+(primary AP-side caller)
+[Core]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="40" y="330" width="190" height="70" as="geometry"/></mxCell>
+<mxCell id="n5" value="CRM Module
+(partner registry)
+[Core]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="40" y="450" width="190" height="70" as="geometry"/></mxCell>
+<mxCell id="n6" value="WNE Module
 (approvals + notifications)
-[Core]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1">
-          <mxGeometry x="40" y="470" width="180" height="70" as="geometry"/>
-        </mxCell>
-        <mxCell id="n11" value="Schedule Module
+[Core]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="40" y="570" width="190" height="70" as="geometry"/></mxCell>
+<mxCell id="n7" value="Schedule Module
 (recurrence trigger)
-[Core]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1">
-          <mxGeometry x="40" y="590" width="180" height="70" as="geometry"/>
-        </mxCell>
-        <mxCell id="n12" value="DMS Module
+[Core]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="40" y="690" width="190" height="70" as="geometry"/></mxCell>
+<mxCell id="n8" value="DMS Module
 (document attachment)
-[Core]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1">
-          <mxGeometry x="40" y="710" width="180" height="70" as="geometry"/>
-        </mxCell>
-        <mxCell id="n13" value="DJP Coretax
-(external tax authority system)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1">
-          <mxGeometry x="1650" y="90" width="200" height="70" as="geometry"/>
-        </mxCell>
-        <mxCell id="n14" value="Bank
-(statement file)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="1650" y="700" width="200" height="60" as="geometry"/>
-        </mxCell>
-        <mxCell id="n15" value="P1  GL Posting Engine
-(§3B/3C — single posting path)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="400" y="90" width="230" height="70" as="geometry"/>
-        </mxCell>
-        <mxCell id="n16" value="P2  AR Engine
-(§3D)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="400" y="220" width="230" height="70" as="geometry"/>
-        </mxCell>
-        <mxCell id="n17" value="P3  AP Engine
-(§3E)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="400" y="350" width="230" height="70" as="geometry"/>
-        </mxCell>
-        <mxCell id="n18" value="P4  Cash &amp; Bank / Reconcile Engine
-(§3F/3Q)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="400" y="480" width="230" height="70" as="geometry"/>
-        </mxCell>
-        <mxCell id="n19" value="P5  Fixed Assets Engine
-(§3G)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="400" y="610" width="230" height="70" as="geometry"/>
-        </mxCell>
-        <mxCell id="n20" value="P6  Inventory Costing Engine
-(§3H)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="400" y="740" width="230" height="70" as="geometry"/>
-        </mxCell>
-        <mxCell id="n21" value="P7  Cost Allocation &amp; Budgeting
-(§3I/3J)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="750" y="740" width="230" height="70" as="geometry"/>
-        </mxCell>
-        <mxCell id="n22" value="P8  Indonesian Tax Engine
-(§3M — PPN/PPh, Faktur/Bukti Potong)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="750" y="90" width="260" height="90" as="geometry"/>
-        </mxCell>
-        <mxCell id="n23" value="P9  Financial Analysis / Reporting
-(§3N)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="1100" y="350" width="240" height="80" as="geometry"/>
-        </mxCell>
-        <mxCell id="n24" value="P10  Recurring Engine
-(§3P)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="750" y="480" width="230" height="70" as="geometry"/>
-        </mxCell>
-        <mxCell id="n25" value="P11  Audit &amp; Compliance Logger
-(§3O)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="1100" y="610" width="240" height="70" as="geometry"/>
-        </mxCell>
-        <mxCell id="n26" value="D0  Setup / COA
-(companies, accounts, fiscal_periods, cost_centers, ...)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1">
-          <mxGeometry x="400" y="0" width="230" height="40" as="geometry"/>
-        </mxCell>
-        <mxCell id="n27" value="D1  GL
-(gl_journals, gl_journal_lines)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1">
-          <mxGeometry x="1450" y="200" width="220" height="40" as="geometry"/>
-        </mxCell>
-        <mxCell id="n28" value="D2  AR
-(ar_invoices, ar_payments, ...)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1">
-          <mxGeometry x="1450" y="260" width="220" height="40" as="geometry"/>
-        </mxCell>
-        <mxCell id="n29" value="D3  AP
-(ap_bills, ap_payments, ...)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1">
-          <mxGeometry x="1450" y="320" width="220" height="40" as="geometry"/>
-        </mxCell>
-        <mxCell id="n30" value="D4  Cash &amp; Bank
-(cash_transactions, bank_statement_*, bank_reconciliations)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1">
-          <mxGeometry x="1450" y="380" width="220" height="50" as="geometry"/>
-        </mxCell>
-        <mxCell id="n31" value="D5  Fixed Assets
-(fa_assets, fa_depreciation_schedule_*, fa_disposals)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1">
-          <mxGeometry x="1450" y="450" width="220" height="50" as="geometry"/>
-        </mxCell>
-        <mxCell id="n32" value="D6  Inventory Costing
-(inv_items, inv_movements, inv_valuation_snapshots)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1">
-          <mxGeometry x="1450" y="520" width="220" height="50" as="geometry"/>
-        </mxCell>
-        <mxCell id="n33" value="D7  Cost/Budget
-(cost_allocation_*, budgets, budget_lines)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1">
-          <mxGeometry x="1450" y="590" width="220" height="40" as="geometry"/>
-        </mxCell>
-        <mxCell id="n34" value="D8  Tax
-(tax_codes, tax_faktur_pajak, tax_bukti_potong, tax_periods, coretax batches)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1">
-          <mxGeometry x="1050" y="0" width="260" height="50" as="geometry"/>
-        </mxCell>
-        <mxCell id="n35" value="D9  Recurring Templates
-(recurring_*_templates, generation_log)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1">
-          <mxGeometry x="1450" y="660" width="220" height="40" as="geometry"/>
-        </mxCell>
-        <mxCell id="n36" value="D10 Audit Log
-(audit_logs, append-only)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1">
-          <mxGeometry x="1450" y="730" width="220" height="40" as="geometry"/>
-        </mxCell>
-        <mxCell id="n37" value="create invoice" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n7" target="n16">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n38" value="enter bill" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n7" target="n17">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n39" value="manual journal entry" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n7" target="n15">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n40" value="reconcile statement" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n7" target="n18">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n41" value="register asset" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n7" target="n19">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n42" value="request report" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n7" target="n23">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n43" value="partner (customer) data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n8" target="n16">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n44" value="partner (vendor) data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n8" target="n17">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n45" value="InvoiceRequested event
-(e.g. Legal billing)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n9" target="n16">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n46" value="BillRequested event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n9" target="n17">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n47" value="JournalPostingRequested event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n9" target="n15">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n48" value="recurrence due trigger
-(schedule.item_due_soon)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n11" target="n24">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n49" value="attached source document
-(subject_type/subject_id)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n12" target="n16">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n50" value="COA / period validation" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n26" target="n15">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n51" value="COA (revenue accounts)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n26" target="n16">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n52" value="COA (expense accounts)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n26" target="n17">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n53" value="compute PPN output" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n16" target="n22">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n54" value="tax amount + Faktur Pajak" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n22" target="n16">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n55" value="compute PPh withholding" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n17" target="n22">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n56" value="withholding amount + Bukti Potong" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n22" target="n17">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n57" value="store tax documents" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n22" target="n34">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n58" value="Coretax XML export batch
-(faktur/bukti potong)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n22" target="n13">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n59" value="post AR journal" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n16" target="n15">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n60" value="post AP journal" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n17" target="n15">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n61" value="post cash/bank journal" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n18" target="n15">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n62" value="post depreciation/disposal journal
-(commercial book only)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n19" target="n15">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n63" value="post COGS/inventory journal" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n20" target="n15">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n64" value="post allocation journal" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n21" target="n15">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n65" value="generate draft journal
-(review before post)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n24" target="n15">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n66" value="generate draft AR invoice" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n24" target="n16">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n67" value="generate draft AP bill" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n24" target="n17">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n68" value="write posted/draft journal" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n15" target="n27">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n69" value="write invoice/payment" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n16" target="n28">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n70" value="write bill/payment" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n17" target="n29">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n71" value="write cash txn / reconciliation" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n18" target="n30">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n72" value="write asset / depreciation schedule" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n19" target="n31">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n73" value="write stock movement / valuation" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n20" target="n32">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n74" value="write allocation run / budget" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n21" target="n33">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n75" value="write template / generation log" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n24" target="n35">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n76" value="bank statement file (CSV/MT940)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n14" target="n18">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n77" value="WorkflowRequested
-(journal approval above threshold)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n15" target="n10">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n78" value="WorkflowRequested
-(payment approval above threshold)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n17" target="n10">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n79" value="approval decision" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n10" target="n15">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n80" value="approval decision" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n10" target="n17">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n81" value="unmatched-item notification" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n18" target="n10">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n82" value="tax filing due-date reminder" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n22" target="n10">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n83" value="read (posted only)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n27" target="n23">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n84" value="read (posted only)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n28" target="n23">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n85" value="read (posted only)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n29" target="n23">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n86" value="read (posted only)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n30" target="n23">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n87" value="read (posted only)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n31" target="n23">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n88" value="read (posted only)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n32" target="n23">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n89" value="read (posted only)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n33" target="n23">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n90" value="Trial Balance / Balance Sheet / P&amp;L / Cash Flow / Aging" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n23" target="n7">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n91" value="action log entry" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n15" target="n25">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n92" value="action log entry" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n16" target="n25">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n93" value="action log entry" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n17" target="n25">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n94" value="action log entry" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n22" target="n25">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="n95" value="append-only write" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n25" target="n36">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
+[Core]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="40" y="810" width="190" height="70" as="geometry"/></mxCell>
+<mxCell id="n9" value="Inventory Module
+(goods received/issued/adjusted events)
+[Core]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="40" y="930" width="190" height="80" as="geometry"/></mxCell>
+<mxCell id="n10" value="Payroll Module
+(payroll.run_paid event)
+[Core]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="40" y="1040" width="190" height="70" as="geometry"/></mxCell>
+<mxCell id="n11" value="Bank
+(statement file)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1900" y="90" width="200" height="60" as="geometry"/></mxCell>
+<mxCell id="n12" value="DJP Coretax
+(external tax authority system)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="1900" y="700" width="200" height="70" as="geometry"/></mxCell>
+<mxCell id="n13" value="P1  GL Posting Engine
+(§3C — single posting path, JournalService::post())" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="380" y="90" width="250" height="80" as="geometry"/></mxCell>
+<mxCell id="n14" value="P2  AR Engine
+(§3D)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="380" y="210" width="250" height="70" as="geometry"/></mxCell>
+<mxCell id="n15" value="P3  AP Engine
+(§3E)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="380" y="320" width="250" height="70" as="geometry"/></mxCell>
+<mxCell id="n16" value="P4  Cash &amp;amp; Bank / Reconcile Engine
+(§3F/3Q)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="380" y="430" width="250" height="80" as="geometry"/></mxCell>
+<mxCell id="n17" value="P5  Fixed Assets Engine
+(§3G)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="380" y="550" width="250" height="70" as="geometry"/></mxCell>
+<mxCell id="n18" value="P6  Inventory GL Posting
+(§3H — thin interface, no costing logic)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="380" y="660" width="250" height="80" as="geometry"/></mxCell>
+<mxCell id="n19" value="P13  Payroll GL Posting
+(§3S — thin interface, no payroll calc)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="380" y="780" width="250" height="80" as="geometry"/></mxCell>
+<mxCell id="n20" value="P7  Cost Allocation &amp;amp; Budgeting
+(§3I/3J)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="380" y="900" width="250" height="80" as="geometry"/></mxCell>
+<mxCell id="n21" value="P8  Indonesian Tax Engine
+(§3M — PPN/PPh, Faktur/Bukti Potong)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="730" y="90" width="270" height="90" as="geometry"/></mxCell>
+<mxCell id="n22" value="P9  Financial Analysis / Reporting
+(§3N)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1080" y="320" width="260" height="80" as="geometry"/></mxCell>
+<mxCell id="n23" value="P10  Recurring Engine
+(§3P)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="730" y="430" width="250" height="70" as="geometry"/></mxCell>
+<mxCell id="n24" value="P11  Audit &amp;amp; Compliance Logger
+(§3O)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1080" y="570" width="260" height="70" as="geometry"/></mxCell>
+<mxCell id="n25" value="P12  Multi-Company / Multi-Currency Setup
+(§3K/3L)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="730" y="550" width="250" height="80" as="geometry"/></mxCell>
+<mxCell id="n26" value="D0  Setup / COA
+(companies, accounts, fiscal_periods, cost_centers, currencies, exchange_rates)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="380" y="0" width="250" height="50" as="geometry"/></mxCell>
+<mxCell id="n27" value="D1  GL
+(gl_journals, gl_journal_lines)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1420" y="200" width="220" height="40" as="geometry"/></mxCell>
+<mxCell id="n28" value="D2  AR
+(ar_invoices, ar_payments, ar_credit_notes, ...)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1420" y="250" width="220" height="40" as="geometry"/></mxCell>
+<mxCell id="n29" value="D3  AP
+(ap_bills, ap_payments, ap_debit_notes, ...)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1420" y="300" width="220" height="40" as="geometry"/></mxCell>
+<mxCell id="n30" value="D4  Cash &amp;amp; Bank
+(cash_transactions, bank_statement_*, bank_reconciliations)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1420" y="350" width="220" height="50" as="geometry"/></mxCell>
+<mxCell id="n31" value="D5  Fixed Assets
+(fa_assets, fa_depreciation_schedule_*, fa_disposals)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1420" y="420" width="220" height="50" as="geometry"/></mxCell>
+<mxCell id="n32" value="D6  Inventory/Payroll GL Posting
+(inv/payroll_gl_account_map, inv/payroll_posting_log)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1420" y="490" width="220" height="50" as="geometry"/></mxCell>
+<mxCell id="n33" value="D7  Cost/Budget
+(cost_allocation_*, budgets, budget_lines)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1420" y="560" width="220" height="40" as="geometry"/></mxCell>
+<mxCell id="n34" value="D8  Tax
+(tax_codes, tax_faktur_pajak, tax_bukti_potong, tax_periods, coretax batches)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1080" y="0" width="270" height="60" as="geometry"/></mxCell>
+<mxCell id="n35" value="D9  Recurring Templates
+(recurring_*_templates, generation_log)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1420" y="620" width="220" height="40" as="geometry"/></mxCell>
+<mxCell id="n36" value="D10 Audit Log
+(audit_logs, append-only)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1420" y="680" width="220" height="40" as="geometry"/></mxCell>
+<mxCell id="n37" value="create invoice" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n2" target="n14"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n38" value="enter bill" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n2" target="n15"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n39" value="manual journal entry" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n2" target="n13"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n40" value="reconcile statement" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n2" target="n16"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n41" value="register asset" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n2" target="n17"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n42" value="request report" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n2" target="n22"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n43" value="set up company/COA" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n2" target="n25"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n44" value="InvoiceRequested / PaymentRequested
+(sole AR-side caller)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n3" target="n14"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n45" value="InvoicePosted / PaymentRecorded" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n14" target="n3"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n46" value="BillRequested
+(primary AP-side caller)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n4" target="n15"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n47" value="BillPosted / PaymentRecorded" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n15" target="n4"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n48" value="partner (customer/vendor) data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n5" target="n14"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n49" value="partner (vendor) data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n5" target="n15"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n50" value="PartnerCreated event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n5" target="n13"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n51" value="goods_received / goods_issued / stock_adjusted" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n9" target="n18"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n52" value="payroll.run_paid" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n10" target="n19"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n53" value="recurrence due trigger
+(schedule.item_due_soon)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n7" target="n23"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n54" value="attached source document
+(subject_type/subject_id)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n8" target="n14"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n55" value="COA / period validation" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n26" target="n13"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n56" value="COA (revenue accounts)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n26" target="n14"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n57" value="COA (expense accounts)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n26" target="n15"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n58" value="company/currency setup" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n25" target="n26"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n59" value="compute PPN output" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n14" target="n21"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n60" value="tax amount + Faktur Pajak" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n21" target="n14"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n61" value="compute PPh withholding" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n15" target="n21"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n62" value="withholding amount + Bukti Potong" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n21" target="n15"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n63" value="store tax documents" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n21" target="n34"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n64" value="read tax lookups" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n34" target="n21"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n65" value="Coretax XML export batch
+(faktur/bukti potong)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n21" target="n12"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n66" value="post AR journal" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n14" target="n13"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n67" value="post AP journal" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n15" target="n13"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n68" value="post cash/bank journal" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n16" target="n13"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n69" value="post depreciation/disposal journal
+(commercial book only)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n17" target="n13"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n70" value="post COGS/inventory journal" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n18" target="n13"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n71" value="post salary/BPJS/PPh21 journal" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n19" target="n13"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n72" value="post allocation journal" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n20" target="n13"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n73" value="generate draft journal
+(review before post)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n23" target="n13"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n74" value="generate draft AR invoice" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n23" target="n14"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n75" value="generate draft AP bill" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n23" target="n15"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n76" value="write posted/draft journal" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n13" target="n27"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n77" value="write invoice/payment/credit note" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n14" target="n28"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n78" value="write bill/payment/debit note" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n15" target="n29"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n79" value="write cash txn / reconciliation" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n16" target="n30"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n80" value="write asset / depreciation schedule" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n17" target="n31"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n81" value="write posting log + account map" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n18" target="n32"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n82" value="write posting log + account map" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n19" target="n32"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n83" value="write allocation run / budget" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n20" target="n33"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n84" value="write template / generation log" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n23" target="n35"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n85" value="bank statement file (CSV/MT940)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n11" target="n16"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n86" value="WorkflowRequested
+(journal approval above threshold)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n13" target="n6"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n87" value="WorkflowRequested
+(payment approval above threshold)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n15" target="n6"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n88" value="approval decision" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n6" target="n13"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n89" value="approval decision" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n6" target="n15"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n90" value="unmatched-item / tax due-date notification" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n16" target="n6"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n91" value="tax filing due-date reminder" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n21" target="n6"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n92" value="read (posted only)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n27" target="n22"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n93" value="read (posted only)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n28" target="n22"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n94" value="read (posted only)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n29" target="n22"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n95" value="read (posted only)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n30" target="n22"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n96" value="read (posted only)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n31" target="n22"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n97" value="read (posted only)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n33" target="n22"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n98" value="Trial Balance / Balance Sheet / P&amp;amp;L / Cash Flow / Aging" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n22" target="n2"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n99" value="action log entry" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n13" target="n24"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n100" value="action log entry" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n14" target="n24"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n101" value="action log entry" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n15" target="n24"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n102" value="action log entry" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n21" target="n24"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n103" value="append-only write" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n24" target="n36"><mxGeometry relative="1" as="geometry"/></mxCell>
       </root>
     </mxGraphModel>
   </diagram>
