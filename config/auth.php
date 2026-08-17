@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Modules\Central\Models\CentralAdminUser;
 
 return [
 
@@ -42,6 +43,13 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        // Platform-admin guard for the CENTRAL module — separate from tenant `users`,
+        // never resolvable from inside any tenant session (CENTRAL_SPECS.md §3A/§4).
+        'central_admin' => [
+            'driver' => 'session',
+            'provider' => 'central_admin_users',
+        ],
     ],
 
     /*
@@ -65,6 +73,11 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', User::class),
+        ],
+
+        'central_admin_users' => [
+            'driver' => 'central_eloquent',
+            'model' => CentralAdminUser::class,
         ],
 
         // 'users' => [

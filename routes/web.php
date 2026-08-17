@@ -35,3 +35,4 @@ require app_path('Modules/Inventory/Routes/web.php');
 require app_path('Modules/SysConfig/Routes/web.php');
 require app_path('Modules/Legal/Routes/web.php');
 require app_path('Modules/Projects/Routes/web.php');
+require app_path('Modules/Central/Routes/web.php');

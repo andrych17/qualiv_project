@@ -16,6 +16,11 @@ class Tenant extends BaseTenant implements TenantWithDatabase
             'id',
             'name',
             'plan',
+            'contact_name',
+            'contact_email',
+            'contact_phone',
+            'billing_address',
+            'access_status',
         ];
     }
 
