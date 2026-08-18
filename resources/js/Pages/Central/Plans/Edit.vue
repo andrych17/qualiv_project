@@ -6,7 +6,8 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 
 const props = defineProps<{
-  plan: { id: number; code: string; name: string; description: string | null; price_monthly: string | number; currency: string; is_active: boolean }
+  plan: { id: number; code: string; name: string; description: string | null; price_monthly: string | number; currency: string; is_active: boolean; module_codes: string[] }
+  availableModules: string[]
 }>()
 
 const form = useForm({
@@ -15,6 +16,7 @@ const form = useForm({
   price_monthly: Number(props.plan.price_monthly),
   currency: props.plan.currency,
   is_active: props.plan.is_active,
+  module_codes: [...props.plan.module_codes],
 })
 
 const submit = () => form.put(route('central.plans.update', props.plan.id))
@@ -36,6 +38,16 @@ const submit = () => form.put(route('central.plans.update', props.plan.id))
           <input type="checkbox" v-model="form.is_active" class="rounded border-gray-300" />
           Active (new tenants can be assigned this plan)
         </label>
+
+        <div class="space-y-1.5">
+          <span class="text-sm font-medium text-gray-700">Included modules</span>
+          <div class="grid grid-cols-2 gap-2 rounded-md border border-gray-200 p-3 sm:grid-cols-3">
+            <label v-for="code in availableModules" :key="code" class="flex items-center gap-2 text-sm text-gray-700">
+              <input type="checkbox" :value="code" v-model="form.module_codes" class="rounded border-gray-300" />
+              {{ code }}
+            </label>
+          </div>
+        </div>
 
         <div class="flex items-center justify-end gap-3 border-t border-gray-100 pt-4">
           <Link :href="route('central.plans.index')" class="text-sm font-semibold text-gray-900">Cancel</Link>

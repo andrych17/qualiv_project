@@ -4,10 +4,13 @@ namespace Database\Seeders;
 
 use App\Models\Tenant;
 use App\Modules\Central\Models\CentralAdminUser;
+use App\Modules\Central\Models\CentralDunningPolicy;
 use App\Modules\Central\Models\CentralInvoice;
 use App\Modules\Central\Models\CentralPayment;
 use App\Modules\Central\Models\CentralPlan;
+use App\Modules\Central\Models\CentralPlanModule;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Config;
 
 class CentralSeeder extends Seeder
 {
@@ -38,6 +41,33 @@ class CentralSeeder extends Seeder
                 'is_active' => true,
             ]);
         }
+
+        // Seed central_plan_modules from config/tenant_modules.php — that config was the
+        // sole source of truth pre-CENTRAL §3C; this migrates its existing bundles into data.
+        foreach (Config::get('tenant_modules.plans', []) as $planCode => $moduleCodes) {
+            if (! CentralPlan::query()->where('code', $planCode)->exists()) {
+                continue;
+            }
+
+            foreach ($moduleCodes as $moduleCode) {
+                CentralPlanModule::query()->updateOrCreate([
+                    'plan_code' => $planCode,
+                    'module_code' => $moduleCode,
+                ]);
+            }
+        }
+
+        // Every dunning resolution falls back to this if no plan/tenant-scoped policy exists
+        // (CENTRAL_SPECS.md §3G) — resolvePolicyFor() throws rather than guessing if this is
+        // ever missing, so it must always exist.
+        CentralDunningPolicy::query()->updateOrCreate(
+            ['scope_type' => 'platform_default', 'scope_id' => null],
+            [
+                'reminder_offsets_days' => [-7, -3, -1, 3, 7],
+                'cutoff_days_after_due' => 14,
+                'cutoff_action' => 'read_only',
+            ],
+        );
 
         // Dummy invoice history for the two demo tenants DatabaseSeeder already creates
         // (001 Nusaevo/internal, 002 Demo Legal/legal) — one paid, one still issued.
@@ -79,6 +109,9 @@ class CentralSeeder extends Seeder
                 'method' => 'bank_transfer',
                 'paid_at' => now(),
                 'notes' => 'Seeded demo payment.',
+                'status' => 'confirmed',
+                'submitted_at' => now(),
+                'reviewed_at' => now(),
             ]);
         }
     }

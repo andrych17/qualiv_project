@@ -56,6 +56,14 @@ class CentralTenantCreateTest extends TestCase
         $this->assertNotNull($tenant);
         $this->assertSame('Demo Co', $tenant->name);
         $this->assertSame('starter', $tenant->plan);
+        $this->assertSame('tenant_001', $tenant->tenant_db_name);
+        $this->assertSame('provisioned', $tenant->provisioning_status);
+        $this->assertNotNull($tenant->provisioned_at);
+
+        $this->assertDatabaseHas('central_audit_logs', [
+            'action' => 'tenant_registered',
+            'entity_id' => '001',
+        ]);
 
         // Proves the DB actually exists and is reachable, not just the central row.
         $databaseName = $tenant->run(fn () => DB::connection()->getDatabaseName());

@@ -7,6 +7,7 @@ use App\Modules\Central\Models\CentralPlan;
 use App\Modules\Central\Requests\StorePlanRequest;
 use App\Modules\Central\Requests\UpdatePlanRequest;
 use App\Modules\Central\Services\CentralPlanService;
+use App\Modules\Central\Support\ModuleCatalog;
 use App\Shared\Helpers\TableQuery;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -42,7 +43,9 @@ class PlanController extends Controller
 
     public function create(): Response
     {
-        return Inertia::render('Central/Plans/Create');
+        return Inertia::render('Central/Plans/Create', [
+            'availableModules' => ModuleCatalog::codes(),
+        ]);
     }
 
     public function store(StorePlanRequest $request)
@@ -54,7 +57,13 @@ class PlanController extends Controller
 
     public function edit(CentralPlan $plan): Response
     {
-        return Inertia::render('Central/Plans/Edit', ['plan' => $plan]);
+        return Inertia::render('Central/Plans/Edit', [
+            'plan' => [
+                ...$plan->toArray(),
+                'module_codes' => $plan->modules()->pluck('module_code')->values(),
+            ],
+            'availableModules' => ModuleCatalog::codes(),
+        ]);
     }
 
     public function update(UpdatePlanRequest $request, CentralPlan $plan)

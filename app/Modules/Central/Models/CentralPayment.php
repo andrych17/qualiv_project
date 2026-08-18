@@ -18,6 +18,12 @@ class CentralPayment extends Model
         'method',
         'paid_at',
         'notes',
+        'receipt_object_key',
+        'status',
+        'submitted_at',
+        'reviewed_by',
+        'reviewed_at',
+        'rejection_reason',
     ];
 
     protected function casts(): array
@@ -25,6 +31,8 @@ class CentralPayment extends Model
         return [
             'amount' => 'decimal:2',
             'paid_at' => 'datetime',
+            'submitted_at' => 'datetime',
+            'reviewed_at' => 'datetime',
         ];
     }
 
@@ -36,5 +44,10 @@ class CentralPayment extends Model
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);
+    }
+
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(CentralAdminUser::class, 'reviewed_by');
     }
 }
