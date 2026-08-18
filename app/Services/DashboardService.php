@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
-use App\Modules\SysConfig\Services\ConfigService;
 use App\Modules\Inventory\Models\InventoryItem;
 use App\Modules\Legal\Models\LegalCase;
 use App\Modules\Projects\Models\Issue;
+use App\Modules\SysConfig\Services\ConfigService;
 use Illuminate\Support\Carbon;
 
 /**

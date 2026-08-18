@@ -25,7 +25,7 @@ class CentralAdminSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('central.tenants.index', absolute: false));
+        return redirect()->intended(route('central.dashboard', absolute: false));
     }
 
     public function destroy(Request $request): RedirectResponse

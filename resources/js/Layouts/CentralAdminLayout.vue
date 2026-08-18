@@ -15,8 +15,9 @@ const logout = () => router.post(route('central.logout'))
     <header class="border-b border-gray-200 bg-white">
       <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <div class="flex items-center gap-6">
-          <span class="font-serif text-lg font-semibold text-gray-900">Nusaevo Central</span>
+          <Link :href="route('central.dashboard')" class="font-serif text-lg font-semibold text-gray-900">Nusaevo Central</Link>
           <nav class="flex items-center gap-4 text-sm font-medium text-gray-600">
+            <Link :href="route('central.dashboard')" class="hover:text-gray-900">Dashboard</Link>
             <Link :href="route('central.tenants.index')" class="hover:text-gray-900">Tenants</Link>
             <Link :href="route('central.plans.index')" class="hover:text-gray-900">Plans</Link>
             <Link :href="route('central.invoices.index')" class="hover:text-gray-900">Invoices</Link>

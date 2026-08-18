@@ -5,9 +5,12 @@ namespace App\Modules\Central\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant;
 use App\Modules\Central\Models\CentralPlan;
+use App\Modules\Central\Models\CentralTenantAddon;
+use App\Modules\Central\Requests\ReactivateTenantRequest;
 use App\Modules\Central\Requests\StoreTenantRequest;
 use App\Modules\Central\Requests\UpdateTenantRequest;
 use App\Modules\Central\Services\CentralTenantService;
+use App\Modules\Central\Support\ModuleCatalog;
 use App\Shared\Helpers\TableQuery;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -60,6 +63,12 @@ class TenantController extends Controller
         return Inertia::render('Central/Tenants/Edit', [
             'tenant' => $tenant,
             'plans' => $this->planOptions(),
+            'addons' => CentralTenantAddon::query()
+                ->where('tenant_id', $tenant->getKey())
+                ->where('status', 'active')
+                ->orderBy('module_code')
+                ->get(['id', 'module_code', 'price_override', 'added_at']),
+            'availableModules' => ModuleCatalog::codes(),
         ]);
     }
 
@@ -68,6 +77,14 @@ class TenantController extends Controller
         $this->service->update($tenant, $request->validated());
 
         return redirect()->route('central.tenants.index')->with('success', 'Tenant updated.');
+    }
+
+    /** Exceptional manual override alongside dunning's automatic reactivate-on-payment (§3G). */
+    public function reactivate(ReactivateTenantRequest $request, Tenant $tenant)
+    {
+        $this->service->reactivate($tenant, $request->validated('reason'));
+
+        return redirect()->back()->with('success', 'Tenant reactivated.');
     }
 
     private function planOptions(): array

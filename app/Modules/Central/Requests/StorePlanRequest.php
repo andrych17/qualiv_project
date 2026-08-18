@@ -20,6 +20,8 @@ class StorePlanRequest extends FormRequest
             'price_monthly' => 'required|numeric|min:0',
             'currency' => 'nullable|string|size:3',
             'is_active' => 'nullable|boolean',
+            'module_codes' => 'nullable|array',
+            'module_codes.*' => 'string',
         ];
     }
 }

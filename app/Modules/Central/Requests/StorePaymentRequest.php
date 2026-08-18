@@ -18,6 +18,7 @@ class StorePaymentRequest extends FormRequest
             'method' => 'nullable|string|in:bank_transfer',
             'paid_at' => 'nullable|date',
             'notes' => 'nullable|string|max:1000',
+            'receipt' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
         ];
     }
 }

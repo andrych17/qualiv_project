@@ -2,16 +2,16 @@
 
 namespace Database\Seeders;
 
-use App\Modules\SysConfig\Models\ConfigConst;
-use App\Modules\SysConfig\Models\ConfigGroup;
-use App\Modules\SysConfig\Models\ConfigMenu;
-use App\Modules\SysConfig\Models\ConfigSnum;
 use App\Modules\CustomFields\Models\FieldDef;
 use App\Modules\CustomFields\Models\FieldValue;
 use App\Modules\Inventory\Models\InventoryCategory;
 use App\Modules\Inventory\Models\InventoryItem;
 use App\Modules\Legal\Models\LegalCase;
 use App\Modules\Projects\Models\Project;
+use App\Modules\SysConfig\Models\ConfigConst;
+use App\Modules\SysConfig\Models\ConfigGroup;
+use App\Modules\SysConfig\Models\ConfigMenu;
+use App\Modules\SysConfig\Models\ConfigSnum;
 use Illuminate\Database\Seeder;
 
 /**

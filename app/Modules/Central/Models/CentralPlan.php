@@ -4,6 +4,7 @@ namespace App\Modules\Central\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Stancl\Tenancy\Database\Concerns\CentralConnection;
 
 class CentralPlan extends Model
@@ -25,6 +26,11 @@ class CentralPlan extends Model
             'price_monthly' => 'decimal:2',
             'is_active' => 'boolean',
         ];
+    }
+
+    public function modules(): HasMany
+    {
+        return $this->hasMany(CentralPlanModule::class, 'plan_code', 'code');
     }
 
     public function scopeFilter(Builder $query, array $filters): void

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AsyncSearchController;
+use App\Http\Controllers\BillingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DesignSystemController;
 use App\Http\Controllers\ProfileController;
@@ -18,6 +19,12 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/tenant/switch', TenantSwitchController::class)->name('tenant.switch');
+
+    // CENTRAL_SPECS.md §3H — cross-boundary connection to the central DB, not a REST/API
+    // surface. Deliberately not behind `module:` gating — billing must stay reachable
+    // regardless of a tenant's own entitlement or access status.
+    Route::get('/billing', [BillingController::class, 'index'])->name('billing.index');
+    Route::post('/billing/invoices/{invoice}/payments', [BillingController::class, 'submitPayment'])->name('billing.payments.store');
 
     Route::get('/design-system', DesignSystemController::class)
         ->middleware('menu.perm:DESIGN_SYSTEM')
