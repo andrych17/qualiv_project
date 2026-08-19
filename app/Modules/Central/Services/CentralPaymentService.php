@@ -146,6 +146,6 @@ class CentralPaymentService
     {
         $path = "central/tenants/{$tenantId}/receipts/{$paymentId}";
 
-        return $file->store($path, 's3');
+        return $file->store($path, 'objects');
     }
 }

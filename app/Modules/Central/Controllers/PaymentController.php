@@ -39,17 +39,14 @@ class PaymentController extends Controller
         return redirect()->route('central.invoices.show', $payment->invoice_id)->with('success', 'Payment rejected.');
     }
 
-    /** Streams a short-lived link to the uploaded receipt — never proxies the file through PHP. */
+    /** Streams the uploaded receipt from objects storage. */
     public function receipt(CentralPayment $payment)
     {
         abort_if(! $payment->receipt_object_key, 404);
 
-        $disk = Storage::disk('s3');
+        $disk = Storage::disk('objects');
+        abort_if(! $disk->exists($payment->receipt_object_key), 404);
 
-        $url = method_exists($disk, 'temporaryUrl')
-            ? $disk->temporaryUrl($payment->receipt_object_key, now()->addMinutes(5))
-            : $disk->url($payment->receipt_object_key);
-
-        return redirect()->away($url);
+        return $disk->response($payment->receipt_object_key);
     }
 }

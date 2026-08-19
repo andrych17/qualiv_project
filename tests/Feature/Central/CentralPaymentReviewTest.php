@@ -25,7 +25,7 @@ class CentralPaymentReviewTest extends TestCase
         $this->dropTenantDatabaseIfExists('901');
         Tenant::query()->whereKey('901')->delete();
 
-        Storage::fake('s3');
+        Storage::fake('objects');
     }
 
     protected function tearDown(): void
@@ -74,7 +74,7 @@ class CentralPaymentReviewTest extends TestCase
         $payment = $invoice->payments()->first();
         $this->assertSame('pending_review', $payment->status);
         $this->assertNotNull($payment->receipt_object_key);
-        Storage::disk('s3')->assertExists($payment->receipt_object_key);
+        Storage::disk('objects')->assertExists($payment->receipt_object_key);
         $this->assertDatabaseHas('central_audit_logs', ['action' => 'payment_submitted', 'entity_id' => (string) $payment->id]);
     }
 
@@ -126,7 +126,7 @@ class CentralPaymentReviewTest extends TestCase
 
         $this->assertDatabaseHas('central_invoices', ['id' => $invoice->id, 'status' => 'issued']);
         $this->assertDatabaseHas('central_payments', ['id' => $payment->id, 'status' => 'rejected', 'rejection_reason' => 'Amount mismatch']);
-        Storage::disk('s3')->assertExists($receiptKey);
+        Storage::disk('objects')->assertExists($receiptKey);
     }
 
     public function test_rejecting_a_payment_for_a_past_due_invoice_reverts_to_overdue_and_notifies_the_tenant(): void
@@ -176,5 +176,27 @@ class CentralPaymentReviewTest extends TestCase
         $this->actingAs($admin, 'central_admin')
             ->post("/central/payments/{$payment->id}/confirm")
             ->assertUnprocessable();
+    }
+
+    public function test_admin_can_view_receipt_stream(): void
+    {
+        $admin = CentralAdminUser::query()->updateOrCreate(
+            ['email' => 'simon@nusaevo.com'],
+            ['name' => 'Simon', 'password' => 'password'],
+        );
+
+        $invoice = $this->makeInvoice();
+
+        $this->actingAs($admin, 'central_admin')
+            ->post("/central/invoices/{$invoice->id}/payments", [
+                'amount' => 500000,
+                'receipt' => UploadedFile::fake()->create('receipt.pdf', 100, 'application/pdf'),
+            ]);
+
+        $payment = $invoice->payments()->first();
+
+        $this->actingAs($admin, 'central_admin')
+            ->get("/central/payments/{$payment->id}/receipt")
+            ->assertOk();
     }
 }
