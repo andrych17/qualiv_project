@@ -17,22 +17,14 @@ class CentralSeeder extends Seeder
     /** Dummy data for local dev only — never runs in production (guarded by DatabaseSeeder). */
     public function run(): void
     {
-        $centralAdmins = [
-            ['email' => env('CENTRAL_ADMIN_EMAIL', 'admin@nusaevo.com'), 'name' => 'Admin Central'],
-            ['email' => 'andry@nusaevo.com', 'name' => 'Andry Huang'],
-            ['email' => 'simon@nusaevo.com', 'name' => 'Simon'],
-            ['email' => 'tirta@nusaevo.com', 'name' => 'Tirta'],
-        ];
-
-        foreach ($centralAdmins as $adm) {
-            CentralAdminUser::query()->updateOrCreate(
-                ['email' => $adm['email']],
-                [
-                    'name' => $adm['name'],
-                    'password' => env('CENTRAL_ADMIN_PASSWORD', 'password'),
-                ],
-            );
-        }
+        CentralAdminUser::query()->updateOrCreate(
+            ['email' => env('CENTRAL_ADMIN_EMAIL', 'admin@nusaevo.com')],
+            [
+                'name' => 'Admin Central',
+                'password' => env('CENTRAL_ADMIN_PASSWORD', 'password'),
+            ],
+        );
+        CentralAdminUser::query()->whereNotIn('email', ['admin@nusaevo.com'])->delete();
 
         $plans = [
             ['code' => 'internal', 'name' => 'Internal', 'price_monthly' => 0, 'description' => "Nusaevo's own tenant — not sold."],

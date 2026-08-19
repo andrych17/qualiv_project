@@ -7,12 +7,9 @@
 
 URL: `/central/login`
 
-| Email | Password | Role / Name | Notes |
-|---|---|---|---|
-| `admin@nusaevo.com` | `password` | Admin Central | Seeded by `CentralSeeder`. Separate `central_admin` guard. |
-| `andry@nusaevo.com` | `password` | Andry Huang | Platform Admin |
-| `simon@nusaevo.com` | `password` | Simon | Platform Admin |
-| `tirta@nusaevo.com` | `password` | Tirta | Platform Admin |
+| Email | Password | Notes |
+|---|---|---|
+| `admin@nusaevo.com` (or `CENTRAL_ADMIN_EMAIL` env) | `password` (or `CENTRAL_ADMIN_PASSWORD` env) | Seeded by `CentralSeeder`. Separate `central_admin` guard — only account for central platform admin. |
 
 ## Regular tenant login (login-bound, per `CLAUDE.md` §4)
 
