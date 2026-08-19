@@ -1,45 +1,117 @@
-<mxfile host="app.diagrams.net" modified="2026-08-14T00:00:00Z" agent="node-script" version="24.7.5" type="device">
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.6.6 Chrome/144.0.7559.236 Electron/40.8.4 Safari/537.36" version="29.6.6">
   <diagram id="projects-flow" name="PROJECTS - How a Task Moves From Idea to Done (plain language)">
-    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1300" math="0" shadow="0">
+    <mxGraphModel dx="1252" dy="757" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1300" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-<mxCell id="ftitle" value="How a Task Moves From Idea to Done" style="text;html=1;fontSize=24;fontStyle=1;fontColor=#12181F;align=left;" vertex="1" parent="1"><mxGeometry x="40" y="36" width="900" height="36" as="geometry"/></mxCell>
-<mxCell id="fsub" value="Plain-language walkthrough of a task riding the board from creation to completion" style="text;html=1;fontSize=14;fontColor=#4A5563;align=left;" vertex="1" parent="1"><mxGeometry x="40" y="74" width="900" height="24" as="geometry"/></mxCell>
-<mxCell id="f2" value="A New Task Is Added" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="480" y="146" width="340" height="60" as="geometry"/></mxCell>
-<mxCell id="f3" value="It Waits in the To Do Column" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="480" y="256" width="340" height="60" as="geometry"/></mxCell>
-<mxCell id="f4" value="Someone Is Assigned and Moves It to In Progress" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="480" y="366" width="340" height="70" as="geometry"/></mxCell>
-<mxCell id="f5" value="Has the Due Date Passed While It’s Still Open?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="520" y="486" width="260" height="90" as="geometry"/></mxCell>
-<mxCell id="f6" value="The Card Shows an Overdue Warning and Floats to the Top" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#FBF1E1;strokeColor=#B5760A;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="900" y="496" width="340" height="70" as="geometry"/></mxCell>
-<mxCell id="f7" value="The Team Keeps Working on It (updates, comments, files attached)" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="480" y="636" width="340" height="80" as="geometry"/></mxCell>
-<mxCell id="f8" value="Is the Work Actually Finished?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="520" y="766" width="260" height="90" as="geometry"/></mxCell>
-<mxCell id="f9" value="The Card Is Dragged Into the Done Column" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="480" y="906" width="340" height="60" as="geometry"/></mxCell>
-<mxCell id="f10" value="Task Is Complete" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#E7F5EF;strokeColor=#1E7F5C;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="480" y="1006" width="340" height="60" as="geometry"/></mxCell>
-<mxCell id="f11" value="Still Untouched a Week Later — Stays Highlighted as Stuck" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#FBEAEA;strokeColor=#C1332B;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="900" y="636" width="340" height="80" as="geometry"/></mxCell>
-<mxCell id="fe1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="f2" target="f3"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="fe2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="f3" target="f4"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="fe3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="f4" target="f5"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="fe4" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="f5" target="f7"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="fe5" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="f5" target="f6"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="fe6" value="work continues" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="f6" target="f7"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="fe7" value="nobody picks it up" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="f6" target="f11"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="fe8" value="eventually addressed" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="f11" target="f7"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="fe9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="f7" target="f8"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="fe10" value="Not yet" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="f8" target="f7"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="fe11" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="f8" target="f9"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="fe12" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="f9" target="f10"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="fn1" value="There’s no separate “blocked” or “in review” column — a task only ever sits in one of three places: To Do, In Progress, or Done." style="text;html=1;fontSize=11;fontColor=#4A5563;fontStyle=2;align=left;verticalAlign=top;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="900" y="366" width="400" height="60" as="geometry"/></mxCell>
-<mxCell id="fn2" value="Being overdue never blocks a task — it stays fully editable, just flagged so nobody forgets about it." style="text;html=1;fontSize=11;fontColor=#4A5563;fontStyle=2;align=left;verticalAlign=top;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="900" y="786" width="400" height="60" as="geometry"/></mxCell>
-<mxCell id="fn3" value="Every status change and re-assignment happens instantly by dragging the card — no separate save button, no page reload." style="text;html=1;fontSize=11;fontColor=#4A5563;fontStyle=2;align=left;verticalAlign=top;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="900" y="906" width="400" height="60" as="geometry"/></mxCell>
-<mxCell id="flegtitle" value="Legend" style="text;html=1;fontSize=14;fontStyle=1;fontColor=#12181F;align=left;" vertex="1" parent="1"><mxGeometry x="40" y="1120" width="200" height="24" as="geometry"/></mxCell>
-<mxCell id="fleg0sw" value="" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="40" y="1154" width="34" height="22" as="geometry"/></mxCell>
-<mxCell id="fleg0tx" value="Normal step in the task’s journey" style="text;html=1;fontSize=12;fontColor=#12181F;align=left;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="86" y="1151" width="420" height="28" as="geometry"/></mxCell>
-<mxCell id="fleg1sw" value="" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#E7F5EF;strokeColor=#1E7F5C;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="40" y="1188" width="34" height="22" as="geometry"/></mxCell>
-<mxCell id="fleg1tx" value="Task is done" style="text;html=1;fontSize=12;fontColor=#12181F;align=left;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="86" y="1185" width="420" height="28" as="geometry"/></mxCell>
-<mxCell id="fleg2sw" value="" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#FBF1E1;strokeColor=#B5760A;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="40" y="1222" width="34" height="22" as="geometry"/></mxCell>
-<mxCell id="fleg2tx" value="Warning — overdue, needs attention" style="text;html=1;fontSize=12;fontColor=#12181F;align=left;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="86" y="1219" width="420" height="28" as="geometry"/></mxCell>
-<mxCell id="fleg3sw" value="" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#FBEAEA;strokeColor=#C1332B;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="40" y="1256" width="34" height="22" as="geometry"/></mxCell>
-<mxCell id="fleg3tx" value="Stuck — sitting overdue with nobody on it" style="text;html=1;fontSize=12;fontColor=#12181F;align=left;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="86" y="1253" width="420" height="28" as="geometry"/></mxCell>
+        <mxCell id="ftitle" parent="1" style="text;html=1;fontSize=24;fontStyle=1;fontColor=#12181F;align=left;" value="How a Task Moves From Idea to Done" vertex="1">
+          <mxGeometry height="36" width="900" x="40" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="fsub" parent="1" style="text;html=1;fontSize=14;fontColor=#4A5563;align=left;" value="Plain-language walkthrough of a task riding the board from creation to completion" vertex="1">
+          <mxGeometry height="24" width="900" x="40" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="f2" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="A New Task Is Added" vertex="1">
+          <mxGeometry height="60" width="340" x="480" y="146" as="geometry" />
+        </mxCell>
+        <mxCell id="f3" parent="1" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="It Waits in the To Do Column" vertex="1">
+          <mxGeometry height="60" width="340" x="480" y="256" as="geometry" />
+        </mxCell>
+        <mxCell id="f4" parent="1" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="Someone Is Assigned and Moves It to In Progress" vertex="1">
+          <mxGeometry height="70" width="340" x="480" y="366" as="geometry" />
+        </mxCell>
+        <mxCell id="f5" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;" value="Has the Due Date Passed While It’s Still Open?" vertex="1">
+          <mxGeometry height="90" width="260" x="520" y="486" as="geometry" />
+        </mxCell>
+        <mxCell id="f6" parent="1" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#FBF1E1;strokeColor=#B5760A;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="The Card Shows an Overdue Warning and Floats to the Top" vertex="1">
+          <mxGeometry height="70" width="340" x="960" y="496" as="geometry" />
+        </mxCell>
+        <mxCell id="f7" parent="1" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="The Team Keeps Working on It (updates, comments, files attached)" vertex="1">
+          <mxGeometry height="80" width="340" x="480" y="636" as="geometry" />
+        </mxCell>
+        <mxCell id="f8" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;" value="Is the Work Actually Finished?" vertex="1">
+          <mxGeometry height="90" width="260" x="520" y="766" as="geometry" />
+        </mxCell>
+        <mxCell id="f9" parent="1" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="The Card Is Dragged Into the Done Column" vertex="1">
+          <mxGeometry height="60" width="340" x="480" y="906" as="geometry" />
+        </mxCell>
+        <mxCell id="f10" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#E7F5EF;strokeColor=#1E7F5C;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="Task Is Complete" vertex="1">
+          <mxGeometry height="60" width="340" x="480" y="1006" as="geometry" />
+        </mxCell>
+        <mxCell id="f11" parent="1" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#FBEAEA;strokeColor=#C1332B;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="Still Untouched a Week Later — Stays Highlighted as Stuck" vertex="1">
+          <mxGeometry height="80" width="340" x="960" y="636" as="geometry" />
+        </mxCell>
+        <mxCell id="fe1" edge="1" parent="1" source="f2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" target="f3" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="fe2" edge="1" parent="1" source="f3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" target="f4" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="fe3" edge="1" parent="1" source="f4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" target="f5" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="fe4" edge="1" parent="1" source="f5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" target="f7" value="No">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="fe5" edge="1" parent="1" source="f5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" target="f6" value="Yes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="fe6" edge="1" parent="1" source="f6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="f5" value="work continues">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="fe7" edge="1" parent="1" source="f6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" target="f11" value="nobody picks it up">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="fe8" edge="1" parent="1" source="f11" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" target="f7" value="eventually addressed">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="fe9" edge="1" parent="1" source="f7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" target="f8" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="fe10" edge="1" parent="1" source="f8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" target="f7" value="Not yet">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="fe11" edge="1" parent="1" source="f8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" target="f9" value="Yes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="fe12" edge="1" parent="1" source="f9" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" target="f10" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="fn1" parent="1" style="text;html=1;fontSize=11;fontColor=#4A5563;fontStyle=2;align=left;verticalAlign=top;whiteSpace=wrap;" value="There’s no separate “blocked” or “in review” column — a task only ever sits in one of three places: To Do, In Progress, or Done." vertex="1">
+          <mxGeometry height="60" width="400" x="900" y="366" as="geometry" />
+        </mxCell>
+        <mxCell id="fn2" parent="1" style="text;html=1;fontSize=11;fontColor=#4A5563;fontStyle=2;align=left;verticalAlign=top;whiteSpace=wrap;" value="Being overdue never blocks a task — it stays fully editable, just flagged so nobody forgets about it." vertex="1">
+          <mxGeometry height="60" width="400" x="900" y="786" as="geometry" />
+        </mxCell>
+        <mxCell id="fn3" parent="1" style="text;html=1;fontSize=11;fontColor=#4A5563;fontStyle=2;align=left;verticalAlign=top;whiteSpace=wrap;" value="Every status change and re-assignment happens instantly by dragging the card — no separate save button, no page reload." vertex="1">
+          <mxGeometry height="60" width="400" x="900" y="906" as="geometry" />
+        </mxCell>
+        <mxCell id="flegtitle" parent="1" style="text;html=1;fontSize=14;fontStyle=1;fontColor=#12181F;align=left;" value="Legend" vertex="1">
+          <mxGeometry height="24" width="200" x="40" y="1120" as="geometry" />
+        </mxCell>
+        <mxCell id="fleg0sw" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="" vertex="1">
+          <mxGeometry height="22" width="34" x="40" y="1154" as="geometry" />
+        </mxCell>
+        <mxCell id="fleg0tx" parent="1" style="text;html=1;fontSize=12;fontColor=#12181F;align=left;verticalAlign=middle;" value="Normal step in the task’s journey" vertex="1">
+          <mxGeometry height="28" width="420" x="86" y="1151" as="geometry" />
+        </mxCell>
+        <mxCell id="fleg1sw" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#E7F5EF;strokeColor=#1E7F5C;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="" vertex="1">
+          <mxGeometry height="22" width="34" x="40" y="1188" as="geometry" />
+        </mxCell>
+        <mxCell id="fleg1tx" parent="1" style="text;html=1;fontSize=12;fontColor=#12181F;align=left;verticalAlign=middle;" value="Task is done" vertex="1">
+          <mxGeometry height="28" width="420" x="86" y="1185" as="geometry" />
+        </mxCell>
+        <mxCell id="fleg2sw" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#FBF1E1;strokeColor=#B5760A;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="" vertex="1">
+          <mxGeometry height="22" width="34" x="40" y="1222" as="geometry" />
+        </mxCell>
+        <mxCell id="fleg2tx" parent="1" style="text;html=1;fontSize=12;fontColor=#12181F;align=left;verticalAlign=middle;" value="Warning — overdue, needs attention" vertex="1">
+          <mxGeometry height="28" width="420" x="86" y="1219" as="geometry" />
+        </mxCell>
+        <mxCell id="fleg3sw" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#FBEAEA;strokeColor=#C1332B;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="" vertex="1">
+          <mxGeometry height="22" width="34" x="40" y="1256" as="geometry" />
+        </mxCell>
+        <mxCell id="fleg3tx" parent="1" style="text;html=1;fontSize=12;fontColor=#12181F;align=left;verticalAlign=middle;" value="Stuck — sitting overdue with nobody on it" vertex="1">
+          <mxGeometry height="28" width="420" x="86" y="1253" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>

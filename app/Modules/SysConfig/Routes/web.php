@@ -36,6 +36,7 @@ Route::middleware(['auth', 'verified'])->prefix('config')->name('config.')->grou
     Route::middleware('menu.perm:CONFIG_USERS')->group(function () {
         Route::delete('users/bulk-destroy', [ConfigUserController::class, 'bulkDestroy'])->name('users.bulkDestroy');
         Route::patch('users/{user}/activate', [ConfigUserController::class, 'activate'])->name('users.activate');
+        Route::patch('users/{user}/reset-password', [ConfigUserController::class, 'resetPassword'])->name('users.resetPassword');
         Route::resource('users', ConfigUserController::class)->except(['show']);
     });
 });

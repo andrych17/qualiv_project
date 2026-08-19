@@ -68,6 +68,9 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
+                // One-time reveal of an admin-provisioned password (see ConfigUserService::
+                // create/resetPassword) — never persisted, gone after this single request.
+                'credentials' => fn () => $request->session()->get('generated_credentials'),
             ],
         ];
     }

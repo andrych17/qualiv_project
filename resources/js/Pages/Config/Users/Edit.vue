@@ -1,9 +1,10 @@
 <!-- ponytail: Edit tenant user + group assign -->
 <script setup lang="ts">
-import { useForm, Link } from '@inertiajs/vue3'
+import { useForm, Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 const props = defineProps<{
   user: { id: number; name: string; email: string }
@@ -14,8 +15,6 @@ const props = defineProps<{
 const form = useForm({
   name: props.user.name,
   email: props.user.email,
-  password: '',
-  password_confirmation: '',
   group_ids: [...props.group_ids] as number[],
 })
 
@@ -26,6 +25,18 @@ const toggleGroup = (id: number) => {
 }
 
 const submit = () => form.put(route('config.users.update', props.user.id))
+
+const { confirm } = useConfirm()
+
+const resetPassword = () => {
+  confirm({
+    title: `Reset password for ${props.user.email}?`,
+    description: 'A new password is generated immediately and the old one stops working.',
+    variant: 'destructive',
+    confirmText: 'Reset',
+    onConfirm: () => router.patch(route('config.users.resetPassword', props.user.id)),
+  })
+}
 </script>
 
 <template>
@@ -36,8 +47,13 @@ const submit = () => form.put(route('config.users.update', props.user.id))
       <form class="space-y-4" @submit.prevent="submit">
         <FormInput v-model="form.name" name="name" label="Name" :error="form.errors.name" required />
         <FormInput v-model="form.email" name="email" label="Email" type="email" :error="form.errors.email" required />
-        <FormInput v-model="form.password" name="password" label="New password (optional)" type="password" :error="form.errors.password" />
-        <FormInput v-model="form.password_confirmation" name="password_confirmation" label="Confirm password" type="password" />
+
+        <div class="flex items-center justify-between rounded-md border border-gray-100 bg-gray-50 px-3 py-2">
+          <p class="text-sm text-gray-600">Password is admin-generated, not visible after creation.</p>
+          <button type="button" class="text-sm font-medium text-gray-900 hover:underline" @click="resetPassword">
+            Reset Password
+          </button>
+        </div>
 
         <div class="space-y-2">
           <p class="text-sm font-medium text-gray-700">Groups</p>

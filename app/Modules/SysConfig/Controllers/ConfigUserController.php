@@ -73,10 +73,14 @@ class ConfigUserController extends Controller
 
     public function store(StoreConfigUserRequest $request)
     {
-        $this->service->create($request->validated());
+        $result = $this->service->create($request->validated());
 
         return redirect()->route('config.users.index')
-            ->with('success', 'User created.');
+            ->with('success', 'User created.')
+            ->with('generated_credentials', [
+                'email' => $result['user']->email,
+                'password' => $result['password'],
+            ]);
     }
 
     public function edit(User $user): Response
@@ -134,6 +138,18 @@ class ConfigUserController extends Controller
 
         return redirect()->route('config.users.index')
             ->with('success', 'User activated.');
+    }
+
+    public function resetPassword(User $user)
+    {
+        $password = $this->service->resetPassword($user);
+
+        return redirect()->route('config.users.index')
+            ->with('success', 'Password reset.')
+            ->with('generated_credentials', [
+                'email' => $user->email,
+                'password' => $password,
+            ]);
     }
 
     /** @return list<array{label: string, value: int}> */

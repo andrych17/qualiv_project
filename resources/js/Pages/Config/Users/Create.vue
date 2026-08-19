@@ -12,8 +12,6 @@ const props = defineProps<{
 const form = useForm({
   name: '',
   email: '',
-  password: '',
-  password_confirmation: '',
   group_ids: [] as number[],
 })
 
@@ -28,14 +26,12 @@ const submit = () => form.post(route('config.users.store'))
 
 <template>
   <AppLayout>
-    <PageHeader title="Create User" description="Add a user to this tenant." />
+    <PageHeader title="Create User" description="Add a user to this tenant. A password is generated automatically — you'll see it once after saving to share with them." />
 
     <div class="mt-6 max-w-xl rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
       <form class="space-y-4" @submit.prevent="submit">
         <FormInput v-model="form.name" name="name" label="Name" :error="form.errors.name" required />
         <FormInput v-model="form.email" name="email" label="Email" type="email" :error="form.errors.email" required />
-        <FormInput v-model="form.password" name="password" label="Password" type="password" :error="form.errors.password" required />
-        <FormInput v-model="form.password_confirmation" name="password_confirmation" label="Confirm password" type="password" />
 
         <div class="space-y-2">
           <p class="text-sm font-medium text-gray-700">Groups</p>

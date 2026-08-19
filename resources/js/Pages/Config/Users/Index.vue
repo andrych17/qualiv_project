@@ -1,11 +1,12 @@
 <!-- ponytail: Tenant users listing -->
 <script setup lang="ts">
-import { Link, router } from '@inertiajs/vue3'
+import { Link, router, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import DataTable, { type SortState } from '@/Components/tables/DataTable.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
-import { ref, watch } from 'vue'
+import Panel from '@/Components/cards/Panel.vue'
+import { ref, watch, onMounted } from 'vue'
 import { debounce } from '@/Composables/debounce'
 import { useConfirm } from '@/Composables/useConfirmDialog'
 
@@ -90,6 +91,39 @@ const activate = (item: UserRow | Record<string, unknown>) => {
   const row = item as UserRow
   router.patch(route('config.users.activate', row.id))
 }
+
+const confirmResetPassword = (item: UserRow | Record<string, unknown>) => {
+  const row = item as UserRow
+  confirm({
+    title: `Reset password for ${row.email}?`,
+    description: 'A new password is generated immediately and the old one stops working.',
+    variant: 'destructive',
+    confirmText: 'Reset',
+    onConfirm: () => router.patch(route('config.users.resetPassword', row.id)),
+  })
+}
+
+// One-time reveal of an admin-provisioned password — see HandleInertiaRequests::share().
+// Not persisted client-side; gone on next navigation once the flash session key clears.
+const page = usePage()
+const credentials = ref<{ email: string; password: string } | null>(null)
+const copied = ref(false)
+
+const checkCredentials = () => {
+  const flash = page.props.flash as { credentials?: { email: string; password: string } | null }
+  if (flash?.credentials) {
+    credentials.value = flash.credentials
+    copied.value = false
+  }
+}
+onMounted(checkCredentials)
+watch(() => page.props.flash, checkCredentials, { deep: true })
+
+const copyPassword = () => {
+  if (!credentials.value) return
+  navigator.clipboard.writeText(credentials.value.password)
+  copied.value = true
+}
 </script>
 
 <template>
@@ -107,6 +141,29 @@ const activate = (item: UserRow | Record<string, unknown>) => {
         </Link>
       </template>
     </PageHeader>
+
+    <Panel v-if="credentials" title="Password generated" class="mt-6">
+      <p class="text-sm text-signal-success">
+        Share this with <strong>{{ credentials.email }}</strong> securely (email/text) — it will not be shown again.
+      </p>
+      <div class="mt-3 flex items-center gap-3">
+        <code class="rounded-md border border-border bg-surface-0 px-3 py-2 font-mono text-sm">{{ credentials.password }}</code>
+        <button
+          type="button"
+          class="rounded-md border border-border px-3 py-2 text-sm font-medium text-ink-900 hover:bg-surface-50"
+          @click="copyPassword"
+        >
+          {{ copied ? 'Copied' : 'Copy' }}
+        </button>
+        <button
+          type="button"
+          class="text-sm font-medium text-ink-600 hover:text-ink-900"
+          @click="credentials = null"
+        >
+          Dismiss
+        </button>
+      </div>
+    </Panel>
 
     <div class="mt-6 space-y-4">
       <DataTable
@@ -149,6 +206,13 @@ const activate = (item: UserRow | Record<string, unknown>) => {
             >
               Edit
             </Link>
+            <button
+              type="button"
+              class="text-sm font-medium text-gray-700 hover:text-gray-900"
+              @click="confirmResetPassword(item)"
+            >
+              Reset Password
+            </button>
             <button
               v-if="item.is_active"
               type="button"

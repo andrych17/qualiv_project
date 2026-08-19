@@ -32,6 +32,7 @@ class ConfigUserService
                 'email' => strtolower($data['email']),
                 'password' => $plainPassword,
                 'email_verified_at' => now(),
+                'must_change_password' => true,
             ]);
 
             $tenantId = (string) tenant('id');
@@ -75,7 +76,7 @@ class ConfigUserService
     {
         $plainPassword = Str::password(16);
 
-        $user->update(['password' => $plainPassword]);
+        $user->update(['password' => $plainPassword, 'must_change_password' => true]);
 
         return $plainPassword;
     }
