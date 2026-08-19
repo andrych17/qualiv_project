@@ -18,10 +18,18 @@ class CentralSeeder extends Seeder
     public function run(): void
     {
         CentralAdminUser::query()->updateOrCreate(
-            ['email' => env('CENTRAL_ADMIN_EMAIL', 'simon@nusaevo.com')],
+            ['email' => env('CENTRAL_ADMIN_EMAIL', 'admin@nusaevo.com')],
+            [
+                'name' => 'Admin',
+                'password' => env('CENTRAL_ADMIN_PASSWORD', 'password'),
+            ],
+        );
+
+        CentralAdminUser::query()->updateOrCreate(
+            ['email' => 'simon@nusaevo.com'],
             [
                 'name' => 'Simon',
-                'password' => env('CENTRAL_ADMIN_PASSWORD', 'password'),
+                'password' => 'password',
             ],
         );
 
