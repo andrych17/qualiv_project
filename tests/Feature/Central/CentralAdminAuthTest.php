@@ -23,7 +23,7 @@ class CentralAdminAuthTest extends TestCase
             'password' => 'password',
         ]);
 
-        $response->assertRedirect(route('central.tenants.index'));
+        $response->assertRedirect(route('central.dashboard'));
         $this->assertAuthenticatedAs($admin, 'central_admin');
 
         $this->post('/central/logout')->assertRedirect(route('central.login'));

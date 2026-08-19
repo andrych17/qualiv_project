@@ -3,6 +3,7 @@
 use App\Http\Middleware\EnsureMenuPermission;
 use App\Http\Middleware\EnsureModuleEnabled;
 use App\Http\Middleware\EnsurePasswordIsChanged;
+use App\Http\Middleware\EnsureTenantStanding;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\InitializeTenancyBySession;
 use Illuminate\Foundation\Application;
@@ -29,6 +30,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->web(append: [
             InitializeTenancyBySession::class,
+            // CENTRAL_SPECS.md §3G/§5 — soft-cutoff enforcement across every tenant module,
+            // registered globally rather than per-route so no module has to remember to add it.
+            EnsureTenantStanding::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
             EnsurePasswordIsChanged::class,

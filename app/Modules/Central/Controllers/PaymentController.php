@@ -4,8 +4,12 @@ namespace App\Modules\Central\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Central\Models\CentralInvoice;
+use App\Modules\Central\Models\CentralPayment;
+use App\Modules\Central\Requests\RejectPaymentRequest;
 use App\Modules\Central\Requests\StorePaymentRequest;
 use App\Modules\Central\Services\CentralPaymentService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class PaymentController extends Controller
 {
@@ -13,11 +17,36 @@ class PaymentController extends Controller
         protected CentralPaymentService $service,
     ) {}
 
-    /** Admin action from the invoice Show screen — record payment, mark invoice paid. */
+    /** Admin-recorded submission from the invoice Show screen. */
     public function store(StorePaymentRequest $request, CentralInvoice $invoice)
     {
-        $this->service->recordAndMarkPaid($invoice, $request->validated());
+        $this->service->submit($invoice, $request->validated());
 
-        return redirect()->route('central.invoices.show', $invoice)->with('success', 'Payment recorded, invoice marked paid.');
+        return redirect()->route('central.invoices.show', $invoice)->with('success', 'Payment submitted for review.');
+    }
+
+    public function confirm(CentralPayment $payment)
+    {
+        $this->service->confirm($payment, (string) Auth::guard('central_admin')->id());
+
+        return redirect()->route('central.invoices.show', $payment->invoice_id)->with('success', 'Payment confirmed, invoice marked paid.');
+    }
+
+    public function reject(RejectPaymentRequest $request, CentralPayment $payment)
+    {
+        $this->service->reject($payment, (string) Auth::guard('central_admin')->id(), $request->validated('reason'));
+
+        return redirect()->route('central.invoices.show', $payment->invoice_id)->with('success', 'Payment rejected.');
+    }
+
+    /** Streams the uploaded receipt from objects storage. */
+    public function receipt(CentralPayment $payment)
+    {
+        abort_if(! $payment->receipt_object_key, 404);
+
+        $disk = Storage::disk('objects');
+        abort_if(! $disk->exists($payment->receipt_object_key), 404);
+
+        return $disk->response($payment->receipt_object_key);
     }
 }

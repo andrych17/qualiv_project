@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Modules\Central\Services\CentralEntitlementService;
 use Illuminate\Support\Facades\Config;
 
 /**
@@ -21,9 +22,26 @@ class TenantFeatureService
         return (string) ($tenant?->plan ?: 'starter');
     }
 
-    /** @return list<string> */
+    /**
+     * Data-driven entitlement (central_plan_modules + central_tenant_addons,
+     * CENTRAL_SPECS.md §3C) is the source of truth. Falls back to the static
+     * config/tenant_modules.php matrix only when the plan has no rows yet in
+     * central_plan_modules — i.e. before that data has been seeded — so nothing
+     * breaks pre-migration/pre-seed.
+     *
+     * @return list<string>
+     */
     public function enabledModules(): array
     {
+        if (tenancy()->initialized) {
+            $tenantId = (string) tenant()->getTenantKey();
+            $entitled = app(CentralEntitlementService::class)->entitledModules($tenantId);
+
+            if ($entitled !== []) {
+                return $entitled;
+            }
+        }
+
         $plans = Config::get('tenant_modules.plans', []);
         $plan = $this->plan();
 

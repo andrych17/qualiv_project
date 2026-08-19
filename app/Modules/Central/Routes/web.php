@@ -1,6 +1,8 @@
 <?php
 
+use App\Modules\Central\Controllers\AddonController;
 use App\Modules\Central\Controllers\CentralAdminSessionController;
+use App\Modules\Central\Controllers\DashboardController;
 use App\Modules\Central\Controllers\InvoiceController;
 use App\Modules\Central\Controllers\PaymentController;
 use App\Modules\Central\Controllers\PlanController;
@@ -17,12 +19,19 @@ Route::prefix('central')->name('central.')->group(function () {
     Route::middleware('auth:central_admin')->group(function () {
         Route::post('logout', [CentralAdminSessionController::class, 'destroy'])->name('logout');
 
-        Route::redirect('/', '/central/tenants');
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
         Route::resource('tenants', TenantController::class)->except(['show', 'destroy']);
+        Route::post('tenants/{tenant}/addons', [AddonController::class, 'store'])->name('tenants.addons.store');
+        Route::delete('tenants/{tenant}/addons/{addon}', [AddonController::class, 'destroy'])->name('tenants.addons.destroy');
+        Route::post('tenants/{tenant}/reactivate', [TenantController::class, 'reactivate'])->name('tenants.reactivate');
+        Route::get('tenants/{tenant}/audit-log', [DashboardController::class, 'tenantAuditLog'])->name('tenants.audit-log');
         Route::resource('plans', PlanController::class)->except(['show']);
 
         Route::resource('invoices', InvoiceController::class)->only(['index', 'create', 'store', 'show', 'destroy']);
         Route::post('invoices/{invoice}/payments', [PaymentController::class, 'store'])->name('invoices.payments.store');
+        Route::post('payments/{payment}/confirm', [PaymentController::class, 'confirm'])->name('payments.confirm');
+        Route::post('payments/{payment}/reject', [PaymentController::class, 'reject'])->name('payments.reject');
+        Route::get('payments/{payment}/receipt', [PaymentController::class, 'receipt'])->name('payments.receipt');
     });
 });
