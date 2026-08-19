@@ -6,6 +6,7 @@ pipeline {
     // di staging setiap kali ada checkin."
     triggers {
         cron('0 3 * * *') // 03:00 server time
+        githubPush()
     }
 
     environment {
