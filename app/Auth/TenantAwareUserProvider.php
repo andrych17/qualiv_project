@@ -2,6 +2,7 @@
 
 namespace App\Auth;
 
+use App\Models\User;
 use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Contracts\Auth\Authenticatable;
 
@@ -16,7 +17,15 @@ class TenantAwareUserProvider extends EloquentUserProvider
             return null;
         }
 
-        return parent::retrieveById($identifier);
+        $user = parent::retrieveById($identifier);
+
+        // Deactivating a user must end their active session on the next request, not
+        // just block future logins.
+        if ($user instanceof User && ! $user->is_active) {
+            return null;
+        }
+
+        return $user;
     }
 
     public function retrieveByToken($identifier, #[\SensitiveParameter] $token): ?Authenticatable

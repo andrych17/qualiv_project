@@ -7,6 +7,7 @@ use App\Modules\SysConfig\Models\ConfigGroup;
 use App\Modules\SysConfig\Models\ConfigGroupUser;
 use App\Services\TenantMembershipService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class ConfigUserService
 {
@@ -14,13 +15,22 @@ class ConfigUserService
         protected TenantMembershipService $membership,
     ) {}
 
-    public function create(array $data): User
+    /**
+     * Admin provisions the account; we generate the password rather than let the admin
+     * choose or see it typed in. Admin relays the returned plaintext to the employee
+     * out-of-band (email/text) — it is never stored or shown again after this call.
+     *
+     * @return array{user: User, password: string}
+     */
+    public function create(array $data): array
     {
         return DB::transaction(function () use ($data) {
+            $plainPassword = Str::password(16);
+
             $user = User::query()->create([
                 'name' => $data['name'],
                 'email' => strtolower($data['email']),
-                'password' => $data['password'],
+                'password' => $plainPassword,
                 'email_verified_at' => now(),
             ]);
 
@@ -31,7 +41,7 @@ class ConfigUserService
                 $this->syncGroups($user, $data['group_ids']);
             }
 
-            return $user;
+            return ['user' => $user, 'password' => $plainPassword];
         });
     }
 
@@ -39,14 +49,10 @@ class ConfigUserService
     {
         return DB::transaction(function () use ($user, $data) {
             $oldEmail = $user->email;
-            $payload = [
+            $user->update([
                 'name' => $data['name'],
                 'email' => strtolower($data['email']),
-            ];
-            if (! empty($data['password'])) {
-                $payload['password'] = $data['password'];
-            }
-            $user->update($payload);
+            ]);
 
             $tenantId = (string) tenant('id');
             if ($oldEmail !== $user->email) {
@@ -62,13 +68,33 @@ class ConfigUserService
         });
     }
 
-    public function delete(User $user): void
+    /**
+     * Same reasoning as create(): generate rather than let the admin type a new password.
+     */
+    public function resetPassword(User $user): string
     {
-        DB::transaction(function () use ($user) {
-            ConfigGroupUser::query()->where('user_id', $user->id)->delete();
-            $this->membership->removeLookup($user->email, (string) tenant('id'));
-            $user->delete();
-        });
+        $plainPassword = Str::password(16);
+
+        $user->update(['password' => $plainPassword]);
+
+        return $plainPassword;
+    }
+
+    /**
+     * Deactivate rather than delete: User rows are referenced by created_by/approved_by
+     * FKs across other modules, so removing the row would orphan audit history. Login is
+     * blocked via the is_active flag (see LoginRequest, TenantAwareUserProvider,
+     * TenantMembershipService) — group memberships and the central lookup are left intact
+     * so re-activating restores prior access without redoing setup.
+     */
+    public function deactivate(User $user): void
+    {
+        $user->update(['is_active' => false]);
+    }
+
+    public function activate(User $user): void
+    {
+        $user->update(['is_active' => true]);
     }
 
     /** @param  list<int|string>  $groupIds */

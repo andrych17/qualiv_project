@@ -1,56 +1,110 @@
-<mxfile host="app.diagrams.net" modified="2026-08-14T00:00:00Z" agent="node-script" version="24.7.5" type="device">
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.6.6 Chrome/144.0.7559.236 Electron/40.8.4 Safari/537.36" version="29.6.6">
   <diagram id="hcm-flow" name="HCM - Employee Lifecycle (plain language)">
-    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1020" math="0" shadow="0">
+    <mxGraphModel dx="1252" dy="757" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1020" math="0" shadow="0">
       <root>
-        <mxCell id="0"/>
-        <mxCell id="1" parent="0"/>
-<mxCell id="ftitle" value="How an Employee's Record Gets Set Up and Kept Current" style="text;html=1;fontSize=24;fontStyle=1;fontColor=#12181F;align=left;" vertex="1" parent="1"><mxGeometry x="40" y="-70" width="1000" height="36" as="geometry"/></mxCell>
-<mxCell id="fsub" value="Plain-language walkthrough from hiring someone through day-to-day attendance and leave" style="text;html=1;fontSize=14;fontColor=#4A5563;align=left;" vertex="1" parent="1"><mxGeometry x="40" y="-32" width="1000" height="24" as="geometry"/></mxCell>
-<mxCell id="f2" value="Someone New
-Is Hired" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="500" y="40" width="360" height="70" as="geometry"/></mxCell>
-<mxCell id="f3" value="One Form Creates Their Profile,
-Contract, and Job Seat Together" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="500" y="160" width="360" height="70" as="geometry"/></mxCell>
-<mxCell id="f4" value="Day to Day, They Clock In and Out
-and Their Attendance Is Tracked" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="500" y="280" width="360" height="70" as="geometry"/></mxCell>
-<mxCell id="f5" value="Do They Need
-Time Off?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="530" y="400" width="300" height="100" as="geometry"/></mxCell>
-<mxCell id="f6" value="They Request Leave —
-It's Checked Against Their Balance" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#FBF1E1;strokeColor=#B5760A;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="40" y="550" width="360" height="70" as="geometry"/></mxCell>
-<mxCell id="f7" value="A Manager Reviews
-and Approves It" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#FBF1E1;strokeColor=#B5760A;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="40" y="670" width="360" height="70" as="geometry"/></mxCell>
-<mxCell id="f8" value="Their Leave Balance
-Updates Automatically" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#E7F5EF;strokeColor=#1E7F5C;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="40" y="790" width="360" height="70" as="geometry"/></mxCell>
-<mxCell id="f9" value="Attendance and Leave Feed
-Straight Into Payroll — No Re-Entry" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="500" y="550" width="360" height="70" as="geometry"/></mxCell>
-<mxCell id="f10" value="The Employee Can See All of This
-Themselves, Anytime, on Their Own Portal" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#E7F5EF;strokeColor=#1E7F5C;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" vertex="1" parent="1"><mxGeometry x="500" y="670" width="360" height="70" as="geometry"/></mxCell>
-<mxCell id="f11" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="f2" target="f3"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="f12" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="f3" target="f4"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="f13" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="f4" target="f5"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="f14" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="f5" target="f6"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="f15" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="f6" target="f7"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="f16" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="f7" target="f8"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="f17" value="No, business as usual" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="f5" target="f9"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="f18" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="f9" target="f10"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="f19" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.7;entryDx=0;entryDy=0;" edge="1" parent="1" source="f8" target="f10"><mxGeometry relative="1" as="geometry"/></mxCell>
-<mxCell id="f20" value="If this person is later terminated, their record is never deleted —
-it's marked terminated and kept, since Indonesian labor law requires
-employers to retain employment history." style="text;html=1;fontSize=11;fontColor=#4A5563;fontStyle=2;align=left;verticalAlign=top;" vertex="1" parent="1"><mxGeometry x="950" y="160" width="460" height="70" as="geometry"/></mxCell>
-<mxCell id="f21" value="An approved absence never gets mistaken for a no-show — the system
-already knows they're on leave and won't flag that day as a missed clock-in." style="text;html=1;fontSize=11;fontColor=#4A5563;fontStyle=2;align=left;verticalAlign=top;" vertex="1" parent="1"><mxGeometry x="950" y="400" width="460" height="60" as="geometry"/></mxCell>
-<mxCell id="f22" value="This is the one place employee data feeds payroll: hours worked and
-approved leave flow through automatically, so overtime pay and unpaid-leave
-deductions never have to be typed in twice." style="text;html=1;fontSize=11;fontColor=#4A5563;fontStyle=2;align=left;verticalAlign=top;" vertex="1" parent="1"><mxGeometry x="950" y="550" width="460" height="80" as="geometry"/></mxCell>
-<mxCell id="f23" value="Every employee and manager gets their own self-service view — payslips,
-leave balance, attendance — which is what keeps HR from becoming
-the bottleneck for every small question." style="text;html=1;fontSize=11;fontColor=#4A5563;fontStyle=2;align=left;verticalAlign=top;" vertex="1" parent="1"><mxGeometry x="950" y="670" width="460" height="70" as="geometry"/></mxCell>
-<mxCell id="flegtitle" value="Legend" style="text;html=1;fontSize=14;fontStyle=1;fontColor=#12181F;align=left;" vertex="1" parent="1"><mxGeometry x="40" y="830" width="200" height="24" as="geometry"/></mxCell>
-<mxCell id="f24" value="" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="40" y="864" width="34" height="22" as="geometry"/></mxCell>
-<mxCell id="f25" value="Normal step in employee lifecycle" style="text;html=1;fontSize=12;fontColor=#12181F;align=left;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="86" y="861" width="480" height="28" as="geometry"/></mxCell>
-<mxCell id="f26" value="" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#FBF1E1;strokeColor=#B5760A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="40" y="896" width="34" height="22" as="geometry"/></mxCell>
-<mxCell id="f27" value="A request or approval step" style="text;html=1;fontSize=12;fontColor=#12181F;align=left;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="86" y="893" width="480" height="28" as="geometry"/></mxCell>
-<mxCell id="f28" value="" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#E7F5EF;strokeColor=#1E7F5C;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="40" y="928" width="34" height="22" as="geometry"/></mxCell>
-<mxCell id="f29" value="Confirmed, up to date, and visible to the employee" style="text;html=1;fontSize=12;fontColor=#12181F;align=left;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="86" y="925" width="480" height="28" as="geometry"/></mxCell>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="f28" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#E7F5EF;strokeColor=#1E7F5C;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="22" width="34" x="40" y="928" as="geometry" />
+        </mxCell>
+        <mxCell id="ftitle" parent="1" style="text;html=1;fontSize=24;fontStyle=1;fontColor=#12181F;align=left;" value="How an Employee&#39;s Record Gets Set Up and Kept Current" vertex="1">
+          <mxGeometry height="36" width="1000" x="40" y="19" as="geometry" />
+        </mxCell>
+        <mxCell id="fsub" parent="1" style="text;html=1;fontSize=14;fontColor=#4A5563;align=left;" value="Plain-language walkthrough from hiring someone through day-to-day attendance and leave" vertex="1">
+          <mxGeometry height="24" width="1000" x="40" y="57" as="geometry" />
+        </mxCell>
+        <mxCell id="f2" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="Someone New Is Hired" vertex="1">
+          <mxGeometry height="70" width="360" x="500" y="129" as="geometry" />
+        </mxCell>
+        <mxCell id="f3" parent="1" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="One Form Creates Their Profile, Contract, and Job Seat Together" vertex="1">
+          <mxGeometry height="70" width="360" x="500" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="f4" parent="1" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="Day to Day, They Clock In and Out and Their Attendance Is Tracked" vertex="1">
+          <mxGeometry height="70" width="360" x="500" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="f5" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;" value="Do They Need Time Off?" vertex="1">
+          <mxGeometry height="100" width="300" x="530" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="f6" parent="1" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#FBF1E1;strokeColor=#B5760A;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="They Request Leave — It&#39;s Checked Against Their Balance" vertex="1">
+          <mxGeometry height="70" width="360" x="40" y="455" as="geometry" />
+        </mxCell>
+        <mxCell id="f7" parent="1" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#FBF1E1;strokeColor=#B5760A;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="A Manager Reviews and Approves It" vertex="1">
+          <mxGeometry height="70" width="360" x="40" y="590" as="geometry" />
+        </mxCell>
+        <mxCell id="f8" parent="1" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#E7F5EF;strokeColor=#1E7F5C;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="Their Leave Balance Updates Automatically" vertex="1">
+          <mxGeometry height="70" width="360" x="40" y="710" as="geometry" />
+        </mxCell>
+        <mxCell id="f9" parent="1" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="Attendance and Leave Feed Straight Into Payroll — No Re-Entry" vertex="1">
+          <mxGeometry height="70" width="360" x="500" y="590" as="geometry" />
+        </mxCell>
+        <mxCell id="f10" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#E7F5EF;strokeColor=#1E7F5C;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="The Employee Can See All of This Themselves, Anytime, on Their Own Portal" vertex="1">
+          <mxGeometry height="70" width="360" x="500" y="710" as="geometry" />
+        </mxCell>
+        <mxCell id="f11" edge="1" parent="1" source="f2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" target="f3" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f12" edge="1" parent="1" source="f3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" target="f4" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f13" edge="1" parent="1" source="f4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" target="f5" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f14" edge="1" parent="1" source="f5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" target="f6" value="Yes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f15" edge="1" parent="1" source="f6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" target="f7" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f16" edge="1" parent="1" source="f7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" target="f8" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f17" edge="1" parent="1" source="f5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="f9" value="No, business as usual">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f18" edge="1" parent="1" source="f9" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" target="f10" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f19" edge="1" parent="1" source="f8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="f10" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="420" y="745" />
+              <mxPoint x="420" y="745" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f20" parent="1" style="text;html=1;fontSize=11;fontColor=#4A5563;fontStyle=2;align=left;verticalAlign=top;whiteSpace=wrap;" value="If this person is later terminated, their record is never deleted — it&#39;s marked terminated and kept, since Indonesian labor law requires employers to retain employment history." vertex="1">
+          <mxGeometry height="70" width="460" x="950" y="249" as="geometry" />
+        </mxCell>
+        <mxCell id="f21" parent="1" style="text;html=1;fontSize=11;fontColor=#4A5563;fontStyle=2;align=left;verticalAlign=top;whiteSpace=wrap;" value="An approved absence never gets mistaken for a no-show — the system already knows they&#39;re on leave and won&#39;t flag that day as a missed clock-in." vertex="1">
+          <mxGeometry height="60" width="460" x="950" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="f22" parent="1" style="text;html=1;fontSize=11;fontColor=#4A5563;fontStyle=2;align=left;verticalAlign=top;whiteSpace=wrap;" value="This is the one place employee data feeds payroll: hours worked and approved leave flow through automatically, so overtime pay and unpaid-leave deductions never have to be typed in twice." vertex="1">
+          <mxGeometry height="80" width="460" x="950" y="590" as="geometry" />
+        </mxCell>
+        <mxCell id="f23" parent="1" style="text;html=1;fontSize=11;fontColor=#4A5563;fontStyle=2;align=left;verticalAlign=top;whiteSpace=wrap;" value="Every employee and manager gets their own self-service view — payslips, leave balance, attendance — which is what keeps HR from becoming the bottleneck for every small question." vertex="1">
+          <mxGeometry height="70" width="460" x="950" y="710" as="geometry" />
+        </mxCell>
+        <mxCell id="flegtitle" parent="1" style="text;html=1;fontSize=14;fontStyle=1;fontColor=#12181F;align=left;" value="Legend" vertex="1">
+          <mxGeometry height="24" width="200" x="40" y="831" as="geometry" />
+        </mxCell>
+        <mxCell id="f24" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="22" width="34" x="40" y="864" as="geometry" />
+        </mxCell>
+        <mxCell id="f25" parent="1" style="text;html=1;fontSize=12;fontColor=#12181F;align=left;verticalAlign=middle;" value="Normal step in employee lifecycle" vertex="1">
+          <mxGeometry height="28" width="480" x="86" y="861" as="geometry" />
+        </mxCell>
+        <mxCell id="f26" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#FBF1E1;strokeColor=#B5760A;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="22" width="34" x="40" y="896" as="geometry" />
+        </mxCell>
+        <mxCell id="f27" parent="1" style="text;html=1;fontSize=12;fontColor=#12181F;align=left;verticalAlign=middle;" value="A request or approval step" vertex="1">
+          <mxGeometry height="28" width="480" x="86" y="893" as="geometry" />
+        </mxCell>
+        <mxCell id="c6XgaHnaKNcAJ7PZvmvj-1" edge="1" parent="1" source="f28" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="f29" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f29" parent="1" style="text;html=1;fontSize=12;fontColor=#12181F;align=left;verticalAlign=middle;" value="Confirmed, up to date, and visible to the employee" vertex="1">
+          <mxGeometry height="28" width="480" x="86" y="925" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>

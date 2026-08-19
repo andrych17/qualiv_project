@@ -59,4 +59,59 @@ class ConfigUserCrudTest extends TestCase
                 ->exists()
         );
     }
+
+    public function test_deactivated_user_cannot_login_and_reactivation_restores_access(): void
+    {
+        $tenant = $this->provisionTenant();
+
+        $tenant->run(function () {
+            User::factory()->create([
+                'name' => 'Staff User',
+                'email' => 'staff@nusaevo.com',
+                'password' => 'password',
+                'email_verified_at' => now(),
+            ]);
+        });
+        TenantUserLookup::query()->updateOrCreate(
+            ['email' => 'staff@nusaevo.com', 'tenant_id' => '001'],
+            [],
+        );
+
+        $this->post('/login', [
+            'email' => 'admin@nusaevo.com',
+            'password' => 'password',
+        ]);
+
+        $userId = null;
+        $tenant->run(function () use (&$userId) {
+            $userId = User::query()->where('email', 'staff@nusaevo.com')->value('id');
+        });
+
+        $this->delete("/config/users/{$userId}")
+            ->assertRedirect(route('config.users.index'));
+
+        $tenant->run(function () use ($userId) {
+            $this->assertFalse(User::query()->find($userId)->is_active);
+        });
+
+        $this->post('/logout');
+
+        $this->post('/login', [
+            'email' => 'staff@nusaevo.com',
+            'password' => 'password',
+        ])->assertSessionHasErrors('email');
+
+        $this->post('/login', [
+            'email' => 'admin@nusaevo.com',
+            'password' => 'password',
+        ]);
+        $this->patch("/config/users/{$userId}/activate")
+            ->assertRedirect(route('config.users.index'));
+        $this->post('/logout');
+
+        $this->post('/login', [
+            'email' => 'staff@nusaevo.com',
+            'password' => 'password',
+        ])->assertSessionDoesntHaveErrors();
+    }
 }

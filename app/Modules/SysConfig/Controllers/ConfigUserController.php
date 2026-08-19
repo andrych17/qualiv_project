@@ -53,6 +53,7 @@ class ConfigUserController extends Controller
                     'name' => $u->name,
                     'email' => $u->email,
                     'groups' => $groups,
+                    'is_active' => $u->is_active,
                     'created_at_formatted' => $u->created_at?->format('d M Y'),
                 ];
             });
@@ -105,13 +106,13 @@ class ConfigUserController extends Controller
     public function destroy(User $user)
     {
         if ($user->id === auth()->id()) {
-            return back()->with('error', 'Cannot delete your own account.');
+            return back()->with('error', 'Cannot deactivate your own account.');
         }
 
-        $this->service->delete($user);
+        $this->service->deactivate($user);
 
         return redirect()->route('config.users.index')
-            ->with('success', 'User deleted.');
+            ->with('success', 'User deactivated.');
     }
 
     public function bulkDestroy(Request $request)
@@ -119,12 +120,20 @@ class ConfigUserController extends Controller
         $ids = collect($request->input('ids', []))->map(fn ($id) => (int) $id);
 
         if ($ids->contains(auth()->id())) {
-            return back()->with('error', 'Cannot delete your own account.');
+            return back()->with('error', 'Cannot deactivate your own account.');
         }
 
         $request->merge(['ids' => $ids->all()]);
 
-        return $this->bulkDestroyUsing($request, User::class, fn (User $user) => $this->service->delete($user));
+        return $this->bulkDestroyUsing($request, User::class, fn (User $user) => $this->service->deactivate($user));
+    }
+
+    public function activate(User $user)
+    {
+        $this->service->activate($user);
+
+        return redirect()->route('config.users.index')
+            ->with('success', 'User activated.');
     }
 
     /** @return list<array{label: string, value: int}> */

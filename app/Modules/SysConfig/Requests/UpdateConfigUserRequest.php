@@ -5,7 +5,6 @@ namespace App\Modules\SysConfig\Requests;
 use App\Models\User;
 use App\Modules\SysConfig\Models\ConfigGroup;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Validator;
 
 class UpdateConfigUserRequest extends FormRequest
@@ -20,7 +19,6 @@ class UpdateConfigUserRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
-            'password' => ['nullable', 'confirmed', Password::defaults()],
             'group_ids' => 'nullable|array',
             'group_ids.*' => 'integer',
         ];

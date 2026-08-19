@@ -84,6 +84,16 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        if (! Auth::user()->is_active) {
+            Auth::logout();
+            tenancy()->end();
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => 'This account has been deactivated. Contact your administrator.',
+            ]);
+        }
+
         $this->session()->put('tenant_id', (string) $tenant->getTenantKey());
 
         RateLimiter::clear($this->throttleKey());

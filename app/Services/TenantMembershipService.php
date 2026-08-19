@@ -87,6 +87,11 @@ class TenantMembershipService
             abort(403, 'User missing in target tenant.');
         }
 
+        if (! $user->is_active) {
+            tenancy()->end();
+            abort(403, 'This account has been deactivated in the target tenant.');
+        }
+
         Auth::login($user);
         session()->put('tenant_id', (string) $tenant->getTenantKey());
         session()->regenerate();

@@ -4,6 +4,7 @@ import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import DataTable, { type SortState } from '@/Components/tables/DataTable.vue'
+import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import { ref, watch } from 'vue'
 import { debounce } from '@/Composables/debounce'
 import { useConfirm } from '@/Composables/useConfirmDialog'
@@ -13,6 +14,7 @@ interface UserRow {
   name: string
   email: string
   groups: string[]
+  is_active: boolean
   created_at_formatted: string | null
 }
 
@@ -41,6 +43,7 @@ const columns = [
   { key: 'name', label: 'Name', sortable: true },
   { key: 'email', label: 'Email', sortable: true },
   { key: 'groups', label: 'Groups' },
+  { key: 'is_active', label: 'Status' },
   { key: 'created_at_formatted', label: 'Created', sortable: true, sortKey: 'created_at' },
   { key: 'actions', label: 'Actions', align: 'right' as const },
 ]
@@ -60,27 +63,32 @@ watch([search, sort, perPage], debounce(() => {
 
 const { confirm } = useConfirm()
 
-const confirmDelete = (item: UserRow | Record<string, unknown>) => {
+const confirmDeactivate = (item: UserRow | Record<string, unknown>) => {
   const row = item as UserRow
   confirm({
-    title: `Delete user ${row.email}?`,
+    title: `Deactivate user ${row.email}?`,
     variant: 'destructive',
-    confirmText: 'Delete',
+    confirmText: 'Deactivate',
     onConfirm: () => router.delete(route('config.users.destroy', row.id)),
   })
 }
 
-const confirmBulkDelete = () => {
+const confirmBulkDeactivate = () => {
   confirm({
-    title: `Delete ${selected.value.length} selected user(s)?`,
+    title: `Deactivate ${selected.value.length} selected user(s)?`,
     variant: 'destructive',
-    confirmText: 'Delete',
+    confirmText: 'Deactivate',
     onConfirm: () =>
       router.delete(route('config.users.bulkDestroy'), {
         data: { ids: selected.value },
         onSuccess: () => { selected.value = [] },
       }),
   })
+}
+
+const activate = (item: UserRow | Record<string, unknown>) => {
+  const row = item as UserRow
+  router.patch(route('config.users.activate', row.id))
 }
 </script>
 
@@ -121,14 +129,17 @@ const confirmBulkDelete = () => {
         empty-description="Create a user for this tenant."
       >
         <template #bulk-actions>
-          <button type="button" class="text-sm font-medium text-red-600 hover:text-red-950" @click="confirmBulkDelete">
-            Delete selected
+          <button type="button" class="text-sm font-medium text-red-600 hover:text-red-950" @click="confirmBulkDeactivate">
+            Deactivate selected
           </button>
         </template>
         <template #cell-groups="{ item }">
           <span class="text-sm text-gray-600">
             {{ (item.groups as string[]).join(', ') || '—' }}
           </span>
+        </template>
+        <template #cell-is_active="{ item }">
+          <StatusBadge :status="item.is_active ? 'active' : 'inactive'" />
         </template>
         <template #cell-actions="{ item }">
           <div class="flex items-center justify-end gap-2">
@@ -139,11 +150,20 @@ const confirmBulkDelete = () => {
               Edit
             </Link>
             <button
+              v-if="item.is_active"
               type="button"
               class="text-sm font-medium text-red-600 hover:text-red-950"
-              @click="confirmDelete(item)"
+              @click="confirmDeactivate(item)"
             >
-              Delete
+              Deactivate
+            </button>
+            <button
+              v-else
+              type="button"
+              class="text-sm font-medium text-signal-success hover:opacity-80"
+              @click="activate(item)"
+            >
+              Activate
             </button>
           </div>
         </template>
