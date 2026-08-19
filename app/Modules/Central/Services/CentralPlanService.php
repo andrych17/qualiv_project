@@ -20,6 +20,8 @@ class CentralPlanService
                 'name' => $data['name'],
                 'description' => $data['description'] ?? null,
                 'price_monthly' => $data['price_monthly'] ?? 0,
+                'price_annual' => $data['price_annual'] ?? null,
+                'billing_cycle' => $data['billing_cycle'] ?? 'monthly',
                 'currency' => $data['currency'] ?? 'IDR',
                 'is_active' => $data['is_active'] ?? true,
             ]);
@@ -46,6 +48,8 @@ class CentralPlanService
                 'name' => $data['name'],
                 'description' => $data['description'] ?? null,
                 'price_monthly' => $data['price_monthly'] ?? $plan->price_monthly,
+                'price_annual' => $data['price_annual'] ?? $plan->price_annual,
+                'billing_cycle' => $data['billing_cycle'] ?? $plan->billing_cycle,
                 'currency' => $data['currency'] ?? $plan->currency,
                 'is_active' => $data['is_active'] ?? $plan->is_active,
             ]);
@@ -76,9 +80,19 @@ class CentralPlanService
      */
     public function deactivate(CentralPlan $plan): CentralPlan
     {
+        $before = $this->snapshot($plan);
         $plan->update(['is_active' => false]);
+        $plan->refresh();
 
-        return $plan->refresh();
+        $this->auditLogger->log(
+            action: 'plan_changed',
+            entityType: 'plan',
+            entityId: $plan->code,
+            before: $before,
+            after: $this->snapshot($plan),
+        );
+
+        return $plan;
     }
 
     /** @param list<string> $moduleCodes */

@@ -56,4 +56,20 @@ class CentralInvoice extends Model
         $query->when($filters['tenant_id'] ?? null, fn ($query, $tenantId) => $query->where('tenant_id', $tenantId))
             ->when($filters['status'] ?? null, fn ($query, $status) => $query->where('status', $status));
     }
+
+    /**
+     * Derived `overdue` recompute (CENTRAL_SPECS.md §3E): issued + past due_date. The daily
+     * dunning sweep is the only place this transition ever happens — nothing else writes the
+     * value directly.
+     */
+    public function markOverdueIfPastDue(): bool
+    {
+        if ($this->status !== 'issued' || ! $this->due_date->isBefore(today())) {
+            return false;
+        }
+
+        $this->update(['status' => 'overdue']);
+
+        return true;
+    }
 }

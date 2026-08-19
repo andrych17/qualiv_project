@@ -56,7 +56,7 @@ class ApplyDunningCutoffCommandTest extends TestCase
         );
 
         // due_date + 14 days cutoff is already 6 days in the past.
-        CentralInvoice::query()->create([
+        $invoice = CentralInvoice::query()->create([
             'tenant_id' => '804',
             'plan_code' => 'starter',
             'billing_period_start' => now()->subMonth()->startOfMonth(),
@@ -71,6 +71,7 @@ class ApplyDunningCutoffCommandTest extends TestCase
         Artisan::call('central:apply-dunning-cutoff');
 
         $this->assertSame('read_only', $tenant->refresh()->access_status);
+        $this->assertDatabaseHas('central_invoices', ['id' => $invoice->id, 'status' => 'overdue']);
         $this->assertDatabaseHas('central_audit_logs', [
             'action' => 'access_status_changed',
             'entity_type' => 'tenant',
@@ -85,6 +86,37 @@ class ApplyDunningCutoffCommandTest extends TestCase
         $this->assertSame('read_only', $tenant->refresh()->access_status);
         $this->assertSame(1, DB::table('central_audit_logs')
             ->where('entity_id', '804')->where('action', 'access_status_changed')->count());
+    }
+
+    public function test_it_skips_a_tenant_whose_invoice_was_paid_after_the_sweep_started(): void
+    {
+        $tenant = Tenant::create(['id' => '804', 'name' => 'Cutoff Co', 'plan' => 'starter']);
+
+        CentralDunningPolicy::query()->updateOrCreate(
+            ['scope_type' => 'platform_default', 'scope_id' => null],
+            ['reminder_offsets_days' => [-7, -3, -1, 3, 7], 'cutoff_days_after_due' => 14],
+        );
+
+        // Past cutoff — but the invoice is already paid, so the sweep must not flip the tenant.
+        CentralInvoice::query()->create([
+            'tenant_id' => '804',
+            'plan_code' => 'starter',
+            'billing_period_start' => now()->subMonth()->startOfMonth(),
+            'billing_period_end' => now()->subMonth()->endOfMonth(),
+            'status' => 'paid',
+            'amount_total' => 500000,
+            'currency' => 'IDR',
+            'due_date' => today()->subDays(20),
+            'issued_at' => now()->subMonth(),
+        ]);
+
+        Artisan::call('central:apply-dunning-cutoff');
+
+        $this->assertSame('active', $tenant->refresh()->access_status);
+        $this->assertDatabaseMissing('central_audit_logs', [
+            'action' => 'access_status_changed',
+            'entity_id' => '804',
+        ]);
     }
 
     public function test_it_does_not_cut_off_a_tenant_still_inside_the_window(): void

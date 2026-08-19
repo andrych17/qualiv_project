@@ -12,6 +12,8 @@ const form = useForm({
   name: '',
   description: '',
   price_monthly: 0,
+  price_annual: 0,
+  billing_cycle: 'monthly',
   currency: 'IDR',
   module_codes: [] as string[],
 })
@@ -31,6 +33,17 @@ const submit = () => form.post(route('central.plans.store'))
         </div>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FormInput v-model.number="form.price_monthly" name="price_monthly" label="Price / month" type="number" :error="form.errors.price_monthly" required />
+          <FormInput v-model.number="form.price_annual" name="price_annual" label="Price / year (annual plans)" type="number" :error="form.errors.price_annual" />
+        </div>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <label class="space-y-1">
+            <span class="text-sm font-medium text-gray-700">Billing cycle</span>
+            <select v-model="form.billing_cycle" name="billing_cycle" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+              <option value="monthly">Monthly</option>
+              <option value="annual">Annual</option>
+            </select>
+            <span v-if="form.errors.billing_cycle" class="text-sm text-red-600">{{ form.errors.billing_cycle }}</span>
+          </label>
           <FormInput v-model="form.currency" name="currency" label="Currency" :error="form.errors.currency" />
         </div>
         <FormInput v-model="form.description" name="description" label="Description" :error="form.errors.description" />

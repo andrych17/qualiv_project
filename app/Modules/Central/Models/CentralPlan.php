@@ -16,6 +16,8 @@ class CentralPlan extends Model
         'name',
         'description',
         'price_monthly',
+        'price_annual',
+        'billing_cycle',
         'currency',
         'is_active',
     ];
@@ -24,8 +26,17 @@ class CentralPlan extends Model
     {
         return [
             'price_monthly' => 'decimal:2',
+            'price_annual' => 'decimal:2',
             'is_active' => 'boolean',
         ];
+    }
+
+    /** The price the invoice engine should use for this plan's billing cycle (CENTRAL_SPECS.md §3E). */
+    public function unitPrice(): float
+    {
+        return (float) ($this->billing_cycle === 'annual'
+            ? ($this->price_annual ?? $this->price_monthly)
+            : $this->price_monthly);
     }
 
     public function modules(): HasMany

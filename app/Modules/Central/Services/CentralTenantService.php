@@ -51,6 +51,9 @@ class CentralTenantService
 
     public function update(Tenant $tenant, array $data): Tenant
     {
+        $planChanged = isset($data['plan_code']) && (string) $data['plan_code'] !== (string) $tenant->plan;
+        $before = $planChanged ? $tenant->toArray() : [];
+
         $tenant->update([
             'name' => $data['name'],
             'plan' => $data['plan_code'],
@@ -59,6 +62,17 @@ class CentralTenantService
             'contact_phone' => $data['contact_phone'] ?? null,
             'billing_address' => $data['billing_address'] ?? null,
         ]);
+
+        // A plan change is a billing-relevant event, not a quiet toggle (CENTRAL_SPECS.md §3C).
+        if ($planChanged) {
+            $this->auditLogger->log(
+                action: 'plan_changed',
+                entityType: 'tenant',
+                entityId: $tenant->getKey(),
+                before: $before,
+                after: $tenant->refresh()->toArray(),
+            );
+        }
 
         return $tenant->refresh();
     }
@@ -132,11 +146,13 @@ class CentralTenantService
     /** Stable, zero-padded string ids (001, 002, ...) — matches the existing tenant_001 convention. */
     private function nextTenantId(): string
     {
-        $max = Tenant::query()
-            ->get(['id'])
-            ->map(fn (Tenant $t) => (int) $t->getKey())
-            ->max() ?? 0;
+        // ponytail: the row lock narrows but doesn't eliminate the id race (single-admin MVP,
+        // so the window is effectively zero); the tenants.id unique constraint is the real
+        // backstop — a collision surfaces as a 500 rather than silent data corruption.
+        return DB::transaction(function (): string {
+            $max = (int) Tenant::query()->orderByDesc('id')->lockForUpdate()->value('id') ?? 0;
 
-        return str_pad((string) ($max + 1), 3, '0', STR_PAD_LEFT);
+            return str_pad((string) ($max + 1), 3, '0', STR_PAD_LEFT);
+        });
     }
 }

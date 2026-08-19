@@ -30,7 +30,7 @@ class SendDunningReminders extends Command
         $today = today();
 
         CentralInvoice::query()
-            ->where('status', 'issued')
+            ->whereIn('status', ['issued', 'overdue'])
             ->with('tenant')
             ->each(function (CentralInvoice $invoice) use ($today): void {
                 $tenant = $invoice->tenant;

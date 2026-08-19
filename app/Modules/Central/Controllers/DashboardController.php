@@ -37,7 +37,7 @@ class DashboardController extends Controller
         $readOnlyTenants = $tenants->where('access_status', 'read_only');
 
         $overdueInvoices = CentralInvoice::query()
-            ->where('status', 'issued')
+            ->whereIn('status', ['issued', 'overdue'])
             ->whereDate('due_date', '<', today())
             ->with('tenant:id,name')
             ->orderBy('due_date')
@@ -52,7 +52,7 @@ class DashboardController extends Controller
             ->get();
 
         $approachingCutoff = CentralInvoice::query()
-            ->where('status', 'issued')
+            ->whereIn('status', ['issued', 'overdue'])
             ->with('tenant')
             ->get()
             ->filter(function (CentralInvoice $invoice) {

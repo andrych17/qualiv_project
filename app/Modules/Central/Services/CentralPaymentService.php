@@ -2,10 +2,12 @@
 
 namespace App\Modules\Central\Services;
 
+use App\Mail\PaymentRejectedMail;
 use App\Modules\Central\Models\CentralInvoice;
 use App\Modules\Central\Models\CentralPayment;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 /**
  * Manual, bank-transfer-first payment flow (CENTRAL_SPECS.md §3F): tenant submits a receipt,
@@ -55,6 +57,15 @@ class CentralPaymentService
     public function confirm(CentralPayment $payment, string $reviewerId): CentralPayment
     {
         return DB::transaction(function () use ($payment, $reviewerId) {
+            // Serializes against ApplyDunningCutoff, which locks the same invoice row
+            // (CENTRAL_SPECS.md §5): whichever lands second sees the other's outcome, so a
+            // confirmed payment can never leave the tenant stuck read_only.
+            $invoice = CentralInvoice::query()->lockForUpdate()->findOrFail($payment->invoice_id);
+
+            if ($payment->status !== 'pending_review') {
+                abort(422, 'Only a pending payment can be confirmed.');
+            }
+
             $before = $payment->toArray();
 
             $payment->update([
@@ -63,11 +74,10 @@ class CentralPaymentService
                 'reviewed_at' => now(),
             ]);
 
-            $payment->invoice()->update(['status' => 'paid']);
+            $invoice->update(['status' => 'paid']);
 
-            // Reactivation is automatic the moment a payment is confirmed (§3G) — a real
-            // transition now that ApplyDunningCutoff actually sets read_only.
-            $tenant = $payment->invoice->tenant;
+            // Reactivation is automatic the moment a payment is confirmed (§3G).
+            $tenant = $invoice->tenant;
             if ($tenant && $tenant->access_status !== 'active') {
                 $tenant->update(['access_status' => 'active']);
                 $this->accessStatusCache->invalidate($tenant->getKey());
@@ -88,7 +98,11 @@ class CentralPaymentService
 
     public function reject(CentralPayment $payment, string $reviewerId, string $reason): CentralPayment
     {
-        return DB::transaction(function () use ($payment, $reviewerId, $reason) {
+        $payment = DB::transaction(function () use ($payment, $reviewerId, $reason) {
+            if ($payment->status !== 'pending_review') {
+                abort(422, 'Only a pending payment can be rejected.');
+            }
+
             $before = $payment->toArray();
 
             $payment->update([
@@ -98,10 +112,12 @@ class CentralPaymentService
                 'rejection_reason' => $reason,
             ]);
 
-            // ponytail: `overdue` is a derived state the dunning job (§3G) will own once it
-            // exists — until then a rejected submission just reverts to `issued`, not the
-            // possibly-more-correct `overdue`.
-            $payment->invoice()->update(['status' => 'issued']);
+            // Reverts to issued, or overdue if the due date has passed — the derived state
+            // the dunning sweep would have set anyway (CENTRAL_SPECS.md §3E/§3F).
+            $invoice = $payment->invoice;
+            $invoice->update([
+                'status' => $invoice->due_date->isBefore(today()) ? 'overdue' : 'issued',
+            ]);
 
             // Receipt file is deliberately NOT deleted (§3F) — kept as evidence.
             $this->auditLogger->log(
@@ -115,6 +131,15 @@ class CentralPaymentService
 
             return $payment;
         });
+
+        // The tenant is notified and can resubmit (§3F) — sent after commit so a mail failure
+        // can never roll back the review itself.
+        $tenant = $payment->invoice->tenant;
+        if ($tenant?->contact_email) {
+            Mail::to($tenant->contact_email)->send(new PaymentRejectedMail($tenant, $payment->invoice, $reason));
+        }
+
+        return $payment;
     }
 
     private function storeReceipt(string $tenantId, int $paymentId, UploadedFile $file): string

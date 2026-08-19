@@ -2,11 +2,13 @@
 
 namespace Tests\Feature\Central;
 
+use App\Mail\PaymentRejectedMail;
 use App\Models\Tenant;
 use App\Modules\Central\Models\CentralAdminUser;
 use App\Modules\Central\Models\CentralInvoice;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Tests\Concerns\SetsUpTenant;
 use Tests\TestCase;
@@ -125,5 +127,54 @@ class CentralPaymentReviewTest extends TestCase
         $this->assertDatabaseHas('central_invoices', ['id' => $invoice->id, 'status' => 'issued']);
         $this->assertDatabaseHas('central_payments', ['id' => $payment->id, 'status' => 'rejected', 'rejection_reason' => 'Amount mismatch']);
         Storage::disk('s3')->assertExists($receiptKey);
+    }
+
+    public function test_rejecting_a_payment_for_a_past_due_invoice_reverts_to_overdue_and_notifies_the_tenant(): void
+    {
+        Mail::fake();
+
+        $admin = CentralAdminUser::query()->updateOrCreate(
+            ['email' => 'simon@nusaevo.com'],
+            ['name' => 'Simon', 'password' => 'password'],
+        );
+
+        $invoice = $this->makeInvoice();
+        $invoice->update(['due_date' => today()->subDays(3)]);
+        Tenant::query()->whereKey('901')->update(['contact_email' => 'billing@payerco.test']);
+
+        $this->actingAs($admin, 'central_admin')
+            ->post("/central/invoices/{$invoice->id}/payments", ['amount' => 500000]);
+
+        $payment = $invoice->payments()->first();
+
+        $this->actingAs($admin, 'central_admin')
+            ->post("/central/payments/{$payment->id}/reject", ['reason' => 'Receipt unreadable'])
+            ->assertRedirect(route('central.invoices.show', $invoice->id));
+
+        $this->assertDatabaseHas('central_invoices', ['id' => $invoice->id, 'status' => 'overdue']);
+        Mail::assertSent(PaymentRejectedMail::class, fn ($mail) => $mail->hasTo('billing@payerco.test'));
+    }
+
+    public function test_a_payment_can_only_be_confirmed_once(): void
+    {
+        $admin = CentralAdminUser::query()->updateOrCreate(
+            ['email' => 'simon@nusaevo.com'],
+            ['name' => 'Simon', 'password' => 'password'],
+        );
+
+        $invoice = $this->makeInvoice();
+
+        $this->actingAs($admin, 'central_admin')
+            ->post("/central/invoices/{$invoice->id}/payments", ['amount' => 500000]);
+
+        $payment = $invoice->payments()->first();
+
+        $this->actingAs($admin, 'central_admin')
+            ->post("/central/payments/{$payment->id}/confirm")
+            ->assertRedirect(route('central.invoices.show', $invoice->id));
+
+        $this->actingAs($admin, 'central_admin')
+            ->post("/central/payments/{$payment->id}/confirm")
+            ->assertUnprocessable();
     }
 }

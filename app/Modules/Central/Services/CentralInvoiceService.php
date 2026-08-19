@@ -54,13 +54,15 @@ class CentralInvoiceService
 
         try {
             return DB::transaction(function () use ($tenant, $plan, $periodStart, $periodEnd, $dueDate) {
+                $price = $plan->unitPrice();
+
                 $invoice = CentralInvoice::query()->create([
                     'tenant_id' => $tenant->getKey(),
                     'plan_code' => $plan->code,
                     'billing_period_start' => $periodStart,
                     'billing_period_end' => $periodEnd,
                     'status' => 'issued',
-                    'amount_total' => $plan->price_monthly,
+                    'amount_total' => $price,
                     'currency' => $plan->currency,
                     'due_date' => $dueDate,
                     'issued_at' => now(),
@@ -68,7 +70,7 @@ class CentralInvoiceService
 
                 $invoice->lines()->create([
                     'description' => "{$plan->name} plan fee",
-                    'amount' => $plan->price_monthly,
+                    'amount' => $price,
                 ]);
 
                 $addonTotal = 0.0;
@@ -88,7 +90,7 @@ class CentralInvoiceService
                     ]);
                 }
 
-                $invoice->update(['amount_total' => $plan->price_monthly + $addonTotal]);
+                $invoice->update(['amount_total' => $price + $addonTotal]);
 
                 $this->auditLogger->log(
                     action: 'invoice_issued',

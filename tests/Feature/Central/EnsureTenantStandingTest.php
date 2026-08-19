@@ -40,9 +40,11 @@ class EnsureTenantStandingTest extends TestCase
         Tenant::query()->whereKey('001')->update(['access_status' => 'read_only']);
         app(CentralAccessStatusCache::class)->invalidate('001');
 
-        // Read-only: the same write is now blocked.
+        // Read-only: the same write is now blocked and routed to the Billing screen (§5's
+        // direct link back to active), with the calm message in the session flash.
         $this->patch('/profile', ['name' => 'Admin User Changed', 'email' => 'admin@nusaevo.com'])
-            ->assertForbidden();
+            ->assertRedirect(route('billing.index'))
+            ->assertSessionHas('error');
 
         // GET requests are never blocked (read access stays available while read_only).
         $this->get('/profile')->assertOk();
