@@ -10,11 +10,13 @@ const SECTION_HOME: Record<string, string> = {
   legal: '/legal/cases',
   inventory: '/inventory/items',
   crm: '/crm/dashboard',
+  wne: '/wne/workflows',
 }
 
 /** Acronym segments that title-casing would otherwise mangle (crm → Crm). */
 const LABEL_OVERRIDES: Record<string, string> = {
   crm: 'CRM',
+  wne: 'WNE',
 }
 
 const page = usePage()

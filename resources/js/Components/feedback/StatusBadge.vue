@@ -43,6 +43,10 @@ const badgeClass = computed(() => {
     breached: 'bg-signal-danger/10 text-signal-danger border-signal-danger/25',
     due_soon: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
     on_track: 'bg-signal-success/10 text-signal-success border-signal-success/25',
+    // WNE Workflow Definition status (§3B)
+    draft: 'bg-surface-50 text-ink-600 border-border',
+    published: 'bg-signal-success/10 text-signal-success border-signal-success/25',
+    unpublished: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
   }
 
   return map[normalizedStatus.value] ?? 'bg-surface-50 text-ink-600 border-border'

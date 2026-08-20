@@ -101,7 +101,10 @@ class SysConfigSeeder extends Seeder
 
             // Placeholder — keep rows, status I until module ships
             ['code' => 'SCHEDULE', 'menu_header' => 'Core', 'menu_caption' => 'Schedule', 'menu_link' => '#', 'icon' => 'CalendarDays', 'seq' => 30, 'status_code' => 'I'],
-            ['code' => 'WNE', 'menu_header' => 'Core', 'menu_caption' => 'Workflow & Notifications', 'menu_link' => '#', 'icon' => 'Workflow', 'seq' => 40, 'status_code' => 'I'],
+            // §3B shipped (definition builder); §3A dashboard doesn't exist yet, so the
+            // workflow list is the landing page for now — same "point straight at the built
+            // page" convention Legal used before it had a dashboard either.
+            ['code' => 'WNE', 'menu_header' => 'Core', 'menu_caption' => 'Workflow & Notifications', 'menu_link' => '/wne/workflows', 'icon' => 'Workflow', 'seq' => 40, 'status_code' => 'A'],
             ['code' => 'LEGAL', 'menu_header' => 'Vertical', 'menu_caption' => 'Legal', 'menu_link' => '/legal/cases', 'icon' => 'Scale', 'seq' => 60, 'status_code' => 'A'],
             // Internal-only (Nusaevo's own team) — not part of any sellable plan, see config/tenant_modules.php.
             ['code' => 'PROJECTS', 'menu_header' => 'Internal', 'menu_caption' => 'Projects', 'menu_link' => '/projects', 'icon' => 'Kanban', 'seq' => 65, 'status_code' => 'A'],
@@ -147,6 +150,7 @@ class SysConfigSeeder extends Seeder
                 'INVENTORY' => 'CRUD',
                 'LEGAL' => 'CRUD',
                 'CRM' => 'CRUD',
+                'WNE' => 'CRUD',
                 'PROJECTS' => 'CRUD',
                 'DESIGN_SYSTEM' => 'R',
             ],
@@ -155,6 +159,7 @@ class SysConfigSeeder extends Seeder
                 'INVENTORY' => 'R',
                 'LEGAL' => 'R',
                 'CRM' => 'R',
+                'WNE' => 'R',
                 'PROJECTS' => 'R',
                 'DESIGN_SYSTEM' => 'R',
             ],
