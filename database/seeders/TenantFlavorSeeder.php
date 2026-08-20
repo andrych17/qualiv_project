@@ -2,6 +2,12 @@
 
 namespace Database\Seeders;
 
+use App\Modules\CRM\Models\Address;
+use App\Modules\CRM\Models\ContactPoint;
+use App\Modules\CRM\Models\Industry;
+use App\Modules\CRM\Models\Partner;
+use App\Modules\CRM\Models\PartnerRole;
+use App\Modules\CRM\Models\PartnerRoleType;
 use App\Modules\CustomFields\Models\FieldDef;
 use App\Modules\CustomFields\Models\FieldValue;
 use App\Modules\Inventory\Models\InventoryCategory;
@@ -37,6 +43,8 @@ class TenantFlavorSeeder extends Seeder
         $this->seedLegalCases($flavor);
         $this->seedSnums($flavor);
         $this->seedProjects($flavor);
+        $this->seedCrmLookups();
+        $this->seedCrmPartners($flavor);
     }
 
     /** @return array<string, array<string, mixed>> */
@@ -171,6 +179,16 @@ class TenantFlavorSeeder extends Seeder
                         'notes' => 'Settled Q2',
                         'custom' => ['lease_object' => 'N/A — collection', 'monthly_rent' => null, 'priority' => 'urgent'],
                     ],
+                ],
+                // Firm B is the 'legal' plan tenant (CRM enabled) — demo Contacts/Companies
+                // for CRM_SPECS.md §3B/§3C. Firm A runs the 'internal' plan (CRM not
+                // entitled), so no CRM demo data is defined for it.
+                'crm_companies' => [
+                    ['name' => 'Contoh Hukum Corp', 'registration_tax_id' => '02.345.678.9-012.000', 'industry' => 'Legal Services', 'role' => 'CLIENT', 'email' => 'client@contohhukum.example'],
+                    ['name' => 'Sewa Kantor Vendor', 'registration_tax_id' => '03.456.789.0-123.000', 'industry' => null, 'role' => 'VENDOR', 'email' => 'vendor@sewakantor.example'],
+                ],
+                'crm_contacts' => [
+                    ['name' => 'Budi Santoso', 'title_position' => 'Finance Manager', 'parent_company' => 'Contoh Hukum Corp', 'mobile' => '+62 812-3456-7890'],
                 ],
             ],
         ];
@@ -336,6 +354,88 @@ class TenantFlavorSeeder extends Seeder
                     'entity_type' => 'legal_case',
                     'entity_id' => $created->id,
                     'value' => $value,
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Base lookup/master data (§4) — same defaults regardless of flavor, since
+     * role vocabulary is tenant-editable data, not a per-firm demo prop.
+     */
+    private function seedCrmLookups(): void
+    {
+        foreach (['Legal Services', 'Real Estate', 'Manufacturing'] as $name) {
+            Industry::query()->updateOrCreate(['name' => $name]);
+        }
+
+        foreach ([
+            ['code' => 'CLIENT', 'name' => 'Client'],
+            ['code' => 'VENDOR', 'name' => 'Vendor'],
+            ['code' => 'REFERRAL_PARTNER', 'name' => 'Referral Partner'],
+        ] as $rt) {
+            PartnerRoleType::query()->updateOrCreate(['code' => $rt['code']], ['name' => $rt['name']]);
+        }
+    }
+
+    /** @param  array<string, mixed>  $flavor */
+    private function seedCrmPartners(array $flavor): void
+    {
+        if (! isset($flavor['crm_companies'])) {
+            return;
+        }
+
+        // Re-seed clean per flavor run, same idempotency approach as seedInventory().
+        PartnerRole::query()->delete();
+        ContactPoint::query()->delete();
+        Address::query()->delete();
+        Partner::query()->delete();
+
+        $roleTypes = PartnerRoleType::query()->pluck('id', 'code');
+        $industries = Industry::query()->pluck('id', 'name');
+
+        $companies = [];
+        foreach ($flavor['crm_companies'] as $co) {
+            $partner = Partner::query()->create([
+                'type' => Partner::TYPE_ORGANIZATION,
+                'name' => $co['name'],
+                'registration_tax_id' => $co['registration_tax_id'],
+                'industry_id' => $co['industry'] ? ($industries[$co['industry']] ?? null) : null,
+                'source' => 'manual',
+            ]);
+            $companies[$co['name']] = $partner;
+
+            ContactPoint::query()->create([
+                'partner_id' => $partner->id,
+                'type' => 'email',
+                'value' => $co['email'],
+                'is_primary' => true,
+            ]);
+
+            if (isset($roleTypes[$co['role']])) {
+                PartnerRole::query()->create([
+                    'partner_id' => $partner->id,
+                    'role_type_id' => $roleTypes[$co['role']],
+                    'assigned_at' => now(),
+                ]);
+            }
+        }
+
+        foreach ($flavor['crm_contacts'] ?? [] as $person) {
+            $partner = Partner::query()->create([
+                'type' => Partner::TYPE_INDIVIDUAL,
+                'name' => $person['name'],
+                'title_position' => $person['title_position'],
+                'parent_partner_id' => $companies[$person['parent_company']]->id ?? null,
+                'source' => 'manual',
+            ]);
+
+            if (! empty($person['mobile'])) {
+                ContactPoint::query()->create([
+                    'partner_id' => $partner->id,
+                    'type' => 'mobile',
+                    'value' => $person['mobile'],
+                    'is_primary' => true,
                 ]);
             }
         }

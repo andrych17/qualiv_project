@@ -85,9 +85,12 @@ class SysConfigSeeder extends Seeder
             ['code' => 'CONFIG_CONSTS', 'menu_header' => 'System', 'menu_caption' => 'Constants', 'menu_link' => '/config/consts', 'icon' => 'SlidersHorizontal', 'seq' => 220, 'status_code' => 'A'],
             ['code' => 'CONFIG_SERIALS', 'menu_header' => 'System', 'menu_caption' => 'Serials', 'menu_link' => '/config/serials', 'icon' => 'Hash', 'seq' => 225, 'status_code' => 'A'],
             ['code' => 'DESIGN_SYSTEM', 'menu_header' => 'System', 'menu_caption' => 'Komponen UI', 'menu_link' => '/design-system', 'icon' => 'Layers', 'seq' => 230, 'status_code' => 'A'],
+            // CRM §3B/§3C (Contacts + Companies) shipped — Companies is reached via the
+            // in-page sub-nav on /crm/contacts, not a second sidebar row (one menu code
+            // covers both, see CRM_SPECS.md §5). §3D-§3G (Leads/Tickets/Merge) still pending.
+            ['code' => 'CRM', 'menu_header' => 'Core', 'menu_caption' => 'CRM', 'menu_link' => '/crm/contacts', 'icon' => 'Users', 'seq' => 20, 'status_code' => 'A'],
 
             // Placeholder — keep rows, status I until module ships
-            ['code' => 'CRM', 'menu_header' => 'Core', 'menu_caption' => 'CRM', 'menu_link' => '#', 'icon' => 'Users', 'seq' => 20, 'status_code' => 'I'],
             ['code' => 'SCHEDULE', 'menu_header' => 'Core', 'menu_caption' => 'Schedule', 'menu_link' => '#', 'icon' => 'CalendarDays', 'seq' => 30, 'status_code' => 'I'],
             ['code' => 'WNE', 'menu_header' => 'Core', 'menu_caption' => 'Workflow & Notifications', 'menu_link' => '#', 'icon' => 'Workflow', 'seq' => 40, 'status_code' => 'I'],
             ['code' => 'LEGAL', 'menu_header' => 'Vertical', 'menu_caption' => 'Legal', 'menu_link' => '/legal/cases', 'icon' => 'Scale', 'seq' => 60, 'status_code' => 'A'],
@@ -131,6 +134,7 @@ class SysConfigSeeder extends Seeder
                 'DASHBOARD' => 'R',
                 'INVENTORY' => 'CRUD',
                 'LEGAL' => 'CRUD',
+                'CRM' => 'CRUD',
                 'PROJECTS' => 'CRUD',
                 'DESIGN_SYSTEM' => 'R',
             ],
@@ -138,6 +142,7 @@ class SysConfigSeeder extends Seeder
                 'DASHBOARD' => 'R',
                 'INVENTORY' => 'R',
                 'LEGAL' => 'R',
+                'CRM' => 'R',
                 'PROJECTS' => 'R',
                 'DESIGN_SYSTEM' => 'R',
             ],

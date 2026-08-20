@@ -9,6 +9,12 @@ const SECTION_HOME: Record<string, string> = {
   config: '/config/menus',
   legal: '/legal/cases',
   inventory: '/inventory/items',
+  crm: '/crm/contacts',
+}
+
+/** Acronym segments that title-casing would otherwise mangle (crm → Crm). */
+const LABEL_OVERRIDES: Record<string, string> = {
+  crm: 'CRM',
 }
 
 const page = usePage()
@@ -25,7 +31,7 @@ const breadcrumbs = computed(() => {
       segments[index + 1] === 'edit' && /^\d+$/.test(segment)
         ? `${built}/edit`
         : SECTION_HOME[built.slice(1)] ?? (SECTION_HOME[segment] && built === `/${segment}` ? SECTION_HOME[segment] : built)
-    const label = segment.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+    const label = LABEL_OVERRIDES[segment] ?? segment.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
     return { label, href, active: index === segments.length - 1 }
   })
 })

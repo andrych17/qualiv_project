@@ -382,6 +382,13 @@ lookup yang dapat diedit tenant — tidak perlu deploy kode untuk mengganti nama
 menjadi "Tenant" untuk vertikal baru, yang merupakan tuas utama yang membuat modul Core ini
 dapat digunakan ulang lintas vertikal alih-alih khusus-Legal.
 
+**Urutan pembangunan yang disarankan untuk Claude Code:** 3B/3C (Contacts/Companies — registry
+Partner yang menjadi tempat FK semua yang lain) → 3D (Leads, dikonversi menjadi Partner) →
+3E/3F (After Sales Service + Helpdesk, berbagi lookup `ticket_categories` dan mekanika SLA,
+membutuhkan Partner sudah ada lebih dulu) → 3G (Partner Merge/Dedup, membutuhkan data partner
+nyata untuk beroperasi) → 3A (Main Dashboard, mengagregasi semua di atas) — rilis pada titik
+ini.
+
 **Catatan kelayakan jual (marketability)**
 - Model Partner terpadu + Role yang dapat dikonfigurasi adalah yang memungkinkan modul CRM
   yang *sama* dijual ulang di bawah kosakata masing-masing vertikal (Client untuk Legal,

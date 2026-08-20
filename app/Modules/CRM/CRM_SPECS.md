@@ -342,6 +342,12 @@ lookup tables — no code deploy needed to rename "Client" to "Tenant" for a new
 is the main lever that makes this Core module reusable across verticals rather than
 Legal-specific.
 
+**Suggested build order for Claude Code:** 3B/3C (Contacts/Companies — the Partner registry
+everything else FKs into) → 3D (Leads, converts into a Partner) → 3E/3F (After Sales Service +
+Helpdesk, share `ticket_categories` lookups and SLA mechanics, need Partner to exist first) →
+3G (Partner Merge/Dedup, needs real partner data to operate on) → 3A (Main Dashboard, aggregates
+all of the above) — ship at this point.
+
 **Marketability notes**
 - The unified Partner + configurable Role model is what lets the *same* CRM module be resold
   under each vertical's vocabulary (Client for Legal, Tenant/Owner for Property) — a genuine

@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Auth\TenantAwareUserProvider;
 use App\Models\User;
+use App\Modules\CRM\Models\Partner;
 use App\Modules\Legal\Contracts\CaseCodeGenerator;
 use App\Modules\Legal\Models\LegalCase;
 use App\Modules\Legal\Services\PrefixedCaseCodeGenerator;
@@ -71,6 +72,25 @@ class AppServiceProvider extends ServiceProvider
             queryCallback: null,
             filterable: [],
             menuCode: 'LEGAL',
+        );
+
+        // Companies only — used by the Contacts/Companies "parent" picker (CRM_SPECS.md
+        // §3B/§3C) to find an employer or a parent company.
+        AsyncSearchRegistry::register(
+            'crm_company',
+            Partner::class,
+            ['name', 'trade_name'],
+            'name',
+            'trade_name',
+            queryCallback: fn ($query, $search, $extraFilters) => $query
+                ->companies()
+                ->where('is_active', true)
+                ->when($search !== '', fn ($q) => $q->where(function ($q) use ($search) {
+                    $q->where('name', 'ilike', '%'.$search.'%')
+                        ->orWhere('trade_name', 'ilike', '%'.$search.'%');
+                })),
+            filterable: [],
+            menuCode: 'CRM',
         );
     }
 }
