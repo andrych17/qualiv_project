@@ -42,5 +42,6 @@ abstract class TestCase extends BaseTestCase
         parent::setUp();
 
         $this->withoutMiddleware(ValidateCsrfToken::class);
+        $this->withoutVite();
     }
 }

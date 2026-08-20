@@ -13,6 +13,7 @@ class FieldDef extends Model
     protected $fillable = [
         'uuid',
         'entity_type',
+        'module_code',
         'code',
         'label',
         'field_type',
@@ -52,5 +53,20 @@ class FieldDef extends Model
     public function scopeForEntity($query, string $entityType)
     {
         return $query->where('entity_type', $entityType)->orderBy('seq')->orderBy('id');
+    }
+
+    public function scopeFilter($query, array $filters)
+    {
+        return $query
+            ->when($filters['search'] ?? null, function ($query, $search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('entity_type', 'ilike', '%'.$search.'%')
+                        ->orWhere('code', 'ilike', '%'.$search.'%')
+                        ->orWhere('label', 'ilike', '%'.$search.'%');
+                });
+            })
+            ->when($filters['module_code'] ?? null, fn ($query, $code) => $query->where('module_code', $code))
+            ->when($filters['entity_type'] ?? null, fn ($query, $type) => $query->where('entity_type', $type))
+            ->when(($filters['show_inactive'] ?? null) !== '1', fn ($query) => $query->where('status', 'active'));
     }
 }

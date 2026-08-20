@@ -14,6 +14,8 @@ const form = useForm({
   step_cnt: 1,
   descr: '',
   status_code: 'A',
+  padding_length: null as number | null,
+  reset_rule: 'never',
 })
 
 const submit = () => form.post(route('config.serials.store'))
@@ -42,6 +44,20 @@ const submit = () => form.post(route('config.serials.store'))
           <FormInput v-model.number="form.step_cnt" name="step_cnt" label="Step" type="number" :error="form.errors.step_cnt" required />
         </div>
         <FormInput v-model="form.descr" name="descr" label="Description" :error="form.errors.descr" />
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <FormInput v-model.number="form.padding_length" name="padding_length" label="Padding length" type="number" :error="form.errors.padding_length" />
+          <FormSelect
+            v-model="form.reset_rule"
+            name="reset_rule"
+            label="Reset rule"
+            :options="[
+              { label: 'Never', value: 'never' },
+              { label: 'Yearly', value: 'yearly' },
+              { label: 'Monthly', value: 'monthly' },
+            ]"
+            :error="form.errors.reset_rule"
+          />
+        </div>
         <FormSelect
           v-model="form.status_code"
           name="status_code"

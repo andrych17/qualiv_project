@@ -48,8 +48,21 @@ class TenantFeatureService
         return array_values($plans[$plan] ?? $plans['starter'] ?? []);
     }
 
-    public function enabled(string $moduleCode): bool
+    public function entitled(string $moduleCode): bool
     {
         return in_array(strtoupper($moduleCode), $this->enabledModules(), true);
+    }
+
+    /**
+     * Effective visibility: entitled (central plan) AND tenant_modules.is_active
+     * (opt-out default — missing row counts as active). SYSCONFIG_SPECS.md §3A.
+     */
+    public function enabled(string $moduleCode): bool
+    {
+        if (! $this->entitled($moduleCode)) {
+            return false;
+        }
+
+        return app(\App\Modules\SysConfig\Services\TenantModuleService::class)->isActive($moduleCode);
     }
 }

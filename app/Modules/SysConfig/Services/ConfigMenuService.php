@@ -24,6 +24,7 @@ class ConfigMenuService
                 'parent_id' => $data['parent_id'] ?: null,
                 'seq' => (int) ($data['seq'] ?? 0),
                 'status_code' => $data['status_code'] ?? 'A',
+                'module_code' => ($data['module_code'] ?? null) ?: null,
             ]);
 
             // ponytail: new menus invisible until some group has R — auto-grant ADMIN CRUD
@@ -59,6 +60,7 @@ class ConfigMenuService
             'parent_id' => $data['parent_id'] ?: null,
             'seq' => (int) ($data['seq'] ?? $menu->seq),
             'status_code' => $data['status_code'] ?? $menu->status_code,
+            'module_code' => array_key_exists('module_code', $data) ? ($data['module_code'] ?: null) : $menu->module_code,
         ]);
 
         // Keep denormalized rights in sync when code/seq change

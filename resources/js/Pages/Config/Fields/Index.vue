@@ -1,4 +1,4 @@
-<!-- ponytail: Config consts listing -->
+<!-- ponytail: Custom field definitions admin (CUSTOMFIELDS_SPECS.md §3A) -->
 <script setup lang="ts">
 import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
@@ -8,19 +8,16 @@ import { ref, watch } from 'vue'
 import { debounce } from '@/Composables/debounce'
 import { useConfirm } from '@/Composables/useConfirmDialog'
 
-interface ConstRow {
+interface FieldRow {
   id: number
-  appl_id: string | null
-  const_group: string | null
-  group_code: string | null
-  value: string | null
-  value_type: string | null
+  module_code: string | null
+  entity_type: string
+  code: string
+  label: string
+  field_type: string
+  is_required: boolean
   seq: number
-  str1: string | null
-  str2: string | null
-  num1: string | number | null
-  note1: string | null
-  is_active: boolean
+  status: string
 }
 
 interface PaginatedData<T> {
@@ -33,41 +30,45 @@ interface PaginatedData<T> {
 }
 
 const props = defineProps<{
-  consts: PaginatedData<ConstRow>
-  filters: { search?: string; const_group?: string; lens?: string; sort?: string; direction?: string; per_page?: string }
-  groups: Array<{ label: string; value: string }>
+  defs: PaginatedData<FieldRow>
+  filters: { search?: string; module_code?: string; entity_type?: string; sort?: string; direction?: string; per_page?: string }
+  entityTypes: Array<{ label: string; value: string }>
+  modules: Array<{ label: string; value: string }>
 }>()
 
 const search = ref(props.filters.search ?? '')
-const filters = ref({ const_group: props.filters.const_group ?? '' })
+const filters = ref({
+  module_code: props.filters.module_code ?? '',
+  entity_type: props.filters.entity_type ?? '',
+})
 const sort = ref<SortState>(
   props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
 )
 const selected = ref<Array<string | number>>([])
-const perPage = ref(Number(props.filters.per_page) || props.consts.per_page)
+const perPage = ref(Number(props.filters.per_page) || props.defs.per_page)
 
 const filterFields: FilterFieldDef[] = [
-  { key: 'const_group', label: 'Group', type: 'select', options: props.groups },
+  { key: 'module_code', label: 'Module', type: 'select', options: props.modules },
+  { key: 'entity_type', label: 'Entity', type: 'select', options: props.entityTypes },
 ]
 
-const lens = ref(props.filters.lens ?? 'settings')
-
 const columns = [
-  { key: 'const_group', label: 'Group', sortable: true },
-  { key: 'group_code', label: 'Key', sortable: true },
-  { key: 'appl_id', label: 'Module', sortable: true },
-  { key: 'value', label: 'Value', sortable: true },
-  { key: 'str1', label: 'Label', sortable: true },
+  { key: 'module_code', label: 'Module', sortable: true },
+  { key: 'entity_type', label: 'Entity', sortable: true },
+  { key: 'code', label: 'Code', sortable: true },
+  { key: 'label', label: 'Label', sortable: true },
+  { key: 'field_type', label: 'Type', sortable: true },
   { key: 'seq', label: 'Seq', align: 'right' as const, sortable: true },
+  { key: 'status', label: 'Status', sortable: true },
   { key: 'actions', label: 'Actions', align: 'right' as const },
 ]
 
-watch([search, filters, sort, perPage, lens], debounce(() => {
+watch([search, filters, sort, perPage], debounce(() => {
   selected.value = []
-  router.get(route('config.consts.index'), {
+  router.get(route('config.fields.index'), {
     search: search.value,
-    const_group: filters.value.const_group,
-    lens: lens.value,
+    module_code: filters.value.module_code,
+    entity_type: filters.value.entity_type,
     sort: sort.value?.key,
     direction: sort.value?.direction,
     per_page: perPage.value,
@@ -76,34 +77,26 @@ watch([search, filters, sort, perPage, lens], debounce(() => {
 
 const { confirm } = useConfirm()
 
-const confirmDelete = (item: ConstRow | Record<string, unknown>) => {
-  const row = item as ConstRow
+const confirmDelete = (item: FieldRow | Record<string, unknown>) => {
+  const row = item as FieldRow
   confirm({
-    title: `Deactivate const ${row.const_group}.${row.group_code}?`,
+    title: `Deactivate field ${row.entity_type}.${row.code}?`,
     variant: 'destructive',
     confirmText: 'Deactivate',
-    onConfirm: () => router.delete(route('config.consts.destroy', row.id)),
+    onConfirm: () => router.delete(route('config.fields.destroy', row.id)),
   })
 }
 
 const confirmBulkDelete = () => {
   confirm({
-    title: `Deactivate ${selected.value.length} selected const(s)?`,
+    title: `Deactivate ${selected.value.length} selected field(s)?`,
     variant: 'destructive',
     confirmText: 'Deactivate',
     onConfirm: () =>
-      router.delete(route('config.consts.bulkDestroy'), {
+      router.delete(route('config.fields.bulkDestroy'), {
         data: { ids: selected.value },
         onSuccess: () => { selected.value = [] },
       }),
-  })
-}
-
-// InlineEditor demo — only str1/seq are quick-editable; everything else needs the full Edit form.
-const onCellEdit = (item: Record<string, any>, key: string, value: string) => {
-  router.patch(route('config.consts.quickUpdate', item.id), { field: key, value }, {
-    preserveScroll: true,
-    preserveState: true,
   })
 }
 </script>
@@ -111,15 +104,15 @@ const onCellEdit = (item: Record<string, any>, key: string, value: string) => {
 <template>
   <AppLayout>
     <PageHeader
-      title="Constants"
-      description="Tenant config constants (status codes, thresholds, labels)."
+      title="Custom Fields"
+      description="Tenant-defined extra fields. Inactive defs leave historical values readable."
     >
       <template #actions>
         <Link
-          :href="route('config.consts.create')"
-          class="inline-flex items-center rounded-md bg-gray-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800"
+          :href="route('config.fields.create')"
+          class="inline-flex min-h-11 items-center rounded-md bg-gray-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800"
         >
-          Create Const
+          Create Field
         </Link>
       </template>
     </PageHeader>
@@ -127,7 +120,7 @@ const onCellEdit = (item: Record<string, any>, key: string, value: string) => {
     <div class="mt-6 space-y-4">
       <DataTable
         :columns="columns"
-        :items="consts.data"
+        :items="defs.data"
         v-model:sort="sort"
         v-model:selected="selected"
         v-model:search="search"
@@ -135,18 +128,16 @@ const onCellEdit = (item: Record<string, any>, key: string, value: string) => {
         v-model:per-page="perPage"
         selectable
         sticky-header
-        storage-key="config.consts"
-        search-placeholder="Search group, key, value..."
+        storage-key="config.fields"
+        search-placeholder="Search entity, code, label..."
         :filter-fields="filterFields"
-        :editable-keys="['str1', 'seq']"
-        export-filename="config-consts"
-        :total="consts.total"
-        :from="consts.from"
-        :to="consts.to"
-        :links="consts.links"
-        empty-title="No constants"
-        empty-description="Create a constant for app settings."
-        @cell-edit="onCellEdit"
+        export-filename="custom-fields"
+        :total="defs.total"
+        :from="defs.from"
+        :to="defs.to"
+        :links="defs.links"
+        empty-title="No custom fields"
+        empty-description="Create a field definition for an entity type."
       >
         <template #bulk-actions>
           <button type="button" class="text-sm font-medium text-red-600 hover:text-red-950" @click="confirmBulkDelete">
@@ -156,7 +147,7 @@ const onCellEdit = (item: Record<string, any>, key: string, value: string) => {
         <template #cell-actions="{ item }">
           <div class="flex items-center justify-end gap-2">
             <Link
-              :href="route('config.consts.edit', item.id)"
+              :href="route('config.fields.edit', item.id)"
               class="text-sm font-medium text-gray-700 hover:text-gray-900"
             >
               Edit

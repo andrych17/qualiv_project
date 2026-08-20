@@ -2,7 +2,7 @@
 
 namespace App\Modules\CustomFields\Services;
 
-use App\Modules\SysConfig\Models\ConfigConst;
+use App\Modules\SysConfig\Services\ConfigService;
 
 /**
  * Config-driven hooks — never branch on tenant_id.
@@ -45,19 +45,17 @@ class CustomLogicEngine
 
     private function constEnabled(string $group, string $code): bool
     {
-        $row = ConfigConst::query()
-            ->where('const_group', $group)
-            ->where('group_code', $code)
-            ->first();
-
-        if (! $row) {
+        $value = app(ConfigService::class)->get($group, $code, 'LEGAL');
+        if ($value === null) {
             return false;
         }
-
-        if ($row->num1 !== null) {
-            return (float) $row->num1 > 0;
+        if (is_bool($value)) {
+            return $value;
+        }
+        if (is_numeric($value)) {
+            return (float) $value > 0;
         }
 
-        return in_array(strtolower((string) $row->str1), ['1', 'true', 'yes', 'y'], true);
+        return in_array(strtolower((string) $value), ['1', 'true', 'yes', 'y'], true);
     }
 }

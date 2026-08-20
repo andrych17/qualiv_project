@@ -16,6 +16,8 @@ const props = defineProps<{
     step_cnt: number
     descr: string | null
     status_code: string
+    padding_length: number | null
+    reset_rule: string | null
   }
 }>()
 
@@ -27,6 +29,8 @@ const form = useForm({
   step_cnt: props.snum.step_cnt,
   descr: props.snum.descr ?? '',
   status_code: props.snum.status_code,
+  padding_length: props.snum.padding_length,
+  reset_rule: props.snum.reset_rule ?? 'never',
 })
 
 const submit = () => form.put(route('config.serials.update', props.snum.id))
@@ -48,6 +52,20 @@ const submit = () => form.put(route('config.serials.update', props.snum.id))
           <FormInput v-model.number="form.step_cnt" name="step_cnt" label="Step" type="number" :error="form.errors.step_cnt" required />
         </div>
         <FormInput v-model="form.descr" name="descr" label="Description" :error="form.errors.descr" />
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <FormInput v-model.number="form.padding_length" name="padding_length" label="Padding length" type="number" :error="form.errors.padding_length" />
+          <FormSelect
+            v-model="form.reset_rule"
+            name="reset_rule"
+            label="Reset rule"
+            :options="[
+              { label: 'Never', value: 'never' },
+              { label: 'Yearly', value: 'yearly' },
+              { label: 'Monthly', value: 'monthly' },
+            ]"
+            :error="form.errors.reset_rule"
+          />
+        </div>
         <FormSelect
           v-model="form.status_code"
           name="status_code"

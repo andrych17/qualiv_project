@@ -42,6 +42,7 @@ class ConfigMenuController extends Controller
                 'seq' => $m->seq,
                 'status_code' => $m->status_code,
                 'status_label' => $m->status_code === 'A' ? 'active' : 'inactive',
+                'module_code' => $m->module_code,
             ]);
 
         $headers = ConfigMenu::query()
@@ -88,6 +89,7 @@ class ConfigMenuController extends Controller
                 'parent_id' => $menu->parent_id,
                 'seq' => $menu->seq,
                 'status_code' => $menu->status_code,
+                'module_code' => $menu->module_code,
             ],
             'parents' => $this->parentOptions($menu->id),
         ]);

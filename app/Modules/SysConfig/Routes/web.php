@@ -1,10 +1,12 @@
 <?php
 
+use App\Modules\CustomFields\Controllers\FieldDefController;
 use App\Modules\SysConfig\Controllers\ConfigConstController;
 use App\Modules\SysConfig\Controllers\ConfigGroupController;
 use App\Modules\SysConfig\Controllers\ConfigMenuController;
 use App\Modules\SysConfig\Controllers\ConfigSnumController;
 use App\Modules\SysConfig\Controllers\ConfigUserController;
+use App\Modules\SysConfig\Controllers\TenantModuleController;
 use Illuminate\Support\Facades\Route;
 
 // Bare /config → first SysConfig screen (avoids 404 when link/bookmark drops the child path)
@@ -32,6 +34,16 @@ Route::middleware(['auth', 'verified'])->prefix('config')->name('config.')->grou
         Route::resource('serials', ConfigSnumController::class)
             ->except(['show'])
             ->parameters(['serials' => 'configSnum']);
+    });
+    Route::middleware('menu.perm:CONFIG_MODULES')->group(function () {
+        Route::get('modules', [TenantModuleController::class, 'index'])->name('modules.index');
+        Route::patch('modules/{module}', [TenantModuleController::class, 'update'])->name('modules.update');
+    });
+    Route::middleware('menu.perm:CONFIG_FIELDS')->group(function () {
+        Route::delete('fields/bulk-destroy', [FieldDefController::class, 'bulkDestroy'])->name('fields.bulkDestroy');
+        Route::resource('fields', FieldDefController::class)
+            ->except(['show'])
+            ->parameters(['fields' => 'fieldDef']);
     });
     Route::middleware('menu.perm:CONFIG_USERS')->group(function () {
         Route::delete('users/bulk-destroy', [ConfigUserController::class, 'bulkDestroy'])->name('users.bulkDestroy');

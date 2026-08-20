@@ -21,6 +21,7 @@ class ConfigMenu extends Model
         'parent_id',
         'seq',
         'status_code',
+        'module_code',
     ];
 
     public function parent(): BelongsTo

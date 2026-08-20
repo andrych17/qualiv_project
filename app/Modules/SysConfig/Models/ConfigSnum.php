@@ -17,6 +17,9 @@ class ConfigSnum extends Model
         'step_cnt',
         'descr',
         'status_code',
+        'padding_length',
+        'reset_rule',
+        'last_reset_at',
     ];
 
     protected function casts(): array
@@ -26,6 +29,8 @@ class ConfigSnum extends Model
             'wrap_low' => 'integer',
             'wrap_high' => 'integer',
             'step_cnt' => 'integer',
+            'padding_length' => 'integer',
+            'last_reset_at' => 'datetime',
         ];
     }
 
