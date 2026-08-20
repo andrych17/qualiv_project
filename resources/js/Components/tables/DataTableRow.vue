@@ -48,6 +48,10 @@ const railClass = () => {
     active: 'border-l-[3px] border-l-signal-success',
     overdue: 'border-l-[3px] border-l-signal-danger',
     rejected: 'border-l-[3px] border-l-signal-danger',
+    // CRM SLA state (§3E) — svc_cases rail reflects SLA standing, not workflow status.
+    breached: 'border-l-[3px] border-l-signal-danger',
+    due_soon: 'border-l-[3px] border-l-signal-warning',
+    on_track: 'border-l-[3px] border-l-signal-success',
   }
   return map[status] ?? 'border-l-[3px] border-l-border'
 }

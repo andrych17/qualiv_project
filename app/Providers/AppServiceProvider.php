@@ -92,5 +92,24 @@ class AppServiceProvider extends ServiceProvider
             filterable: [],
             menuCode: 'CRM',
         );
+
+        // All active partners, both individual and organization — used by the After
+        // Sales Service case's partner picker (CRM_SPECS.md §3E), which unlike the
+        // "works at" picker above must be able to find a lone contact too.
+        AsyncSearchRegistry::register(
+            'crm_partner',
+            Partner::class,
+            ['name', 'trade_name'],
+            'name',
+            fn ($p) => $p->type === Partner::TYPE_ORGANIZATION ? 'Company' : 'Contact',
+            queryCallback: fn ($query, $search, $extraFilters) => $query
+                ->where('is_active', true)
+                ->when($search !== '', fn ($q) => $q->where(function ($q) use ($search) {
+                    $q->where('name', 'ilike', '%'.$search.'%')
+                        ->orWhere('trade_name', 'ilike', '%'.$search.'%');
+                })),
+            filterable: [],
+            menuCode: 'CRM',
+        );
     }
 }

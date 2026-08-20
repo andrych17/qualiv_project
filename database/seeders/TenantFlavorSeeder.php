@@ -2,14 +2,21 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use App\Modules\CRM\Models\Address;
 use App\Modules\CRM\Models\ContactPoint;
 use App\Modules\CRM\Models\Industry;
 use App\Modules\CRM\Models\Lead;
 use App\Modules\CRM\Models\LeadSource;
 use App\Modules\CRM\Models\Partner;
+use App\Modules\CRM\Models\PartnerMergeLog;
 use App\Modules\CRM\Models\PartnerRole;
 use App\Modules\CRM\Models\PartnerRoleType;
+use App\Modules\CRM\Models\ServiceCase;
+use App\Modules\CRM\Models\ServiceCaseActivity;
+use App\Modules\CRM\Models\Ticket;
+use App\Modules\CRM\Models\TicketCategory;
+use App\Modules\CRM\Models\TicketMessage;
 use App\Modules\CustomFields\Models\FieldDef;
 use App\Modules\CustomFields\Models\FieldValue;
 use App\Modules\Inventory\Models\InventoryCategory;
@@ -46,8 +53,20 @@ class TenantFlavorSeeder extends Seeder
         $this->seedSnums($flavor);
         $this->seedProjects($flavor);
         $this->seedCrmLookups();
+        // Rows that FK-reference partners (a lead's converted_partner_id from the live
+        // Convert-to-Partner action, §3D; a service case's partner_id) must be cleared
+        // before Partners deletes, then rebuilt after Partners recreates — so the clear
+        // happens up front, separate from each method's own delete-then-create.
+        Lead::query()->delete();
+        ServiceCaseActivity::query()->delete();
+        ServiceCase::query()->delete();
+        TicketMessage::query()->delete();
+        Ticket::query()->delete();
+        PartnerMergeLog::query()->delete();
         $this->seedCrmPartners($flavor);
         $this->seedCrmLeads($flavor);
+        $this->seedCrmServiceCases($flavor);
+        $this->seedCrmTickets($flavor);
     }
 
     /** @return array<string, array<string, mixed>> */
@@ -189,6 +208,12 @@ class TenantFlavorSeeder extends Seeder
                 'crm_companies' => [
                     ['name' => 'Contoh Hukum Corp', 'registration_tax_id' => '02.345.678.9-012.000', 'industry' => 'Legal Services', 'role' => 'CLIENT', 'email' => 'client@contohhukum.example'],
                     ['name' => 'Sewa Kantor Vendor', 'registration_tax_id' => '03.456.789.0-123.000', 'industry' => null, 'role' => 'VENDOR', 'email' => 'vendor@sewakantor.example'],
+                    // Deliberate near-duplicate of the first row (§3G demo data) — same
+                    // email (contact-point match) and same active CLIENT role, so the
+                    // merge review queue is non-empty and a real merge exercises both
+                    // collision guards (uq_crm_contact_points_primary, uq_crm_partner_roles_active)
+                    // rather than leaving them untested until a real duplicate shows up in prod.
+                    ['name' => 'Contoh Hukum Corporation', 'registration_tax_id' => null, 'industry' => 'Legal Services', 'role' => 'CLIENT', 'email' => 'client@contohhukum.example'],
                 ],
                 'crm_contacts' => [
                     ['name' => 'Budi Santoso', 'title_position' => 'Finance Manager', 'parent_company' => 'Contoh Hukum Corp', 'mobile' => '+62 812-3456-7890'],
@@ -197,6 +222,15 @@ class TenantFlavorSeeder extends Seeder
                     ['name' => 'Siti Rahayu', 'company_name' => 'Toko Maju Bersama', 'source' => 'Website', 'stage' => 'qualified', 'estimated_value' => 25000000, 'next_action_days' => 3, 'notes' => 'Interested in a retainer package.'],
                     ['name' => 'Andi Wijaya', 'company_name' => 'CV Sinar Abadi', 'source' => 'Referral', 'stage' => 'new', 'estimated_value' => null, 'next_action_days' => null, 'notes' => null],
                     ['name' => 'Rina Kartika', 'company_name' => null, 'source' => 'Event', 'stage' => 'contacted', 'estimated_value' => 8000000, 'next_action_days' => -1, 'notes' => 'Follow up overdue — left voicemail.'],
+                ],
+                'crm_service_cases' => [
+                    ['partner' => 'Contoh Hukum Corp', 'subject' => 'Invoice discrepancy on retainer', 'category' => 'Billing', 'priority' => 'high', 'status' => 'open', 'sla_due_hours' => -3],
+                    ['partner' => 'Budi Santoso', 'subject' => 'Client portal login issue', 'category' => 'Technical', 'priority' => 'normal', 'status' => 'in_progress', 'sla_due_hours' => 6],
+                    ['partner' => 'Sewa Kantor Vendor', 'subject' => 'Renewal terms question', 'category' => 'General Inquiry', 'priority' => 'low', 'status' => 'resolved', 'sla_due_hours' => 48],
+                ],
+                'crm_tickets' => [
+                    ['partner' => 'Budi Santoso', 'requester_name' => null, 'requester_contact' => null, 'subject' => 'Cannot reset portal password', 'category' => 'Technical', 'priority' => 'normal', 'status' => 'open', 'channel' => 'email', 'sla_due_hours' => -2, 'message' => 'I tried the reset link but it says expired.'],
+                    ['partner' => null, 'requester_name' => 'Walk-in caller', 'requester_contact' => '+62 813-0000-1111', 'subject' => 'General pricing inquiry', 'category' => 'General Inquiry', 'priority' => 'low', 'status' => 'in_progress', 'channel' => 'phone', 'sla_due_hours' => 20, 'message' => 'Caller asked about retainer pricing tiers.'],
                 ],
             ],
         ];
@@ -388,6 +422,11 @@ class TenantFlavorSeeder extends Seeder
         foreach (['Referral', 'Website', 'Event', 'Cold Outreach'] as $name) {
             LeadSource::query()->updateOrCreate(['name' => $name]);
         }
+
+        // Shared with Helpdesk (§3F, not yet built) per §4's own storage list.
+        foreach (['Billing', 'Technical', 'General Inquiry'] as $name) {
+            TicketCategory::query()->updateOrCreate(['name' => $name]);
+        }
     }
 
     /** @param  array<string, mixed>  $flavor */
@@ -463,16 +502,101 @@ class TenantFlavorSeeder extends Seeder
         Lead::query()->delete();
 
         $sources = LeadSource::query()->pluck('id', 'name');
+        // First row only goes to Staff — §3A's "My Leads" dashboard tab needs at least
+        // one assigned row to prove the filter works, and at least one unassigned row
+        // left over to prove it excludes correctly.
+        $staffId = User::query()->where('email', 'staff@nusaevo.com')->value('id');
 
-        foreach ($flavor['crm_leads'] as $lead) {
+        foreach ($flavor['crm_leads'] as $i => $lead) {
             Lead::query()->create([
                 'name' => $lead['name'],
                 'company_name' => $lead['company_name'],
                 'source_id' => $sources[$lead['source']] ?? null,
                 'stage' => $lead['stage'],
+                'owner_id' => $i === 0 ? $staffId : null,
                 'estimated_value' => $lead['estimated_value'],
                 'next_action_at' => $lead['next_action_days'] !== null ? now()->addDays($lead['next_action_days']) : null,
                 'notes' => $lead['notes'],
+            ]);
+        }
+    }
+
+    /** @param  array<string, mixed>  $flavor */
+    private function seedCrmServiceCases(array $flavor): void
+    {
+        if (! isset($flavor['crm_service_cases'])) {
+            return;
+        }
+
+        ServiceCaseActivity::query()->delete();
+        ServiceCase::query()->delete();
+
+        $partners = Partner::query()->pluck('id', 'name');
+        $categories = TicketCategory::query()->pluck('id', 'name');
+        $staffId = User::query()->where('email', 'staff@nusaevo.com')->value('id');
+
+        foreach ($flavor['crm_service_cases'] as $i => $case) {
+            $partnerId = $partners[$case['partner']] ?? null;
+            if (! $partnerId) {
+                continue;
+            }
+
+            $created = ServiceCase::query()->create([
+                'partner_id' => $partnerId,
+                'subject' => $case['subject'],
+                'category_id' => $categories[$case['category']] ?? null,
+                'priority' => $case['priority'],
+                'status' => $case['status'],
+                'assigned_to' => $i === 0 ? $staffId : null,
+                'sla_due_at' => now()->addHours($case['sla_due_hours']),
+                'closed_at' => $case['status'] === ServiceCase::STATUS_CLOSED ? now() : null,
+            ]);
+
+            ServiceCaseActivity::query()->create([
+                'case_id' => $created->id,
+                'activity_type' => 'note',
+                'body' => 'Case opened.',
+                'logged_at' => now(),
+            ]);
+        }
+    }
+
+    /** @param  array<string, mixed>  $flavor */
+    private function seedCrmTickets(array $flavor): void
+    {
+        if (! isset($flavor['crm_tickets'])) {
+            return;
+        }
+
+        TicketMessage::query()->delete();
+        Ticket::query()->delete();
+
+        $partners = Partner::query()->pluck('id', 'name');
+        $categories = TicketCategory::query()->pluck('id', 'name');
+        $staffId = User::query()->where('email', 'staff@nusaevo.com')->value('id');
+
+        foreach ($flavor['crm_tickets'] as $i => $row) {
+            $partnerId = $row['partner'] ? ($partners[$row['partner']] ?? null) : null;
+
+            $created = Ticket::query()->create([
+                'partner_id' => $partnerId,
+                'requester_name' => $row['requester_name'],
+                'requester_contact' => $row['requester_contact'],
+                'subject' => $row['subject'],
+                'category_id' => $categories[$row['category']] ?? null,
+                'priority' => $row['priority'],
+                'status' => $row['status'],
+                'assigned_to' => $i === 0 ? $staffId : null,
+                'channel' => $row['channel'],
+                'sla_due_at' => now()->addHours($row['sla_due_hours']),
+            ]);
+
+            TicketMessage::query()->create([
+                'ticket_id' => $created->id,
+                'direction' => TicketMessage::DIRECTION_INBOUND,
+                'body' => $row['message'],
+                'sender_name' => $created->requesterLabel(),
+                'sent_at' => now(),
             ]);
         }
     }

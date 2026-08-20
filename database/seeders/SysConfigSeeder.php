@@ -85,10 +85,17 @@ class SysConfigSeeder extends Seeder
             ['code' => 'CONFIG_CONSTS', 'menu_header' => 'System', 'menu_caption' => 'Constants', 'menu_link' => '/config/consts', 'icon' => 'SlidersHorizontal', 'seq' => 220, 'status_code' => 'A'],
             ['code' => 'CONFIG_SERIALS', 'menu_header' => 'System', 'menu_caption' => 'Serials', 'menu_link' => '/config/serials', 'icon' => 'Hash', 'seq' => 225, 'status_code' => 'A'],
             ['code' => 'DESIGN_SYSTEM', 'menu_header' => 'System', 'menu_caption' => 'Komponen UI', 'menu_link' => '/design-system', 'icon' => 'Layers', 'seq' => 230, 'status_code' => 'A'],
-            // CRM §3B/§3C (Contacts + Companies) shipped — Companies is reached via the
-            // in-page sub-nav on /crm/contacts, not a second sidebar row (one menu code
-            // covers both, see CRM_SPECS.md §5). §3D-§3G (Leads/Tickets/Merge) still pending.
-            ['code' => 'CRM', 'menu_header' => 'Core', 'menu_caption' => 'CRM', 'menu_link' => '/crm/contacts', 'icon' => 'Users', 'seq' => 20, 'status_code' => 'A'],
+            // CRM §3A-§3G shipped — all reached via the in-page sub-nav on /crm/dashboard,
+            // not separate sidebar rows (one menu code covers all of them, see
+            // CRM_SPECS.md §5). §3A Dashboard is now the section landing page.
+            ['code' => 'CRM', 'menu_header' => 'Core', 'menu_caption' => 'CRM', 'menu_link' => '/crm/dashboard', 'icon' => 'Users', 'seq' => 20, 'status_code' => 'A'],
+            // §3G Merge — admin-only (menu.perm:CRM_MERGE below grants only ADMIN, per this
+            // seeder's array_fill_keys(...) for the ADMIN matrix; STAFF/VIEWER's matrices
+            // simply never list it). status_code I so it never appears as its own sidebar
+            // row — it's reached from the CRM sub-nav (permission-gated client-side via
+            // the shared `canMergePartners` Inertia prop) and the route itself is the real
+            // gate regardless of what the UI shows.
+            ['code' => 'CRM_MERGE', 'menu_header' => 'Core', 'menu_caption' => 'CRM — Merge', 'menu_link' => '/crm/merge', 'icon' => 'Merge', 'seq' => 21, 'status_code' => 'I'],
 
             // Placeholder — keep rows, status I until module ships
             ['code' => 'SCHEDULE', 'menu_header' => 'Core', 'menu_caption' => 'Schedule', 'menu_link' => '#', 'icon' => 'CalendarDays', 'seq' => 30, 'status_code' => 'I'],

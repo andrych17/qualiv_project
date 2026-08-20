@@ -37,6 +37,12 @@ const badgeClass = computed(() => {
     qualified: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
     converted: 'bg-signal-success/10 text-signal-success border-signal-success/25',
     disqualified: 'bg-signal-danger/10 text-signal-danger border-signal-danger/25',
+    // CRM After Sales Service status + SLA state (§3E)
+    waiting_on_partner: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
+    resolved: 'bg-signal-success/10 text-signal-success border-signal-success/25',
+    breached: 'bg-signal-danger/10 text-signal-danger border-signal-danger/25',
+    due_soon: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
+    on_track: 'bg-signal-success/10 text-signal-success border-signal-success/25',
   }
 
   return map[normalizedStatus.value] ?? 'bg-surface-50 text-ink-600 border-border'

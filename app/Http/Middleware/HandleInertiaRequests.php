@@ -65,6 +65,14 @@ class HandleInertiaRequests extends Middleware
             'navMenus' => fn () => ($user && tenancy()->initialized)
                 ? app(ConfigService::class)->menusForUser((int) $user->id)
                 : [],
+            // CRM_MERGE has no sidebar row (status_code 'I' — see SysConfigSeeder) since
+            // it's reached from CrmSubNav, not the sidebar, so it needs its own explicit
+            // permission check rather than piggybacking on navMenus. The route's own
+            // menu.perm:CRM_MERGE middleware is the authoritative gate; this only decides
+            // whether the CrmSubNav tab is worth showing.
+            'canMergePartners' => fn () => ($user && tenancy()->initialized)
+                ? (bool) (app(ConfigService::class)->permissionsForUserMenu((int) $user->id, 'CRM_MERGE')['read'] ?? false)
+                : false,
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
