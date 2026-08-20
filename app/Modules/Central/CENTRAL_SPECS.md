@@ -409,7 +409,11 @@ table below is new, prefixed `central_` for clarity against the two pre-existing
 - `tenants` *(existing, extended)* — company/contact info, `plan_code` (FK `central_plans`),
   `provisioning_status`, `access_status`, `tenant_db_name`, `provisioned_at`.
 - `tenant_user_lookups` *(existing, unchanged)* — email → tenant_id lookup for login-bound
-  tenant resolution, per `CLAUDE.md` §4.
+  tenant resolution, per `CLAUDE.md` §4. Columns: `id` (PK), `email`, `tenant_id`, timestamps;
+  `UNIQUE (email, tenant_id)` so one email can belong to several tenants (netapp1-style
+  switch). Defined outside this spec's tables, by
+  `database/migrations/2026_07_13_000001_create_tenant_user_lookups_table.php` (widened to
+  the composite unique by `2026_07_17_000001_multi_tenant_membership.php`).
 - `central_plans` — plan catalog (§3D).
 - `central_plan_modules` — plan × module_code pivot (§3D).
 - `central_admin_users` — platform admin accounts, separate from any tenant's own users.

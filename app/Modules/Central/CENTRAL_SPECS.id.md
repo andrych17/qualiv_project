@@ -453,7 +453,11 @@ sini alih-alih didefinisikan ulang; setiap tabel lain di bawah ini baru, diberi 
   `central_plans`), `provisioning_status`, `access_status`, `tenant_db_name`,
   `provisioned_at`.
 - `tenant_user_lookups` *(sudah ada, tidak berubah)* — lookup email → tenant_id untuk
-  resolusi tenant terikat login, sesuai `CLAUDE.md` §4.
+  resolusi tenant terikat login, sesuai `CLAUDE.md` §4. Kolom: `id` (PK), `email`,
+  `tenant_id`, timestamps; `UNIQUE (email, tenant_id)` supaya satu email bisa terdaftar di
+  beberapa tenant (switch ala netapp1). Didefinisikan di luar tabel-tabel spec ini, lewat
+  `database/migrations/2026_07_13_000001_create_tenant_user_lookups_table.php` (diperluas ke
+  unique gabungan oleh `2026_07_17_000001_multi_tenant_membership.php`).
 - `central_plans` — katalog plan (§3D).
 - `central_plan_modules` — pivot plan × module_code (§3D).
 - `central_admin_users` — akun admin platform, terpisah dari user milik tenant mana pun.

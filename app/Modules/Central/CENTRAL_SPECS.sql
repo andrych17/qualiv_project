@@ -91,7 +91,19 @@ ALTER TABLE tenants
     ADD CONSTRAINT tenants_access_status_check
         CHECK (access_status IN ('active', 'read_only'));
 
--- `tenant_user_lookups` (existing, unchanged) — email -> tenant_id, CLAUDE.md §4. No changes here.
+-- `tenant_user_lookups` (existing, unchanged) — email -> tenant_id, CLAUDE.md §4. No changes here;
+-- shown below as a reference only (defined by database/migrations/2026_07_13_000001_create_tenant_user_lookups_table.php,
+-- constraint later widened by 2026_07_17_000001_multi_tenant_membership.php to allow one email in many tenants).
+--
+-- CREATE TABLE tenant_user_lookups (
+--     id           BIGSERIAL PRIMARY KEY,
+--     email        VARCHAR(255) NOT NULL,
+--     tenant_id    VARCHAR(255) NOT NULL,          -- no FK: stancl/tenancy's `tenants.id` predates this app's own tables
+--     created_at   TIMESTAMPTZ,
+--     updated_at   TIMESTAMPTZ,
+--     UNIQUE (email, tenant_id)
+-- );
+-- CREATE INDEX ON tenant_user_lookups (tenant_id);
 
 -- -----------------------------------------------------------------------------
 -- §3C. Plan & Module Entitlement Configuration — à la carte add-ons
