@@ -19,6 +19,7 @@ const form = useForm({
   parent_id: null as number | null,
   seq: 100,
   status_code: 'A',
+  module_code: '',
 })
 
 const submit = () => {
@@ -110,6 +111,13 @@ const submit = () => {
             required
           />
         </div>
+        <FormInput
+          v-model="form.module_code"
+          name="module_code"
+          label="Module code"
+          placeholder="e.g. LEGAL — empty = always visible"
+          :error="form.errors.module_code"
+        />
 
         <div class="flex items-center justify-end gap-3 border-t border-gray-100 pt-4">
           <Link :href="route('config.menus.index')" class="text-sm font-semibold text-gray-900">

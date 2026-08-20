@@ -88,21 +88,20 @@ class CustomFieldService
     {
         $defs = $this->defsFor($entityType)->keyBy('code');
 
-        foreach ($values as $code => $value) {
-            /** @var FieldDef|null $def */
-            $def = $defs->get($code);
-            if (! $def) {
+        foreach ($defs as $def) {
+            $value = $values[$def->code] ?? null;
+            $keys = [
+                'field_def_id' => $def->id,
+                'entity_type' => $entityType,
+                'entity_id' => $entityId,
+            ];
+            if ($value === null) {
+                FieldValue::query()->where($keys)->delete();
+
                 continue;
             }
 
-            FieldValue::query()->updateOrCreate(
-                [
-                    'field_def_id' => $def->id,
-                    'entity_type' => $entityType,
-                    'entity_id' => $entityId,
-                ],
-                ['value' => $value],
-            );
+            FieldValue::query()->updateOrCreate($keys, ['value' => $value]);
         }
     }
 

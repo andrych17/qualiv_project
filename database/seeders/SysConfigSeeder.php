@@ -82,7 +82,9 @@ class SysConfigSeeder extends Seeder
             ['code' => 'CONFIG_MENUS', 'menu_header' => 'System', 'menu_caption' => 'Menus', 'menu_link' => '/config/menus', 'icon' => 'Menu', 'seq' => 200, 'status_code' => 'A'],
             ['code' => 'CONFIG_GROUPS', 'menu_header' => 'System', 'menu_caption' => 'Groups', 'menu_link' => '/config/groups', 'icon' => 'Shield', 'seq' => 210, 'status_code' => 'A'],
             ['code' => 'CONFIG_USERS', 'menu_header' => 'System', 'menu_caption' => 'Users', 'menu_link' => '/config/users', 'icon' => 'UserRoundCog', 'seq' => 215, 'status_code' => 'A'],
+            ['code' => 'CONFIG_MODULES', 'menu_header' => 'System', 'menu_caption' => 'Modules', 'menu_link' => '/config/modules', 'icon' => 'AppWindow', 'seq' => 218, 'status_code' => 'A'],
             ['code' => 'CONFIG_CONSTS', 'menu_header' => 'System', 'menu_caption' => 'Constants', 'menu_link' => '/config/consts', 'icon' => 'SlidersHorizontal', 'seq' => 220, 'status_code' => 'A'],
+            ['code' => 'CONFIG_FIELDS', 'menu_header' => 'System', 'menu_caption' => 'Custom Fields', 'menu_link' => '/config/fields', 'icon' => 'ListPlus', 'seq' => 222, 'status_code' => 'A'],
             ['code' => 'CONFIG_SERIALS', 'menu_header' => 'System', 'menu_caption' => 'Serials', 'menu_link' => '/config/serials', 'icon' => 'Hash', 'seq' => 225, 'status_code' => 'A'],
             ['code' => 'DESIGN_SYSTEM', 'menu_header' => 'System', 'menu_caption' => 'Komponen UI', 'menu_link' => '/design-system', 'icon' => 'Layers', 'seq' => 230, 'status_code' => 'A'],
             // CRM §3A-§3G shipped — all reached via the in-page sub-nav on /crm/dashboard,
@@ -121,6 +123,9 @@ class SysConfigSeeder extends Seeder
                     'icon' => $row['icon'],
                     'seq' => $row['seq'],
                     'status_code' => $row['status_code'],
+                    'module_code' => (str_starts_with($row['code'], 'CONFIG_') || in_array($row['code'], ['DASHBOARD', 'DESIGN_SYSTEM'], true))
+                        ? null
+                        : $row['code'],
                 ],
             );
         }

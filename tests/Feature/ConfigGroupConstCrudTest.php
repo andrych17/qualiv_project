@@ -127,9 +127,9 @@ class ConfigGroupConstCrudTest extends TestCase
             ->assertRedirect(route('config.consts.index'));
 
         $tenant->run(function () {
-            $this->assertNull(
-                ConfigConst::query()->where('const_group', 'TEST')->where('group_code', 'FLAG')->first()
-            );
+            $row = ConfigConst::query()->where('const_group', 'TEST')->where('group_code', 'FLAG')->first();
+            $this->assertNotNull($row);
+            $this->assertFalse($row->is_active);
         });
     }
 }

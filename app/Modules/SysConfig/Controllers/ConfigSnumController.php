@@ -41,6 +41,8 @@ class ConfigSnumController extends Controller
                 'step_cnt' => $s->step_cnt,
                 'descr' => $s->descr,
                 'status_code' => $s->status_code,
+                'padding_length' => $s->padding_length,
+                'reset_rule' => $s->reset_rule,
             ]);
 
         return Inertia::render('Config/Serials/Index', [
@@ -74,6 +76,8 @@ class ConfigSnumController extends Controller
                 'step_cnt' => $configSnum->step_cnt,
                 'descr' => $configSnum->descr,
                 'status_code' => $configSnum->status_code,
+                'padding_length' => $configSnum->padding_length,
+                'reset_rule' => $configSnum->reset_rule,
             ],
         ]);
     }

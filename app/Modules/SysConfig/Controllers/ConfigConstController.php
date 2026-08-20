@@ -3,7 +3,10 @@
 namespace App\Modules\SysConfig\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Modules\SysConfig\Models\ConfigConst;
+use App\Modules\SysConfig\Models\ConfigGroup;
+use App\Modules\SysConfig\Models\TenantModule;
 use App\Modules\SysConfig\Requests\StoreConfigConstRequest;
 use App\Modules\SysConfig\Requests\UpdateConfigConstRequest;
 use App\Modules\SysConfig\Services\ConfigConstService;
@@ -18,7 +21,7 @@ class ConfigConstController extends Controller
 {
     use BulkDeletable;
 
-    private const SORTABLE = ['const_group', 'group_code', 'seq', 'str1', 'num1', 'note1'];
+    private const SORTABLE = ['const_group', 'group_code', 'appl_id', 'value', 'value_type', 'seq', 'str1', 'num1', 'note1'];
 
     public function __construct(
         protected ConfigConstService $service,
@@ -26,7 +29,7 @@ class ConfigConstController extends Controller
 
     public function index(Request $request): Response
     {
-        $filters = $request->only('search', 'const_group', 'sort', 'direction', 'per_page');
+        $filters = $request->only('search', 'const_group', 'lens', 'show_inactive', 'sort', 'direction', 'per_page');
 
         $consts = ConfigConst::query()
             ->filter($filters)
@@ -39,13 +42,17 @@ class ConfigConstController extends Controller
             ->withQueryString()
             ->through(fn (ConfigConst $c) => [
                 'id' => $c->id,
+                'appl_id' => $c->appl_id,
                 'const_group' => $c->const_group,
                 'group_code' => $c->group_code,
+                'value' => $c->value,
+                'value_type' => $c->value_type,
                 'seq' => $c->seq,
                 'str1' => $c->str1,
                 'str2' => $c->str2,
                 'num1' => $c->num1,
                 'note1' => $c->note1,
+                'is_active' => $c->is_active,
             ]);
 
         $groups = ConfigConst::query()
@@ -66,7 +73,7 @@ class ConfigConstController extends Controller
 
     public function create(): Response
     {
-        return Inertia::render('Config/Consts/Create');
+        return Inertia::render('Config/Consts/Create', $this->formMeta());
     }
 
     public function store(StoreConfigConstRequest $request)
@@ -82,15 +89,23 @@ class ConfigConstController extends Controller
         return Inertia::render('Config/Consts/Edit', [
             'constItem' => [
                 'id' => $configConst->id,
+                'appl_id' => $configConst->appl_id,
+                'group_id' => $configConst->group_id,
+                'user_id' => $configConst->user_id,
                 'const_group' => $configConst->const_group,
                 'group_code' => $configConst->group_code,
+                'value' => $configConst->value,
+                'value_type' => $configConst->value_type,
                 'seq' => $configConst->seq,
                 'str1' => $configConst->str1,
                 'str2' => $configConst->str2,
                 'num1' => $configConst->num1,
                 'num2' => $configConst->num2,
                 'note1' => $configConst->note1,
+                'effective_date' => $configConst->effective_date?->toDateString(),
+                'is_active' => $configConst->is_active,
             ],
+            ...$this->formMeta(),
         ]);
     }
 
@@ -107,7 +122,7 @@ class ConfigConstController extends Controller
         $this->service->delete($configConst);
 
         return redirect()->route('config.consts.index')
-            ->with('success', 'Const deleted.');
+            ->with('success', 'Const deactivated.');
     }
 
     public function bulkDestroy(Request $request)
@@ -128,5 +143,24 @@ class ConfigConstController extends Controller
         $this->service->quickUpdate($configConst, $data['field'], $value);
 
         return back()->with('success', 'Const updated.');
+    }
+
+    /** @return array{moduleCodes: list<array{label: string, value: string}>, groups: list<array{label: string, value: int}>, users: list<array{label: string, value: int}>} */
+    private function formMeta(): array
+    {
+        return [
+            'moduleCodes' => collect(TenantModule::TOGGLEABLE)
+                ->map(fn ($c) => ['label' => $c, 'value' => $c])
+                ->values()
+                ->all(),
+            'groups' => ConfigGroup::query()->orderBy('code')->get(['id', 'code'])
+                ->map(fn (ConfigGroup $g) => ['label' => $g->code, 'value' => $g->id])
+                ->values()
+                ->all(),
+            'users' => User::query()->orderBy('name')->get(['id', 'name', 'email'])
+                ->map(fn (User $u) => ['label' => $u->name.' ('.$u->email.')', 'value' => $u->id])
+                ->values()
+                ->all(),
+        ];
     }
 }

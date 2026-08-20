@@ -24,6 +24,7 @@ class StoreConfigMenuRequest extends FormRequest
             'parent_id' => 'nullable|integer',
             'seq' => 'required|integer|min:0|max:9999',
             'status_code' => 'required|in:A,I',
+            'module_code' => 'nullable|string|max:20',
         ];
     }
 

@@ -41,6 +41,10 @@ class SysConfigSeederTest extends TestCase
             $this->assertNotEmpty($menus);
             $this->assertTrue(collect($menus)->contains(fn ($m) => $m['code'] === 'DASHBOARD'));
             $this->assertTrue(collect($menus)->contains(fn ($m) => $m['code'] === 'INVENTORY'));
+            $this->assertTrue(collect($menus)->contains(fn ($m) => $m['code'] === 'CONFIG_MODULES'));
+            $this->assertTrue(collect($menus)->contains(fn ($m) => $m['code'] === 'CONFIG_FIELDS'));
+            $this->assertNull(ConfigMenu::query()->where('code', 'DASHBOARD')->value('module_code'));
+            $this->assertSame('INVENTORY', ConfigMenu::query()->where('code', 'INVENTORY')->value('module_code'));
             // LEGAL menu is active in seed but hidden unless tenant plan enables LEGAL
             $this->assertFalse(collect($menus)->contains(fn ($m) => $m['code'] === 'CRM'));
 

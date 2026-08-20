@@ -29,6 +29,8 @@ class StoreConfigSnumRequest extends FormRequest
             'step_cnt' => 'required|integer|min:1',
             'descr' => 'nullable|string|max:255',
             'status_code' => 'required|in:A,I',
+            'padding_length' => 'nullable|integer|min:0|max:12',
+            'reset_rule' => 'nullable|in:never,yearly,monthly',
         ];
     }
 }
