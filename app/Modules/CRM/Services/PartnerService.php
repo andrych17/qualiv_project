@@ -18,15 +18,15 @@ class PartnerService
     ) {}
 
     /** @param  array<string, mixed>  $data */
-    public function create(array $data, string $type): Partner
+    public function create(array $data, string $type, string $source = 'manual'): Partner
     {
         $custom = $this->customFields->validateAndNormalize(self::ENTITY, $data['custom_fields'] ?? []);
 
-        return DB::transaction(function () use ($data, $type, $custom) {
+        return DB::transaction(function () use ($data, $type, $source, $custom) {
             $partner = Partner::query()->create([
                 ...$this->partnerAttributes($data),
                 'type' => $type,
-                'source' => 'manual',
+                'source' => $source,
             ]);
 
             $this->syncAddresses($partner, $data['addresses'] ?? []);

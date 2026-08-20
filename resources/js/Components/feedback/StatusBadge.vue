@@ -31,6 +31,12 @@ const badgeClass = computed(() => {
     archived: 'bg-signal-danger/10 text-signal-danger border-signal-danger/25',
     rejected: 'bg-signal-danger/10 text-signal-danger border-signal-danger/25',
     overdue: 'bg-signal-danger/10 text-signal-danger border-signal-danger/25',
+    // CRM Lead stages (§3D)
+    new: 'bg-signal-info/10 text-signal-info border-signal-info/25',
+    contacted: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
+    qualified: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
+    converted: 'bg-signal-success/10 text-signal-success border-signal-success/25',
+    disqualified: 'bg-signal-danger/10 text-signal-danger border-signal-danger/25',
   }
 
   return map[normalizedStatus.value] ?? 'bg-surface-50 text-ink-600 border-border'

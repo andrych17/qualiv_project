@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use App\Modules\CRM\Models\Address;
 use App\Modules\CRM\Models\ContactPoint;
 use App\Modules\CRM\Models\Industry;
+use App\Modules\CRM\Models\Lead;
+use App\Modules\CRM\Models\LeadSource;
 use App\Modules\CRM\Models\Partner;
 use App\Modules\CRM\Models\PartnerRole;
 use App\Modules\CRM\Models\PartnerRoleType;
@@ -45,6 +47,7 @@ class TenantFlavorSeeder extends Seeder
         $this->seedProjects($flavor);
         $this->seedCrmLookups();
         $this->seedCrmPartners($flavor);
+        $this->seedCrmLeads($flavor);
     }
 
     /** @return array<string, array<string, mixed>> */
@@ -189,6 +192,11 @@ class TenantFlavorSeeder extends Seeder
                 ],
                 'crm_contacts' => [
                     ['name' => 'Budi Santoso', 'title_position' => 'Finance Manager', 'parent_company' => 'Contoh Hukum Corp', 'mobile' => '+62 812-3456-7890'],
+                ],
+                'crm_leads' => [
+                    ['name' => 'Siti Rahayu', 'company_name' => 'Toko Maju Bersama', 'source' => 'Website', 'stage' => 'qualified', 'estimated_value' => 25000000, 'next_action_days' => 3, 'notes' => 'Interested in a retainer package.'],
+                    ['name' => 'Andi Wijaya', 'company_name' => 'CV Sinar Abadi', 'source' => 'Referral', 'stage' => 'new', 'estimated_value' => null, 'next_action_days' => null, 'notes' => null],
+                    ['name' => 'Rina Kartika', 'company_name' => null, 'source' => 'Event', 'stage' => 'contacted', 'estimated_value' => 8000000, 'next_action_days' => -1, 'notes' => 'Follow up overdue — left voicemail.'],
                 ],
             ],
         ];
@@ -376,6 +384,10 @@ class TenantFlavorSeeder extends Seeder
         ] as $rt) {
             PartnerRoleType::query()->updateOrCreate(['code' => $rt['code']], ['name' => $rt['name']]);
         }
+
+        foreach (['Referral', 'Website', 'Event', 'Cold Outreach'] as $name) {
+            LeadSource::query()->updateOrCreate(['name' => $name]);
+        }
     }
 
     /** @param  array<string, mixed>  $flavor */
@@ -438,6 +450,30 @@ class TenantFlavorSeeder extends Seeder
                     'is_primary' => true,
                 ]);
             }
+        }
+    }
+
+    /** @param  array<string, mixed>  $flavor */
+    private function seedCrmLeads(array $flavor): void
+    {
+        if (! isset($flavor['crm_leads'])) {
+            return;
+        }
+
+        Lead::query()->delete();
+
+        $sources = LeadSource::query()->pluck('id', 'name');
+
+        foreach ($flavor['crm_leads'] as $lead) {
+            Lead::query()->create([
+                'name' => $lead['name'],
+                'company_name' => $lead['company_name'],
+                'source_id' => $sources[$lead['source']] ?? null,
+                'stage' => $lead['stage'],
+                'estimated_value' => $lead['estimated_value'],
+                'next_action_at' => $lead['next_action_days'] !== null ? now()->addDays($lead['next_action_days']) : null,
+                'notes' => $lead['notes'],
+            ]);
         }
     }
 }
