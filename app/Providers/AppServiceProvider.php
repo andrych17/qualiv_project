@@ -8,10 +8,13 @@ use App\Modules\CRM\Models\Partner;
 use App\Modules\Legal\Contracts\CaseCodeGenerator;
 use App\Modules\Legal\Models\LegalCase;
 use App\Modules\Legal\Services\PrefixedCaseCodeGenerator;
+use App\Modules\WNE\Events\NotificationRequested;
+use App\Modules\WNE\Listeners\DeliverRequestedNotification;
 use App\Services\AsyncSearchRegistry;
 use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
@@ -30,6 +33,10 @@ class AppServiceProvider extends ServiceProvider
         }
 
         Vite::prefetch(concurrency: 3);
+
+        // WNE_SPECS.md §3I — no EventServiceProvider/auto-discovery exists in this app yet;
+        // explicit registration is the first (and only, for now) listener wiring in the codebase.
+        Event::listen(NotificationRequested::class, DeliverRequestedNotification::class);
 
         Auth::provider('eloquent', function ($app, array $config) {
             return new TenantAwareUserProvider($app['hash'], $config['model']);

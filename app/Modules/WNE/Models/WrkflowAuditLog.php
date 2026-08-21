@@ -26,6 +26,12 @@ class WrkflowAuditLog extends Model
 
     public const EVENT_STEP_RECOVERED = 'step_recovered';
 
+    public const EVENT_STEP_WAITING_EXTERNAL = 'step_waiting_external';
+
+    public const EVENT_CALLBACK_RECEIVED = 'callback_received';
+
+    public const EVENT_CALLBACK_REJECTED = 'callback_rejected';
+
     protected $fillable = ['instance_id', 'instance_step_id', 'event_type', 'actor_id', 'detail', 'created_at'];
 
     protected $casts = [

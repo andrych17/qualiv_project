@@ -14,6 +14,7 @@ type StepRow = {
   step_code: string
   type: string
   config: Record<string, unknown>
+  has_webhook_auth_headers: boolean
   pos_x: number | null
   pos_y: number | null
   is_entry_step: boolean
@@ -35,20 +36,26 @@ const form = useForm({
   step_code: '',
   type: 'task',
   config: '{}',
+  webhook_auth_headers: '{}',
   is_entry_step: false,
 })
 
 const jsonError = ref('')
+const authHeadersJsonError = ref('')
 
 watch(
   () => [props.show, props.step],
   () => {
     if (!props.show) return
     jsonError.value = ''
+    authHeadersJsonError.value = ''
     if (props.step) {
       form.step_code = props.step.step_code
       form.type = props.step.type
       form.config = JSON.stringify(props.step.config ?? {}, null, 2)
+      // Never prefilled with the actual secret (server doesn't send it back) — blank means
+      // "leave unchanged" on submit; type "{}" here to explicitly clear it.
+      form.webhook_auth_headers = ''
       form.is_entry_step = props.step.is_entry_step
     } else {
       // Set fields explicitly rather than form.reset() — Inertia's reset() restores
@@ -57,6 +64,7 @@ watch(
       form.step_code = ''
       form.type = 'task'
       form.config = '{}'
+      form.webhook_auth_headers = '{}'
       form.is_entry_step = false
     }
     form.clearErrors()
@@ -74,11 +82,30 @@ const submit = () => {
   }
   jsonError.value = ''
 
-  const payload = {
+  // Blank = leave whatever's already stored untouched (omit the key entirely so the backend
+  // never overwrites it); non-blank = replace it, "{}" being the explicit way to clear it.
+  let authHeadersToSend: Record<string, unknown> | null | undefined
+  if (form.webhook_auth_headers.trim() === '') {
+    authHeadersToSend = undefined
+  } else {
+    try {
+      const parsed = JSON.parse(form.webhook_auth_headers)
+      authHeadersToSend = Object.keys(parsed).length > 0 ? parsed : null
+    } catch {
+      authHeadersJsonError.value = 'Auth headers must be valid JSON.'
+      return
+    }
+  }
+  authHeadersJsonError.value = ''
+
+  const payload: Record<string, unknown> = {
     step_code: form.step_code,
     type: form.type,
     config: parsedConfig,
     is_entry_step: form.is_entry_step,
+  }
+  if (authHeadersToSend !== undefined) {
+    payload.webhook_auth_headers = authHeadersToSend
   }
 
   const onSuccess = () => emit('close')
@@ -122,6 +149,21 @@ const submit = () => {
           />
           <p v-if="jsonError" class="text-sm text-signal-danger">{{ jsonError }}</p>
           <p v-else-if="form.errors.config" class="text-sm text-signal-danger">{{ form.errors.config }}</p>
+        </div>
+        <div v-if="form.type === 'webhook_call'" class="space-y-1.5">
+          <label class="text-sm font-medium text-ink-900">Auth headers (JSON)</label>
+          <p class="text-xs text-ink-500">
+            Stored encrypted — e.g. {"Authorization": "Bearer ..."}. Kept off the plain config above deliberately.
+            <template v-if="step?.has_webhook_auth_headers">Already set — leave blank to keep it, or enter JSON to replace it ("{}" clears it).</template>
+          </p>
+          <textarea
+            v-model="form.webhook_auth_headers"
+            rows="3"
+            :placeholder="step?.has_webhook_auth_headers ? '(unchanged)' : ''"
+            class="w-full rounded-md border border-border bg-white px-3 py-2 font-mono text-xs shadow-sm outline-none transition focus:border-ink-900 focus:ring-2 focus:ring-ink-900/10"
+          />
+          <p v-if="authHeadersJsonError" class="text-sm text-signal-danger">{{ authHeadersJsonError }}</p>
+          <p v-else-if="form.errors.webhook_auth_headers" class="text-sm text-signal-danger">{{ form.errors.webhook_auth_headers }}</p>
         </div>
         <FormSwitch
           v-model="form.is_entry_step"

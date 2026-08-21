@@ -13,12 +13,14 @@ import PrimaryButton from '@/Components/PrimaryButton.vue'
 import WorkflowGraphPreview from '@/Components/wne/WorkflowGraphPreview.vue'
 import WorkflowStepModal from '@/Components/wne/WorkflowStepModal.vue'
 import WorkflowTransitionModal from '@/Components/wne/WorkflowTransitionModal.vue'
+import WneSubNav from '@/Components/wne/WneSubNav.vue'
 
 type StepRow = {
   id: number
   step_code: string
   type: string
   config: Record<string, unknown>
+  has_webhook_auth_headers: boolean
   pos_x: number | null
   pos_y: number | null
   is_entry_step: boolean
@@ -109,6 +111,8 @@ const unpublish = () => {
         </button>
       </template>
     </PageHeader>
+
+    <WneSubNav active="workflows" class="mt-6" />
 
     <p class="mt-2 text-sm text-ink-600">
       Editing draft v{{ draftVersionNo }}.

@@ -27,6 +27,7 @@ class StoreWorkflowStepRequest extends FormRequest
                 WrkflowStep::TYPE_NOTIFY,
             ]),
             'config' => 'nullable|array',
+            'webhook_auth_headers' => 'nullable|array',
             'pos_x' => 'nullable|numeric',
             'pos_y' => 'nullable|numeric',
             'is_entry_step' => 'nullable|boolean',

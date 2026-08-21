@@ -77,6 +77,10 @@ class WorkflowDefinitionController extends Controller
                 'step_code' => $s->step_code,
                 'type' => $s->type,
                 'config' => $s->config,
+                // Never round-trip decrypted auth header values into an Inertia page prop
+                // (page source / history) — the builder only needs to know whether a value
+                // is already set, so it can offer "leave unchanged" vs "replace" on edit.
+                'has_webhook_auth_headers' => ! empty($s->webhook_auth_headers),
                 'pos_x' => $s->pos_x,
                 'pos_y' => $s->pos_y,
                 'is_entry_step' => $s->is_entry_step,

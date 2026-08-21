@@ -7,6 +7,7 @@ import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import DataTable, { type SortState } from '@/Components/tables/DataTable.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
+import WneSubNav from '@/Components/wne/WneSubNav.vue'
 
 type DefinitionRow = {
   id: number
@@ -59,6 +60,8 @@ const filtered = computed(() => {
         <PrimaryButton :href="route('wne.workflows.create')">New workflow</PrimaryButton>
       </template>
     </PageHeader>
+
+    <WneSubNav active="workflows" class="mt-6" />
 
     <div class="mt-6">
       <DataTable

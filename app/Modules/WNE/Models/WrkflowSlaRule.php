@@ -16,7 +16,12 @@ class WrkflowSlaRule extends Model
 
     public const ACTION_NOTIFY_ROLE = 'notify_role';
 
-    public const ACTIONS = [self::ACTION_REASSIGN_TO_ROLE, self::ACTION_NOTIFY_MANAGER_OF_ASSIGNEE, self::ACTION_NOTIFY_ROLE];
+    /** §3G: a wait_for_callback step whose external callback never arrived — genuinely fails the step (WorkflowService::failStep()), not just a notification. Usable on any step type, not only wait_for_callback. */
+    public const ACTION_FAIL_STEP = 'fail_step';
+
+    public const ACTIONS = [
+        self::ACTION_REASSIGN_TO_ROLE, self::ACTION_NOTIFY_MANAGER_OF_ASSIGNEE, self::ACTION_NOTIFY_ROLE, self::ACTION_FAIL_STEP,
+    ];
 
     protected $fillable = ['step_id', 'version_id', 'sla_hours', 'escalation_action', 'escalation_target'];
 

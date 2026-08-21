@@ -16,14 +16,20 @@ use Illuminate\Support\Facades\DB;
  *
  * Escalation is additive by default — the original assignee is never
  * silently dropped — except `reassign_to_role`, which the spec calls out
- * by name as the one action that actually replaces ownership.
+ * by name as the one action that actually replaces ownership, and
+ * `fail_step` (§3G), which replaces the step's own status outright — a
+ * `wait_for_callback` step whose external callback never arrived within its
+ * SLA `due_at` is "treated as a failure," per WNE_SPECS.md §3G, using this
+ * exact sweep rather than a second timeout mechanism.
  */
 class SlaEscalationService
 {
+    public function __construct(private readonly WorkflowService $workflow) {}
+
     public function escalateBreachedSteps(): int
     {
         $breached = WrkflowInstanceStep::query()
-            ->whereIn('status', [WrkflowInstanceStep::STATUS_PENDING, WrkflowInstanceStep::STATUS_IN_PROGRESS])
+            ->whereIn('status', [WrkflowInstanceStep::STATUS_PENDING, WrkflowInstanceStep::STATUS_IN_PROGRESS, WrkflowInstanceStep::STATUS_WAITING_EXTERNAL])
             ->whereNotNull('due_at')
             ->where('due_at', '<', now())
             ->whereHas('instance', fn ($q) => $q->where('status', WrkflowInstance::STATUS_RUNNING))
@@ -46,7 +52,7 @@ class SlaEscalationService
             $instanceStep = WrkflowInstanceStep::query()->whereKey($instanceStep->id)->lockForUpdate()->first();
 
             if (! $instanceStep
-                || ! in_array($instanceStep->status, [WrkflowInstanceStep::STATUS_PENDING, WrkflowInstanceStep::STATUS_IN_PROGRESS], true)
+                || ! in_array($instanceStep->status, [WrkflowInstanceStep::STATUS_PENDING, WrkflowInstanceStep::STATUS_IN_PROGRESS, WrkflowInstanceStep::STATUS_WAITING_EXTERNAL], true)
                 || ! $instanceStep->due_at
                 || $instanceStep->due_at->isFuture()
             ) {
@@ -81,6 +87,14 @@ class SlaEscalationService
                 $instanceStep->update(['assigned_role' => $rule->escalation_target, 'assigned_to' => null]);
             }
 
+            if ($rule->escalation_action === WrkflowSlaRule::ACTION_FAIL_STEP) {
+                $this->workflow->failStep(
+                    $instanceStep,
+                    "Step '{$instanceStep->step->step_code}' timed out — no callback received before its SLA due_at.",
+                    null,
+                );
+            }
+
             WrkflowEscalationLog::query()->create([
                 'instance_step_id' => $instanceStep->id,
                 'sla_rule_id' => $rule->id,
@@ -92,16 +106,18 @@ class SlaEscalationService
             ]);
 
             NotificationRequested::dispatch(
-                'wne.sla_breach',
-                $recipient,
-                [
+                category: 'wne.sla_breach',
+                recipient: $recipient,
+                payload: [
                     'instance_step_id' => $instanceStep->id,
                     'step_code' => $instanceStep->step->step_code,
                     'due_at' => $instanceStep->due_at->toIso8601String(),
                     'escalation_action' => $rule->escalation_action,
                 ],
-                $instanceStep->instance->subject_type,
-                $instanceStep->instance->subject_id,
+                subjectType: $instanceStep->instance->subject_type,
+                subjectId: $instanceStep->instance->subject_id,
+                subject: "SLA breach: step '{$instanceStep->step->step_code}'",
+                body: "Step '{$instanceStep->step->step_code}' on workflow instance #{$instanceStep->instance_id} was due at {$instanceStep->due_at->toIso8601String()} and has been escalated.",
             );
 
             return true;

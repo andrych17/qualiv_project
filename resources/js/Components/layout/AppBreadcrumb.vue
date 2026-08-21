@@ -10,7 +10,7 @@ const SECTION_HOME: Record<string, string> = {
   legal: '/legal/cases',
   inventory: '/inventory/items',
   crm: '/crm/dashboard',
-  wne: '/wne/workflows',
+  wne: '/wne/dashboard',
 }
 
 /** Acronym segments that title-casing would otherwise mangle (crm → Crm). */

@@ -8,6 +8,7 @@ import FormInput from '@/Components/forms/FormInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
 import FormTextarea from '@/Components/forms/FormTextarea.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
+import WneSubNav from '@/Components/wne/WneSubNav.vue'
 
 defineProps<{
   categories: Array<{ id: number; name: string }>
@@ -26,6 +27,8 @@ const submit = () => form.post(route('wne.workflows.store'))
 <template>
   <AppLayout>
     <PageHeader title="New workflow" description="What a calling module will reference — steps come next." />
+
+    <WneSubNav active="workflows" class="mt-6" />
 
     <Panel class="mt-6 max-w-2xl">
       <form class="space-y-4" @submit.prevent="submit">

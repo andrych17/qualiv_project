@@ -18,6 +18,12 @@ return Application::configure(basePath: dirname(__DIR__))
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
+        // §3G inbound webhooks: no `web` group (no session/CSRF for an external caller) and
+        // no `api` group (would need a `RateLimiter::for('api', ...)` this app has never
+        // defined) — registered bare, with only the middleware each route explicitly needs.
+        then: function () {
+            require app_path('Modules/WNE/Routes/api.php');
+        },
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');

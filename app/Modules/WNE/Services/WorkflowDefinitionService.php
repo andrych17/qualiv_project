@@ -108,6 +108,7 @@ class WorkflowDefinitionService
                 'step_code' => $data['step_code'],
                 'type' => $data['type'],
                 'config' => $data['config'] ?? [],
+                'webhook_auth_headers' => $data['webhook_auth_headers'] ?? null,
                 'pos_x' => $data['pos_x'] ?? null,
                 'pos_y' => $data['pos_y'] ?? null,
                 'is_entry_step' => $data['is_entry_step'] ?? false,
@@ -125,7 +126,7 @@ class WorkflowDefinitionService
                     ->update(['is_entry_step' => false]);
             }
 
-            $step->update(Arr::only($data, ['step_code', 'type', 'config', 'pos_x', 'pos_y', 'is_entry_step']));
+            $step->update(Arr::only($data, ['step_code', 'type', 'config', 'webhook_auth_headers', 'pos_x', 'pos_y', 'is_entry_step']));
 
             return $step;
         });
@@ -241,6 +242,18 @@ class WorkflowDefinitionService
         $joinCount = $steps->where('type', WrkflowStep::TYPE_PARALLEL_JOIN)->count();
         if ($splitCount > 0 && $joinCount === 0) {
             throw ValidationException::withMessages(['steps' => 'Every parallel_split step needs a matching parallel_join step.']);
+        }
+
+        // §3K: catch a missing recipient at publish time rather than the first time an
+        // instance reaches the step. A `payload_field` recipient is still only structurally
+        // valid here — whether the field actually resolves at runtime depends on the
+        // triggering payload, which this static graph check has no way to see.
+        $unconfiguredNotifySteps = $steps
+            ->where('type', WrkflowStep::TYPE_NOTIFY)
+            ->reject(fn (WrkflowStep $step) => is_array($step->config['recipient'] ?? null) && ($step->config['recipient']['type'] ?? null))
+            ->pluck('step_code');
+        if ($unconfiguredNotifySteps->isNotEmpty()) {
+            throw ValidationException::withMessages(['steps' => 'notify step(s) missing a recipient: '.$unconfiguredNotifySteps->implode(', ').'.']);
         }
     }
 

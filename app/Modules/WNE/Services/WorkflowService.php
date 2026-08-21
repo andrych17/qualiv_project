@@ -19,6 +19,7 @@ use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 /**
  * §3C/§3D — the durable execution core plus routing/branching. Everything
@@ -30,12 +31,24 @@ use Illuminate\Support\Facades\DB;
  * order, NULL condition = default/else), parallel_split fan-out, and
  * parallel_join with an `all`/`any` join rule. 'approval'/'task' still need
  * a human decision via completeTask(); 'condition'/'parallel_split'/
- * 'parallel_join' have no human action, so the engine completes them itself
- * right after beginning them. webhook_call/wait_for_callback/notify remain
- * unsupported (§3G/§3I) and still throw rather than silently no-op.
+ * 'parallel_join'/'notify'/'webhook_call' have no human action, so the engine
+ * completes them itself right after beginning them — for 'notify' (§3K) and
+ * 'webhook_call' (§3G), "performing the action" is firing a message/HTTP
+ * call through MessagingService, then auto-advancing exactly like
+ * condition/parallel_split/parallel_join. 'wait_for_callback' (§3G) is
+ * different again: it has no human action either, but the engine does NOT
+ * complete it — it parks the step at `waiting_external` with a single-use
+ * callback token until either the token is redeemed (resumeFromCallback())
+ * or its SLA due_at breaches and §3F's escalation sweep fails it.
  */
 class WorkflowService
 {
+    public function __construct(
+        private readonly TaskInboxService $taskInbox,
+        private readonly MessagingService $messaging,
+        private readonly TemplateRenderingService $templates,
+    ) {}
+
     public function start(
         string $code,
         ?string $subjectType,
@@ -104,6 +117,15 @@ class WorkflowService
                 throw new WorkflowEngineException(
                     "Step '{$instanceStep->step->step_code}' is type '{$instanceStep->step->type}' and does not accept a manual decision."
                 );
+            }
+
+            // §3H: an actor coming from the Task Inbox (or any other HTTP caller) must be a
+            // resolved assignee of this step — same predicate the inbox list itself uses
+            // (TaskInboxService), so "shows in my inbox" and "I may act on it" can't drift.
+            // A null $actorId (internal/system call, e.g. every pre-3H test in this suite)
+            // has no human to check against and bypasses this.
+            if ($actorId !== null && ! $this->taskInbox->isActionableBy($instanceStep, $actorId)) {
+                throw new WorkflowEngineException("You are not authorized to act on step '{$instanceStep->step->step_code}'.");
             }
 
             $this->finishStep($instanceStep, $decision, $comment, $actorId);
@@ -213,7 +235,7 @@ class WorkflowService
     {
         if (! in_array($step->type, WrkflowStep::ENGINE_SUPPORTED_TYPES, true)) {
             throw new WorkflowEngineException(
-                "Step '{$step->step_code}' is type '{$step->type}', which has no executor yet (build §3G/§3I first)."
+                "Step '{$step->step_code}' is type '{$step->type}', which has no executor."
             );
         }
 
@@ -248,10 +270,161 @@ class WorkflowService
             return $instanceStep->refresh();
         }
 
+        if (in_array($step->type, WrkflowStep::EXTERNAL_WAIT_TYPES, true)) {
+            return $this->beginWaitForCallback($instance, $step, $instanceStep);
+        }
+
         $instanceStep->update(['status' => WrkflowInstanceStep::STATUS_IN_PROGRESS, 'started_at' => now()]);
+
+        if ($step->type === WrkflowStep::TYPE_NOTIFY) {
+            $this->fireNotifyStep($instance, $step);
+        } elseif ($step->type === WrkflowStep::TYPE_WEBHOOK_CALL) {
+            $this->fireWebhookCallStep($instance, $step);
+        }
+
         $this->finishStep($instanceStep, null, null, null);
 
         return $instanceStep->refresh();
+    }
+
+    /**
+     * §3G: a `wait_for_callback` step has no action of its own to perform — it parks here
+     * until an outside system redeems the callback token (resumeFromCallback()) or the SLA
+     * sweep fails it on timeout (§3F, via the `fail_step` escalation action). due_at reuses
+     * the exact same SLA rule mechanism as every other step type — no second timeout concept.
+     */
+    protected function beginWaitForCallback(WrkflowInstance $instance, WrkflowStep $step, WrkflowInstanceStep $instanceStep): WrkflowInstanceStep
+    {
+        $startedAt = now();
+
+        $instanceStep->update([
+            'status' => WrkflowInstanceStep::STATUS_WAITING_EXTERNAL,
+            'started_at' => $startedAt,
+            'due_at' => $this->resolveDueAt($step, $startedAt),
+            'callback_token' => Str::random(64),
+        ]);
+
+        $this->log($instance, $instanceStep, WrkflowAuditLog::EVENT_STEP_WAITING_EXTERNAL, null);
+
+        return $instanceStep->refresh();
+    }
+
+    /**
+     * §3G: resumes a step parked at `waiting_external`. "Expired" is deliberately not a
+     * second timeout concept alongside due_at/SLA — a token is only honored while its step
+     * is still `waiting_external`; once the SLA sweep has failed it (or a human cancelled the
+     * instance), the token simply no longer matches an eligible row. A replayed token (used
+     * once already) is rejected the same way, logged rather than silently applied.
+     */
+    public function resumeFromCallback(string $token, array $callbackPayload = []): WrkflowInstanceStep
+    {
+        return DB::transaction(function () use ($token, $callbackPayload) {
+            $instanceStep = WrkflowInstanceStep::query()->where('callback_token', $token)->lockForUpdate()->first();
+
+            if (! $instanceStep) {
+                throw new WorkflowEngineException("No workflow step is waiting on callback token '{$token}'.");
+            }
+
+            if ($instanceStep->callback_used_at !== null) {
+                $this->log($instanceStep->instance, $instanceStep, WrkflowAuditLog::EVENT_CALLBACK_REJECTED, null, [
+                    'reason' => 'Callback token already used.', 'used_at' => $instanceStep->callback_used_at->toIso8601String(),
+                ]);
+
+                throw new WorkflowEngineException("Callback token '{$token}' has already been used.");
+            }
+
+            if ($instanceStep->status !== WrkflowInstanceStep::STATUS_WAITING_EXTERNAL) {
+                $this->log($instanceStep->instance, $instanceStep, WrkflowAuditLog::EVENT_CALLBACK_REJECTED, null, [
+                    'reason' => "Step is no longer waiting_external (status: {$instanceStep->status}).",
+                ]);
+
+                throw new WorkflowEngineException("Callback token '{$token}' is no longer awaiting a callback.");
+            }
+
+            $instanceStep->update(['callback_used_at' => now()]);
+
+            $this->log($instanceStep->instance, $instanceStep, WrkflowAuditLog::EVENT_CALLBACK_RECEIVED, null, ['payload' => $callbackPayload]);
+
+            $this->finishStep($instanceStep, null, null, null);
+
+            return $instanceStep->refresh();
+        });
+    }
+
+    /**
+     * §3G: a `webhook_call` step's own action is firing an HTTP call, not waiting for one —
+     * the actual attempt/retry/dead-letter tracking is §3M's RetryService via the `webhook`
+     * channel (MessagingService::notifyWebhook()), not a second implementation here. The
+     * payload template is resolved with the exact same TemplateRenderingService §3L already
+     * uses for message bodies — one templating engine, not two.
+     */
+    protected function fireWebhookCallStep(WrkflowInstance $instance, WrkflowStep $step): void
+    {
+        $config = $step->config ?? [];
+
+        if (! ($config['url'] ?? null)) {
+            throw new WorkflowEngineException("Step '{$step->step_code}' is type 'webhook_call' but has no URL configured.");
+        }
+
+        $payload = $this->templates->render($config['payload_template'] ?? '{}', $instance->payload ?? []);
+
+        $this->messaging->notifyWebhook(
+            category: "wne.webhook.{$step->step_code}",
+            subject: "Webhook call: {$step->step_code}",
+            body: $payload,
+            subjectType: 'WNE.wrkflow_steps', // module.table convention (§3C), not a PHP FQCN — WebhookDriver reads url/method/headers back off this step
+            subjectId: $step->id,
+        );
+    }
+
+    /**
+     * §3K: a `notify` step's own action is firing a message, not waiting for one — a failed
+     * or unresolvable recipient is recorded on the msg_notifications header by
+     * MessagingService itself (never thrown here), so the *step* still completes and the
+     * instance keeps moving; only a misconfigured step (no recipient at all, or a
+     * payload_field that resolves to nothing) is the engine's own fault and throws.
+     */
+    protected function fireNotifyStep(WrkflowInstance $instance, WrkflowStep $step): void
+    {
+        $config = $step->config ?? [];
+        $recipient = $this->resolveNotifyRecipient($step, $instance->payload ?? []);
+
+        $this->messaging->notify(
+            category: $config['category'] ?? "wne.step.{$step->step_code}",
+            recipient: $recipient,
+            subject: $config['subject'] ?? "Notification: {$step->step_code}",
+            body: $config['body'] ?? 'A workflow step reached a notify point.',
+            data: $instance->payload ?? [],
+            subjectType: $instance->subject_type,
+            subjectId: $instance->subject_id,
+            channels: $config['channels'] ?? null,
+        );
+    }
+
+    /**
+     * @return array{type: string, user_id?: int, role?: string}
+     */
+    private function resolveNotifyRecipient(WrkflowStep $step, array $payload): array
+    {
+        $recipient = $step->config['recipient'] ?? null;
+
+        if (! is_array($recipient) || ! ($recipient['type'] ?? null)) {
+            throw new WorkflowEngineException("Step '{$step->step_code}' is type 'notify' but has no recipient configured.");
+        }
+
+        if ($recipient['type'] === 'payload_field') {
+            $userId = data_get($payload, $recipient['field'] ?? '');
+
+            if ($userId === null) {
+                throw new WorkflowEngineException(
+                    "Step '{$step->step_code}' notify recipient field '{$recipient['field']}' resolved to no value in the instance payload."
+                );
+            }
+
+            return ['type' => 'user', 'user_id' => (int) $userId];
+        }
+
+        return $recipient;
     }
 
     /** Shared completion path for both a human decision (completeTask) and an auto-advance step (beginStep). */

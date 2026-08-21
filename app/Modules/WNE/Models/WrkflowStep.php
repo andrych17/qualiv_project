@@ -29,17 +29,21 @@ class WrkflowStep extends Model
     /** Waits for a human decision via completeTask() — §3C/§3H. */
     public const HUMAN_TYPES = [self::TYPE_APPROVAL, self::TYPE_TASK];
 
-    /** No human action: "performing the action" IS evaluating/fanning out, so the engine completes these itself, in the same transaction that begins them (§3D). */
-    public const AUTO_ADVANCE_TYPES = [self::TYPE_CONDITION, self::TYPE_PARALLEL_SPLIT, self::TYPE_PARALLEL_JOIN];
+    /** No human action: "performing the action" IS evaluating/fanning out (or, for notify/webhook_call, firing a message/HTTP call — §3K/§3G), so the engine completes these itself, in the same transaction that begins them. */
+    public const AUTO_ADVANCE_TYPES = [self::TYPE_CONDITION, self::TYPE_PARALLEL_SPLIT, self::TYPE_PARALLEL_JOIN, self::TYPE_NOTIFY, self::TYPE_WEBHOOK_CALL];
 
-    /** Step types the engine can execute today — webhook_call/wait_for_callback/notify need §3G/§3I first. */
-    public const ENGINE_SUPPORTED_TYPES = [...self::HUMAN_TYPES, ...self::AUTO_ADVANCE_TYPES];
+    /** Waits on something outside the engine's own control — a human decision resumes HUMAN_TYPES; this resumes only via a callback token hitting the inbound endpoint (§3G), or an SLA timeout failing it. */
+    public const EXTERNAL_WAIT_TYPES = [self::TYPE_WAIT_FOR_CALLBACK];
 
-    protected $fillable = ['version_id', 'step_code', 'type', 'config', 'pos_x', 'pos_y', 'is_entry_step'];
+    /** Step types the engine can execute today. */
+    public const ENGINE_SUPPORTED_TYPES = [...self::HUMAN_TYPES, ...self::AUTO_ADVANCE_TYPES, ...self::EXTERNAL_WAIT_TYPES];
+
+    protected $fillable = ['version_id', 'step_code', 'type', 'config', 'webhook_auth_headers', 'pos_x', 'pos_y', 'is_entry_step'];
 
     protected $casts = [
         'config' => 'array',
         'is_entry_step' => 'boolean',
+        'webhook_auth_headers' => 'encrypted:array', // §3G: "auth header config (stored encrypted)" — kept off the plain `config` JSON deliberately
     ];
 
     public function version()

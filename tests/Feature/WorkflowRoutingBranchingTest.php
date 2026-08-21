@@ -17,8 +17,9 @@ use Tests\TestCase;
  * WNE_SPECS.md §3D — Routing & Branching Engine, built directly against
  * WorkflowService/Eloquent (§3B's builder doesn't author condition/parallel
  * step types yet). Every graph ends in plain `task` steps rather than
- * `notify` — `notify` has no executor until §3I, so using it as a terminal
- * would throw for reasons unrelated to what these tests check.
+ * `notify` — a notify terminal would require a configured recipient and
+ * dispatch a real MessagingService::notify() call (§3K), both irrelevant to
+ * what these routing/branching tests check.
  */
 class WorkflowRoutingBranchingTest extends TestCase
 {

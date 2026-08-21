@@ -52,6 +52,14 @@ const railClass = () => {
     breached: 'border-l-[3px] border-l-signal-danger',
     due_soon: 'border-l-[3px] border-l-signal-warning',
     on_track: 'border-l-[3px] border-l-signal-success',
+    // DESIGN.md's own canonical Status Rail words (§3A WNE Dashboard is the first caller to
+    // pass these directly rather than a business-specific state) — kept alongside the
+    // business-specific keys above rather than replacing them.
+    danger: 'border-l-[3px] border-l-signal-danger',
+    warning: 'border-l-[3px] border-l-signal-warning',
+    success: 'border-l-[3px] border-l-signal-success',
+    info: 'border-l-[3px] border-l-signal-info',
+    neutral: 'border-l-[3px] border-l-border',
   }
   return map[status] ?? 'border-l-[3px] border-l-border'
 }
