@@ -227,6 +227,25 @@ every other Core module (`Controllers/`, `Models/`, `Requests/`, `Services/`, `D
 calculation-heavy services (availability, recurrence expansion), none of which need a different
 runtime or independent scaling per `CLAUDE.md` §2's extraction criteria.
 
+**Build order (within this module — `CLAUDE.md` §5 only fixes Schedule's position relative to
+other modules: after WNE/DMS/CRM, before Inventory/Accounting):**
+1. Master tables first — `resource_types`, `resources`, `conference_providers` — everything
+   else references these.
+2. `sched_items` + Task/Event forms (3B/3C) — the core CRUD, usable standalone with zero other
+   pieces built yet.
+3. `sched_bookings`/`sched_attendees` + Resource Management (3D) and Availability Check (3E) —
+   needs `resources` from step 1 and `sched_items` from step 2 to have something to check
+   availability against.
+4. Recurrence Engine (3F) — expands `sched_items`; can be built any time after step 2, but
+   sequenced after availability since recurring items need to pass the same availability check.
+5. Conference Integration (3G) last — ship `ManualLinkDriver` first (zero integration cost),
+   add one real provider driver after. Purely additive; nothing else in the module depends on
+   it.
+- WNE integration (`ScheduleItemCreated`/`ScheduleItemDueSoon`/`ScheduleItemCancelled`) has no
+  build-order dependency — it's event-driven and optional per tenant, so it can be wired in at
+  any point once WNE itself exists; Schedule must degrade cleanly if WNE is absent regardless of
+  when this is added.
+
 **Cross-module integration (decoupled, event-driven — same seam as WNE):**
 - Other modules attach to a calendar item via `subject_type` / `subject_id` (polymorphic),
   never a hard foreign key into Legal/CRM/etc. — Schedule stays vertical-agnostic.

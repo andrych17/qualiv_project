@@ -43,6 +43,7 @@ require app_path('Modules/SysConfig/Routes/web.php');
 require app_path('Modules/Legal/Routes/web.php');
 require app_path('Modules/CRM/Routes/web.php');
 require app_path('Modules/WNE/Routes/web.php');
+require app_path('Modules/Schedule/Routes/web.php');
 require app_path('Modules/DMS/Routes/web.php');
 require app_path('Modules/Projects/Routes/web.php');
 require app_path('Modules/Central/Routes/web.php');

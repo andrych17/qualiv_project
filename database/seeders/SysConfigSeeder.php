@@ -99,8 +99,8 @@ class SysConfigSeeder extends Seeder
             // gate regardless of what the UI shows.
             ['code' => 'CRM_MERGE', 'menu_header' => 'Core', 'menu_caption' => 'CRM — Merge', 'menu_link' => '/crm/merge', 'icon' => 'Merge', 'seq' => 21, 'status_code' => 'I'],
 
-            // Placeholder — keep rows, status I until module ships
-            ['code' => 'SCHEDULE', 'menu_header' => 'Core', 'menu_caption' => 'Schedule', 'menu_link' => '#', 'icon' => 'CalendarDays', 'seq' => 30, 'status_code' => 'I'],
+            // §3A shipped — the calendar dashboard is now the section landing page.
+            ['code' => 'SCHEDULE', 'menu_header' => 'Core', 'menu_caption' => 'Schedule', 'menu_link' => '/schedule/dashboard', 'icon' => 'CalendarDays', 'seq' => 30, 'status_code' => 'A'],
             // §3B shipped (definition builder); §3A dashboard doesn't exist yet, so the
             // workflow list is the landing page for now — same "point straight at the built
             // page" convention Legal used before it had a dashboard either.
@@ -155,6 +155,7 @@ class SysConfigSeeder extends Seeder
                 'INVENTORY' => 'CRUD',
                 'LEGAL' => 'CRUD',
                 'CRM' => 'CRUD',
+                'SCHEDULE' => 'CRUD',
                 'WNE' => 'CRUD',
                 'DMS' => 'CRUD',
                 'PROJECTS' => 'CRUD',
@@ -165,6 +166,7 @@ class SysConfigSeeder extends Seeder
                 'INVENTORY' => 'R',
                 'LEGAL' => 'R',
                 'CRM' => 'R',
+                'SCHEDULE' => 'R',
                 'WNE' => 'R',
                 'DMS' => 'R',
                 'PROJECTS' => 'R',

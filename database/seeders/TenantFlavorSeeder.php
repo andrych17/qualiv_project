@@ -29,6 +29,8 @@ use App\Modules\Inventory\Models\InventoryCategory;
 use App\Modules\Inventory\Models\InventoryItem;
 use App\Modules\Legal\Models\LegalCase;
 use App\Modules\Projects\Models\Project;
+use App\Modules\Schedule\Models\ConferenceProvider;
+use App\Modules\Schedule\Models\ResourceType;
 use App\Modules\SysConfig\Models\ConfigConst;
 use App\Modules\SysConfig\Models\ConfigGroup;
 use App\Modules\SysConfig\Models\ConfigMenu;
@@ -61,6 +63,7 @@ class TenantFlavorSeeder extends Seeder
         $this->seedSnums($flavor);
         $this->seedProjects($flavor);
         $this->seedDms($flavor);
+        $this->seedScheduleLookups();
         $this->seedCrmLookups();
         // Rows that FK-reference partners (a lead's converted_partner_id from the live
         // Convert-to-Partner action, §3D; a service case's partner_id) must be cleared
@@ -523,6 +526,30 @@ class TenantFlavorSeeder extends Seeder
      * Base lookup/master data (§4) — same defaults regardless of flavor, since
      * role vocabulary is tenant-editable data, not a per-firm demo prop.
      */
+    /** §3D: extensible list, not a hardcoded enum — shared master data seeded regardless of flavor/plan, same precedent as seedDms()'s doc types. */
+    private function seedScheduleLookups(): void
+    {
+        foreach ([
+            ['code' => 'ROOM', 'name' => 'Room'],
+            ['code' => 'EQUIPMENT', 'name' => 'Equipment'],
+            ['code' => 'VEHICLE', 'name' => 'Vehicle'],
+            ['code' => 'STAFF', 'name' => 'Staff'],
+        ] as $rt) {
+            ResourceType::query()->updateOrCreate(['code' => $rt['code']], ['name' => $rt['name']]);
+        }
+
+        // §3G v1 drivers: manual ships day one with zero config; zoom is registered so it's
+        // selectable, but stays practically unusable until credentials are set directly on
+        // the row (ZoomDriver::getAccessToken) — no admin screen for that yet, same gap as
+        // WNE's Twilio/SendGrid channel config.
+        foreach ([
+            ['code' => 'manual', 'name' => 'Manual / Custom Link'],
+            ['code' => 'zoom', 'name' => 'Zoom'],
+        ] as $cp) {
+            ConferenceProvider::query()->updateOrCreate(['code' => $cp['code']], ['name' => $cp['name']]);
+        }
+    }
+
     private function seedCrmLookups(): void
     {
         foreach (['Legal Services', 'Real Estate', 'Manufacturing'] as $name) {
