@@ -28,12 +28,20 @@ const props = defineProps<{
   invoices: Invoice[]
 }>()
 
+// toISOString() converts to UTC, which silently rolls the date back a full day
+// for anyone east of UTC (e.g. Asia/Jakarta) — build the Y-m-d string from the
+// Date's own local getters instead.
+const toLocalDateString = (d: Date): string => {
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
+
 const forms = new Map<number, ReturnType<typeof useForm<{ amount: number; paid_at: string; notes: string; receipt: File | null }>>>()
 const paymentForm = (invoice: Invoice) => {
   if (!forms.has(invoice.id)) {
     forms.set(invoice.id, useForm({
       amount: Number(invoice.amount_total),
-      paid_at: new Date().toISOString().slice(0, 10),
+      paid_at: toLocalDateString(new Date()),
       notes: '',
       receipt: null,
     }))
