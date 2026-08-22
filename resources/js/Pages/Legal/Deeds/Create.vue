@@ -1,0 +1,88 @@
+<!-- ponytail: Draft notarial deed (§3C) -->
+<script setup lang="ts">
+import { useForm, Link } from '@inertiajs/vue3'
+import AppLayout from '@/Components/layout/AppLayout.vue'
+import PageHeader from '@/Components/layout/PageHeader.vue'
+import Panel from '@/Components/cards/Panel.vue'
+import FormSelect from '@/Components/forms/FormSelect.vue'
+import FormInput from '@/Components/forms/FormInput.vue'
+import CustomFieldInputs, { type CustomFieldDef } from '@/Components/forms/CustomFieldInputs.vue'
+import PrimaryButton from '@/Components/PrimaryButton.vue'
+
+const props = defineProps<{
+  deedTypes: Array<{ id: number; name: string }>
+  matters: Array<{ id: number; code: string; title: string }>
+  customFields: CustomFieldDef[]
+}>()
+
+const customBag: Record<string, string> = {}
+for (const f of props.customFields) {
+  customBag[f.code] = f.value ?? ''
+}
+
+const form = useForm({
+  deed_type_id: null as number | null,
+  matter_id: null as number | null,
+  minuta_reference: '',
+  summary: '',
+  custom_fields: customBag,
+})
+
+const submit = () => form.post(route('legal.deeds.store'))
+</script>
+
+<template>
+  <AppLayout>
+    <PageHeader title="Draft deed" description="A deed becomes immutable once signed — corrections after that need an amending deed." />
+
+    <Panel class="mt-6 max-w-xl">
+      <form class="space-y-4" @submit.prevent="submit">
+        <FormSelect
+          v-model="form.deed_type_id"
+          name="deed_type_id"
+          label="Deed type"
+          placeholder="Select a deed type"
+          :options="deedTypes.map((t) => ({ label: t.name, value: t.id }))"
+          :error="form.errors.deed_type_id"
+          required
+        />
+        <FormSelect
+          v-model="form.matter_id"
+          name="matter_id"
+          label="Matter"
+          placeholder="Standalone (no matter)"
+          :options="matters.map((m) => ({ label: `${m.code} — ${m.title}`, value: m.id }))"
+          :error="form.errors.matter_id"
+        />
+        <FormInput
+          v-model="form.minuta_reference"
+          name="minuta_reference"
+          label="Minuta reference"
+          :error="form.errors.minuta_reference"
+        />
+        <div class="space-y-1.5">
+          <label class="text-sm font-medium text-ink-900">Summary</label>
+          <textarea
+            v-model="form.summary"
+            rows="3"
+            class="w-full rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+          />
+        </div>
+        <CustomFieldInputs
+          v-model="form.custom_fields"
+          :fields="customFields"
+          :errors="form.errors"
+        />
+        <div class="flex items-center justify-end gap-3 border-t border-border pt-4">
+          <Link
+            :href="route('legal.deeds.index')"
+            class="inline-flex items-center justify-center rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm font-semibold text-ink-900 shadow-sm transition hover:bg-surface-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            Cancel
+          </Link>
+          <PrimaryButton type="submit" :disabled="form.processing">Save draft</PrimaryButton>
+        </div>
+      </form>
+    </Panel>
+  </AppLayout>
+</template>

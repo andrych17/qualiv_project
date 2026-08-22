@@ -105,7 +105,7 @@ Notes:
    built before anything else, including the design system and every Core module. Every later
    piece — menu/permission checks, tenant-editable consts, serial numbering, module
    activation — depends on it, and several modules' own specs already assume it exists
-   (e.g. Legal's `CASE_PREFIX`/`URGENT_SETS_PENDING` example in `ARCHITECTURE.md`). See
+   (e.g. Legal's `MATTER_PREFIX`/`URGENT_SETS_PENDING` example in `ARCHITECTURE.md`). See
    `SYSCONFIG_SPECS.md`.
 2. **CustomFields** (`CUSTOMFIELDS` schema) — foundational alongside SYSCONFIG, built
    immediately after it and before the design system or any Core module. EAV + config-driven

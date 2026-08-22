@@ -143,6 +143,11 @@ generic practice-management or document tools, this dual nature is exactly what 
 
 ## 3A. Main Dashboard
 
+> **Not built.** No slot in §5's suggested build order — skipped for the MVP ship. The one
+> piece of dashboard-shaped value it would have carried (§3D's DPW-overdue flag) is
+> surfaced inline in the Deeds list instead (`DeedController::index` `will_dpw_overdue`).
+
+
 **Function / features**
 - Practice-health snapshot: open matters by type (Notary/PPAT), deeds pending signature, tax
   obligations pending clearance, BPN submissions in process, upcoming protocol book closures.
@@ -165,6 +170,12 @@ generic practice-management or document tools, this dual nature is exactly what 
 
 ## 3B. Matters (Engagements)
 
+> **Shipped.** `LEGAL.matters`, `MatterController`/`MatterService`, `Legal/Matters/*.vue`.
+> Renamed/extended from the pre-existing `LEGAL.cases` scaffold (see `ARCHITECTURE.md`).
+> Not built: Convert-from-Lead UI button (`converted_from_lead_id` column + relation exist,
+> no entry-point wired yet).
+
+
 **Purpose:** the client-facing unit of work; groups one or more deeds under one transaction.
 
 - Fields: title, matter type (free lookup — "Property Purchase," "Company Incorporation,"
@@ -183,6 +194,10 @@ generic practice-management or document tools, this dual nature is exactly what 
 
 ## 3C. Notarial Deeds (Entry)
 
+> **Shipped.** `LEGAL.deeds`, `LEGAL.deed_types`, `DeedController`/`DeedService`,
+> `Legal/Deeds/*.vue`. Lifecycle, immutability lock, and `LegalDeedSigned` event all in place.
+
+
 **Purpose:** general notarial acts — the broad "Akta Umum" family (agreements, powers of
 attorney, corporate deeds, acknowledgment of debt, etc.).
 
@@ -199,6 +214,11 @@ attorney, corporate deeds, acknowledgment of debt, etc.).
 
 ## 3D. Wasiat (Wills)
 
+> **Shipped.** `LEGAL.wills`, `WillController`/`WillService`, `WillPanel.vue` embedded in
+> the Deed edit page. DPW-overdue flag (`Will::isOverdueForDpw`, `LEGAL.DPW_GRACE_DAYS`
+> const) surfaced inline on the Deeds list per §3A's note above.
+
+
 **Purpose:** wills, with the statutory Daftar Pusat Wasiat obligation front and center.
 
 - Extends the Deed model (`category = notary`, `deed_type = wasiat`) with a dedicated
@@ -212,6 +232,13 @@ attorney, corporate deeds, acknowledgment of debt, etc.).
   deed's immutable audit trail.
 
 ## 3E. Legalization & Waarmerking (Entry)
+
+> **Shipped — via reuse, not new code.** `legalisasi`/`waarmerking` are just two more
+> notary-category rows in `LEGAL.deed_types`, each pointing at their own protocol book
+> (`default_protocol_book_type`). They run through the exact same §3C `DeedController`/
+> `DeedService`/`Legal/Deeds/*.vue` screens — no dedicated table or controller exists or is
+> needed. Proven by `tests/Feature/LegalLegalisasiWaarmerkingTest.php`.
+
 
 **Purpose:** the two lighter-weight, high-volume notarial services — legally distinct, both
 requiring their own sequential ledger.
@@ -231,6 +258,13 @@ requiring their own sequential ledger.
 
 ## 3F. Notary Protocol (Engine)
 
+> **Shipped.** `LEGAL.protocol_books`, `LEGAL.protocol_entries` (append-only, guarded at the
+> model layer), `ProtocolBookService` (atomic gap-free sequencing via row lock),
+> `ProtocolBookController`, `Legal/ProtocolBooks/*.vue` including a printable handover
+> manifest (`Manifest.vue` — browser print-to-PDF; no PDF library added, see its own
+> `ponytail:` comment for the upgrade path).
+
+
 **Purpose:** the statutory record-of-records a Notaris is personally liable for.
 
 - `protocol_books`: one row per book type × year × volume (`repertorium`, `legalisasi`,
@@ -247,6 +281,12 @@ requiring their own sequential ledger.
   left as "just export a report."
 
 ## 3G. AJB, Hibah & Other PPAT Deeds (Entry)
+
+> **Shipped.** `PpatDeedController`, `Legal/PpatDeeds/*.vue`, same `LEGAL.deeds` table and
+> `DeedService` as §3C (`category = ppat`). Hard gate (due diligence + tax, both wired in
+> `DeedService::transition`) and the auto-created `bpn_submissions` row on signing are live.
+> All eight statutory deed types seeded in `TenantFlavorSeeder::seedLegalDeedTypes`.
+
 
 **Purpose:** the eight statutory PPAT act types, unified under the Deed model with
 `category = ppat`.
@@ -265,6 +305,10 @@ requiring their own sequential ledger.
 
 ## 3H. Land Object Registry
 
+> **Shipped.** `LEGAL.land_objects`, `LandObjectController`/`LandObjectService`,
+> `Legal/LandObjects/*.vue`.
+
+
 **Purpose:** a reusable record per parcel/certificate, so due diligence, deeds, and future
 transactions on the same land build a history instead of re-entering data.
 
@@ -276,6 +320,12 @@ transactions on the same land build a history instead of re-entering data.
   status.
 
 ## 3I. Land Due Diligence (Engine)
+
+> **Shipped.** `LEGAL.due_diligence_checks`, `DueDiligenceCheckController`/
+> `DueDiligenceService`, `DueDiligenceChecklist.vue`. Override path (logged justification)
+> implemented via `overridden_by`/`overridden_at`/`override_justification` columns and
+> `DueDiligenceCheck::isBlocking()`. Field-visit auto-trigger (§3M note) not wired.
+
 
 **Purpose:** the structured pre-transaction checklist every PPAT deed depends on.
 
@@ -290,6 +340,9 @@ transactions on the same land build a history instead of re-entering data.
 - Field checks (e.g. a physical site visit) are the natural trigger for a Field Visit (3M).
 
 ## 3J. Party / Appearer Management
+
+> **Shipped.** `LEGAL.deed_parties`, `LEGAL.party_role_types`, `DeedPartyController`/
+> `DeedPartyService`, `DeedPartyList.vue`. Identity snapshot + quick-add both in place.
 
 **Purpose:** every deed's parties, linked to the firm-wide contact registry without losing the
 deed's point-in-time accuracy.
@@ -309,6 +362,12 @@ deed's point-in-time accuracy.
   `CRM_SPECS.md`).
 
 ## 3K. Tax Tracking Engine
+
+> **Shipped.** `LEGAL.deed_taxes`, `TaxService`, `DeedTaxController`, `DeedTaxPanel.vue`
+> (embedded in the PPAT deed edit page). Taxpayer auto-defaults from the deed's
+> `pihak_pertama`/`pihak_kedua` parties — the closest fit in §3J's role vocabulary to
+> seller/buyer (no dedicated seller/buyer role type exists).
+
 
 **Purpose:** track the two mandatory taxes on PPAT land transfers accurately enough to gate
 signing, without becoming a tax-filing system.
@@ -345,6 +404,12 @@ signing, without becoming a tax-filing system.
 
 ## 3L. BPN Registration Tracking
 
+> **Shipped.** `LEGAL.bpn_submissions`, `BpnSubmissionService`, `BpnSubmissionController`,
+> `BpnSubmissionPanel.vue`. Reject → resubmit chain (never edit-in-place) implemented via
+> `resubmission_of_id`. Auto-created as a pending row the moment a PPAT deed requiring it
+> signs (`DeedService::transition`).
+
+
 **Purpose:** the post-signing land registry step (balik nama, APHT/HT-el registration,
 split/merge, etc.), tracked as a checklist/status log.
 
@@ -361,6 +426,17 @@ split/merge, etc.), tracked as a checklist/status log.
   visibility and deadlines, not automating the government side.
 
 ## 3M. Field Operations (Mobile)
+
+> **Partially shipped — web slice only.** `LEGAL.field_visits`, `LEGAL.field_visit_types`,
+> `FieldVisitController`/`FieldVisitService`, `Legal/FieldVisits/*.vue`. Schedule/GPS/
+> checklist/complete flow all work as an Inertia web page (browser geolocation stands in for
+> native GPS capture). **Not built, deferred by explicit user decision** ("Schedule dibangun
+> nanti"): the `schedule_item_id` FK to `SCHEDULE.sched_items` (column exists, no constraint,
+> no writer — Schedule module has zero code yet), the offline-tolerant sync queue, and the
+> versioned `api/v1/legal/field-visits/*` mobile surface (needs Sanctum, not set up in this
+> codebase yet). Wire all three once Schedule ships, same deferred-wiring precedent already
+> used for deed_number (§3F) and the tax gate (§3K).
+
 
 **Purpose:** the one workflow that genuinely lives away from a desk.
 
@@ -522,6 +598,12 @@ depends on 3H/3I/3K) → 3K (tax engine) → 3L (BPN tracking) → 3D/3E (wills,
 waarmerking — same patterns as 3C, lower complexity) → 3M (field operations, including the
 mobile API surface) — ship at this point — then revisit Future Version items (e-meterai, AHU/
 BPN integrations, billing) once there's real usage to justify the build.
+
+**Build status: MVP shipped 2026-08-22.** Every §3 section above through 3M has a status
+callout at its own heading. Summary: 3B/3C/3D/3E/3F/3G/3H/3I/3J/3K/3L fully shipped; 3M
+shipped as a web-only slice (Schedule FK + mobile API surface deferred — user decision,
+"Schedule dibangun nanti"); 3A never had a build-order slot and stays unbuilt. 25 feature
+tests under `tests/Feature/Legal*Test.php`, all green; full suite has zero regressions.
 
 **Marketability notes**
 - The protocol/ledger and tax-gate features are the hardest to build well and the easiest to

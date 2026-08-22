@@ -14,14 +14,15 @@ Ladder (prefer lower first):
   6. Vertical module → app/Modules/Legal …
 ```
 
-> **Scope note:** the worked example below (`LEGAL.cases` / `CASE_PREFIX` / `PrefixedCaseCodeGenerator`) is the
-> currently-shipped Legal MVP — real, routed, tested code (`app/Modules/Legal/Controllers/LegalCaseController.php`,
-> `tests/Feature/LegalCaseCrudTest.php`) — used here purely to demonstrate the ladder mechanism end-to-end.
-> `LEGAL_SPECS.md` specs a much larger notary/PPAT deed-management model (`LEGAL.matters`/`LEGAL.deeds`/
-> `protocol_entries`, deed numbering via a protocol-book row-lock) that supersedes `cases` on paper but has no
-> migration yet and isn't built. Until that lands, treat this page's ladder mechanics (consts → serials → custom
-> fields → custom logic) as canonical, and its `cases`-specific table/column names as MVP-only, not a claim about
-> Legal's final shape.
+> **Scope note:** the worked example below (`LEGAL.matters` / `MATTER_PREFIX` / `PrefixedMatterCodeGenerator`) is
+> the currently-shipped slice of `LEGAL_SPECS.md` §3B (Matters) — real, routed, tested code
+> (`app/Modules/Legal/Controllers/MatterController.php`, `tests/Feature/LegalMatterCrudTest.php`) — used here
+> purely to demonstrate the ladder mechanism end-to-end. `LEGAL_SPECS.md` specs a much larger notary/PPAT
+> deed-management model (`LEGAL.deeds`, `protocol_entries`, deed numbering via a protocol-book row-lock) that
+> builds out around this same table per the spec's own build order (§5); `LEGAL.deeds` has shipped its first slice
+> too (§3C, draft/ready_for_signing/signed/archived lifecycle) but protocol numbering isn't wired yet. Treat this
+> page's ladder mechanics (consts → serials → custom fields → custom logic) as canonical, and its
+> `matters`-specific table/column names as this module's real (if partial) shape.
 
 ---
 
@@ -57,7 +58,7 @@ CUSTOMFIELDS.field_values    # values per entity row
 |--------|------|--------|
 | `id` | bigint PK | |
 | `uuid` | uuid unique | external-facing |
-| `entity_type` | string | e.g. `legal_case` |
+| `entity_type` | string | e.g. `legal_matter` |
 | `code` | string | stable key (`court_register`) |
 | `label` | string | UI label |
 | `field_type` | string | `text` \| `number` \| `date` \| `select` |
@@ -84,11 +85,12 @@ ponytail: single `value` column. Ceiling: typed columns / JSONB if reporting nee
 
 | Schema.table | Role |
 |--------------|------|
-| `LEGAL.cases` | Fixed domain columns (`code`, `title`, `status`, `notes`, `uuid`) |
-| `SYSCONFIG.config_consts` | Runtime knobs (`LEGAL.CASE_PREFIX`, `LEGAL.URGENT_SETS_PENDING`) |
-| `SYSCONFIG.config_snums` | Document serial counters (netapp1 `config_snums`) — e.g. `LEGAL_CASE_LASTID` |
+| `LEGAL.matters` | Fixed domain columns (`code`, `title`, `matter_type`, `partner_id`, `assigned_to`, `status`, `opened_at`, `target_close_at`, `converted_from_lead_id`, `notes`, `uuid`) |
+| `LEGAL.deeds` | Fixed domain columns (`matter_id`, `deed_type_id`, `category`, `deed_number`, `status`, `signing_date`, `minuta_reference`, `summary`, `amends_deed_id`, `uuid`) |
+| `SYSCONFIG.config_consts` | Runtime knobs (`LEGAL.MATTER_PREFIX`, `LEGAL.URGENT_SETS_PENDING`) |
+| `SYSCONFIG.config_snums` | Document serial counters (netapp1 `config_snums`) — e.g. `LEGAL_MATTER_LASTID` |
 
-Do **not** add tenant-specific nullable columns to `LEGAL.cases`. Put them in `CUSTOMFIELDS`.
+Do **not** add tenant-specific nullable columns to `LEGAL.matters`/`LEGAL.deeds`. Put them in `CUSTOMFIELDS`.
 
 ### 1.4 Demo seed data
 
@@ -97,7 +99,7 @@ Do **not** add tenant-specific nullable columns to `LEGAL.cases`. Put them in `C
 | | Firm A (`001`) | Firm B (`002`) |
 |--|----------------|----------------|
 | field_defs | `court_register`*, `hearing_date`, `priority`* | `lease_object`*, `monthly_rent`, `priority` |
-| `LEGAL.CASE_PREFIX` | `A` | `B` |
+| `LEGAL.MATTER_PREFIX` | `A` | `B` |
 | `LEGAL.URGENT_SETS_PENDING` | `1` | `0` |
 
 \* required.
@@ -118,19 +120,20 @@ app/Modules/CustomFields/          # Core
     └── CustomLogicEngine.php      # beforeSave hooks from consts + values
 
 app/Modules/Legal/                 # Vertical (consumer)
-├── Contracts/CaseCodeGenerator.php
+├── Contracts/MatterCodeGenerator.php
 ├── Services/
-│   ├── LegalCaseService.php       # orchestrates CF + logic + persist
-│   └── PrefixedCaseCodeGenerator.php
-├── Controllers/LegalCaseController.php
-└── Requests/Store|UpdateLegalCaseRequest.php
+│   ├── MatterService.php          # orchestrates CF + logic + persist
+│   ├── PrefixedMatterCodeGenerator.php
+│   └── DeedService.php            # §3C lifecycle (draft→ready_for_signing→signed→archived)
+├── Controllers/MatterController.php, DeedController.php
+└── Requests/Store|UpdateMatterRequest.php, Store|UpdateDeedRequest.php
 
 app/Providers/AppServiceProvider.php
-  → bind CaseCodeGenerator → PrefixedCaseCodeGenerator
+  → bind MatterCodeGenerator → PrefixedMatterCodeGenerator
 
 resources/js/
 ├── Components/forms/CustomFieldInputs.vue
-└── Pages/Legal/Cases/{Create,Edit}.vue
+└── Pages/Legal/Matters/{Create,Edit}.vue, Legal/Deeds/{Create,Edit}.vue
 ```
 
 ### 2.2 Boundaries
@@ -138,7 +141,7 @@ resources/js/
 | Layer | Owns | Must not |
 |-------|------|----------|
 | CustomFields (Core) | EAV + generic logic engine | Import Legal models |
-| Legal (Vertical) | Domain service, case codes, routes | Put EAV tables under `LEGAL` |
+| Legal (Vertical) | Domain service, matter codes, routes | Put EAV tables under `LEGAL` |
 | SYSCONFIG | Consts / menus / rights | Hard-code Firm A/B |
 
 ### 2.3 Wire pattern (any entity)
@@ -148,7 +151,7 @@ Controller
   → formPayload(entity_type, id?)
 Service create/update
   → validateAndNormalize(custom_fields)
-  → (optional) CaseCodeGenerator / domain helpers
+  → (optional) MatterCodeGenerator / domain helpers
   → CustomLogicEngine::beforeSave
   → persist core row
   → sync(entity_type, id, values)
@@ -161,30 +164,35 @@ Service delete
 ```mermaid
 sequenceDiagram
   participant UI as Vue Create/Edit
-  participant Ctrl as LegalCaseController
-  participant Svc as LegalCaseService
+  participant Ctrl as MatterController
+  participant Svc as MatterService
   participant CF as CustomFieldService
   participant Logic as CustomLogicEngine
-  participant Code as CaseCodeGenerator
+  participant Code as MatterCodeGenerator
   participant DB as Tenant DB
 
   UI->>Ctrl: POST/PUT + custom_fields
   Ctrl->>Svc: create/update(validated)
   Svc->>CF: validateAndNormalize
   alt code empty
-    Svc->>Code: next() from LEGAL.CASE_PREFIX
+    Svc->>Code: next() from LEGAL.MATTER_PREFIX
   end
-  Svc->>Logic: beforeSave(legal_case, data, custom)
-  Svc->>DB: INSERT/UPDATE LEGAL.cases
+  Svc->>Logic: beforeSave(legal_matter, data, custom)
+  Svc->>DB: INSERT/UPDATE LEGAL.matters
   Svc->>CF: sync → CUSTOMFIELDS.field_values
 ```
 
 ### 2.5 Tests
 
-`tests/Feature/CustomFieldsLegalCaseTest.php`
+`tests/Feature/CustomFieldsLegalMatterTest.php`
 
-- Urgent + const on → status `pending`, auto prefix, values stored
+- Urgent + const on → status `on_hold`, auto prefix, values stored
 - Required custom field missing → session validation error
+
+`tests/Feature/LegalDeedCrudTest.php`
+
+- Signing without a signing date is rejected
+- A signed deed is immutable at the service layer (`DeedService::update` throws)
 
 ---
 
@@ -212,10 +220,10 @@ Add to another entity:
 
 ```php
 // AppServiceProvider
-$this->app->bind(CaseCodeGenerator::class, PrefixedCaseCodeGenerator::class);
+$this->app->bind(MatterCodeGenerator::class, PrefixedMatterCodeGenerator::class);
 ```
 
-`PrefixedCaseCodeGenerator::next()` reads `LEGAL.CASE_PREFIX` and allocates via `ConfigSnumService::next('LEGAL_CASE_LASTID')` (atomic `lockForUpdate`, wrap at `wrap_high`).
+`PrefixedMatterCodeGenerator::next()` reads `LEGAL.MATTER_PREFIX` and allocates via `ConfigSnumService::next('LEGAL_MATTER_LASTID')` (atomic `lockForUpdate`, wrap at `wrap_high`).
 
 Blank code on create → auto `{PREFIX}-{NNN}`. Firm A/B differ by seeded const + snum `last_cnt`.
 
@@ -231,12 +239,12 @@ Current Legal rule:
 LEGAL.URGENT_SETS_PENDING enabled
 AND custom field priority = urgent
 AND status = open
-→ set status = pending
+→ set status = on_hold
 ```
 
 | Const | Firm A | Firm B | Effect |
 |-------|--------|--------|--------|
-| `URGENT_SETS_PENDING` | on | off | Same code; A forces pending, B keeps open |
+| `URGENT_SETS_PENDING` | on | off | Same code; A forces on_hold, B keeps open |
 
 ponytail: flat ifs in engine. Ceiling: pluggable Rule classes when rules multiply.
 
@@ -244,8 +252,8 @@ ponytail: flat ifs in engine. Ceiling: pluggable Rule classes when rules multipl
 
 | const_group | group_code | Meaning |
 |-------------|------------|---------|
-| `LEGAL` | `CASE_PREFIX` | Auto case code prefix |
-| `LEGAL` | `URGENT_SETS_PENDING` | `num1>0` → urgent forces pending |
+| `LEGAL` | `MATTER_PREFIX` | Auto matter code prefix |
+| `LEGAL` | `URGENT_SETS_PENDING` | `num1>0` → urgent forces on_hold |
 
 UI: System → Constants (`/config/consts`).
 
@@ -253,7 +261,7 @@ UI: System → Constants (`/config/consts`).
 
 | Do | Don’t |
 |----|-------|
-| Put tenant-specific attrs in `CUSTOMFIELDS` | Add nullable columns to `LEGAL.cases` for one firm |
+| Put tenant-specific attrs in `CUSTOMFIELDS` | Add nullable columns to `LEGAL.matters` for one firm |
 | Drive behavior from consts + field values | `if (tenant_id === '001')` |
 | Keep CustomFields Core | Leak Legal model into CustomFieldService |
 | Prefer consts before engine rules | New microservice for simple toggles |

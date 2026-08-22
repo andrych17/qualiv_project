@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Modules\Inventory\Models\InventoryItem;
-use App\Modules\Legal\Models\LegalCase;
+use App\Modules\Legal\Models\Matter;
 use App\Modules\Projects\Models\Issue;
 use App\Modules\SysConfig\Services\ConfigService;
 use Illuminate\Support\Carbon;
@@ -29,8 +29,8 @@ class DashboardService
         $lowStock = $inventoryEnabled
             ? InventoryItem::query()->whereColumn('stock', '<=', 'minimum_stock')->count()
             : 0;
-        $openCases = $legalEnabled
-            ? LegalCase::query()->whereIn('status', ['open', 'pending'])->count()
+        $openMatters = $legalEnabled
+            ? Matter::query()->whereIn('status', ['open', 'in_progress', 'on_hold'])->count()
             : 0;
         $openIssues = $projectsEnabled
             ? Issue::query()->where('status', '!=', 'done')->count()
@@ -72,11 +72,11 @@ class DashboardService
                 'href' => null,
             ],
             $legalEnabled ? [
-                'title' => 'Open Legal Cases',
-                'value' => number_format($openCases),
-                'description' => 'Open + pending',
+                'title' => 'Open Legal Matters',
+                'value' => number_format($openMatters),
+                'description' => 'Open, in progress, or on hold',
                 'icon' => 'Scale',
-                'href' => '/legal/cases',
+                'href' => '/legal/matters',
             ] : null,
         ]));
 
@@ -86,7 +86,7 @@ class DashboardService
             'activities' => $this->recentActivities($inventoryEnabled, $legalEnabled, $projectsEnabled),
             'shortcuts' => array_values(array_filter([
                 $inventoryEnabled ? ['label' => 'Manage Inventory', 'href' => '/inventory/items', 'icon' => 'Boxes'] : null,
-                $legalEnabled ? ['label' => 'Legal Cases', 'href' => '/legal/cases', 'icon' => 'Scale'] : null,
+                $legalEnabled ? ['label' => 'Legal Matters', 'href' => '/legal/matters', 'icon' => 'Scale'] : null,
                 $projectsEnabled ? ['label' => 'Projects', 'href' => '/projects', 'icon' => 'Kanban'] : null,
                 // Users is admin/config chrome — hidden on the internal plan (Jira board only).
                 (tenant()?->plan ?? 'starter') !== 'internal' ? ['label' => 'Users', 'href' => '/config/users', 'icon' => 'UserRoundCog'] : null,
@@ -119,18 +119,18 @@ class DashboardService
         }
 
         if ($legalEnabled) {
-            LegalCase::query()
+            Matter::query()
                 ->orderByDesc('updated_at')
                 ->limit(8)
                 ->get(['id', 'code', 'title', 'status', 'updated_at', 'created_at'])
-                ->each(function (LegalCase $case) use ($rows) {
-                    $created = $case->created_at?->eq($case->updated_at);
+                ->each(function (Matter $matter) use ($rows) {
+                    $created = $matter->created_at?->eq($matter->updated_at);
                     $rows->push([
-                        'id' => 'case-'.$case->id,
+                        'id' => 'matter-'.$matter->id,
                         'module' => 'Legal',
-                        'action' => ($created ? 'Opened' : 'Updated').' '.$case->code.' ('.$case->status.')',
+                        'action' => ($created ? 'Opened' : 'Updated').' '.$matter->code.' ('.$matter->status.')',
                         'user' => '—',
-                        'at' => $case->updated_at,
+                        'at' => $matter->updated_at,
                     ]);
                 });
         }

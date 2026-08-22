@@ -17,7 +17,7 @@ use Illuminate\Support\Str;
 
 /**
  * §3B Document Entry — upload (new document + first version) and metadata edit, both wired
- * to CUSTOMFIELDS the same way LegalCaseService wires Legal Cases (§4 customization ladder
+ * to CUSTOMFIELDS the same way MatterService wires Legal Matters (§4 customization ladder
  * rung 3). §3C's version restore also lives here (restoreVersion()) since it's the same
  * "document + versions" transactional unit. §3F's retention scheduler is a later build.
  */

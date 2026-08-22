@@ -19,8 +19,8 @@ class CustomLogicEngine
      */
     public function beforeSave(string $entityType, array $data, array $customValues): array
     {
-        if ($entityType === 'legal_case') {
-            return $this->legalCaseRules($data, $customValues);
+        if ($entityType === 'legal_matter') {
+            return $this->legalMatterRules($data, $customValues);
         }
 
         return $data;
@@ -31,13 +31,13 @@ class CustomLogicEngine
      * @param  array<string, string|null>  $customValues
      * @return array<string, mixed>
      */
-    private function legalCaseRules(array $data, array $customValues): array
+    private function legalMatterRules(array $data, array $customValues): array
     {
-        // LEGAL.URGENT_SETS_PENDING=1 → priority=urgent forces status pending
+        // LEGAL.URGENT_SETS_PENDING=1 → priority=urgent forces status on_hold
         if ($this->constEnabled('LEGAL', 'URGENT_SETS_PENDING')
             && ($customValues['priority'] ?? null) === 'urgent'
             && ($data['status'] ?? null) === 'open') {
-            $data['status'] = 'pending';
+            $data['status'] = 'on_hold';
         }
 
         return $data;

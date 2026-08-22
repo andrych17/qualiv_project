@@ -1,4 +1,4 @@
-<!-- ponytail: Create project — Panel + design buttons, mirrors Legal/Cases/Create -->
+<!-- ponytail: Create project — Panel + design buttons, mirrors Legal/Matters/Create -->
 <script setup lang="ts">
 import { useForm, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'

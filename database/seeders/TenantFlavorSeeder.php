@@ -27,7 +27,10 @@ use App\Modules\DMS\Models\Folder;
 use App\Modules\DMS\Models\RetentionPolicy;
 use App\Modules\Inventory\Models\InventoryCategory;
 use App\Modules\Inventory\Models\InventoryItem;
-use App\Modules\Legal\Models\LegalCase;
+use App\Modules\Legal\Models\DeedType;
+use App\Modules\Legal\Models\FieldVisitType;
+use App\Modules\Legal\Models\Matter;
+use App\Modules\Legal\Models\PartyRoleType;
 use App\Modules\Projects\Models\Project;
 use App\Modules\Schedule\Models\ConferenceProvider;
 use App\Modules\Schedule\Models\ResourceType;
@@ -59,7 +62,10 @@ class TenantFlavorSeeder extends Seeder
         $this->seedDashboardBlurb($flavor);
         $this->seedInventory($flavor);
         $this->seedCustomFields($flavor);
-        $this->seedLegalCases($flavor);
+        $this->seedLegalDeedTypes();
+        $this->seedLegalPartyRoleTypes();
+        $this->seedLegalFieldVisitTypes();
+        $this->seedLegalMatters($flavor);
         $this->seedSnums($flavor);
         $this->seedProjects($flavor);
         $this->seedDms($flavor);
@@ -105,10 +111,10 @@ class TenantFlavorSeeder extends Seeder
                     ['code' => 'A-SP-001', 'name' => 'Bearing 6202', 'category_code' => 'SP', 'stock' => 8, 'minimum_stock' => 15, 'unit' => 'pcs'],
                 ],
                 'extra_factory' => 20,
-                'case_prefix' => 'A',
+                'matter_prefix' => 'A',
                 'urgent_sets_pending' => 1,
                 'snums' => [
-                    ['code' => 'LEGAL_CASE_LASTID', 'last_cnt' => 3, 'wrap_low' => 1, 'wrap_high' => 999999, 'step_cnt' => 1, 'descr' => 'Legal case running number'],
+                    ['code' => 'LEGAL_MATTER_LASTID', 'last_cnt' => 3, 'wrap_low' => 1, 'wrap_high' => 999999, 'step_cnt' => 1, 'descr' => 'Legal matter running number'],
                     ['code' => 'INVENTORY_ITEM_LASTID', 'last_cnt' => 4, 'wrap_low' => 1, 'wrap_high' => 999999, 'step_cnt' => 1, 'descr' => 'Inventory item running number'],
                 ],
                 'field_defs' => [
@@ -126,24 +132,27 @@ class TenantFlavorSeeder extends Seeder
                         ],
                     ],
                 ],
-                'cases' => [
+                'matters' => [
                     [
-                        'code' => 'A-CASE-001',
+                        'code' => 'A-MATTER-001',
                         'title' => 'PT Maju v. Supplier Dispute',
+                        'matter_type' => 'Dispute',
                         'status' => 'open',
                         'notes' => 'Jakarta commercial claim',
                         'custom' => ['court_register' => 'PN.JKT.001/2026', 'hearing_date' => '2026-08-12', 'priority' => 'normal'],
                     ],
                     [
-                        'code' => 'A-CASE-002',
+                        'code' => 'A-MATTER-002',
                         'title' => 'Employment — Budi',
-                        'status' => 'pending',
+                        'matter_type' => 'Employment',
+                        'status' => 'on_hold',
                         'notes' => 'Severance negotiation',
                         'custom' => ['court_register' => 'PHI.JKT.88/2026', 'hearing_date' => null, 'priority' => 'urgent'],
                     ],
                     [
-                        'code' => 'A-CASE-003',
+                        'code' => 'A-MATTER-003',
                         'title' => 'IP Filing — Brand Alpha',
+                        'matter_type' => 'IP Filing',
                         'status' => 'open',
                         'notes' => 'Trademark class 9',
                         'custom' => ['court_register' => 'DJKI-2026-441', 'hearing_date' => '2026-09-01', 'priority' => 'normal'],
@@ -177,10 +186,10 @@ class TenantFlavorSeeder extends Seeder
                     ['code' => 'B-OFF-002', 'name' => 'Tinta Printer Hitam', 'category_code' => 'OFF', 'stock' => 6, 'minimum_stock' => 10, 'unit' => 'unit'],
                 ],
                 'extra_factory' => 12,
-                'case_prefix' => 'B',
+                'matter_prefix' => 'B',
                 'urgent_sets_pending' => 0,
                 'snums' => [
-                    ['code' => 'LEGAL_CASE_LASTID', 'last_cnt' => 2, 'wrap_low' => 1, 'wrap_high' => 999999, 'step_cnt' => 1, 'descr' => 'Legal case running number'],
+                    ['code' => 'LEGAL_MATTER_LASTID', 'last_cnt' => 2, 'wrap_low' => 1, 'wrap_high' => 999999, 'step_cnt' => 1, 'descr' => 'Legal matter running number'],
                     ['code' => 'INVENTORY_ITEM_LASTID', 'last_cnt' => 5, 'wrap_low' => 1, 'wrap_high' => 999999, 'step_cnt' => 1, 'descr' => 'Inventory item running number'],
                 ],
                 'field_defs' => [
@@ -198,17 +207,19 @@ class TenantFlavorSeeder extends Seeder
                         ],
                     ],
                 ],
-                'cases' => [
+                'matters' => [
                     [
-                        'code' => 'B-CASE-001',
+                        'code' => 'B-MATTER-001',
                         'title' => 'Lease — Ruko Tunjungan',
+                        'matter_type' => 'Lease',
                         'status' => 'open',
                         'notes' => 'Surabaya property lease',
                         'custom' => ['lease_object' => 'Ruko Tunjungan Blok A', 'monthly_rent' => '15000000', 'priority' => 'normal'],
                     ],
                     [
-                        'code' => 'B-CASE-002',
+                        'code' => 'B-MATTER-002',
                         'title' => 'Collection — CV Nusantara',
+                        'matter_type' => 'Collection',
                         'status' => 'closed',
                         'notes' => 'Settled Q2',
                         'custom' => ['lease_object' => 'N/A — collection', 'monthly_rent' => null, 'priority' => 'urgent'],
@@ -277,8 +288,9 @@ class TenantFlavorSeeder extends Seeder
             ['const_group' => 'APP', 'group_code' => 'TZ', 'seq' => 2, 'str1' => $flavor['tz'], 'note1' => 'Default timezone'],
             ['const_group' => 'APP', 'group_code' => 'CITY', 'seq' => 3, 'str1' => $flavor['city'], 'note1' => 'HQ city'],
             ['const_group' => 'INVENTORY', 'group_code' => 'LOW_STOCK', 'seq' => 1, 'num1' => $flavor['low_stock'], 'note1' => 'Default low-stock threshold'],
-            ['const_group' => 'LEGAL', 'group_code' => 'CASE_PREFIX', 'seq' => 1, 'str1' => $flavor['case_prefix'], 'note1' => 'Auto case code prefix'],
-            ['const_group' => 'LEGAL', 'group_code' => 'URGENT_SETS_PENDING', 'seq' => 2, 'num1' => $flavor['urgent_sets_pending'], 'note1' => '1 = urgent priority forces pending'],
+            ['const_group' => 'LEGAL', 'group_code' => 'MATTER_PREFIX', 'seq' => 1, 'str1' => $flavor['matter_prefix'], 'note1' => 'Auto matter code prefix'],
+            ['const_group' => 'LEGAL', 'group_code' => 'URGENT_SETS_PENDING', 'seq' => 2, 'num1' => $flavor['urgent_sets_pending'], 'note1' => '1 = urgent priority forces on_hold'],
+            ['const_group' => 'LEGAL', 'group_code' => 'DPW_GRACE_DAYS', 'seq' => 3, 'num1' => 14, 'note1' => '§3D — days after signing before an unregistered will is flagged'],
         ];
 
         foreach ($rows as $c) {
@@ -374,7 +386,7 @@ class TenantFlavorSeeder extends Seeder
 
         foreach ($flavor['field_defs'] ?? [] as $def) {
             FieldDef::query()->create([
-                'entity_type' => 'legal_case',
+                'entity_type' => 'legal_matter',
                 'code' => $def['code'],
                 'label' => $def['label'],
                 'field_type' => $def['field_type'],
@@ -488,33 +500,126 @@ class TenantFlavorSeeder extends Seeder
         }
     }
 
-    /** @param  array<string, mixed>  $flavor */
-    private function seedLegalCases(array $flavor): void
+    /**
+     * Deed type master lookup (§4) — same defaults regardless of flavor, since deed
+     * vocabulary is tenant-editable data, not a per-firm demo prop. Notary-category only
+     * for now — PPAT types ship with §3G.
+     */
+    private function seedLegalDeedTypes(): void
     {
-        FieldValue::query()->where('entity_type', 'legal_case')->delete();
-        LegalCase::query()->delete();
+        foreach ([
+            ['code' => 'akta_perjanjian', 'name' => 'Akta Perjanjian', 'protocol' => 'repertorium'],
+            ['code' => 'akta_kuasa', 'name' => 'Akta Kuasa', 'protocol' => 'repertorium'],
+            ['code' => 'akta_pendirian_pt', 'name' => 'Akta Pendirian Badan Usaha', 'protocol' => 'repertorium'],
+            ['code' => 'akta_pengakuan_utang', 'name' => 'Akta Pengakuan Utang', 'protocol' => 'repertorium'],
+            ['code' => 'akta_lain_lain', 'name' => 'Akta Lain-lain', 'protocol' => 'repertorium'],
+            // §3D/§3E — same Deed model, different protocol book per LEGAL_SPECS.md §3E/§4.
+            ['code' => 'wasiat', 'name' => 'Wasiat (Will)', 'protocol' => 'daftar_wasiat'],
+            ['code' => 'legalisasi', 'name' => 'Legalisasi', 'protocol' => 'legalisasi'],
+            ['code' => 'waarmerking', 'name' => 'Waarmerking', 'protocol' => 'waarmerking'],
+        ] as $type) {
+            DeedType::query()->updateOrCreate(
+                ['code' => $type['code']],
+                [
+                    'name' => $type['name'],
+                    'category' => DeedType::CATEGORY_NOTARY,
+                    'requires_tax' => false,
+                    'requires_bpn_registration' => false,
+                    'default_protocol_book_type' => $type['protocol'],
+                    'is_active' => true,
+                ],
+            );
+        }
+
+        // §3G — the eight statutory PPAT act types (PP No. 24/1997). All require the
+        // due-diligence + tax gate and a follow-up BPN registration (§3L).
+        foreach ([
+            ['code' => 'ajb', 'name' => 'Akta Jual Beli (AJB)'],
+            ['code' => 'hibah', 'name' => 'Hibah'],
+            ['code' => 'tukar_menukar', 'name' => 'Tukar Menukar'],
+            ['code' => 'inbreng', 'name' => 'Pemasukan ke Perusahaan (Inbreng)'],
+            ['code' => 'pembagian_hak_bersama', 'name' => 'Pembagian Hak Bersama'],
+            ['code' => 'apht', 'name' => 'Pemberian Hak Tanggungan (APHT)'],
+            ['code' => 'hgb_hak_pakai', 'name' => 'Pemberian HGB/Hak Pakai atas Tanah Hak Milik'],
+            ['code' => 'pelepasan_hak', 'name' => 'Pelepasan Hak'],
+        ] as $type) {
+            DeedType::query()->updateOrCreate(
+                ['code' => $type['code']],
+                [
+                    'name' => $type['name'],
+                    'category' => DeedType::CATEGORY_PPAT,
+                    'requires_tax' => true,
+                    'requires_bpn_registration' => true,
+                    'default_protocol_book_type' => 'repertorium',
+                    'is_active' => true,
+                ],
+            );
+        }
+    }
+
+    /**
+     * Party role lookup (§3J/§4) — same defaults regardless of flavor, mirrors
+     * seedCrmLookups()'s "role vocabulary is tenant-editable data" reasoning.
+     */
+    private function seedLegalPartyRoleTypes(): void
+    {
+        foreach ([
+            ['code' => 'penghadap', 'name' => 'Penghadap'],
+            ['code' => 'pihak_pertama', 'name' => 'Pihak Pertama'],
+            ['code' => 'pihak_kedua', 'name' => 'Pihak Kedua'],
+            ['code' => 'saksi', 'name' => 'Saksi'],
+            ['code' => 'kuasa', 'name' => 'Kuasa'],
+            ['code' => 'ahli_waris', 'name' => 'Ahli Waris'],
+        ] as $role) {
+            PartyRoleType::query()->updateOrCreate(['code' => $role['code']], ['name' => $role['name'], 'is_active' => true]);
+        }
+    }
+
+    /** §3M field visit type lookup — tenant-configurable default checklist per type. */
+    private function seedLegalFieldVisitTypes(): void
+    {
+        foreach ([
+            ['code' => 'site_survey', 'name' => 'Site Survey', 'checklist' => ['Verify boundary markers', 'Photograph all four corners', 'Note any visible dispute markers']],
+            ['code' => 'bpn_office_visit', 'name' => 'BPN Office Visit', 'checklist' => ['Collect queue number', 'Verify document completeness', 'Photograph receipt']],
+            ['code' => 'document_pickup', 'name' => 'Document Pickup', 'checklist' => ['Verify recipient identity', 'Confirm document matches request']],
+            ['code' => 'signing_witness', 'name' => 'Signing Witness', 'checklist' => ['Confirm all parties present', 'Confirm identity documents']],
+            ['code' => 'other', 'name' => 'Other', 'checklist' => []],
+        ] as $type) {
+            FieldVisitType::query()->updateOrCreate(
+                ['code' => $type['code']],
+                ['name' => $type['name'], 'default_checklist' => $type['checklist'], 'is_active' => true],
+            );
+        }
+    }
+
+    /** @param  array<string, mixed>  $flavor */
+    private function seedLegalMatters(array $flavor): void
+    {
+        FieldValue::query()->where('entity_type', 'legal_matter')->delete();
+        Matter::query()->delete();
 
         $defs = FieldDef::query()
-            ->where('entity_type', 'legal_case')
+            ->where('entity_type', 'legal_matter')
             ->get()
             ->keyBy('code');
 
-        foreach ($flavor['cases'] as $case) {
-            $created = LegalCase::query()->create([
-                'code' => $case['code'],
-                'title' => $case['title'],
-                'status' => $case['status'],
-                'notes' => $case['notes'],
+        foreach ($flavor['matters'] as $matter) {
+            $created = Matter::query()->create([
+                'code' => $matter['code'],
+                'title' => $matter['title'],
+                'matter_type' => $matter['matter_type'] ?? null,
+                'status' => $matter['status'],
+                'notes' => $matter['notes'],
             ]);
 
-            foreach ($case['custom'] ?? [] as $code => $value) {
+            foreach ($matter['custom'] ?? [] as $code => $value) {
                 $def = $defs->get($code);
                 if (! $def) {
                     continue;
                 }
                 FieldValue::query()->create([
                     'field_def_id' => $def->id,
-                    'entity_type' => 'legal_case',
+                    'entity_type' => 'legal_matter',
                     'entity_id' => $created->id,
                     'value' => $value,
                 ]);

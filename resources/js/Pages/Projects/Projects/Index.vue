@@ -1,4 +1,4 @@
-<!-- ponytail: Projects — internal-only, mirrors Legal/Cases wiring -->
+<!-- ponytail: Projects — internal-only, mirrors Legal/Matters wiring -->
 <script setup lang="ts">
 import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'

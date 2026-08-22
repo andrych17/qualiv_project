@@ -51,7 +51,7 @@ const submit = () => form.post(route('config.consts.store'))
             v-model="form.group_code"
             name="group_code"
             label="Key"
-            placeholder="e.g. CASE_PREFIX"
+            placeholder="e.g. MATTER_PREFIX"
             :error="form.errors.group_code"
             required
           />

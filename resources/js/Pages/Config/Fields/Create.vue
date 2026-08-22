@@ -49,7 +49,7 @@ const submit = () => form.post(route('config.fields.store'))
             v-model="form.entity_type"
             name="entity_type"
             label="Entity type"
-            placeholder="e.g. legal_case"
+            placeholder="e.g. legal_matter"
             :error="form.errors.entity_type"
             required
           />

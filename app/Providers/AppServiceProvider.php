@@ -6,9 +6,9 @@ use App\Auth\TenantAwareUserProvider;
 use App\Models\User;
 use App\Modules\CRM\Models\Partner;
 use App\Modules\DMS\Models\Document;
-use App\Modules\Legal\Contracts\CaseCodeGenerator;
-use App\Modules\Legal\Models\LegalCase;
-use App\Modules\Legal\Services\PrefixedCaseCodeGenerator;
+use App\Modules\Legal\Contracts\MatterCodeGenerator;
+use App\Modules\Legal\Models\Matter;
+use App\Modules\Legal\Services\PrefixedMatterCodeGenerator;
 use App\Modules\WNE\Events\NotificationRequested;
 use App\Modules\WNE\Listeners\DeliverRequestedNotification;
 use App\Services\AsyncSearchRegistry;
@@ -24,7 +24,7 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->bind(CaseCodeGenerator::class, PrefixedCaseCodeGenerator::class);
+        $this->app->bind(MatterCodeGenerator::class, PrefixedMatterCodeGenerator::class);
     }
 
     public function boot(): void
@@ -71,11 +71,11 @@ class AppServiceProvider extends ServiceProvider
         );
 
         AsyncSearchRegistry::register(
-            'legal_case',
-            LegalCase::class,
+            'legal_matter',
+            Matter::class,
             ['code', 'title'],
-            fn ($c) => "{$c->code} — {$c->title}",
-            fn ($c) => "Status: {$c->status}",
+            fn ($m) => "{$m->code} — {$m->title}",
+            fn ($m) => "Status: {$m->status}",
             'status',
             queryCallback: null,
             filterable: [],

@@ -31,7 +31,7 @@ const submit = () => form.post(route('config.serials.store'))
           v-model="form.code"
           name="code"
           label="Code"
-          placeholder="e.g. LEGAL_CASE_LASTID"
+          placeholder="e.g. LEGAL_MATTER_LASTID"
           :error="form.errors.code"
           required
         />
