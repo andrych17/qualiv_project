@@ -19,6 +19,12 @@ use App\Modules\CRM\Models\TicketCategory;
 use App\Modules\CRM\Models\TicketMessage;
 use App\Modules\CustomFields\Models\FieldDef;
 use App\Modules\CustomFields\Models\FieldValue;
+use App\Modules\DMS\Models\AccessLog;
+use App\Modules\DMS\Models\DocType;
+use App\Modules\DMS\Models\Document;
+use App\Modules\DMS\Models\DocumentVersion;
+use App\Modules\DMS\Models\Folder;
+use App\Modules\DMS\Models\RetentionPolicy;
 use App\Modules\Inventory\Models\InventoryCategory;
 use App\Modules\Inventory\Models\InventoryItem;
 use App\Modules\Legal\Models\LegalCase;
@@ -28,6 +34,8 @@ use App\Modules\SysConfig\Models\ConfigGroup;
 use App\Modules\SysConfig\Models\ConfigMenu;
 use App\Modules\SysConfig\Models\ConfigSnum;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 /**
  * Per-tenant mockup so Firm A vs B look different after switch.
@@ -52,6 +60,7 @@ class TenantFlavorSeeder extends Seeder
         $this->seedLegalCases($flavor);
         $this->seedSnums($flavor);
         $this->seedProjects($flavor);
+        $this->seedDms($flavor);
         $this->seedCrmLookups();
         // Rows that FK-reference partners (a lead's converted_partner_id from the live
         // Convert-to-Partner action, §3D; a service case's partner_id) must be cleared
@@ -232,6 +241,27 @@ class TenantFlavorSeeder extends Seeder
                     ['partner' => 'Budi Santoso', 'requester_name' => null, 'requester_contact' => null, 'subject' => 'Cannot reset portal password', 'category' => 'Technical', 'priority' => 'normal', 'status' => 'open', 'channel' => 'email', 'sla_due_hours' => -2, 'message' => 'I tried the reset link but it says expired.'],
                     ['partner' => null, 'requester_name' => 'Walk-in caller', 'requester_contact' => '+62 813-0000-1111', 'subject' => 'General pricing inquiry', 'category' => 'General Inquiry', 'priority' => 'low', 'status' => 'in_progress', 'channel' => 'phone', 'sla_due_hours' => 20, 'message' => 'Caller asked about retainer pricing tiers.'],
                 ],
+                // Firm B is also the DMS_SPECS.md §3A demo tenant — same 'legal.case_hdrs'/'4821'
+                // subject reference DMS_SPECS.sql's own seed block uses, so the document library
+                // and Legal's case list describe the same hypothetical case.
+                'dms_folders' => [
+                    ['name' => 'Legal Documents', 'parent' => null, 'access_flag' => 'team'],
+                    ['name' => 'Case A-001', 'parent' => 'Legal Documents', 'access_flag' => 'team'],
+                ],
+                'dms_documents' => [
+                    [
+                        'folder' => 'Case A-001', 'doc_type' => 'Court Filing',
+                        'title' => 'Gugatan - Case A-001', 'description' => 'Initial complaint filing for case A-001.',
+                        'subject_type' => 'legal.case_hdrs', 'subject_id' => 4821, 'status' => 'active',
+                        'expiry_date_days' => 3650, 'filename' => 'gugatan-a001-v2-corrected.pdf', 'mime_type' => 'application/pdf',
+                    ],
+                    [
+                        'folder' => 'Case A-001', 'doc_type' => 'Court Filing',
+                        'title' => 'Lampiran Bukti 1', 'description' => 'Supporting exhibit for the A-001 filing.',
+                        'subject_type' => 'legal.case_hdrs', 'subject_id' => 4821, 'status' => 'active',
+                        'expiry_date_days' => null, 'filename' => 'lampiran-bukti-1.pdf', 'mime_type' => 'application/pdf',
+                    ],
+                ],
             ],
         ];
     }
@@ -364,6 +394,94 @@ class TenantFlavorSeeder extends Seeder
                     'status' => $project['status'],
                 ],
             );
+        }
+    }
+
+    /** @param  array<string, mixed>  $flavor */
+    private function seedDms(array $flavor): void
+    {
+        // Base doc types are shared master data (DMS_SPECS.md §4), seeded regardless of
+        // flavor/plan — same "cheap lookup, always present" precedent as seedCrmLookups().
+        foreach (['CASE_FILING' => 'Court Filing', 'CONTRACT' => 'Contract', 'CORRESPONDENCE' => 'Correspondence'] as $code => $name) {
+            DocType::query()->updateOrCreate(['code' => $code], ['name' => $name]);
+        }
+
+        // One active policy per doc type so §3B's "retention policy defaults from doc_type" is
+        // actually demonstrable — same figures DMS_SPECS.sql's own example seed uses.
+        foreach (['CASE_FILING' => [3650, 'notify_only'], 'CONTRACT' => [2555, 'archive']] as $code => [$days, $action]) {
+            $docTypeId = DocType::query()->where('code', $code)->value('id');
+            if (! RetentionPolicy::query()->where('doc_type_id', $docTypeId)->exists()) {
+                RetentionPolicy::query()->create([
+                    'doc_type_id' => $docTypeId,
+                    'retention_period_days' => $days,
+                    'action_on_expiry' => $action,
+                    'legal_hold_overridable' => true,
+                ]);
+            }
+        }
+
+        if (! isset($flavor['dms_folders'])) {
+            return;
+        }
+
+        AccessLog::query()->delete();
+        Document::query()->update(['current_version_id' => null]); // clear FK before versions/documents below
+        DocumentVersion::query()->delete();
+        Document::query()->delete();
+        Folder::query()->delete();
+
+        $filingType = DocType::query()->where('code', 'CASE_FILING')->first();
+        $staffId = User::query()->where('email', 'staff@nusaevo.com')->value('id');
+
+        $folders = [];
+        foreach ($flavor['dms_folders'] as $f) {
+            $folders[$f['name']] = Folder::query()->create([
+                'parent_folder_id' => $f['parent'] ? $folders[$f['parent']]->id : null,
+                'name' => $f['name'],
+                'default_doc_type_id' => $filingType?->id,
+                'access_flag' => $f['access_flag'],
+                'created_by' => $staffId,
+            ]);
+        }
+
+        foreach ($flavor['dms_documents'] ?? [] as $d) {
+            $document = Document::query()->create([
+                'uuid' => (string) Str::uuid(),
+                'folder_id' => $folders[$d['folder']]->id,
+                'doc_type_id' => $filingType?->id,
+                'title' => $d['title'],
+                'description' => $d['description'],
+                'subject_type' => $d['subject_type'],
+                'subject_id' => $d['subject_id'],
+                'status' => $d['status'],
+                'expiry_date' => $d['expiry_date_days'] ? now()->addDays($d['expiry_date_days']) : null,
+            ]);
+
+            // Demo bytes only — real uploads stream the actual file (DocumentService::upload).
+            $content = "Demo document content for {$d['title']}.";
+            $module = strtoupper(explode('.', $d['subject_type'])[0]);
+            $key = sprintf('%s/DMS/%s/%s/%s/%s/v1.pdf', tenant()?->id ?? 'local', $module, now()->format('Y'), now()->format('m'), $document->uuid);
+            Storage::disk('objects')->put($key, $content);
+
+            $version = DocumentVersion::query()->create([
+                'document_id' => $document->id,
+                'version_no' => 1,
+                'original_filename' => $d['filename'],
+                'checksum_sha256' => hash('sha256', $content),
+                'storage_key' => $key,
+                'file_size_bytes' => strlen($content),
+                'mime_type' => $d['mime_type'],
+                'uploaded_by' => $staffId,
+            ]);
+
+            $document->update(['current_version_id' => $version->id]);
+
+            AccessLog::query()->create([
+                'document_id' => $document->id,
+                'document_version_id' => $version->id,
+                'action' => AccessLog::ACTION_UPLOAD,
+                'actor_id' => $staffId,
+            ]);
         }
     }
 

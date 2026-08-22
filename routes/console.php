@@ -20,3 +20,7 @@ Schedule::command('tenants:run "wne:recover-stuck-workflow-steps"')->everyFiveMi
 
 // WNE_SPECS.md §3F SLA escalation sweep — same tenant-scoped convention as the recovery sweep.
 Schedule::command('tenants:run "wne:escalate-breached-workflow-steps"')->everyFiveMinutes();
+
+// DMS_SPECS.md §3F retention sweep — daily, not every-five-minutes (expiry is date-grained, not
+// time-sensitive like an SLA breach), same tenant-scoped tenants:run convention as WNE's above.
+Schedule::command('tenants:run "dms:apply-retention-policies"')->dailyAt('02:00');

@@ -21,6 +21,7 @@ class CreateModuleSchemas
         'LEGAL',
         'CUSTOMFIELDS',
         'PROJECTS',
+        'DMS',
     ];
 
     public function __construct(

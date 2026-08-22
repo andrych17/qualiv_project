@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Auth\TenantAwareUserProvider;
 use App\Models\User;
 use App\Modules\CRM\Models\Partner;
+use App\Modules\DMS\Models\Document;
 use App\Modules\Legal\Contracts\CaseCodeGenerator;
 use App\Modules\Legal\Models\LegalCase;
 use App\Modules\Legal\Services\PrefixedCaseCodeGenerator;
@@ -117,6 +118,24 @@ class AppServiceProvider extends ServiceProvider
                 })),
             filterable: [],
             menuCode: 'CRM',
+        );
+
+        // DMS_SPECS.md §3H Object Relation Engine — target-document picker for linking two
+        // documents. `exclude_id` (a document can't relate to itself) is read straight out of
+        // extraFilters since a queryCallback bypasses the plain filterable-column allowlist.
+        AsyncSearchRegistry::register(
+            'dms_document',
+            Document::class,
+            ['title'],
+            'title',
+            fn (Document $d) => $d->docType?->name ?? $d->folder?->name,
+            'status',
+            queryCallback: fn ($query, $search, $extraFilters) => $query
+                ->with(['docType:id,name', 'folder:id,name'])
+                ->when($extraFilters['exclude_id'] ?? null, fn ($q, $excludeId) => $q->where('id', '!=', $excludeId))
+                ->when($search !== '', fn ($q) => $q->where('title', 'ilike', '%'.$search.'%')),
+            filterable: [],
+            menuCode: 'DMS',
         );
     }
 }

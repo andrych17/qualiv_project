@@ -16,6 +16,7 @@ return [
             'CRM',
             'SCHEDULE',
             'WNE',
+            'DMS',
             'DESIGN_SYSTEM',
         ],
         'full' => [
@@ -24,6 +25,7 @@ return [
             'CRM',
             'SCHEDULE',
             'WNE',
+            'DMS',
             'SALES',
             'PURCHASE',
             'ACCOUNTING',

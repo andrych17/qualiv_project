@@ -105,6 +105,11 @@ class SysConfigSeeder extends Seeder
             // workflow list is the landing page for now — same "point straight at the built
             // page" convention Legal used before it had a dashboard either.
             ['code' => 'WNE', 'menu_header' => 'Core', 'menu_caption' => 'Workflow & Notifications', 'menu_link' => '/wne/dashboard', 'icon' => 'Workflow', 'seq' => 40, 'status_code' => 'A'],
+            // §3A shipped — the Main Dashboard is the only page so far, so it's also the
+            // section landing page (same "point straight at the built page" convention WNE
+            // used before §3B). Future sub-pages (3B upload form, 3C version viewer, ...)
+            // reuse this one menu code, same "one code covers every sub-page" convention.
+            ['code' => 'DMS', 'menu_header' => 'Core', 'menu_caption' => 'Documents', 'menu_link' => '/dms/dashboard', 'icon' => 'FolderOpen', 'seq' => 45, 'status_code' => 'A'],
             ['code' => 'LEGAL', 'menu_header' => 'Vertical', 'menu_caption' => 'Legal', 'menu_link' => '/legal/cases', 'icon' => 'Scale', 'seq' => 60, 'status_code' => 'A'],
             // Internal-only (Nusaevo's own team) — not part of any sellable plan, see config/tenant_modules.php.
             ['code' => 'PROJECTS', 'menu_header' => 'Internal', 'menu_caption' => 'Projects', 'menu_link' => '/projects', 'icon' => 'Kanban', 'seq' => 65, 'status_code' => 'A'],
@@ -151,6 +156,7 @@ class SysConfigSeeder extends Seeder
                 'LEGAL' => 'CRUD',
                 'CRM' => 'CRUD',
                 'WNE' => 'CRUD',
+                'DMS' => 'CRUD',
                 'PROJECTS' => 'CRUD',
                 'DESIGN_SYSTEM' => 'R',
             ],
@@ -160,6 +166,7 @@ class SysConfigSeeder extends Seeder
                 'LEGAL' => 'R',
                 'CRM' => 'R',
                 'WNE' => 'R',
+                'DMS' => 'R',
                 'PROJECTS' => 'R',
                 'DESIGN_SYSTEM' => 'R',
             ],
