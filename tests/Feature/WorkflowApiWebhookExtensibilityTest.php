@@ -18,7 +18,6 @@ use App\Modules\WNE\Services\SlaEscalationService;
 use App\Modules\WNE\Services\WorkflowService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Tests\Concerns\SetsUpTenant;
 use Tests\TestCase;

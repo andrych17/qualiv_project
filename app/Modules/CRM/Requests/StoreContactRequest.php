@@ -47,7 +47,7 @@ class StoreContactRequest extends FormRequest
      * Plain `exists:` rules can't reach schema-qualified tables (Laravel's rule
      * parser reads the dot in "CRM.partners" as a connection name, not a schema
      * — see Illuminate\Validation\Concerns\ValidatesAttributes::parseTable) —
-     * so CRM.* references are checked here instead, same as StoreLegalCaseRequest.
+     * so CRM.* references are checked here instead, same as StoreMatterRequest.
      */
     public function withValidator(Validator $validator): void
     {

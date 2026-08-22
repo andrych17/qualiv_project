@@ -47,7 +47,7 @@ const props = withDefaults(
     selectable?: boolean
     /** Sticks the header row to the top of the nearest scroll container. */
     stickyHeader?: boolean
-    /** Unique key to persist column visibility/widths/saved views in localStorage (e.g. 'legal.cases'). */
+    /** Unique key to persist column visibility/widths/saved views in localStorage (e.g. 'legal.matters'). */
     storageKey?: string
     /** FilterBuilder field defs — reuses the same whitelisted params each controller's scopeFilter() accepts. */
     filterFields?: FilterFieldDef[]

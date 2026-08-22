@@ -98,7 +98,7 @@ const onDropFile = (event: DragEvent) => {
           <FormInput v-model="form.tags" name="tags" label="Tags" placeholder="Comma-separated, e.g. urgent, confidential" :error="form.errors.tags" />
 
           <div class="grid grid-cols-2 gap-4">
-            <FormInput v-model="form.subject_type" name="subject_type" label="Owning record type" placeholder="e.g. legal.case_hdrs" :error="form.errors.subject_type" />
+            <FormInput v-model="form.subject_type" name="subject_type" label="Owning record type" placeholder="e.g. legal.matters" :error="form.errors.subject_type" />
             <FormInput v-model="form.subject_id" name="subject_id" label="Owning record ID" type="number" :error="form.errors.subject_id" />
           </div>
 

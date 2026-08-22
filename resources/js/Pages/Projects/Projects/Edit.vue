@@ -1,4 +1,4 @@
-<!-- ponytail: Edit project — mirrors Legal/Cases/Edit -->
+<!-- ponytail: Edit project — mirrors Legal/Matters/Edit -->
 <script setup lang="ts">
 import { useForm, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
