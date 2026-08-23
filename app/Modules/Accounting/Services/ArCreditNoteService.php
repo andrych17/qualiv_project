@@ -3,6 +3,7 @@
 namespace App\Modules\Accounting\Services;
 
 use App\Modules\Accounting\Models\ArCreditNote;
+use App\Modules\Accounting\Models\ArInvoice;
 use App\Modules\Accounting\Models\Company;
 use App\Modules\Accounting\Models\FiscalPeriod;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +17,16 @@ use Illuminate\Validation\ValidationException;
  * Pajak (§3M) — a DJP-compliant "Nota Retur"/Faktur Pengganti correction is a
  * real-world follow-up procedure a tax preparer still has to do by hand today,
  * same class of deferred nuance as §3M's unverified Coretax XML shape.
+ *
+ * §3L: a note's `amount` has no currency of its own — it's posted straight into
+ * the base-currency journal (`'currency_code' => $company->base_currency` below).
+ * Against a foreign-currency invoice that would silently move `credited_amount`
+ * (transaction currency) out of step with what the AR control account actually
+ * received (base currency), breaking the exact balance ArInvoice::openBalance()'s
+ * docblock promises. Rather than add a currency_code column + FX handling to
+ * notes (real scope, not needed until a tenant actually corrects a foreign-
+ * currency invoice), create() rejects the combination outright — same
+ * conservative call as ArPaymentService's currency-match guard.
  */
 class ArCreditNoteService
 {
@@ -29,6 +40,15 @@ class ArCreditNoteService
     {
         return DB::transaction(function () use ($header, $userId) {
             $company = Company::query()->lockForUpdate()->findOrFail($header['company_id']);
+
+            if (! empty($header['ar_invoice_id'])) {
+                $invoice = ArInvoice::query()->find($header['ar_invoice_id']);
+                if ($invoice !== null && $invoice->currency_code !== $company->base_currency) {
+                    throw ValidationException::withMessages([
+                        'ar_invoice_id' => "Invoice {$invoice->invoice_no} is in {$invoice->currency_code} — credit notes against a foreign-currency invoice aren't supported yet (would desync the AR control account from the invoice's open balance).",
+                    ]);
+                }
+            }
 
             return ArCreditNote::query()->create([
                 ...$header,

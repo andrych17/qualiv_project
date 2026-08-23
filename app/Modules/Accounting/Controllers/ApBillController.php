@@ -12,6 +12,7 @@ use App\Modules\Accounting\Models\WithholdingType;
 use App\Modules\Accounting\Requests\StoreApBillRequest;
 use App\Modules\Accounting\Requests\UpdateApBillRequest;
 use App\Modules\Accounting\Services\ApBillService;
+use App\Modules\Accounting\Services\CompanyContextService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -19,12 +20,12 @@ use Inertia\Response;
 /** §3E — vendor bills, the AP engine's primary screen. */
 class ApBillController extends Controller
 {
-    public function __construct(private readonly ApBillService $service) {}
+    public function __construct(private readonly ApBillService $service, private readonly CompanyContextService $companyContext) {}
 
     public function index(Request $request): Response
     {
         $companies = Company::query()->where('is_active', true)->orderBy('legal_name')->get(['id', 'legal_name']);
-        $companyId = (int) ($request->integer('company_id') ?: $companies->first()?->id);
+        $companyId = (int) $this->companyContext->resolve($request, $companies);
 
         $bills = ApBill::query()
             ->where('company_id', $companyId)

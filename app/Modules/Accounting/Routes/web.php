@@ -9,9 +9,16 @@ use App\Modules\Accounting\Controllers\ArAgingController;
 use App\Modules\Accounting\Controllers\ArCreditNoteController;
 use App\Modules\Accounting\Controllers\ArInvoiceController;
 use App\Modules\Accounting\Controllers\ArPaymentController;
+use App\Modules\Accounting\Controllers\BankAccountController;
+use App\Modules\Accounting\Controllers\BankReconciliationController;
+use App\Modules\Accounting\Controllers\BankStatementImportController;
+use App\Modules\Accounting\Controllers\CashTransactionController;
+use App\Modules\Accounting\Controllers\CashTransferController;
 use App\Modules\Accounting\Controllers\CompanyController;
+use App\Modules\Accounting\Controllers\ControlReconciliationController;
 use App\Modules\Accounting\Controllers\CoretaxExportController;
 use App\Modules\Accounting\Controllers\CostCenterController;
+use App\Modules\Accounting\Controllers\ExchangeRateController;
 use App\Modules\Accounting\Controllers\FakturPajakBlockController;
 use App\Modules\Accounting\Controllers\FiscalYearController;
 use App\Modules\Accounting\Controllers\JournalController;
@@ -61,6 +68,15 @@ Route::middleware(['auth', 'verified', 'module:ACCOUNTING', 'menu.perm:ACCOUNTIN
         Route::get('cost-centers/{costCenter}/edit', [CostCenterController::class, 'edit'])->name('cost-centers.edit');
         Route::put('cost-centers/{costCenter}', [CostCenterController::class, 'update'])->name('cost-centers.update');
         Route::delete('cost-centers/{costCenter}', [CostCenterController::class, 'destroy'])->name('cost-centers.destroy');
+
+        // §3L Multi Currency — exchange rate CRUD; AR/AP posting reads through
+        // ExchangeRateService::rateFor(), not directly.
+        Route::get('exchange-rates', [ExchangeRateController::class, 'index'])->name('exchange-rates.index');
+        Route::get('exchange-rates/create', [ExchangeRateController::class, 'create'])->name('exchange-rates.create');
+        Route::post('exchange-rates', [ExchangeRateController::class, 'store'])->name('exchange-rates.store');
+        Route::get('exchange-rates/{exchangeRate}/edit', [ExchangeRateController::class, 'edit'])->name('exchange-rates.edit');
+        Route::put('exchange-rates/{exchangeRate}', [ExchangeRateController::class, 'update'])->name('exchange-rates.update');
+        Route::delete('exchange-rates/{exchangeRate}', [ExchangeRateController::class, 'destroy'])->name('exchange-rates.destroy');
 
         // §3C General Ledger / Journal Entries — the single posting path.
         Route::get('journals', [JournalController::class, 'index'])->name('journals.index');
@@ -144,4 +160,36 @@ Route::middleware(['auth', 'verified', 'module:ACCOUNTING', 'menu.perm:ACCOUNTIN
         Route::post('ap-debit-notes', [ApDebitNoteController::class, 'store'])->name('ap-debit-notes.store');
 
         Route::get('ap-aging', [ApAgingController::class, 'index'])->name('ap-aging.index');
+
+        // §3F Cash & Bank Management — bank_accounts.show() is the GL-derived cash
+        // book (see BankAccountController class docblock), not a cash_transactions list.
+        Route::get('bank-accounts', [BankAccountController::class, 'index'])->name('bank-accounts.index');
+        Route::get('bank-accounts/create', [BankAccountController::class, 'create'])->name('bank-accounts.create');
+        Route::post('bank-accounts', [BankAccountController::class, 'store'])->name('bank-accounts.store');
+        Route::get('bank-accounts/{bankAccount}/edit', [BankAccountController::class, 'edit'])->name('bank-accounts.edit');
+        Route::put('bank-accounts/{bankAccount}', [BankAccountController::class, 'update'])->name('bank-accounts.update');
+        Route::delete('bank-accounts/{bankAccount}', [BankAccountController::class, 'destroy'])->name('bank-accounts.destroy');
+        Route::get('bank-accounts/{bankAccount}', [BankAccountController::class, 'show'])->name('bank-accounts.show');
+
+        Route::get('cash-transactions/create', [CashTransactionController::class, 'create'])->name('cash-transactions.create');
+        Route::post('cash-transactions', [CashTransactionController::class, 'store'])->name('cash-transactions.store');
+
+        Route::get('cash-transfers/create', [CashTransferController::class, 'create'])->name('cash-transfers.create');
+        Route::post('cash-transfers', [CashTransferController::class, 'store'])->name('cash-transfers.store');
+
+        Route::get('bank-statement-imports', [BankStatementImportController::class, 'index'])->name('bank-statement-imports.index');
+        Route::get('bank-statement-imports/create', [BankStatementImportController::class, 'create'])->name('bank-statement-imports.create');
+        Route::post('bank-statement-imports', [BankStatementImportController::class, 'store'])->name('bank-statement-imports.store');
+        Route::get('bank-statement-imports/{bankStatementImport}', [BankStatementImportController::class, 'show'])->name('bank-statement-imports.show');
+
+        // §3Q Reconcile — bank rec workspace (base-currency accounts only, see
+        // BankReconciliationService docblock) + the read-only AR/AP control report.
+        Route::get('bank-reconciliation/{bankAccount}', [BankReconciliationController::class, 'show'])->name('bank-reconciliation.show');
+        Route::post('bank-reconciliation/{bankAccount}/auto-match', [BankReconciliationController::class, 'autoMatch'])->name('bank-reconciliation.auto-match');
+        Route::post('bank-reconciliation/{bankAccount}/match', [BankReconciliationController::class, 'match'])->name('bank-reconciliation.match');
+        Route::post('bank-reconciliation/{bankAccount}/lines/{bankStatementLine}/unmatch', [BankReconciliationController::class, 'unmatch'])->name('bank-reconciliation.unmatch');
+        Route::post('bank-reconciliation/{bankAccount}/lines/{bankStatementLine}/ignore', [BankReconciliationController::class, 'ignore'])->name('bank-reconciliation.ignore');
+        Route::post('bank-reconciliation/{bankAccount}/lines/{bankStatementLine}/unignore', [BankReconciliationController::class, 'unignore'])->name('bank-reconciliation.unignore');
+
+        Route::get('control-reconciliation', [ControlReconciliationController::class, 'index'])->name('control-reconciliation.index');
     });

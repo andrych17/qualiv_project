@@ -5,6 +5,7 @@ namespace App\Modules\Accounting\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Accounting\Models\ApBill;
 use App\Modules\Accounting\Models\Company;
+use App\Modules\Accounting\Services\CompanyContextService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
@@ -13,10 +14,12 @@ use Inertia\Response;
 /** §3E AP Aging — mirrors AR aging. Drill-in reuses the AP Bills index (filtered by partner) rather than a dedicated screen. */
 class ApAgingController extends Controller
 {
+    public function __construct(private readonly CompanyContextService $companyContext) {}
+
     public function index(Request $request): Response
     {
         $companies = Company::query()->where('is_active', true)->orderBy('legal_name')->get(['id', 'legal_name']);
-        $companyId = (int) ($request->integer('company_id') ?: $companies->first()?->id);
+        $companyId = (int) $this->companyContext->resolve($request, $companies);
         $today = Carbon::today();
 
         $openBills = ApBill::query()

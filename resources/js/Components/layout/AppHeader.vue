@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import UserDropdown from './UserDropdown.vue'
 import AppBreadcrumb from './AppBreadcrumb.vue'
+import CompanySwitcher from './CompanySwitcher.vue'
 </script>
 
 <template>
@@ -9,8 +10,9 @@ import AppBreadcrumb from './AppBreadcrumb.vue'
     <div class="flex items-center gap-4">
       <AppBreadcrumb />
     </div>
-    
+
     <div class="flex items-center gap-4">
+      <CompanySwitcher />
       <UserDropdown />
     </div>
   </header>

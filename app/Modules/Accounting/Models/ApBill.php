@@ -26,7 +26,7 @@ class ApBill extends Model
     ];
 
     protected $fillable = [
-        'uuid', 'company_id', 'partner_id', 'bill_no', 'currency_code', 'issue_date', 'due_date',
+        'uuid', 'company_id', 'partner_id', 'bill_no', 'currency_code', 'fx_rate', 'issue_date', 'due_date',
         'vendor_faktur_no', 'withholding_type_id', 'subject_type', 'subject_id', 'status',
         'subtotal', 'tax_amount', 'withheld_amount', 'total_amount', 'paid_amount', 'debited_amount',
         'journal_id', 'created_by',
@@ -35,6 +35,7 @@ class ApBill extends Model
     protected $casts = [
         'issue_date' => 'date',
         'due_date' => 'date',
+        'fx_rate' => 'decimal:6',
         'subtotal' => 'decimal:2',
         'tax_amount' => 'decimal:2',
         'withheld_amount' => 'decimal:2',

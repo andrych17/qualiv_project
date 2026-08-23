@@ -16,6 +16,12 @@ const SECTION_HOME: Record<string, string> = {
   accounting: '/accounting/accounts',
 }
 
+/** Same idea as SECTION_HOME, one level deeper — a sub-resource that's only ever reached
+ * with an ID (no index page of its own), so the truncated crumb has nowhere real to land. */
+const NO_INDEX_REMAP: Record<string, string> = {
+  '/accounting/bank-reconciliation': '/accounting/bank-accounts',
+}
+
 /** Acronym segments that title-casing would otherwise mangle (crm → Crm). */
 const LABEL_OVERRIDES: Record<string, string> = {
   crm: 'CRM',
@@ -36,7 +42,7 @@ const breadcrumbs = computed(() => {
     const href =
       segments[index + 1] === 'edit' && /^\d+$/.test(segment)
         ? `${built}/edit`
-        : SECTION_HOME[built.slice(1)] ?? (SECTION_HOME[segment] && built === `/${segment}` ? SECTION_HOME[segment] : built)
+        : NO_INDEX_REMAP[built] ?? SECTION_HOME[built.slice(1)] ?? (SECTION_HOME[segment] && built === `/${segment}` ? SECTION_HOME[segment] : built)
     const label = LABEL_OVERRIDES[segment] ?? segment.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
     return { label, href, active: index === segments.length - 1 }
   })

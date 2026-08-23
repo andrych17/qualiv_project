@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Modules\Accounting\Services\CompanyContextService;
 use App\Modules\SysConfig\Services\ConfigService;
 use App\Services\TenantFeatureService;
 use App\Services\TenantMembershipService;
@@ -73,6 +74,13 @@ class HandleInertiaRequests extends Middleware
             'canMergePartners' => fn () => ($user && tenancy()->initialized)
                 ? (bool) (app(ConfigService::class)->permissionsForUserMenu((int) $user->id, 'CRM_MERGE')['read'] ?? false)
                 : false,
+            // §3K — only computed on an Accounting page (the routeIs guard keeps this a
+            // no-op query everywhere else); AppHeader's switcher reads this to render
+            // itself, and its own navigation is what keeps every Accounting screen's
+            // "current company" agreeing with CompanyContextService's session state.
+            'accountingCompanyContext' => fn () => ($user && tenancy()->initialized && $request->routeIs('accounting.*'))
+                ? app(CompanyContextService::class)->contextFor($request)
+                : null,
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),

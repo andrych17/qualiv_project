@@ -5,6 +5,7 @@ namespace App\Modules\Accounting\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Accounting\Models\ArInvoice;
 use App\Modules\Accounting\Models\Company;
+use App\Modules\Accounting\Services\CompanyContextService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
@@ -13,10 +14,12 @@ use Inertia\Response;
 /** §3D AR Aging — current / 1-30 / 31-60 / 61-90 / 90+ by partner. Drill-in reuses the AR Invoices index (filtered by partner) rather than a dedicated screen (§5 MVP bias). */
 class ArAgingController extends Controller
 {
+    public function __construct(private readonly CompanyContextService $companyContext) {}
+
     public function index(Request $request): Response
     {
         $companies = Company::query()->where('is_active', true)->orderBy('legal_name')->get(['id', 'legal_name']);
-        $companyId = (int) ($request->integer('company_id') ?: $companies->first()?->id);
+        $companyId = (int) $this->companyContext->resolve($request, $companies);
         $today = Carbon::today();
 
         $openInvoices = ArInvoice::query()

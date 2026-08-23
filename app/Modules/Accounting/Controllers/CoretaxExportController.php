@@ -7,6 +7,7 @@ use App\Modules\Accounting\Models\Company;
 use App\Modules\Accounting\Models\CoretaxExportBatch;
 use App\Modules\Accounting\Models\TaxPeriod;
 use App\Modules\Accounting\Requests\GenerateCoretaxExportRequest;
+use App\Modules\Accounting\Services\CompanyContextService;
 use App\Modules\Accounting\Services\CoretaxExportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -16,12 +17,12 @@ use Inertia\Response;
 /** §3M Coretax export — generates a structured-XML batch for bulk import into Coretax (see XmlCoretaxExportDriver docblock for the "not yet DJP-schema-verified" caveat). */
 class CoretaxExportController extends Controller
 {
-    public function __construct(private readonly CoretaxExportService $service) {}
+    public function __construct(private readonly CoretaxExportService $service, private readonly CompanyContextService $companyContext) {}
 
     public function index(Request $request): Response
     {
         $companies = Company::query()->where('is_active', true)->orderBy('legal_name')->get(['id', 'legal_name']);
-        $companyId = (int) ($request->integer('company_id') ?: $companies->first()?->id);
+        $companyId = (int) $this->companyContext->resolve($request, $companies);
 
         $batches = CoretaxExportBatch::query()->where('company_id', $companyId)->with(['taxPeriod:id,obligation_type,masa_pajak', 'generatedBy:id,name'])->orderByDesc('id')->get();
         $periods = TaxPeriod::query()->where('company_id', $companyId)->orderByDesc('masa_pajak')->get(['id', 'obligation_type', 'masa_pajak']);

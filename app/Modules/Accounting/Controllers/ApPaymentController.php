@@ -9,6 +9,7 @@ use App\Modules\Accounting\Models\ApPayment;
 use App\Modules\Accounting\Models\Company;
 use App\Modules\Accounting\Requests\StoreApPaymentRequest;
 use App\Modules\Accounting\Services\ApPaymentService;
+use App\Modules\Accounting\Services\CompanyContextService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -17,12 +18,12 @@ use Inertia\Response;
 /** §3E — record a vendor payment. create()+post() run in one DB transaction here: a human submitting this form is the review step (see ApPaymentService docblock), so either the payment posts in full or nothing is saved. */
 class ApPaymentController extends Controller
 {
-    public function __construct(private readonly ApPaymentService $service) {}
+    public function __construct(private readonly ApPaymentService $service, private readonly CompanyContextService $companyContext) {}
 
     public function index(Request $request): Response
     {
         $companies = Company::query()->where('is_active', true)->orderBy('legal_name')->get(['id', 'legal_name']);
-        $companyId = (int) ($request->integer('company_id') ?: $companies->first()?->id);
+        $companyId = (int) $this->companyContext->resolve($request, $companies);
 
         $payments = ApPayment::query()
             ->where('company_id', $companyId)

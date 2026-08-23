@@ -4,6 +4,7 @@ namespace App\Modules\Accounting\Requests;
 
 use App\Modules\Accounting\Models\Account;
 use App\Modules\Accounting\Models\Company;
+use App\Modules\Accounting\Models\Currency;
 use App\Modules\Accounting\Models\TaxCode;
 use App\Modules\Accounting\Models\WithholdingType;
 use App\Modules\CRM\Models\Partner;
@@ -57,6 +58,11 @@ class StoreApBillRequest extends FormRequest
             $withholdingTypeId = $this->input('withholding_type_id');
             if ($withholdingTypeId && ! WithholdingType::query()->whereKey($withholdingTypeId)->exists()) {
                 $validator->errors()->add('withholding_type_id', 'The selected withholding type is invalid.');
+            }
+
+            $currencyCode = $this->input('currency_code');
+            if ($currencyCode && ! Currency::query()->where('code', $currencyCode)->where('is_enabled', true)->exists()) {
+                $validator->errors()->add('currency_code', 'The selected currency is not enabled.');
             }
 
             foreach ((array) $this->input('lines', []) as $i => $line) {

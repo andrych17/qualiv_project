@@ -32,7 +32,7 @@ class ArInvoice extends Model
     ];
 
     protected $fillable = [
-        'uuid', 'company_id', 'partner_id', 'invoice_no', 'invoice_type', 'currency_code',
+        'uuid', 'company_id', 'partner_id', 'invoice_no', 'invoice_type', 'currency_code', 'fx_rate',
         'issue_date', 'due_date', 'subject_type', 'subject_id', 'status',
         'subtotal', 'tax_amount', 'total_amount', 'paid_amount', 'credited_amount',
         'journal_id', 'created_by',
@@ -41,6 +41,7 @@ class ArInvoice extends Model
     protected $casts = [
         'issue_date' => 'date',
         'due_date' => 'date',
+        'fx_rate' => 'decimal:6',
         'subtotal' => 'decimal:2',
         'tax_amount' => 'decimal:2',
         'total_amount' => 'decimal:2',

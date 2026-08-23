@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Accounting\Models\Company;
 use App\Modules\Accounting\Models\FakturPajakNumberBlock;
 use App\Modules\Accounting\Requests\StoreFakturPajakBlockRequest;
+use App\Modules\Accounting\Services\CompanyContextService;
 use App\Modules\Accounting\Services\FakturPajakNumberBlockService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -14,12 +15,12 @@ use Inertia\Response;
 /** §3M — tenant-entered DJP Faktur Pajak number-allocation blocks. */
 class FakturPajakBlockController extends Controller
 {
-    public function __construct(private readonly FakturPajakNumberBlockService $service) {}
+    public function __construct(private readonly FakturPajakNumberBlockService $service, private readonly CompanyContextService $companyContext) {}
 
     public function index(Request $request): Response
     {
         $companies = Company::query()->where('is_active', true)->orderBy('legal_name')->get(['id', 'legal_name']);
-        $companyId = (int) ($request->integer('company_id') ?: $companies->first()?->id);
+        $companyId = (int) $this->companyContext->resolve($request, $companies);
 
         $blocks = FakturPajakNumberBlock::query()->where('company_id', $companyId)->orderByDesc('id')->get();
 

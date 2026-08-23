@@ -1,0 +1,38 @@
+<!-- ponytail: §3K — top-bar company context switcher. Only renders on an Accounting
+     page (accountingCompanyContext is null everywhere else, see HandleInertiaRequests).
+     Switching always lands on Accounts (the section's established home) rather than
+     trying to stay on whatever page you're on — a Show/Edit screen for one company's
+     specific record has no sensible "same page, different company" equivalent. Each
+     page's own company selector still exists and still works: both write through
+     CompanyContextService's session state, so they can't disagree (see its docblock). -->
+<script setup lang="ts">
+import { computed } from 'vue'
+import { usePage, router } from '@inertiajs/vue3'
+import { Building2 } from 'lucide-vue-next'
+
+type CompanyContext = {
+  companies: Array<{ id: number; legal_name: string }>
+  currentCompanyId: number | null
+}
+
+const page = usePage()
+const context = computed(() => page.props.accountingCompanyContext as CompanyContext | null)
+
+const switchCompany = (e: Event) => {
+  const companyId = (e.target as HTMLSelectElement).value
+  router.get(route('accounting.accounts.index'), { company_id: companyId })
+}
+</script>
+
+<template>
+  <div v-if="context && context.companies.length" class="flex items-center gap-2">
+    <Building2 class="h-4 w-4 shrink-0 text-gray-500" />
+    <select
+      :value="context.currentCompanyId"
+      class="rounded-md border border-gray-200 bg-white px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-50"
+      @change="switchCompany"
+    >
+      <option v-for="c in context.companies" :key="c.id" :value="c.id">{{ c.legal_name }}</option>
+    </select>
+  </div>
+</template>

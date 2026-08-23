@@ -18,12 +18,20 @@ use Illuminate\Validation\ValidationException;
  * issues a Faktur Pajak via FakturPajakService (§3M) in the same transaction —
  * an invoice/bill screen that doesn't call tax logic is unfinished, not a
  * shippable interim state (§5 build-order note).
+ *
+ * §3L: the invoice keeps its lines/subtotal/total in transaction currency (what
+ * the customer sees); post() converts to base currency per journal line via
+ * ExchangeRateService::rateFor() and stores the rate used on invoice.fx_rate.
+ * A base-currency invoice never touches the rate table (rate is always 1.0),
+ * so this is a no-op for every tenant until a real foreign-currency invoice
+ * exists.
  */
 class ArInvoiceService
 {
     public function __construct(
         private readonly JournalService $journals,
         private readonly FakturPajakService $fakturPajak,
+        private readonly ExchangeRateService $exchangeRates,
     ) {}
 
     /**
@@ -109,12 +117,26 @@ class ArInvoiceService
             $taxAmount = (float) $invoice->lines->sum('tax_amount');
             $total = round($subtotal + $taxAmount, 2);
 
-            $journalLines = [
-                ['account_id' => $company->ar_control_account_id, 'debit' => $total, 'description' => "AR — {$invoice->invoice_no}"],
-            ];
+            // §3L: rate resolved once per posting, at 1.0 with no table lookup for a
+            // base-currency invoice (the common case) — see ExchangeRateService::rateFor().
+            $rate = $this->exchangeRates->rateFor($company, $invoice->currency_code, $invoice->issue_date->toDateString());
+            $isForeign = $invoice->currency_code !== $company->base_currency;
+            $toBase = fn (float $amount): float => round($amount * $rate, 2);
+            $fxTrio = fn (float $txnAmount): array => $isForeign
+                ? ['fx_currency_code' => $invoice->currency_code, 'fx_amount' => $txnAmount, 'fx_rate' => $rate]
+                : [];
+
+            // AR control debit is the SUM of the already-converted credit components
+            // below, not an independent conversion of $total — guarantees the journal
+            // balances exactly even where per-line rounding would otherwise drift a cent.
+            $journalLines = [];
+            $totalBase = 0.0;
 
             foreach ($invoice->lines->groupBy('revenue_account_id') as $revenueAccountId => $group) {
-                $journalLines[] = ['account_id' => (int) $revenueAccountId, 'credit' => (float) $group->sum('line_amount'), 'description' => "Revenue — {$invoice->invoice_no}"];
+                $txnAmount = (float) $group->sum('line_amount');
+                $base = $toBase($txnAmount);
+                $totalBase += $base;
+                $journalLines[] = ['account_id' => (int) $revenueAccountId, 'credit' => $base, 'description' => "Revenue — {$invoice->invoice_no}", ...$fxTrio($txnAmount)];
             }
 
             $taxableBase = 0.0;
@@ -124,9 +146,13 @@ class ArInvoiceService
                 if ($lineTax <= 0) {
                     continue;
                 }
-                $journalLines[] = ['account_id' => $taxCode->gl_account_id, 'credit' => $lineTax, 'description' => "PPN Output {$taxCode->code} — {$invoice->invoice_no}"];
+                $base = $toBase($lineTax);
+                $totalBase += $base;
+                $journalLines[] = ['account_id' => $taxCode->gl_account_id, 'credit' => $base, 'description' => "PPN Output {$taxCode->code} — {$invoice->invoice_no}", ...$fxTrio($lineTax)];
                 $taxableBase += (float) $group->sum('line_amount');
             }
+
+            array_unshift($journalLines, ['account_id' => $company->ar_control_account_id, 'debit' => $totalBase, 'description' => "AR — {$invoice->invoice_no}", ...$fxTrio($total)]);
 
             $journal = $this->journals->create([
                 'company_id' => $company->id,
@@ -144,10 +170,13 @@ class ArInvoiceService
                 'subtotal' => $subtotal,
                 'tax_amount' => $taxAmount,
                 'total_amount' => $total,
+                'fx_rate' => $rate,
                 'status' => ArInvoice::STATUS_POSTED,
                 'journal_id' => $journal->id,
             ]);
 
+            // §3L: $taxableBase/$taxAmount below are TRANSACTION currency (never
+            // converted) — same as ApBillService's input-side Faktur/Bukti Potong call.
             if ($taxAmount > 0) {
                 $partner = Partner::query()->find($invoice->partner_id);
                 $this->fakturPajak->issueOutput(

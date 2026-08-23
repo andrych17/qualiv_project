@@ -4,6 +4,7 @@ namespace App\Modules\Accounting\Requests;
 
 use App\Modules\Accounting\Models\Account;
 use App\Modules\Accounting\Models\ArInvoice;
+use App\Modules\Accounting\Models\Currency;
 use App\Modules\Accounting\Models\TaxCode;
 use App\Modules\CRM\Models\Partner;
 use Illuminate\Foundation\Http\FormRequest;
@@ -42,6 +43,11 @@ class UpdateArInvoiceRequest extends FormRequest
             $partnerId = $this->input('partner_id');
             if ($partnerId && ! Partner::query()->whereKey($partnerId)->exists()) {
                 $validator->errors()->add('partner_id', 'The selected customer is invalid.');
+            }
+
+            $currencyCode = $this->input('currency_code');
+            if ($currencyCode && ! Currency::query()->where('code', $currencyCode)->where('is_enabled', true)->exists()) {
+                $validator->errors()->add('currency_code', 'The selected currency is not enabled.');
             }
 
             foreach ((array) $this->input('lines', []) as $i => $line) {

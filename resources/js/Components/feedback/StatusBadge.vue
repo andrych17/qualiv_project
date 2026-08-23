@@ -62,6 +62,10 @@ const badgeClass = computed(() => {
     paid: 'bg-signal-success/10 text-signal-success border-signal-success/25',
     partially_paid: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
     void: 'bg-signal-danger/10 text-signal-danger border-signal-danger/25',
+    // Accounting §3Q bank statement line reconciliation status
+    matched: 'bg-signal-success/10 text-signal-success border-signal-success/25',
+    unmatched: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
+    ignored: 'bg-surface-50 text-ink-600 border-border',
   }
 
   return map[normalizedStatus.value] ?? 'bg-surface-50 text-ink-600 border-border'

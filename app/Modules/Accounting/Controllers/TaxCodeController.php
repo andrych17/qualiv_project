@@ -8,6 +8,7 @@ use App\Modules\Accounting\Models\Company;
 use App\Modules\Accounting\Models\TaxCode;
 use App\Modules\Accounting\Requests\StoreTaxCodeRequest;
 use App\Modules\Accounting\Requests\UpdateTaxCodeRequest;
+use App\Modules\Accounting\Services\CompanyContextService;
 use App\Modules\Accounting\Services\TaxCodeService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -16,12 +17,12 @@ use Inertia\Response;
 /** §3M PPN tax codes — plain company-scoped CRUD, same list-selector convention as Accounts/CostCenters. */
 class TaxCodeController extends Controller
 {
-    public function __construct(private readonly TaxCodeService $service) {}
+    public function __construct(private readonly TaxCodeService $service, private readonly CompanyContextService $companyContext) {}
 
     public function index(Request $request): Response
     {
         $companies = Company::query()->where('is_active', true)->orderBy('legal_name')->get(['id', 'legal_name']);
-        $companyId = (int) ($request->integer('company_id') ?: $companies->first()?->id);
+        $companyId = (int) $this->companyContext->resolve($request, $companies);
 
         $taxCodes = TaxCode::query()->where('company_id', $companyId)->with('glAccount:id,account_code,account_name')->orderBy('code')->get();
 

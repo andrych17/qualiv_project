@@ -8,6 +8,7 @@ use App\Modules\Accounting\Models\Company;
 use App\Modules\Accounting\Requests\StoreAccountRequest;
 use App\Modules\Accounting\Requests\UpdateAccountRequest;
 use App\Modules\Accounting\Services\AccountService;
+use App\Modules\Accounting\Services\CompanyContextService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Inertia\Inertia;
@@ -16,12 +17,12 @@ use Inertia\Response;
 /** §3B Chart of Accounts — depth-indented flat listing per company, same convention as DMS's Folder tree. */
 class AccountController extends Controller
 {
-    public function __construct(private readonly AccountService $service) {}
+    public function __construct(private readonly AccountService $service, private readonly CompanyContextService $companyContext) {}
 
     public function index(Request $request): Response
     {
         $companies = Company::query()->where('is_active', true)->orderBy('legal_name')->get(['id', 'legal_name']);
-        $companyId = (int) ($request->integer('company_id') ?: $companies->first()?->id);
+        $companyId = (int) $this->companyContext->resolve($request, $companies);
 
         $accounts = Account::query()
             ->where('company_id', $companyId)

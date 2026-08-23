@@ -9,6 +9,7 @@ use App\Modules\Accounting\Models\TaxBuktiPotong;
 use App\Modules\Accounting\Models\WithholdingType;
 use App\Modules\Accounting\Requests\StoreWithholdingTypeRequest;
 use App\Modules\Accounting\Requests\UpdateWithholdingTypeRequest;
+use App\Modules\Accounting\Services\CompanyContextService;
 use App\Modules\Accounting\Services\WithholdingTypeService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -17,12 +18,12 @@ use Inertia\Response;
 /** §3M PPh withholding types — plain company-scoped CRUD. */
 class WithholdingTypeController extends Controller
 {
-    public function __construct(private readonly WithholdingTypeService $service) {}
+    public function __construct(private readonly WithholdingTypeService $service, private readonly CompanyContextService $companyContext) {}
 
     public function index(Request $request): Response
     {
         $companies = Company::query()->where('is_active', true)->orderBy('legal_name')->get(['id', 'legal_name']);
-        $companyId = (int) ($request->integer('company_id') ?: $companies->first()?->id);
+        $companyId = (int) $this->companyContext->resolve($request, $companies);
 
         $withholdingTypes = WithholdingType::query()->where('company_id', $companyId)->with('glPayableAccount:id,account_code,account_name')->orderBy('code')->get();
 

@@ -16,12 +16,16 @@ use Illuminate\Validation\ValidationException;
  * control / Cr Cash, since we're reducing what we owe rather than what's owed to us).
  * create()/post() split the same way — see ApPaymentService's AR counterpart docblock for
  * why an automated caller only ever gets a draft.
+ *
+ * §3L: same own-rate-on-settlement-date discipline as ArPaymentService — see that docblock
+ * for why realized gain/loss is deferred and what residual that leaves.
  */
 class ApPaymentService
 {
     public function __construct(
         private readonly JournalService $journals,
         private readonly ApBillService $bills,
+        private readonly ExchangeRateService $exchangeRates,
     ) {}
 
     /**
@@ -34,7 +38,7 @@ class ApPaymentService
             $amount = (float) $header['amount'];
             $resolvedApplications = $applications ?? $this->autoApply($header['company_id'], $header['partner_id'], $amount);
 
-            $this->assertApplicationsValid($header['company_id'], $header['partner_id'], $resolvedApplications, $amount);
+            $this->assertApplicationsValid($header['company_id'], $header['partner_id'], $header['currency_code'], $resolvedApplications, $amount);
 
             $payment = ApPayment::query()->create([
                 ...$header,
@@ -78,6 +82,13 @@ class ApPaymentService
                 throw ValidationException::withMessages(['payment_date' => 'No open fiscal period covers this payment\'s date.']);
             }
 
+            $rate = $this->exchangeRates->rateFor($company, $payment->currency_code, $payment->payment_date->toDateString());
+            $isForeign = $payment->currency_code !== $company->base_currency;
+            $base = round((float) $payment->amount * $rate, 2);
+            $fxTrio = $isForeign
+                ? ['fx_currency_code' => $payment->currency_code, 'fx_amount' => (float) $payment->amount, 'fx_rate' => $rate]
+                : [];
+
             $journal = $this->journals->create([
                 'company_id' => $company->id,
                 'fiscal_period_id' => $period->id,
@@ -87,8 +98,8 @@ class ApPaymentService
                 'subject_type' => 'accounting.ap_payments',
                 'subject_id' => (string) $payment->id,
             ], [
-                ['account_id' => $company->ap_control_account_id, 'debit' => (float) $payment->amount, 'description' => "AP — payment #{$payment->id}"],
-                ['account_id' => $payment->cash_gl_account_id, 'credit' => (float) $payment->amount, 'description' => "Payment disbursed #{$payment->id}"],
+                ['account_id' => $company->ap_control_account_id, 'debit' => $base, 'description' => "AP — payment #{$payment->id}", ...$fxTrio],
+                ['account_id' => $payment->cash_gl_account_id, 'credit' => $base, 'description' => "Payment disbursed #{$payment->id}", ...$fxTrio],
             ], $userId, 'ap');
 
             $this->journals->post($journal, $userId);
@@ -151,7 +162,7 @@ class ApPaymentService
     }
 
     /** @param  list<array{ap_bill_id:int, applied_amount:float}>  $applications */
-    private function assertApplicationsValid(int $companyId, int $partnerId, array $applications, float $amount): void
+    private function assertApplicationsValid(int $companyId, int $partnerId, string $currencyCode, array $applications, float $amount): void
     {
         if (empty($applications)) {
             throw ValidationException::withMessages(['applications' => 'A payment needs at least one bill application.']);
@@ -166,6 +177,11 @@ class ApPaymentService
             $bill = ApBill::query()->find($app['ap_bill_id']);
             if ($bill === null || $bill->company_id !== $companyId || $bill->partner_id !== $partnerId) {
                 throw ValidationException::withMessages(['applications' => 'One of the selected bills is invalid for this partner/company.']);
+            }
+            // §3L: a payment only ever converts at its own single rate (see post()) — a
+            // bill in a different currency than the payment can't settle against it.
+            if ($bill->currency_code !== $currencyCode) {
+                throw ValidationException::withMessages(['applications' => "Bill {$bill->bill_no} is in {$bill->currency_code}, not this payment's currency ({$currencyCode})."]);
             }
             if ((float) $app['applied_amount'] > $bill->openBalance() + 0.005) {
                 throw ValidationException::withMessages(['applications' => "Applied amount for bill {$bill->bill_no} exceeds its open balance."]);

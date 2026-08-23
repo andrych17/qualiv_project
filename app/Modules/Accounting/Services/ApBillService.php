@@ -15,6 +15,8 @@ use Illuminate\Validation\ValidationException;
  * tax code and the bill's withholding type, issuing an input Faktur Pajak (§3M) and/or a
  * Bukti Potong in the same transaction — same "written against the tax engine from the
  * start" discipline as §3D.
+ *
+ * §3L: same base-currency-conversion discipline as ArInvoiceService — see its docblock.
  */
 class ApBillService
 {
@@ -22,6 +24,7 @@ class ApBillService
         private readonly JournalService $journals,
         private readonly FakturPajakService $fakturPajak,
         private readonly BuktiPotongService $buktiPotong,
+        private readonly ExchangeRateService $exchangeRates,
     ) {}
 
     /**
@@ -108,10 +111,23 @@ class ApBillService
             $withheld = $withholdingType !== null ? round($subtotal * ((float) $withholdingType->rate / 100), 2) : 0.0;
             $payable = round($total - $withheld, 2);
 
+            // §3L: same rate-resolution and "derive the total from its converted
+            // components" discipline as ArInvoiceService — see that docblock.
+            $rate = $this->exchangeRates->rateFor($company, $bill->currency_code, $bill->issue_date->toDateString());
+            $isForeign = $bill->currency_code !== $company->base_currency;
+            $toBase = fn (float $amount): float => round($amount * $rate, 2);
+            $fxTrio = fn (float $txnAmount): array => $isForeign
+                ? ['fx_currency_code' => $bill->currency_code, 'fx_amount' => $txnAmount, 'fx_rate' => $rate]
+                : [];
+
             $journalLines = [];
+            $debitsBase = 0.0;
 
             foreach ($bill->lines->groupBy('expense_account_id') as $expenseAccountId => $group) {
-                $journalLines[] = ['account_id' => (int) $expenseAccountId, 'debit' => (float) $group->sum('line_amount'), 'description' => "Expense — {$bill->bill_no}"];
+                $txnAmount = (float) $group->sum('line_amount');
+                $base = $toBase($txnAmount);
+                $debitsBase += $base;
+                $journalLines[] = ['account_id' => (int) $expenseAccountId, 'debit' => $base, 'description' => "Expense — {$bill->bill_no}", ...$fxTrio($txnAmount)];
             }
 
             $taxableBase = 0.0;
@@ -121,13 +137,20 @@ class ApBillService
                 if ($lineTax <= 0) {
                     continue;
                 }
-                $journalLines[] = ['account_id' => $taxCode->gl_account_id, 'debit' => $lineTax, 'description' => "PPN Masukan {$taxCode->code} — {$bill->bill_no}"];
+                $base = $toBase($lineTax);
+                $debitsBase += $base;
+                $journalLines[] = ['account_id' => $taxCode->gl_account_id, 'debit' => $base, 'description' => "PPN Masukan {$taxCode->code} — {$bill->bill_no}", ...$fxTrio($lineTax)];
                 $taxableBase += (float) $group->sum('line_amount');
             }
 
-            $journalLines[] = ['account_id' => $company->ap_control_account_id, 'credit' => $payable, 'description' => "AP — {$bill->bill_no}"];
-            if ($withheld > 0) {
-                $journalLines[] = ['account_id' => $withholdingType->gl_payable_account_id, 'credit' => $withheld, 'description' => "PPh {$withholdingType->code} withheld — {$bill->bill_no}"];
+            // credit(payable) + credit(withheld) is made to equal debitsBase exactly by
+            // deriving payableBase as the remainder, not by converting $payable on its own.
+            $withheldBase = $withheld > 0 ? $toBase($withheld) : 0.0;
+            $payableBase = round($debitsBase - $withheldBase, 2);
+
+            $journalLines[] = ['account_id' => $company->ap_control_account_id, 'credit' => $payableBase, 'description' => "AP — {$bill->bill_no}", ...$fxTrio($payable)];
+            if ($withheldBase > 0) {
+                $journalLines[] = ['account_id' => $withholdingType->gl_payable_account_id, 'credit' => $withheldBase, 'description' => "PPh {$withholdingType->code} withheld — {$bill->bill_no}", ...$fxTrio($withheld)];
             }
 
             $journal = $this->journals->create([
@@ -147,10 +170,14 @@ class ApBillService
                 'tax_amount' => $taxAmount,
                 'withheld_amount' => $withheld,
                 'total_amount' => $total,
+                'fx_rate' => $rate,
                 'status' => ApBill::STATUS_POSTED,
                 'journal_id' => $journal->id,
             ]);
 
+            // §3L: $taxableBase/$taxAmount/$withheld below are TRANSACTION currency
+            // (never converted) — a DJP tax document is denominated in whatever
+            // currency the underlying bill actually is, same as $bill->total_amount.
             if ($taxAmount > 0) {
                 if (! $bill->vendor_faktur_no) {
                     throw ValidationException::withMessages(['vendor_faktur_no' => 'This bill has a taxable line — the vendor\'s Faktur Pajak number is required before posting.']);

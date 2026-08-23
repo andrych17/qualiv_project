@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Accounting\Models\Company;
 use App\Modules\Accounting\Models\TaxPeriod;
 use App\Modules\Accounting\Requests\StoreTaxPeriodRequest;
+use App\Modules\Accounting\Services\CompanyContextService;
 use App\Modules\Accounting\Services\TaxPeriodService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -14,12 +15,12 @@ use Inertia\Response;
 /** §3M tax period register (masa pajak) — due-date reminders via WNE are a later build; this is the register itself. */
 class TaxPeriodController extends Controller
 {
-    public function __construct(private readonly TaxPeriodService $service) {}
+    public function __construct(private readonly TaxPeriodService $service, private readonly CompanyContextService $companyContext) {}
 
     public function index(Request $request): Response
     {
         $companies = Company::query()->where('is_active', true)->orderBy('legal_name')->get(['id', 'legal_name']);
-        $companyId = (int) ($request->integer('company_id') ?: $companies->first()?->id);
+        $companyId = (int) $this->companyContext->resolve($request, $companies);
 
         $periods = TaxPeriod::query()->where('company_id', $companyId)->orderByDesc('masa_pajak')->get();
 

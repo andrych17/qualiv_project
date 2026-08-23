@@ -2,6 +2,7 @@
 
 namespace App\Modules\Accounting\Services;
 
+use App\Modules\Accounting\Models\ApBill;
 use App\Modules\Accounting\Models\ApDebitNote;
 use App\Modules\Accounting\Models\Company;
 use App\Modules\Accounting\Models\FiscalPeriod;
@@ -14,6 +15,11 @@ use Illuminate\Validation\ValidationException;
  * Expense (reverse part of the original expense) — the AP-direction mirror of AR's
  * credit note entry. Does NOT touch the linked bill's input Faktur Pajak or Bukti
  * Potong — same deferred-correction-procedure treatment as the AR side.
+ *
+ * §3L: same currency-match guard as ArCreditNoteService — see its docblock. A
+ * debit note's `amount` posts straight into the base-currency journal, so it's
+ * rejected outright against a foreign-currency bill rather than silently
+ * desyncing ApBill::openBalance() from the AP control account.
  */
 class ApDebitNoteService
 {
@@ -27,6 +33,15 @@ class ApDebitNoteService
     {
         return DB::transaction(function () use ($header, $userId) {
             $company = Company::query()->lockForUpdate()->findOrFail($header['company_id']);
+
+            if (! empty($header['ap_bill_id'])) {
+                $bill = ApBill::query()->find($header['ap_bill_id']);
+                if ($bill !== null && $bill->currency_code !== $company->base_currency) {
+                    throw ValidationException::withMessages([
+                        'ap_bill_id' => "Bill {$bill->bill_no} is in {$bill->currency_code} — debit notes against a foreign-currency bill aren't supported yet (would desync the AP control account from the bill's open balance).",
+                    ]);
+                }
+            }
 
             return ApDebitNote::query()->create([
                 ...$header,

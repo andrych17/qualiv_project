@@ -7,6 +7,7 @@ use App\Modules\Accounting\Models\Company;
 use App\Modules\Accounting\Models\CostCenter;
 use App\Modules\Accounting\Requests\StoreCostCenterRequest;
 use App\Modules\Accounting\Requests\UpdateCostCenterRequest;
+use App\Modules\Accounting\Services\CompanyContextService;
 use App\Modules\Accounting\Services\CostCenterService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -16,12 +17,12 @@ use Inertia\Response;
 /** §3B/§3I cost center dimension — depth-indented flat listing, same convention as Accounts/Folders. */
 class CostCenterController extends Controller
 {
-    public function __construct(private readonly CostCenterService $service) {}
+    public function __construct(private readonly CostCenterService $service, private readonly CompanyContextService $companyContext) {}
 
     public function index(Request $request): Response
     {
         $companies = Company::query()->where('is_active', true)->orderBy('legal_name')->get(['id', 'legal_name']);
-        $companyId = (int) ($request->integer('company_id') ?: $companies->first()?->id);
+        $companyId = (int) $this->companyContext->resolve($request, $companies);
 
         $costCenters = CostCenter::query()->where('company_id', $companyId)->orderBy('code')->get();
 

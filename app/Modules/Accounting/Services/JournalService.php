@@ -31,7 +31,7 @@ class JournalService
 {
     /**
      * @param  array{company_id:int, fiscal_period_id:int, journal_date:string, currency_code:string, memo?:?string, subject_type?:?string, subject_id?:?string}  $header
-     * @param  list<array{account_id:int, cost_center_id?:?int, debit?:float, credit?:float, description?:?string}>  $lines
+     * @param  list<array{account_id:int, cost_center_id?:?int, debit?:float, credit?:float, fx_currency_code?:?string, fx_amount?:?float, fx_rate?:?float, description?:?string}>  $lines
      */
     public function create(array $header, array $lines, int $userId, string $source = GlJournal::SOURCE_MANUAL): GlJournal
     {
@@ -50,7 +50,7 @@ class JournalService
         });
     }
 
-    /** @param  list<array{account_id:int, cost_center_id?:?int, debit?:float, credit?:float, description?:?string}>  $lines */
+    /** @param  list<array{account_id:int, cost_center_id?:?int, debit?:float, credit?:float, fx_currency_code?:?string, fx_amount?:?float, fx_rate?:?float, description?:?string}>  $lines */
     public function update(GlJournal $journal, array $header, array $lines): GlJournal
     {
         $this->assertDraft($journal);
@@ -159,7 +159,7 @@ class JournalService
         }
     }
 
-    /** @param  list<array{account_id:int, cost_center_id?:?int, debit?:float, credit?:float, description?:?string}>  $lines */
+    /** @param  list<array{account_id:int, cost_center_id?:?int, debit?:float, credit?:float, fx_currency_code?:?string, fx_amount?:?float, fx_rate?:?float, description?:?string}>  $lines */
     private function replaceLines(GlJournal $journal, array $lines): void
     {
         $journal->lines()->delete();
@@ -182,6 +182,11 @@ class JournalService
                 'cost_center_id' => $line['cost_center_id'] ?? null,
                 'debit' => $debit,
                 'credit' => $credit,
+                // §3L: set only when the line's transaction currency differs from the
+                // journal's base-currency debit/credit — see ArInvoiceService/ApBillService.
+                'fx_currency_code' => $line['fx_currency_code'] ?? null,
+                'fx_amount' => $line['fx_amount'] ?? null,
+                'fx_rate' => $line['fx_rate'] ?? null,
                 'description' => $line['description'] ?? null,
             ]);
         }

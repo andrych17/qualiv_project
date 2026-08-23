@@ -5,6 +5,7 @@ namespace App\Modules\Accounting\Requests;
 use App\Modules\Accounting\Models\Account;
 use App\Modules\Accounting\Models\ArInvoice;
 use App\Modules\Accounting\Models\Company;
+use App\Modules\Accounting\Models\Currency;
 use App\Modules\CRM\Models\Partner;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
@@ -51,6 +52,11 @@ class StoreArPaymentRequest extends FormRequest
             $cashAccountId = $this->input('cash_gl_account_id');
             if ($cashAccountId && ! Account::query()->whereKey($cashAccountId)->exists()) {
                 $validator->errors()->add('cash_gl_account_id', 'The selected cash/bank account is invalid.');
+            }
+
+            $currencyCode = $this->input('currency_code');
+            if ($currencyCode && ! Currency::query()->where('code', $currencyCode)->where('is_enabled', true)->exists()) {
+                $validator->errors()->add('currency_code', 'The selected currency is not enabled.');
             }
 
             foreach ((array) $this->input('applications', []) as $i => $app) {

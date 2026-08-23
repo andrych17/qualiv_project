@@ -11,6 +11,7 @@ use App\Modules\Accounting\Models\FiscalPeriod;
 use App\Modules\Accounting\Models\GlJournal;
 use App\Modules\Accounting\Requests\StoreJournalRequest;
 use App\Modules\Accounting\Requests\UpdateJournalRequest;
+use App\Modules\Accounting\Services\CompanyContextService;
 use App\Modules\Accounting\Services\JournalService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -19,12 +20,12 @@ use Inertia\Response;
 /** §3C — manual journal entry screen, the only caller of JournalService in this pass. */
 class JournalController extends Controller
 {
-    public function __construct(private readonly JournalService $service) {}
+    public function __construct(private readonly JournalService $service, private readonly CompanyContextService $companyContext) {}
 
     public function index(Request $request): Response
     {
         $companies = Company::query()->where('is_active', true)->orderBy('legal_name')->get(['id', 'legal_name']);
-        $companyId = (int) ($request->integer('company_id') ?: $companies->first()?->id);
+        $companyId = (int) $this->companyContext->resolve($request, $companies);
 
         $journals = GlJournal::query()
             ->where('company_id', $companyId)

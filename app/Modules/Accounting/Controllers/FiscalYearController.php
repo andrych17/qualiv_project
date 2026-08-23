@@ -8,6 +8,7 @@ use App\Modules\Accounting\Models\FiscalPeriod;
 use App\Modules\Accounting\Models\FiscalYear;
 use App\Modules\Accounting\Requests\StoreFiscalYearRequest;
 use App\Modules\Accounting\Requests\UpdatePeriodStatusRequest;
+use App\Modules\Accounting\Services\CompanyContextService;
 use App\Modules\Accounting\Services\FiscalYearService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -16,12 +17,12 @@ use Inertia\Response;
 /** §3B fiscal calendar — a fiscal year always ships with its 12 monthly periods (§3O period locking lives on the period row). */
 class FiscalYearController extends Controller
 {
-    public function __construct(private readonly FiscalYearService $service) {}
+    public function __construct(private readonly FiscalYearService $service, private readonly CompanyContextService $companyContext) {}
 
     public function index(Request $request): Response
     {
         $companies = Company::query()->where('is_active', true)->orderBy('legal_name')->get(['id', 'legal_name']);
-        $companyId = (int) ($request->integer('company_id') ?: $companies->first()?->id);
+        $companyId = (int) $this->companyContext->resolve($request, $companies);
 
         $fiscalYears = FiscalYear::query()
             ->where('company_id', $companyId)

@@ -12,6 +12,7 @@ use App\Modules\Accounting\Requests\StoreArInvoiceRequest;
 use App\Modules\Accounting\Requests\UpdateArInvoiceRequest;
 use App\Modules\Accounting\Services\ArCreditNoteService;
 use App\Modules\Accounting\Services\ArInvoiceService;
+use App\Modules\Accounting\Services\CompanyContextService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -22,12 +23,13 @@ class ArInvoiceController extends Controller
     public function __construct(
         private readonly ArInvoiceService $service,
         private readonly ArCreditNoteService $creditNotes,
+        private readonly CompanyContextService $companyContext,
     ) {}
 
     public function index(Request $request): Response
     {
         $companies = Company::query()->where('is_active', true)->orderBy('legal_name')->get(['id', 'legal_name']);
-        $companyId = (int) ($request->integer('company_id') ?: $companies->first()?->id);
+        $companyId = (int) $this->companyContext->resolve($request, $companies);
 
         $invoices = ArInvoice::query()
             ->where('company_id', $companyId)
