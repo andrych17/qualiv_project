@@ -13,6 +13,7 @@ const SECTION_HOME: Record<string, string> = {
   wne: '/wne/dashboard',
   dms: '/dms/dashboard',
   schedule: '/schedule/dashboard',
+  accounting: '/accounting/accounts',
 }
 
 /** Acronym segments that title-casing would otherwise mangle (crm → Crm). */

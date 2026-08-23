@@ -50,6 +50,18 @@ const badgeClass = computed(() => {
     // Schedule Task/Event status (§3B/§3C)
     scheduled: 'bg-signal-info/10 text-signal-info border-signal-info/25',
     cancelled: 'bg-signal-danger/10 text-signal-danger border-signal-danger/25',
+    // Accounting GL Journal / fiscal period status (§3C/§3O)
+    posted: 'bg-signal-success/10 text-signal-success border-signal-success/25',
+    reversed: 'bg-signal-danger/10 text-signal-danger border-signal-danger/25',
+    soft_closed: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
+    hard_closed: 'bg-signal-danger/10 text-signal-danger border-signal-danger/25',
+    // Accounting tax period filing status (§3M) — 'late' is a derived display state, never persisted
+    filed: 'bg-signal-success/10 text-signal-success border-signal-success/25',
+    late: 'bg-signal-danger/10 text-signal-danger border-signal-danger/25',
+    // Accounting AR invoice/payment/credit note status (§3D)
+    paid: 'bg-signal-success/10 text-signal-success border-signal-success/25',
+    partially_paid: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
+    void: 'bg-signal-danger/10 text-signal-danger border-signal-danger/25',
   }
 
   return map[normalizedStatus.value] ?? 'bg-surface-50 text-ink-600 border-border'

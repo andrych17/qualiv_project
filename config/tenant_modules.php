@@ -17,6 +17,7 @@ return [
             'SCHEDULE',
             'WNE',
             'DMS',
+            'ACCOUNTING',
             'DESIGN_SYSTEM',
         ],
         'full' => [

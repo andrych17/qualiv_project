@@ -72,6 +72,7 @@ class DatabaseSeeder extends Seeder
 
                 config(['demo.tenant' => $t]);
                 $this->call(SysConfigSeeder::class);
+                $this->call(AccountingSeeder::class);
                 $this->call(TenantFlavorSeeder::class);
             });
 

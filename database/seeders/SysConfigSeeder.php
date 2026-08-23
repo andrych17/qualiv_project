@@ -115,7 +115,10 @@ class SysConfigSeeder extends Seeder
             ['code' => 'PROJECTS', 'menu_header' => 'Internal', 'menu_caption' => 'Projects', 'menu_link' => '/projects', 'icon' => 'Kanban', 'seq' => 65, 'status_code' => 'A'],
             ['code' => 'SALES', 'menu_header' => 'Operations', 'menu_caption' => 'Sales', 'menu_link' => '#', 'icon' => 'ShoppingCart', 'seq' => 80, 'status_code' => 'I'],
             ['code' => 'PURCHASE', 'menu_header' => 'Operations', 'menu_caption' => 'Purchase', 'menu_link' => '#', 'icon' => 'Truck', 'seq' => 90, 'status_code' => 'I'],
-            ['code' => 'ACCOUNTING', 'menu_header' => 'Operations', 'menu_caption' => 'Accounting', 'menu_link' => '#', 'icon' => 'Calculator', 'seq' => 120, 'status_code' => 'I'],
+            // §3B ships (COA/GL setup) — Accounts is the section landing page for now
+            // (no §3A dashboard yet), same "point straight at the built page" convention
+            // WNE/DMS used before their own dashboards existed.
+            ['code' => 'ACCOUNTING', 'menu_header' => 'Operations', 'menu_caption' => 'Accounting', 'menu_link' => '/accounting/accounts', 'icon' => 'Calculator', 'seq' => 120, 'status_code' => 'A'],
             ['code' => 'HCM', 'menu_header' => 'People', 'menu_caption' => 'HCM', 'menu_link' => '#', 'icon' => 'UserCog', 'seq' => 130, 'status_code' => 'I'],
             ['code' => 'PAYROLL', 'menu_header' => 'People', 'menu_caption' => 'Payroll', 'menu_link' => '#', 'icon' => 'Wallet', 'seq' => 140, 'status_code' => 'I'],
         ];
@@ -159,6 +162,7 @@ class SysConfigSeeder extends Seeder
                 'WNE' => 'CRUD',
                 'DMS' => 'CRUD',
                 'PROJECTS' => 'CRUD',
+                'ACCOUNTING' => 'CRUD',
                 'DESIGN_SYSTEM' => 'R',
             ],
             'VIEWER' => [
@@ -170,6 +174,7 @@ class SysConfigSeeder extends Seeder
                 'WNE' => 'R',
                 'DMS' => 'R',
                 'PROJECTS' => 'R',
+                'ACCOUNTING' => 'R',
                 'DESIGN_SYSTEM' => 'R',
             ],
         ];
@@ -217,6 +222,10 @@ class SysConfigSeeder extends Seeder
             ['const_group' => 'APP', 'group_code' => 'NAME', 'seq' => 1, 'str1' => 'NusaEvo ERP', 'note1' => 'Product display name'],
             ['const_group' => 'APP', 'group_code' => 'TZ', 'seq' => 2, 'str1' => 'Asia/Jakarta', 'note1' => 'Default timezone'],
             ['const_group' => 'INVENTORY', 'group_code' => 'LOW_STOCK', 'seq' => 1, 'num1' => 10, 'note1' => 'Default low-stock threshold'],
+            // ACCOUNTING §3M due-date rules — tenant-editable per CLAUDE.md §2 customization
+            // ladder rung 1 (constants), never hardcoded, since regulation can change.
+            ['const_group' => 'ACCOUNTING_TAX', 'group_code' => 'PPN_DUE_DAY_OF_MONTH', 'seq' => 1, 'num1' => 0, 'note1' => 'SPT Masa PPN due date: day of the following month (0 = last day)'],
+            ['const_group' => 'ACCOUNTING_TAX', 'group_code' => 'PPH_DUE_DAY_OF_MONTH', 'seq' => 2, 'num1' => 10, 'note1' => 'PPh withholding remittance due date: day of the following month'],
             ['const_group' => 'STATUS', 'group_code' => 'ACTIVE', 'seq' => 1, 'str1' => 'A', 'str2' => 'Active'],
             ['const_group' => 'STATUS', 'group_code' => 'INACTIVE', 'seq' => 2, 'str1' => 'I', 'str2' => 'Inactive'],
             ['const_group' => 'TRUSTEE', 'group_code' => 'CRUD', 'seq' => 1, 'str1' => 'CRUD', 'note1' => 'Full menu trustee'],

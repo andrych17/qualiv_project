@@ -4,6 +4,16 @@ namespace App\Providers;
 
 use App\Auth\TenantAwareUserProvider;
 use App\Models\User;
+use App\Modules\Accounting\Contracts\CoretaxExportDriverInterface;
+use App\Modules\Accounting\Events\ApBillRequested;
+use App\Modules\Accounting\Events\ApPaymentRequested;
+use App\Modules\Accounting\Events\InvoiceRequested;
+use App\Modules\Accounting\Events\PaymentRequested;
+use App\Modules\Accounting\Listeners\CreateBillFromRequest;
+use App\Modules\Accounting\Listeners\CreateInvoiceFromRequest;
+use App\Modules\Accounting\Listeners\RecordApPaymentFromRequest;
+use App\Modules\Accounting\Listeners\RecordPaymentFromRequest;
+use App\Modules\Accounting\Services\XmlCoretaxExportDriver;
 use App\Modules\CRM\Models\Partner;
 use App\Modules\DMS\Models\Document;
 use App\Modules\Legal\Contracts\MatterCodeGenerator;
@@ -25,6 +35,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(MatterCodeGenerator::class, PrefixedMatterCodeGenerator::class);
+        $this->app->bind(CoretaxExportDriverInterface::class, XmlCoretaxExportDriver::class);
     }
 
     public function boot(): void
@@ -38,6 +49,14 @@ class AppServiceProvider extends ServiceProvider
         // WNE_SPECS.md §3I — no EventServiceProvider/auto-discovery exists in this app yet;
         // explicit registration is the first (and only, for now) listener wiring in the codebase.
         Event::listen(NotificationRequested::class, DeliverRequestedNotification::class);
+
+        // §3D/§5 — no real caller exists yet (Sales isn't built), but the seam is
+        // cheap and is literally what §3R Automation from ERP asks for. Both
+        // listeners draft-create only, never auto-post (see each listener's docblock).
+        Event::listen(InvoiceRequested::class, CreateInvoiceFromRequest::class);
+        Event::listen(PaymentRequested::class, RecordPaymentFromRequest::class);
+        Event::listen(ApBillRequested::class, CreateBillFromRequest::class);
+        Event::listen(ApPaymentRequested::class, RecordApPaymentFromRequest::class);
 
         Auth::provider('eloquent', function ($app, array $config) {
             return new TenantAwareUserProvider($app['hash'], $config['model']);
