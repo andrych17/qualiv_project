@@ -23,6 +23,8 @@ class UpdateCompanyRequest extends FormRequest
             'fiscal_year_start_month' => ['required', 'integer', 'between:1,12'],
             'ar_control_account_id' => ['nullable', 'integer'],
             'ap_control_account_id' => ['nullable', 'integer'],
+            'inventory_control_account_id' => ['nullable', 'integer'],
+            'payroll_net_pay_payable_account_id' => ['nullable', 'integer'],
             'is_active' => ['required', 'boolean'],
         ];
     }
@@ -32,7 +34,7 @@ class UpdateCompanyRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator) {
-            foreach (['ar_control_account_id', 'ap_control_account_id'] as $field) {
+            foreach (['ar_control_account_id', 'ap_control_account_id', 'inventory_control_account_id', 'payroll_net_pay_payable_account_id'] as $field) {
                 $accountId = $this->input($field);
                 if ($accountId && ! Account::query()->whereKey($accountId)->exists()) {
                     $validator->errors()->add($field, 'The selected account is invalid.');

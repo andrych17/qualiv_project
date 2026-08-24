@@ -5,6 +5,7 @@ namespace App\Modules\Accounting\Services;
 use App\Modules\Accounting\Events\ApPaymentRecorded;
 use App\Modules\Accounting\Models\ApBill;
 use App\Modules\Accounting\Models\ApPayment;
+use App\Modules\Accounting\Models\AuditLog;
 use App\Modules\Accounting\Models\Company;
 use App\Modules\Accounting\Models\FiscalPeriod;
 use Illuminate\Support\Facades\DB;
@@ -113,6 +114,14 @@ class ApPaymentService
                 $this->bills->recalculateStatus($bill->refresh());
                 $billIds[] = $bill->id;
             }
+
+            AuditLog::record([
+                'company_id' => $company->id,
+                'action' => AuditLog::ACTION_PAYMENT_POSTED,
+                'subject_type' => 'accounting.ap_payments',
+                'subject_id' => $payment->id,
+                'actor_id' => $userId,
+            ]);
 
             ApPaymentRecorded::dispatch($payment->id, $billIds);
 

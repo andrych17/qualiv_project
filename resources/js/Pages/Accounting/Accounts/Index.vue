@@ -65,6 +65,9 @@ const seedStarter = () => {
     <PageHeader title="Chart of Accounts" description="Per-company COA — control accounts (AR/AP/Inventory) can only be posted to by their own subledger engine, never a manual journal.">
       <template #actions>
         <Link :href="route('accounting.companies.index')" class="mr-4 text-sm font-medium text-accent hover:underline">Companies</Link>
+        <Link :href="route('accounting.inventory-gl-mappings.index')" class="mr-4 text-sm font-medium text-accent hover:underline">Inventory GL mappings</Link>
+        <Link :href="route('accounting.payroll-component-gl-mappings.index')" class="mr-4 text-sm font-medium text-accent hover:underline">Payroll GL mappings</Link>
+        <Link :href="route('accounting.reports.index')" class="mr-4 text-sm font-medium text-accent hover:underline">Reports</Link>
         <PrimaryButton :href="route('accounting.accounts.create', { company_id: selectedCompanyId })">New account</PrimaryButton>
       </template>
     </PageHeader>

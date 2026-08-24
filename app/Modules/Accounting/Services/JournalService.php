@@ -2,7 +2,9 @@
 
 namespace App\Modules\Accounting\Services;
 
+use App\Modules\Accounting\Events\JournalPosted;
 use App\Modules\Accounting\Models\Account;
+use App\Modules\Accounting\Models\AuditLog;
 use App\Modules\Accounting\Models\FiscalPeriod;
 use App\Modules\Accounting\Models\GlJournal;
 use App\Modules\Accounting\Models\GlJournalLine;
@@ -30,10 +32,19 @@ use Illuminate\Validation\ValidationException;
 class JournalService
 {
     /**
+     * $userId is nullable — same "unattended caller has no human to attribute to" case
+     * ArInvoiceService::create() already allows (§3P's recurring-generation sweep runs in
+     * console context with no logged-in user). post() (below) is nullable for the same
+     * reason as of §3H — Inventory's movement events have no human in the loop either, and
+     * unlike §3D's InvoiceRequested/§3P's recurring drafts, §3H's spec explicitly calls for
+     * auto-posting: the GL entry is a mechanical translation of a fact Inventory's own
+     * append-only stock_ledger has already finalized, not a new decision needing review.
+     * reverse() stays non-nullable — nothing in this codebase auto-reverses a posted entry.
+     *
      * @param  array{company_id:int, fiscal_period_id:int, journal_date:string, currency_code:string, memo?:?string, subject_type?:?string, subject_id?:?string}  $header
      * @param  list<array{account_id:int, cost_center_id?:?int, debit?:float, credit?:float, fx_currency_code?:?string, fx_amount?:?float, fx_rate?:?float, description?:?string}>  $lines
      */
-    public function create(array $header, array $lines, int $userId, string $source = GlJournal::SOURCE_MANUAL): GlJournal
+    public function create(array $header, array $lines, ?int $userId, string $source = GlJournal::SOURCE_MANUAL): GlJournal
     {
         return DB::transaction(function () use ($header, $lines, $userId, $source) {
             $journal = GlJournal::query()->create([
@@ -45,6 +56,14 @@ class JournalService
             ]);
 
             $this->replaceLines($journal, $lines);
+
+            AuditLog::record([
+                'company_id' => $journal->company_id,
+                'action' => AuditLog::ACTION_JOURNAL_CREATED,
+                'subject_type' => 'accounting.gl_journals',
+                'subject_id' => $journal->id,
+                'actor_id' => $userId,
+            ]);
 
             return $journal->refresh();
         });
@@ -64,7 +83,7 @@ class JournalService
     }
 
     /** §3C: a journal must balance (Σdebit = Σcredit) before it can leave draft; control accounts reject manual lines (§3B, enforced here not just in the UI). */
-    public function post(GlJournal $journal, int $userId): GlJournal
+    public function post(GlJournal $journal, ?int $userId): GlJournal
     {
         $this->assertDraft($journal);
 
@@ -96,6 +115,19 @@ class JournalService
                 'posted_by' => $userId,
                 'posted_at' => now(),
             ]);
+
+            AuditLog::record([
+                'company_id' => $journal->company_id,
+                'action' => AuditLog::ACTION_JOURNAL_POSTED,
+                'subject_type' => 'accounting.gl_journals',
+                'subject_id' => $journal->id,
+                'actor_id' => $userId,
+            ]);
+
+            // §3R status echo — carries the journal's OWN subject_type/subject_id (what
+            // triggered it, e.g. 'inventory.stock_ledger'), not the audit-log pointer above
+            // (which points AT this journal for the audit trail, a different thing).
+            JournalPosted::dispatch($journal->id, $journal->subject_type, $journal->subject_id);
 
             return $journal->refresh();
         });
@@ -141,6 +173,18 @@ class JournalService
             }
 
             $journal->update(['status' => GlJournal::STATUS_REVERSED]);
+
+            // One row for the reversal event, referencing the original journal — the new
+            // reversal entry's own id is carried in after_snapshot rather than a second
+            // journal_posted row, since it never went through the ordinary post() gate above.
+            AuditLog::record([
+                'company_id' => $journal->company_id,
+                'action' => AuditLog::ACTION_JOURNAL_REVERSED,
+                'subject_type' => 'accounting.gl_journals',
+                'subject_id' => $journal->id,
+                'actor_id' => $userId,
+                'after_snapshot' => ['reversal_journal_id' => $reversal->id],
+            ]);
 
             return $reversal;
         });

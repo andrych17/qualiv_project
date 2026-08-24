@@ -9,12 +9,16 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 
 type Report = { controlBalance: number; openItemsTotal: number; variance: number; openItemCount: number }
+type InventoryReport = { controlBalance: number; valuationTotal: number | null; variance: number | null }
+type PayrollReport = { controlBalance: number; openTotal: number | null; variance: number | null }
 
 const props = defineProps<{
   companies: Array<{ id: number; legal_name: string }>
   selectedCompanyId: number | null
   ar: Report
   ap: Report
+  inventory: InventoryReport
+  payroll: PayrollReport
 }>()
 
 const switchCompany = (e: Event) => {
@@ -59,6 +63,26 @@ const ok = (r: Report) => Math.abs(r.variance) < 0.005
           <div class="flex justify-between border-t border-border pt-1 font-semibold">
             <dt :class="ok(ap) ? 'text-ink-900' : 'text-signal-danger'">Variance</dt>
             <dd :class="ok(ap) ? 'text-signal-success' : 'text-signal-danger'">{{ ap.variance.toFixed(2) }}</dd>
+          </div>
+        </dl>
+      </Panel>
+      <Panel class="p-4">
+        <div class="text-sm font-semibold text-ink-900">Inventory</div>
+        <dl class="mt-3 space-y-1 text-sm">
+          <div class="flex justify-between"><dt class="text-ink-600">Inventory control account (GL)</dt><dd class="font-medium text-ink-900">{{ inventory.controlBalance.toFixed(2) }}</dd></div>
+          <div class="flex justify-between border-t border-border pt-1">
+            <dt class="text-ink-600">Inventory valuation total</dt>
+            <dd class="text-ink-600">Not available — Inventory's costing engine isn't built yet</dd>
+          </div>
+        </dl>
+      </Panel>
+      <Panel class="p-4">
+        <div class="text-sm font-semibold text-ink-900">Payroll</div>
+        <dl class="mt-3 space-y-1 text-sm">
+          <div class="flex justify-between"><dt class="text-ink-600">Net Pay Payable account (GL)</dt><dd class="font-medium text-ink-900">{{ payroll.controlBalance.toFixed(2) }}</dd></div>
+          <div class="flex justify-between border-t border-border pt-1">
+            <dt class="text-ink-600">Open unpaid net pay total</dt>
+            <dd class="text-ink-600">Not available — Payroll's own engine isn't built yet</dd>
           </div>
         </dl>
       </Panel>

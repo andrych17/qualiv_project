@@ -5,6 +5,7 @@ namespace App\Modules\Accounting\Services;
 use App\Modules\Accounting\Events\PaymentRecorded;
 use App\Modules\Accounting\Models\ArInvoice;
 use App\Modules\Accounting\Models\ArPayment;
+use App\Modules\Accounting\Models\AuditLog;
 use App\Modules\Accounting\Models\Company;
 use App\Modules\Accounting\Models\FiscalPeriod;
 use Illuminate\Support\Facades\DB;
@@ -121,6 +122,14 @@ class ArPaymentService
                 $this->invoices->recalculateStatus($invoice->refresh());
                 $invoiceIds[] = $invoice->id;
             }
+
+            AuditLog::record([
+                'company_id' => $company->id,
+                'action' => AuditLog::ACTION_PAYMENT_POSTED,
+                'subject_type' => 'accounting.ar_payments',
+                'subject_id' => $payment->id,
+                'actor_id' => $userId,
+            ]);
 
             PaymentRecorded::dispatch($payment->id, $invoiceIds);
 

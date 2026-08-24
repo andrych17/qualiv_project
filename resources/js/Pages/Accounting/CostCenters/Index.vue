@@ -50,6 +50,8 @@ const confirmDelete = (costCenter: CostCenterRow) => {
   <AppLayout>
     <PageHeader title="Cost Centers" description="The canonical financial cost-center dimension — attachable to any journal line.">
       <template #actions>
+        <Link :href="route('accounting.allocation-rules.index', { company_id: selectedCompanyId })" class="mr-4 text-sm font-medium text-accent hover:underline">Allocation rules</Link>
+        <Link :href="route('accounting.budgets.index', { company_id: selectedCompanyId })" class="mr-4 text-sm font-medium text-accent hover:underline">Budget</Link>
         <PrimaryButton :href="route('accounting.cost-centers.create', { company_id: selectedCompanyId })">New cost center</PrimaryButton>
       </template>
     </PageHeader>

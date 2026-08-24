@@ -24,3 +24,7 @@ Schedule::command('tenants:run "wne:escalate-breached-workflow-steps"')->everyFi
 // DMS_SPECS.md §3F retention sweep — daily, not every-five-minutes (expiry is date-grained, not
 // time-sensitive like an SLA breach), same tenant-scoped tenants:run convention as WNE's above.
 Schedule::command('tenants:run "dms:apply-retention-policies"')->dailyAt('02:00');
+
+// ACCOUNTING_SPECS.md §3P recurring transactions sweep — date-grained like DMS retention
+// above, same tenant-scoped tenants:run convention.
+Schedule::command('tenants:run "accounting:run-recurring-sweep"')->dailyAt('03:00');

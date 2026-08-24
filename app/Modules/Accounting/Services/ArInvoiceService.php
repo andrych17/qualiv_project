@@ -4,6 +4,7 @@ namespace App\Modules\Accounting\Services;
 
 use App\Modules\Accounting\Events\InvoicePosted;
 use App\Modules\Accounting\Models\ArInvoice;
+use App\Modules\Accounting\Models\AuditLog;
 use App\Modules\Accounting\Models\Company;
 use App\Modules\Accounting\Models\FiscalPeriod;
 use App\Modules\Accounting\Models\TaxCode;
@@ -189,6 +190,14 @@ class ArInvoiceService
                     issueDate: $invoice->issue_date->toDateString(),
                 );
             }
+
+            AuditLog::record([
+                'company_id' => $company->id,
+                'action' => AuditLog::ACTION_INVOICE_POSTED,
+                'subject_type' => 'accounting.ar_invoices',
+                'subject_id' => $invoice->id,
+                'actor_id' => $userId,
+            ]);
 
             InvoicePosted::dispatch($invoice->id, $invoice->subject_type, $invoice->subject_id);
 

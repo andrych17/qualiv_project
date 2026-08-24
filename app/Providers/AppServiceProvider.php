@@ -7,10 +7,20 @@ use App\Models\User;
 use App\Modules\Accounting\Contracts\CoretaxExportDriverInterface;
 use App\Modules\Accounting\Events\ApBillRequested;
 use App\Modules\Accounting\Events\ApPaymentRequested;
+use App\Modules\Accounting\Events\InventoryGoodsIssued;
+use App\Modules\Accounting\Events\InventoryGoodsReceived;
+use App\Modules\Accounting\Events\InventoryStockAdjusted;
 use App\Modules\Accounting\Events\InvoiceRequested;
+use App\Modules\Accounting\Events\JournalPostingRequested;
 use App\Modules\Accounting\Events\PaymentRequested;
+use App\Modules\Accounting\Events\PayrollRunPaid;
 use App\Modules\Accounting\Listeners\CreateBillFromRequest;
 use App\Modules\Accounting\Listeners\CreateInvoiceFromRequest;
+use App\Modules\Accounting\Listeners\PostGoodsIssuedToGl;
+use App\Modules\Accounting\Listeners\PostGoodsReceivedToGl;
+use App\Modules\Accounting\Listeners\PostPayrollRunToGl;
+use App\Modules\Accounting\Listeners\PostRequestedJournal;
+use App\Modules\Accounting\Listeners\PostStockAdjustmentToGl;
 use App\Modules\Accounting\Listeners\RecordApPaymentFromRequest;
 use App\Modules\Accounting\Listeners\RecordPaymentFromRequest;
 use App\Modules\Accounting\Services\XmlCoretaxExportDriver;
@@ -57,6 +67,21 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(PaymentRequested::class, RecordPaymentFromRequest::class);
         Event::listen(ApBillRequested::class, CreateBillFromRequest::class);
         Event::listen(ApPaymentRequested::class, RecordApPaymentFromRequest::class);
+
+        // §3H — same seam-before-caller precedent (Inventory's Goods Receipt/Issue/
+        // Adjustment engine isn't built yet), but these DO auto-post (see
+        // InventoryGlPostingService's docblock for why that's correct here unlike above).
+        Event::listen(InventoryGoodsReceived::class, PostGoodsReceivedToGl::class);
+        Event::listen(InventoryGoodsIssued::class, PostGoodsIssuedToGl::class);
+        Event::listen(InventoryStockAdjusted::class, PostStockAdjustmentToGl::class);
+
+        // §3R — the event-bus door into AccountingService::postJournal() (see that method's
+        // docblock: this is the one request event that posts immediately, not a draft).
+        Event::listen(JournalPostingRequested::class, PostRequestedJournal::class);
+
+        // §3S — same seam-before-caller precedent as §3H (Payroll has zero real code yet),
+        // also auto-posts (see PostPayrollRunToGl's docblock).
+        Event::listen(PayrollRunPaid::class, PostPayrollRunToGl::class);
 
         Auth::provider('eloquent', function ($app, array $config) {
             return new TenantAwareUserProvider($app['hash'], $config['model']);

@@ -2,6 +2,7 @@
 
 namespace App\Modules\Accounting\Services;
 
+use App\Modules\Accounting\Models\AuditLog;
 use App\Modules\Accounting\Models\Company;
 use App\Modules\Accounting\Models\TaxBuktiPotong;
 use App\Modules\Accounting\Models\TaxPeriod;
@@ -86,7 +87,17 @@ class BuktiPotongService
     public function cancel(TaxBuktiPotong $buktiPotong): void
     {
         $this->assertIssued($buktiPotong);
-        $buktiPotong->update(['status' => TaxBuktiPotong::STATUS_CANCELLED]);
+
+        DB::transaction(function () use ($buktiPotong) {
+            $buktiPotong->update(['status' => TaxBuktiPotong::STATUS_CANCELLED]);
+
+            AuditLog::record([
+                'company_id' => $buktiPotong->company_id,
+                'action' => AuditLog::ACTION_TAX_DOCUMENT_CANCELLED,
+                'subject_type' => 'accounting.tax_bukti_potongs',
+                'subject_id' => $buktiPotong->id,
+            ]);
+        });
     }
 
     private function assertIssued(TaxBuktiPotong $buktiPotong): void
@@ -112,16 +123,32 @@ class BuktiPotongService
         return [$next, $bpNumber];
     }
 
-    /** @param  array<string, mixed>  $data */
+    /**
+     * The single row-creation point for issue()/replace() — one audit hook covers both
+     * "a Bukti Potong now exists" callers, same convention as FakturPajakService::createRow().
+     *
+     * @param  array<string, mixed>  $data
+     */
     private function createRow(array $data): TaxBuktiPotong
     {
-        $masaPajak = Carbon::parse($data['issued_at'])->format('Y-m');
-        $this->taxPeriods->ensurePeriod($data['company_id'], TaxPeriod::OBLIGATION_PPH, $masaPajak);
+        return DB::transaction(function () use ($data) {
+            $masaPajak = Carbon::parse($data['issued_at'])->format('Y-m');
+            $this->taxPeriods->ensurePeriod($data['company_id'], TaxPeriod::OBLIGATION_PPH, $masaPajak);
 
-        return TaxBuktiPotong::query()->create([
-            'uuid' => (string) Str::uuid(),
-            'status' => TaxBuktiPotong::STATUS_ISSUED,
-            ...$data,
-        ]);
+            $buktiPotong = TaxBuktiPotong::query()->create([
+                'uuid' => (string) Str::uuid(),
+                'status' => TaxBuktiPotong::STATUS_ISSUED,
+                ...$data,
+            ]);
+
+            AuditLog::record([
+                'company_id' => $buktiPotong->company_id,
+                'action' => AuditLog::ACTION_TAX_DOCUMENT_ISSUED,
+                'subject_type' => 'accounting.tax_bukti_potongs',
+                'subject_id' => $buktiPotong->id,
+            ]);
+
+            return $buktiPotong;
+        });
     }
 }

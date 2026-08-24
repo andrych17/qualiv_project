@@ -4,6 +4,7 @@ namespace App\Modules\Accounting\Services;
 
 use App\Modules\Accounting\Events\ApBillPosted;
 use App\Modules\Accounting\Models\ApBill;
+use App\Modules\Accounting\Models\AuditLog;
 use App\Modules\Accounting\Models\FiscalPeriod;
 use App\Modules\Accounting\Models\TaxCode;
 use Illuminate\Support\Facades\DB;
@@ -205,6 +206,14 @@ class ApBillService
                     issueDate: $bill->issue_date->toDateString(),
                 );
             }
+
+            AuditLog::record([
+                'company_id' => $company->id,
+                'action' => AuditLog::ACTION_BILL_POSTED,
+                'subject_type' => 'accounting.ap_bills',
+                'subject_id' => $bill->id,
+                'actor_id' => $userId,
+            ]);
 
             ApBillPosted::dispatch($bill->id, $bill->subject_type, $bill->subject_id);
 

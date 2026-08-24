@@ -42,7 +42,7 @@ class CompanyController extends Controller
         return Inertia::render('Accounting/Companies/Edit', [
             'company' => $company->only([
                 'id', 'legal_name', 'npwp', 'address', 'base_currency', 'fiscal_year_start_month',
-                'ar_control_account_id', 'ap_control_account_id', 'is_active',
+                'ar_control_account_id', 'ap_control_account_id', 'inventory_control_account_id', 'payroll_net_pay_payable_account_id', 'is_active',
             ]),
             'controlAccounts' => Account::query()
                 ->where('company_id', $company->id)

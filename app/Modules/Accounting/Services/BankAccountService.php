@@ -2,15 +2,16 @@
 
 namespace App\Modules\Accounting\Services;
 
-use App\Modules\Accounting\Models\Account;
+use App\Modules\Accounting\Models\AuditLog;
 use App\Modules\Accounting\Models\BankAccount;
-use App\Modules\Accounting\Models\GlJournal;
-use App\Modules\Accounting\Models\GlJournalLine;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /** §3F — cash/bank account master, plain CRUD. */
 class BankAccountService
 {
+    public function __construct(private readonly AccountLedgerService $accountLedgerService) {}
+
     /** @param  array<string, mixed>  $data */
     public function create(array $data): BankAccount
     {
@@ -20,14 +21,36 @@ class BankAccountService
     /** @param  array<string, mixed>  $data */
     public function update(BankAccount $bankAccount, array $data): BankAccount
     {
-        $bankAccount->update($data);
+        return DB::transaction(function () use ($bankAccount, $data) {
+            $before = $bankAccount->toArray();
+            $bankAccount->update($data);
 
-        return $bankAccount->refresh();
+            AuditLog::record([
+                'company_id' => $bankAccount->company_id,
+                'action' => AuditLog::ACTION_MASTER_DATA_CHANGED,
+                'subject_type' => 'accounting.bank_accounts',
+                'subject_id' => $bankAccount->id,
+                'before_snapshot' => $before,
+                'after_snapshot' => $bankAccount->toArray(),
+            ]);
+
+            return $bankAccount->refresh();
+        });
     }
 
     public function delete(BankAccount $bankAccount): void
     {
-        $bankAccount->delete();
+        DB::transaction(function () use ($bankAccount) {
+            AuditLog::record([
+                'company_id' => $bankAccount->company_id,
+                'action' => AuditLog::ACTION_MASTER_DATA_CHANGED,
+                'subject_type' => 'accounting.bank_accounts',
+                'subject_id' => $bankAccount->id,
+                'before_snapshot' => $bankAccount->toArray(),
+            ]);
+
+            $bankAccount->delete();
+        });
     }
 
     /**
@@ -42,36 +65,7 @@ class BankAccountService
     {
         $bankAccount->loadMissing('glAccount');
 
-        $lines = GlJournalLine::query()
-            ->where('account_id', $bankAccount->gl_account_id)
-            ->whereHas('journal', fn ($q) => $q->where('status', GlJournal::STATUS_POSTED))
-            ->with('journal:id,journal_date,memo,source,subject_type,subject_id,status')
-            ->get()
-            ->sort(fn (GlJournalLine $a, GlJournalLine $b) => [$a->journal->journal_date->timestamp, $a->id] <=> [$b->journal->journal_date->timestamp, $b->id])
-            ->values();
-
-        $isDebitNormal = $bankAccount->glAccount->normal_balance === Account::BALANCE_DEBIT;
-        $running = 0.0;
-        $rows = $lines->map(function (GlJournalLine $line) use (&$running, $isDebitNormal) {
-            $delta = $isDebitNormal
-                ? (float) $line->debit - (float) $line->credit
-                : (float) $line->credit - (float) $line->debit;
-            $running += $delta;
-
-            return [
-                'journal_line_id' => $line->id,
-                'journal_id' => $line->journal_id,
-                'date' => $line->journal->journal_date->toDateString(),
-                'memo' => $line->description ?? $line->journal->memo,
-                'source' => $line->journal->source,
-                'debit' => (float) $line->debit,
-                'credit' => (float) $line->credit,
-                'delta' => round($delta, 2),
-                'running_balance' => round($running, 2),
-            ];
-        });
-
-        return ['rows' => $rows, 'closingBalance' => round($running, 2)];
+        return $this->accountLedgerService->forAccount($bankAccount->glAccount);
     }
 
     public static function maskAccountNumber(?string $accountNumber): ?string

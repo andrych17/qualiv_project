@@ -1,6 +1,6 @@
 <!-- ponytail: Accounting §3D customer invoices list. -->
 <script setup lang="ts">
-import { router } from '@inertiajs/vue3'
+import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
@@ -37,6 +37,7 @@ const clearPartnerFilter = () => router.get(route('accounting.ar-invoices.index'
   <AppLayout>
     <PageHeader title="AR Invoices" description="Customer invoices — posting creates the AR journal and, for taxable lines, a Faktur Pajak.">
       <template #actions>
+        <Link :href="route('accounting.recurring-ar-templates.index', { company_id: selectedCompanyId })" class="mr-4 text-sm font-medium text-accent hover:underline">Recurring templates</Link>
         <PrimaryButton :href="route('accounting.ar-invoices.create', { company_id: selectedCompanyId })">New invoice</PrimaryButton>
       </template>
     </PageHeader>

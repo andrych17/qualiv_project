@@ -41,6 +41,7 @@ const switchCompany = (e: Event) => {
   <AppLayout>
     <PageHeader title="Journals" description="Every posting — manual today, every subledger engine later — goes through this single ledger.">
       <template #actions>
+        <Link :href="route('accounting.recurring-journal-templates.index', { company_id: selectedCompanyId })" class="mr-4 text-sm font-medium text-accent hover:underline">Recurring templates</Link>
         <PrimaryButton :href="route('accounting.journals.create', { company_id: selectedCompanyId })">New journal</PrimaryButton>
       </template>
     </PageHeader>

@@ -1,6 +1,9 @@
 <?php
 
 use App\Modules\Accounting\Controllers\AccountController;
+use App\Modules\Accounting\Controllers\AccountLedgerController;
+use App\Modules\Accounting\Controllers\AllocationRuleController;
+use App\Modules\Accounting\Controllers\AllocationRunController;
 use App\Modules\Accounting\Controllers\ApAgingController;
 use App\Modules\Accounting\Controllers\ApBillController;
 use App\Modules\Accounting\Controllers\ApDebitNoteController;
@@ -9,21 +12,39 @@ use App\Modules\Accounting\Controllers\ArAgingController;
 use App\Modules\Accounting\Controllers\ArCreditNoteController;
 use App\Modules\Accounting\Controllers\ArInvoiceController;
 use App\Modules\Accounting\Controllers\ArPaymentController;
+use App\Modules\Accounting\Controllers\AssetDisposalController;
+use App\Modules\Accounting\Controllers\AssetGroupController;
+use App\Modules\Accounting\Controllers\AuditLogController;
+use App\Modules\Accounting\Controllers\BalanceSheetController;
 use App\Modules\Accounting\Controllers\BankAccountController;
 use App\Modules\Accounting\Controllers\BankReconciliationController;
 use App\Modules\Accounting\Controllers\BankStatementImportController;
+use App\Modules\Accounting\Controllers\BudgetController;
+use App\Modules\Accounting\Controllers\BudgetVsActualController;
+use App\Modules\Accounting\Controllers\CashFlowController;
 use App\Modules\Accounting\Controllers\CashTransactionController;
 use App\Modules\Accounting\Controllers\CashTransferController;
 use App\Modules\Accounting\Controllers\CompanyController;
 use App\Modules\Accounting\Controllers\ControlReconciliationController;
 use App\Modules\Accounting\Controllers\CoretaxExportController;
 use App\Modules\Accounting\Controllers\CostCenterController;
+use App\Modules\Accounting\Controllers\DepreciationRunController;
 use App\Modules\Accounting\Controllers\ExchangeRateController;
 use App\Modules\Accounting\Controllers\FakturPajakBlockController;
 use App\Modules\Accounting\Controllers\FiscalYearController;
+use App\Modules\Accounting\Controllers\FixedAssetController;
+use App\Modules\Accounting\Controllers\InventoryGlMappingController;
+use App\Modules\Accounting\Controllers\InventoryPostingFailureController;
 use App\Modules\Accounting\Controllers\JournalController;
+use App\Modules\Accounting\Controllers\PayrollComponentGlMappingController;
+use App\Modules\Accounting\Controllers\PayrollPostingFailureController;
+use App\Modules\Accounting\Controllers\ProfitLossController;
+use App\Modules\Accounting\Controllers\RecurringArTemplateController;
+use App\Modules\Accounting\Controllers\RecurringJournalTemplateController;
+use App\Modules\Accounting\Controllers\ReportingHubController;
 use App\Modules\Accounting\Controllers\TaxCodeController;
 use App\Modules\Accounting\Controllers\TaxPeriodController;
+use App\Modules\Accounting\Controllers\TrialBalanceController;
 use App\Modules\Accounting\Controllers\WithholdingTypeController;
 use Illuminate\Support\Facades\Route;
 
@@ -192,4 +213,110 @@ Route::middleware(['auth', 'verified', 'module:ACCOUNTING', 'menu.perm:ACCOUNTIN
         Route::post('bank-reconciliation/{bankAccount}/lines/{bankStatementLine}/unignore', [BankReconciliationController::class, 'unignore'])->name('bank-reconciliation.unignore');
 
         Route::get('control-reconciliation', [ControlReconciliationController::class, 'index'])->name('control-reconciliation.index');
+
+        // §3G Fixed Assets — asset register + dual commercial/fiscal depreciation.
+        Route::get('asset-groups', [AssetGroupController::class, 'index'])->name('asset-groups.index');
+        Route::get('asset-groups/create', [AssetGroupController::class, 'create'])->name('asset-groups.create');
+        Route::post('asset-groups', [AssetGroupController::class, 'store'])->name('asset-groups.store');
+        Route::post('companies/{company}/seed-starter-asset-groups', [AssetGroupController::class, 'seedStarter'])->name('asset-groups.seed-starter');
+        Route::get('asset-groups/{assetGroup}/edit', [AssetGroupController::class, 'edit'])->name('asset-groups.edit');
+        Route::put('asset-groups/{assetGroup}', [AssetGroupController::class, 'update'])->name('asset-groups.update');
+        Route::delete('asset-groups/{assetGroup}', [AssetGroupController::class, 'destroy'])->name('asset-groups.destroy');
+
+        Route::get('fixed-assets', [FixedAssetController::class, 'index'])->name('fixed-assets.index');
+        Route::get('fixed-assets/create', [FixedAssetController::class, 'create'])->name('fixed-assets.create');
+        Route::post('fixed-assets', [FixedAssetController::class, 'store'])->name('fixed-assets.store');
+        Route::get('fixed-assets/{asset}/edit', [FixedAssetController::class, 'edit'])->name('fixed-assets.edit');
+        Route::put('fixed-assets/{asset}', [FixedAssetController::class, 'update'])->name('fixed-assets.update');
+        Route::delete('fixed-assets/{asset}', [FixedAssetController::class, 'destroy'])->name('fixed-assets.destroy');
+        Route::get('fixed-assets/{asset}/dispose', [AssetDisposalController::class, 'create'])->name('fixed-assets.dispose.create');
+        Route::post('fixed-assets/{asset}/dispose', [AssetDisposalController::class, 'store'])->name('fixed-assets.dispose.store');
+        Route::get('fixed-assets/{asset}', [FixedAssetController::class, 'show'])->name('fixed-assets.show');
+
+        Route::get('depreciation-runs', [DepreciationRunController::class, 'index'])->name('depreciation-runs.index');
+        Route::post('depreciation-runs', [DepreciationRunController::class, 'store'])->name('depreciation-runs.store');
+
+        // §3N Financial Analysis / Reporting — unified hub linking these + the existing
+        // AR/AP aging engines (§3D/§3E), not duplicating them.
+        Route::get('reports', [ReportingHubController::class, 'index'])->name('reports.index');
+        Route::get('reports/trial-balance', [TrialBalanceController::class, 'index'])->name('reports.trial-balance');
+        Route::get('reports/trial-balance/export', [TrialBalanceController::class, 'export'])->name('reports.trial-balance.export');
+        Route::get('reports/balance-sheet', [BalanceSheetController::class, 'index'])->name('reports.balance-sheet');
+        Route::get('reports/balance-sheet/export', [BalanceSheetController::class, 'export'])->name('reports.balance-sheet.export');
+        Route::get('reports/profit-loss', [ProfitLossController::class, 'index'])->name('reports.profit-loss');
+        Route::get('reports/profit-loss/export', [ProfitLossController::class, 'export'])->name('reports.profit-loss.export');
+        Route::get('reports/cash-flow', [CashFlowController::class, 'index'])->name('reports.cash-flow');
+        Route::get('reports/cash-flow/export', [CashFlowController::class, 'export'])->name('reports.cash-flow.export');
+        Route::get('reports/account-ledger/{account}', [AccountLedgerController::class, 'show'])->name('reports.account-ledger');
+        Route::get('reports/budget-vs-actual', [BudgetVsActualController::class, 'index'])->name('reports.budget-vs-actual');
+
+        // §3O Audit & Compliance — append-only trail, read-only view; period locking (§3O's
+        // other bullet) is FiscalYearController::updatePeriodStatus() above, unchanged.
+        Route::get('audit-log', [AuditLogController::class, 'index'])->name('audit-log.index');
+
+        // §3P Recurring Transactions — v1 ships recurring journals + recurring AR invoices
+        // (see the migration docblock for why AP is deferred). RecurringGenerationService
+        // (run via the scheduled sweep — routes/console.php) is what drafts documents from
+        // these; nothing here posts anything.
+        Route::get('recurring-journal-templates', [RecurringJournalTemplateController::class, 'index'])->name('recurring-journal-templates.index');
+        Route::get('recurring-journal-templates/create', [RecurringJournalTemplateController::class, 'create'])->name('recurring-journal-templates.create');
+        Route::post('recurring-journal-templates', [RecurringJournalTemplateController::class, 'store'])->name('recurring-journal-templates.store');
+        Route::get('recurring-journal-templates/{template}/edit', [RecurringJournalTemplateController::class, 'edit'])->name('recurring-journal-templates.edit');
+        Route::put('recurring-journal-templates/{template}', [RecurringJournalTemplateController::class, 'update'])->name('recurring-journal-templates.update');
+        Route::post('recurring-journal-templates/{template}/set-active', [RecurringJournalTemplateController::class, 'setActive'])->name('recurring-journal-templates.set-active');
+        Route::delete('recurring-journal-templates/{template}', [RecurringJournalTemplateController::class, 'destroy'])->name('recurring-journal-templates.destroy');
+
+        Route::get('recurring-ar-templates', [RecurringArTemplateController::class, 'index'])->name('recurring-ar-templates.index');
+        Route::get('recurring-ar-templates/create', [RecurringArTemplateController::class, 'create'])->name('recurring-ar-templates.create');
+        Route::post('recurring-ar-templates', [RecurringArTemplateController::class, 'store'])->name('recurring-ar-templates.store');
+        Route::get('recurring-ar-templates/{template}/edit', [RecurringArTemplateController::class, 'edit'])->name('recurring-ar-templates.edit');
+        Route::put('recurring-ar-templates/{template}', [RecurringArTemplateController::class, 'update'])->name('recurring-ar-templates.update');
+        Route::post('recurring-ar-templates/{template}/set-active', [RecurringArTemplateController::class, 'setActive'])->name('recurring-ar-templates.set-active');
+        Route::delete('recurring-ar-templates/{template}', [RecurringArTemplateController::class, 'destroy'])->name('recurring-ar-templates.destroy');
+
+        // §3I Cost Accounting — cost centers themselves are §3B (cost-centers.* above);
+        // allocation rules/runs are the only new piece.
+        Route::get('allocation-rules', [AllocationRuleController::class, 'index'])->name('allocation-rules.index');
+        Route::get('allocation-rules/create', [AllocationRuleController::class, 'create'])->name('allocation-rules.create');
+        Route::post('allocation-rules', [AllocationRuleController::class, 'store'])->name('allocation-rules.store');
+        Route::get('allocation-rules/{rule}/edit', [AllocationRuleController::class, 'edit'])->name('allocation-rules.edit');
+        Route::put('allocation-rules/{rule}', [AllocationRuleController::class, 'update'])->name('allocation-rules.update');
+        Route::post('allocation-rules/{rule}/set-active', [AllocationRuleController::class, 'setActive'])->name('allocation-rules.set-active');
+        Route::delete('allocation-rules/{rule}', [AllocationRuleController::class, 'destroy'])->name('allocation-rules.destroy');
+        Route::get('allocation-rules/{rule}/run', [AllocationRunController::class, 'show'])->name('allocation-rules.run.show');
+        Route::post('allocation-rules/{rule}/run', [AllocationRunController::class, 'store'])->name('allocation-rules.run.store');
+
+        // §3J Budgeting — one flat annual Budget per company/fiscal year (getOrCreate'd on
+        // first visit), edited one cost-center scope at a time. Budget vs. Actual (the
+        // report) lives under reports/ above, next to Trial Balance et al.
+        Route::get('budgets', [BudgetController::class, 'index'])->name('budgets.index');
+        Route::post('budgets/{budget}/grid', [BudgetController::class, 'saveGrid'])->name('budgets.grid.store');
+        Route::post('budgets/{budget}/import', [BudgetController::class, 'importCsv'])->name('budgets.import');
+
+        // §3H Inventory GL Posting — the mapping admin + review queue are real and
+        // browser-usable today; the events/listeners they feed have no real caller yet
+        // (Inventory's own Goods Receipt/Issue/Adjustment engine isn't built — see
+        // InventoryGlPostingService's docblock).
+        Route::get('inventory-gl-mappings', [InventoryGlMappingController::class, 'index'])->name('inventory-gl-mappings.index');
+        Route::get('inventory-gl-mappings/create', [InventoryGlMappingController::class, 'create'])->name('inventory-gl-mappings.create');
+        Route::post('inventory-gl-mappings', [InventoryGlMappingController::class, 'store'])->name('inventory-gl-mappings.store');
+        Route::get('inventory-gl-mappings/{mapping}/edit', [InventoryGlMappingController::class, 'edit'])->name('inventory-gl-mappings.edit');
+        Route::put('inventory-gl-mappings/{mapping}', [InventoryGlMappingController::class, 'update'])->name('inventory-gl-mappings.update');
+        Route::delete('inventory-gl-mappings/{mapping}', [InventoryGlMappingController::class, 'destroy'])->name('inventory-gl-mappings.destroy');
+
+        Route::get('inventory-posting-failures', [InventoryPostingFailureController::class, 'index'])->name('inventory-posting-failures.index');
+        Route::post('inventory-posting-failures/{failure}/retry', [InventoryPostingFailureController::class, 'retry'])->name('inventory-posting-failures.retry');
+
+        // §3S Payroll GL Posting — mirrors §3H structurally (mapping admin + review queue
+        // real and browser-usable today; the event/listener they feed have no real caller
+        // yet — Payroll's own module is pure scaffolding, see PayrollGlPostingService).
+        Route::get('payroll-component-gl-mappings', [PayrollComponentGlMappingController::class, 'index'])->name('payroll-component-gl-mappings.index');
+        Route::get('payroll-component-gl-mappings/create', [PayrollComponentGlMappingController::class, 'create'])->name('payroll-component-gl-mappings.create');
+        Route::post('payroll-component-gl-mappings', [PayrollComponentGlMappingController::class, 'store'])->name('payroll-component-gl-mappings.store');
+        Route::get('payroll-component-gl-mappings/{mapping}/edit', [PayrollComponentGlMappingController::class, 'edit'])->name('payroll-component-gl-mappings.edit');
+        Route::put('payroll-component-gl-mappings/{mapping}', [PayrollComponentGlMappingController::class, 'update'])->name('payroll-component-gl-mappings.update');
+        Route::delete('payroll-component-gl-mappings/{mapping}', [PayrollComponentGlMappingController::class, 'destroy'])->name('payroll-component-gl-mappings.destroy');
+
+        Route::get('payroll-posting-failures', [PayrollPostingFailureController::class, 'index'])->name('payroll-posting-failures.index');
+        Route::post('payroll-posting-failures/{failure}/retry', [PayrollPostingFailureController::class, 'retry'])->name('payroll-posting-failures.retry');
     });

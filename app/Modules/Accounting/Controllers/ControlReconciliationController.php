@@ -29,6 +29,8 @@ class ControlReconciliationController extends Controller
             'selectedCompanyId' => $companyId,
             'ar' => $this->service->arReport($company),
             'ap' => $this->service->apReport($company),
+            'inventory' => $this->service->inventoryReport($company),
+            'payroll' => $this->service->payrollReport($company),
         ]);
     }
 }

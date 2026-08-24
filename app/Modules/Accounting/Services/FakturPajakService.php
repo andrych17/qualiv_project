@@ -2,6 +2,7 @@
 
 namespace App\Modules\Accounting\Services;
 
+use App\Modules\Accounting\Models\AuditLog;
 use App\Modules\Accounting\Models\FakturPajakNumberBlock;
 use App\Modules\Accounting\Models\TaxFakturPajak;
 use App\Modules\Accounting\Models\TaxPeriod;
@@ -118,7 +119,17 @@ class FakturPajakService
     public function cancel(TaxFakturPajak $faktur): void
     {
         $this->assertIssued($faktur);
-        $faktur->update(['status' => TaxFakturPajak::STATUS_CANCELLED]);
+
+        DB::transaction(function () use ($faktur) {
+            $faktur->update(['status' => TaxFakturPajak::STATUS_CANCELLED]);
+
+            AuditLog::record([
+                'company_id' => $faktur->company_id,
+                'action' => AuditLog::ACTION_TAX_DOCUMENT_CANCELLED,
+                'subject_type' => 'accounting.tax_faktur_pajaks',
+                'subject_id' => $faktur->id,
+            ]);
+        });
     }
 
     private function assertIssued(TaxFakturPajak $faktur): void
@@ -151,17 +162,35 @@ class FakturPajakService
         return $block->prefix.str_pad((string) $next, 8, '0', STR_PAD_LEFT);
     }
 
-    /** @param  array<string, mixed>  $data */
+    /**
+     * The single row-creation point for issueOutput()/recordInput()/replace() — one audit
+     * hook here covers all three "a Faktur Pajak now exists" callers instead of three
+     * separate ones, and always runs inside whichever DB::transaction() the caller already
+     * opened, so the tax document and its audit row commit or roll back together.
+     *
+     * @param  array<string, mixed>  $data
+     */
     private function createRow(array $data): TaxFakturPajak
     {
-        $issueDate = $data['issued_at'] ?? now();
-        $masaPajak = Carbon::parse($issueDate)->format('Y-m');
-        $this->taxPeriods->ensurePeriod($data['company_id'], TaxPeriod::OBLIGATION_PPN, $masaPajak);
+        return DB::transaction(function () use ($data) {
+            $issueDate = $data['issued_at'] ?? now();
+            $masaPajak = Carbon::parse($issueDate)->format('Y-m');
+            $this->taxPeriods->ensurePeriod($data['company_id'], TaxPeriod::OBLIGATION_PPN, $masaPajak);
 
-        return TaxFakturPajak::query()->create([
-            'uuid' => (string) Str::uuid(),
-            'status' => TaxFakturPajak::STATUS_ISSUED,
-            ...$data,
-        ]);
+            $faktur = TaxFakturPajak::query()->create([
+                'uuid' => (string) Str::uuid(),
+                'status' => TaxFakturPajak::STATUS_ISSUED,
+                ...$data,
+            ]);
+
+            AuditLog::record([
+                'company_id' => $faktur->company_id,
+                'action' => AuditLog::ACTION_TAX_DOCUMENT_ISSUED,
+                'subject_type' => 'accounting.tax_faktur_pajaks',
+                'subject_id' => $faktur->id,
+            ]);
+
+            return $faktur;
+        });
     }
 }

@@ -18,6 +18,8 @@ const props = defineProps<{
     fiscal_year_start_month: number
     ar_control_account_id: number | null
     ap_control_account_id: number | null
+    inventory_control_account_id: number | null
+    payroll_net_pay_payable_account_id: number | null
     is_active: boolean
   }
   controlAccounts: Array<{ value: number; label: string }>
@@ -31,6 +33,8 @@ const form = useForm({
   fiscal_year_start_month: props.company.fiscal_year_start_month,
   ar_control_account_id: props.company.ar_control_account_id,
   ap_control_account_id: props.company.ap_control_account_id,
+  inventory_control_account_id: props.company.inventory_control_account_id,
+  payroll_net_pay_payable_account_id: props.company.payroll_net_pay_payable_account_id,
   is_active: props.company.is_active,
 })
 
@@ -66,6 +70,22 @@ const submit = () => form.transform((data) => ({
           placeholder="None — AP bills cannot post until set"
           :options="controlAccounts"
           :error="form.errors.ap_control_account_id"
+        />
+        <FormSearchableSelect
+          v-model="form.inventory_control_account_id"
+          name="inventory_control_account_id"
+          label="Inventory control account"
+          placeholder="None — used by the §3H control reconciliation report"
+          :options="controlAccounts"
+          :error="form.errors.inventory_control_account_id"
+        />
+        <FormSearchableSelect
+          v-model="form.payroll_net_pay_payable_account_id"
+          name="payroll_net_pay_payable_account_id"
+          label="Payroll net pay payable account"
+          placeholder="None — payroll runs will fail loudly and queue for review until set"
+          :options="controlAccounts"
+          :error="form.errors.payroll_net_pay_payable_account_id"
         />
 
         <label class="flex items-center gap-2 text-sm text-ink-900">

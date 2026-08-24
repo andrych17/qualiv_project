@@ -60,6 +60,44 @@ class ControlReconciliationService
         ];
     }
 
+    /**
+     * §3H — narrower than AR/AP's report: Inventory's own valuation total
+     * (`stock_valuation_layers`) doesn't exist yet (Inventory only has item/category CRUD
+     * today, not the Goods Receipt/Issue/Adjustment engine or costing layers). This reports
+     * the GL half only — `valuationTotal`/`variance` are null, not a fabricated 0 or a fake
+     * match, until Inventory's valuation reporting (`INVENTORY_SPECS.md` §3I) ships.
+     *
+     * @return array{controlBalance: float, valuationTotal: ?float, variance: ?float}
+     */
+    public function inventoryReport(Company $company): array
+    {
+        $company->loadMissing('inventoryControlAccount');
+
+        return [
+            'controlBalance' => $this->controlAccountBalance($company->inventoryControlAccount),
+            'valuationTotal' => null,
+            'variance' => null,
+        ];
+    }
+
+    /**
+     * §3S — same "narrower than AR/AP" shape as inventoryReport(): Payroll has zero real
+     * code yet (only scaffolding), so there's no "open unpaid net pay" total to compare
+     * against. Reports the GL half only.
+     *
+     * @return array{controlBalance: float, openTotal: ?float, variance: ?float}
+     */
+    public function payrollReport(Company $company): array
+    {
+        $company->loadMissing('payrollNetPayPayableAccount');
+
+        return [
+            'controlBalance' => $this->controlAccountBalance($company->payrollNetPayPayableAccount),
+            'openTotal' => null,
+            'variance' => null,
+        ];
+    }
+
     private function controlAccountBalance(?Account $account): float
     {
         if (! $account) {

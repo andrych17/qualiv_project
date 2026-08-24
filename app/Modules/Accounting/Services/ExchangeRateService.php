@@ -2,8 +2,10 @@
 
 namespace App\Modules\Accounting\Services;
 
+use App\Modules\Accounting\Models\AuditLog;
 use App\Modules\Accounting\Models\Company;
 use App\Modules\Accounting\Models\ExchangeRate;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -50,13 +52,35 @@ class ExchangeRateService
     /** @param  array<string, mixed>  $data */
     public function update(ExchangeRate $rate, array $data): ExchangeRate
     {
-        $rate->update($data);
+        return DB::transaction(function () use ($rate, $data) {
+            $before = $rate->toArray();
+            $rate->update($data);
 
-        return $rate->refresh();
+            AuditLog::record([
+                'company_id' => $rate->company_id,
+                'action' => AuditLog::ACTION_MASTER_DATA_CHANGED,
+                'subject_type' => 'accounting.exchange_rates',
+                'subject_id' => $rate->id,
+                'before_snapshot' => $before,
+                'after_snapshot' => $rate->toArray(),
+            ]);
+
+            return $rate->refresh();
+        });
     }
 
     public function delete(ExchangeRate $rate): void
     {
-        $rate->delete();
+        DB::transaction(function () use ($rate) {
+            AuditLog::record([
+                'company_id' => $rate->company_id,
+                'action' => AuditLog::ACTION_MASTER_DATA_CHANGED,
+                'subject_type' => 'accounting.exchange_rates',
+                'subject_id' => $rate->id,
+                'before_snapshot' => $rate->toArray(),
+            ]);
+
+            $rate->delete();
+        });
     }
 }

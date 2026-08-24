@@ -11,7 +11,7 @@ class Company extends Model
 
     protected $fillable = [
         'legal_name', 'npwp', 'address', 'base_currency', 'fiscal_year_start_month', 'coa_template_code',
-        'ar_control_account_id', 'ap_control_account_id', 'is_active',
+        'ar_control_account_id', 'ap_control_account_id', 'inventory_control_account_id', 'payroll_net_pay_payable_account_id', 'is_active',
     ];
 
     protected $casts = [
@@ -33,6 +33,18 @@ class Company extends Model
     public function apControlAccount()
     {
         return $this->belongsTo(Account::class, 'ap_control_account_id');
+    }
+
+    /** §3H — the control account ControlReconciliationService::inventoryReport() checks the GL balance of; individual item/category mappings can point elsewhere, this is only the report's anchor. */
+    public function inventoryControlAccount()
+    {
+        return $this->belongsTo(Account::class, 'inventory_control_account_id');
+    }
+
+    /** §3S — the one Net Pay Payable account every payroll run's balancing credit line posts to; per-component mappings (PayrollComponentGlMapping) are separate and cover the debit/deduction sides. */
+    public function payrollNetPayPayableAccount()
+    {
+        return $this->belongsTo(Account::class, 'payroll_net_pay_payable_account_id');
     }
 
     public function fiscalYears()
