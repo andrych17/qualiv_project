@@ -3,8 +3,8 @@
 namespace App\Modules\Accounting\Requests;
 
 use App\Modules\Accounting\Models\Account;
-use App\Modules\Inventory\Models\InventoryCategory;
-use App\Modules\Inventory\Models\InventoryItem;
+use App\Modules\Inventory\Models\Product;
+use App\Modules\Inventory\Models\ProductCategory;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
@@ -40,12 +40,12 @@ class UpdateInventoryGlMappingRequest extends FormRequest
             }
 
             $itemId = $this->input('inventory_item_id');
-            if ($itemId && ! InventoryItem::query()->whereKey($itemId)->exists()) {
+            if ($itemId && ! Product::query()->whereKey($itemId)->exists()) {
                 $validator->errors()->add('inventory_item_id', 'The selected item is invalid.');
             }
 
             $categoryId = $this->input('inventory_category_id');
-            if ($categoryId && ! InventoryCategory::query()->whereKey($categoryId)->exists()) {
+            if ($categoryId && ! ProductCategory::query()->whereKey($categoryId)->exists()) {
                 $validator->errors()->add('inventory_category_id', 'The selected category is invalid.');
             }
         });

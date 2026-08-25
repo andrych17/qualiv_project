@@ -544,10 +544,9 @@ Average recalculation) must use row-level locking (`SELECT ... FOR UPDATE`) on t
 issues from double-consuming the same layer — flagged explicitly since this is the one place in
 the module where a subtle concurrency bug would silently corrupt valuation.
 
-**Suggested build order for Claude Code:** 3B/3C (product + location masters) → 3D/3E (receipt
-+ issue, the minimum to have a working ledger) → 3H (stock card — cheap once the ledger exists,
+**Suggested build order for Claude Code:** 3B/3C (product + location masters) → 3D/3E (receipt + issue, the minimum to have a working ledger) → 3H (stock card — cheap once the ledger exists,
 high value for verifying correctness) → 3I/3J (valuation + costing engines) → 3F/3G (transfer +
-adjustment) → 3J (barcode input wired into the above forms) — **MVP ships here** — then 3L/3M
+adjustment) → 3K (barcode input wired into the above forms) — **MVP ships here** — then 3L/3M
 (batch/serial) → 3N/3O (reservation + picking) → 3P (packing/shipping) → 3Q (cycle counting) →
 3R (put-away rules) for Operational — then revisit 3S (Advanced/Optimization) only once real
 usage volume justifies it.

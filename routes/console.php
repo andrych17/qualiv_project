@@ -28,3 +28,8 @@ Schedule::command('tenants:run "dms:apply-retention-policies"')->dailyAt('02:00'
 // ACCOUNTING_SPECS.md §3P recurring transactions sweep — date-grained like DMS retention
 // above, same tenant-scoped tenants:run convention.
 Schedule::command('tenants:run "accounting:run-recurring-sweep"')->dailyAt('03:00');
+
+// INVENTORY_SPECS.md §3N reservation auto-release — housekeeping only (ATP is always
+// computed live regardless of sweep timing, see ReservationService::activeReservedQty()),
+// hourly is plenty given the default hold window is measured in hours, not minutes.
+Schedule::command('tenants:run "inventory:release-expired-reservations"')->hourly();

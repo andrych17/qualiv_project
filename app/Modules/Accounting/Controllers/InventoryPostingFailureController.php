@@ -7,7 +7,7 @@ use App\Modules\Accounting\Models\Company;
 use App\Modules\Accounting\Models\InventoryPostingFailure;
 use App\Modules\Accounting\Services\CompanyContextService;
 use App\Modules\Accounting\Services\InventoryGlPostingService;
-use App\Modules\Inventory\Models\InventoryItem;
+use App\Modules\Inventory\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -28,7 +28,7 @@ class InventoryPostingFailureController extends Controller
             ->orderByDesc('id')
             ->get();
 
-        $items = InventoryItem::query()->whereIn('id', $failures->pluck('inventory_item_id')->unique())->get(['id', 'code', 'name'])->keyBy('id');
+        $items = Product::query()->whereIn('id', $failures->pluck('inventory_item_id')->unique())->get(['id', 'sku', 'name'])->keyBy('id');
 
         return Inertia::render('Accounting/InventoryPostingFailures/Index', [
             'companies' => $companies,
@@ -36,7 +36,7 @@ class InventoryPostingFailureController extends Controller
             'failures' => $failures->map(fn (InventoryPostingFailure $f) => [
                 'id' => $f->id,
                 'event_type' => $f->event_type,
-                'item_label' => $items->get($f->inventory_item_id)?->code.' — '.($items->get($f->inventory_item_id)?->name ?? "item #{$f->inventory_item_id}"),
+                'item_label' => $items->get($f->inventory_item_id)?->sku.' — '.($items->get($f->inventory_item_id)?->name ?? "item #{$f->inventory_item_id}"),
                 'subject_type' => $f->subject_type,
                 'subject_id' => $f->subject_id,
                 'reason' => $f->reason,

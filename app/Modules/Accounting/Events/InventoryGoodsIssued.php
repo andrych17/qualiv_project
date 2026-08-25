@@ -5,12 +5,12 @@ namespace App\Modules\Accounting\Events;
 use Illuminate\Foundation\Events\Dispatchable;
 
 /**
- * §3H: the payload shape Inventory's Goods Issue engine (`INVENTORY_SPECS.md` §3E) will
- * dispatch once it exists, mirroring `inventory.goods_issued`. Consumed by
+ * §3H: the payload shape Inventory's Goods Issue engine (`INVENTORY_SPECS.md` §3E)
+ * dispatches on `GoodsIssueService::post()`, mirroring `inventory.goods_issued`. Consumed by
  * App\Modules\Accounting\Listeners\PostGoodsIssuedToGl.
  *
- * No real caller exists yet — see InventoryGoodsReceived's docblock for the full "engine
- * ships before its caller" rationale, identical here.
+ * `inventoryItemId` is `App\Modules\Inventory\Models\Product::id` — see InventoryGoodsReceived's
+ * docblock for the full identity/mapping-fallback rationale, identical here.
  *
  * `totalValue` is the COGS value of the issued stock as Inventory's costing method (FIFO
  * layer consumption or weighted-average) already computed it — never recalculated here.

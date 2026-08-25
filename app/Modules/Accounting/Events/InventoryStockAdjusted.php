@@ -5,12 +5,12 @@ namespace App\Modules\Accounting\Events;
 use Illuminate\Foundation\Events\Dispatchable;
 
 /**
- * §3H: the payload shape Inventory's Adjustment engine (`INVENTORY_SPECS.md` §3G) will
- * dispatch once it exists, mirroring `inventory.stock_adjusted`. Consumed by
- * App\Modules\Accounting\Listeners\PostStockAdjustmentToGl.
+ * §3H: the payload shape Inventory's Adjustment engine (`INVENTORY_SPECS.md` §3G)
+ * dispatches on `AdjustmentService::post()`, mirroring `inventory.stock_adjusted`. Consumed
+ * by App\Modules\Accounting\Listeners\PostStockAdjustmentToGl.
  *
- * No real caller exists yet — see InventoryGoodsReceived's docblock for the full "engine
- * ships before its caller" rationale, identical here.
+ * `inventoryItemId` is `App\Modules\Inventory\Models\Product::id` — see InventoryGoodsReceived's
+ * docblock for the full identity/mapping-fallback rationale, identical here.
  *
  * `quantity`/`totalValue` are SIGNED by the adjustment's direction: positive = a write-up
  * (found stock, correction that increases value), negative = a write-down (damage, loss,

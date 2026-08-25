@@ -78,7 +78,10 @@ class SysConfigSeeder extends Seeder
         $rows = [
             // Live
             ['code' => 'DASHBOARD', 'menu_header' => 'Main', 'menu_caption' => 'Dashboard', 'menu_link' => '/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 10, 'status_code' => 'A'],
-            ['code' => 'INVENTORY', 'menu_header' => 'Operations', 'menu_caption' => 'Inventory', 'menu_link' => '/inventory/items', 'icon' => 'Boxes', 'seq' => 70, 'status_code' => 'A'],
+            // menu_link points at §3B Product Master (INVENTORY.* schema); legacy
+            // /inventory/items (public schema, CLAUDE.md §7A) stays routable but off the
+            // sidebar during the transition.
+            ['code' => 'INVENTORY', 'menu_header' => 'Operations', 'menu_caption' => 'Inventory', 'menu_link' => '/inventory/products', 'icon' => 'Boxes', 'seq' => 70, 'status_code' => 'A'],
             ['code' => 'CONFIG_MENUS', 'menu_header' => 'System', 'menu_caption' => 'Menus', 'menu_link' => '/config/menus', 'icon' => 'Menu', 'seq' => 200, 'status_code' => 'A'],
             ['code' => 'CONFIG_GROUPS', 'menu_header' => 'System', 'menu_caption' => 'Groups', 'menu_link' => '/config/groups', 'icon' => 'Shield', 'seq' => 210, 'status_code' => 'A'],
             ['code' => 'CONFIG_USERS', 'menu_header' => 'System', 'menu_caption' => 'Users', 'menu_link' => '/config/users', 'icon' => 'UserRoundCog', 'seq' => 215, 'status_code' => 'A'],
@@ -222,6 +225,15 @@ class SysConfigSeeder extends Seeder
             ['const_group' => 'APP', 'group_code' => 'NAME', 'seq' => 1, 'str1' => 'NusaEvo ERP', 'note1' => 'Product display name'],
             ['const_group' => 'APP', 'group_code' => 'TZ', 'seq' => 2, 'str1' => 'Asia/Jakarta', 'note1' => 'Default timezone'],
             ['const_group' => 'INVENTORY', 'group_code' => 'LOW_STOCK', 'seq' => 1, 'num1' => 10, 'note1' => 'Default low-stock threshold'],
+            // §3B: tenant default costing method, overridable per product — customization
+            // ladder rung 1, never hardcoded (CLAUDE.md §2).
+            ['const_group' => 'INVENTORY', 'group_code' => 'DEFAULT_COSTING_METHOD', 'seq' => 2, 'str1' => 'fifo', 'note1' => 'fifo | average — default for new products'],
+            // §3L: a batch is "expiring soon" inside this many days — tenant-editable since a
+            // pharma-adjacent tenant wants a longer lead time than a food-adjacent one.
+            ['const_group' => 'INVENTORY', 'group_code' => 'BATCH_EXPIRY_WARNING_DAYS', 'seq' => 3, 'num1' => 30, 'note1' => 'Days before expiry a batch surfaces as "expiring soon"'],
+            // §3N: how long an unfulfilled reservation holds stock before the auto-release
+            // sweep frees it — a caller can override per-reservation via `expires_at`.
+            ['const_group' => 'INVENTORY', 'group_code' => 'RESERVATION_EXPIRY_HOURS', 'seq' => 4, 'num1' => 24, 'note1' => 'Hours an unfulfilled reservation holds stock before auto-release'],
             // ACCOUNTING §3M due-date rules — tenant-editable per CLAUDE.md §2 customization
             // ladder rung 1 (constants), never hardcoded, since regulation can change.
             ['const_group' => 'ACCOUNTING_TAX', 'group_code' => 'PPN_DUE_DAY_OF_MONTH', 'seq' => 1, 'num1' => 0, 'note1' => 'SPT Masa PPN due date: day of the following month (0 = last day)'],

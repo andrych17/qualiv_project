@@ -66,6 +66,13 @@ const badgeClass = computed(() => {
     matched: 'bg-signal-success/10 text-signal-success border-signal-success/25',
     unmatched: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
     ignored: 'bg-surface-50 text-ink-600 border-border',
+    // Inventory §3M serial number status
+    in_stock: 'bg-signal-success/10 text-signal-success border-signal-success/25',
+    issued: 'bg-surface-50 text-ink-600 border-border',
+    reserved: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
+    // Inventory §3N reservation status ('active' reuses the key above)
+    fulfilled: 'bg-signal-success/10 text-signal-success border-signal-success/25',
+    released: 'bg-surface-50 text-ink-600 border-border',
   }
 
   return map[normalizedStatus.value] ?? 'bg-surface-50 text-ink-600 border-border'

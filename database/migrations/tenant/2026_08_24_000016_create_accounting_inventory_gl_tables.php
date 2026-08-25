@@ -11,19 +11,18 @@ use Illuminate\Support\Facades\Schema;
  * a GL journal.
  *
  * `inventory_item_id`/`inventory_category_id` (on both tables below) are deliberately NOT
- * foreign keys into `inventory_items`/`inventory_categories`. Those are the "legacy demo
- * tables... still in public [schema]" CLAUDE.md §7A already flags — Inventory's real engine
- * (`INVENTORY_SPECS.md` §3D-§3G: Goods Receipt/Issue/Adjustment, `stock_ledger`, valuation
- * layers, the `inventory.*` events themselves) isn't built yet. A hard FK into a table
- * explicitly documented as transitional would break the day Inventory's real schema ships;
- * a plain unconstrained id is the same soft-reference discipline every other cross-module
- * pointer in this platform already uses (subject_type/subject_id, `gl_journals.subject_id`,
- * etc.) — existence is validated in PHP (InventoryGlMappingService), not the DB.
+ * foreign keys — they're soft references to `App\Modules\Inventory\Models\Product::id` /
+ * `ProductCategory::id` (`INVENTORY.products` / `INVENTORY.product_categories`, a different
+ * tenant schema), the same soft-reference discipline every other cross-module pointer in
+ * this platform already uses (subject_type/subject_id, `gl_journals.subject_id`, etc.) —
+ * existence is validated in PHP (InventoryGlMappingService), not the DB. (Earlier revisions
+ * of this comment pointed at the legacy public-schema `inventory_items`/`inventory_categories`
+ * demo tables CLAUDE.md §7A flags, from before Inventory's real engine shipped — that gap is
+ * closed: InventoryGlPostingService::resolveMapping() now reads `Product::category_id`.)
  *
- * No caller exists yet either — same "engine ships before its caller" precedent as §3D's
- * InvoiceRequested (see that event's docblock). InventoryGoodsReceived/GoodsIssued/
- * StockAdjusted (App\Modules\Accounting\Events) are the seam Inventory dispatches into once
- * its own engine ships.
+ * InventoryGoodsReceived/GoodsIssued/StockAdjusted (App\Modules\Accounting\Events) are the
+ * seam Inventory's Goods Receipt/Issue/Adjustment engines (`INVENTORY_SPECS.md` §3D/§3E/§3G)
+ * dispatch into on post(), carrying that same Product::id.
  *
  * inventory_gl_mappings has no composite unique on (company_id, inventory_item_id,
  * inventory_category_id) for the same reason budget_lines doesn't: both id columns are

@@ -26,6 +26,8 @@ use App\Modules\Accounting\Listeners\RecordPaymentFromRequest;
 use App\Modules\Accounting\Services\XmlCoretaxExportDriver;
 use App\Modules\CRM\Models\Partner;
 use App\Modules\DMS\Models\Document;
+use App\Modules\Inventory\Models\Product;
+use App\Modules\Inventory\Models\StockBatch;
 use App\Modules\Legal\Contracts\MatterCodeGenerator;
 use App\Modules\Legal\Models\Matter;
 use App\Modules\Legal\Services\PrefixedMatterCodeGenerator;
@@ -180,6 +182,41 @@ class AppServiceProvider extends ServiceProvider
                 ->when($search !== '', fn ($q) => $q->where('title', 'ilike', '%'.$search.'%')),
             filterable: [],
             menuCode: 'DMS',
+        );
+
+        // §3D/§3E Goods Receipt/Issue line product picker — SKU can run into the hundreds,
+        // so lines search rather than choosing from a full <select>.
+        AsyncSearchRegistry::register(
+            'inventory_product',
+            Product::class,
+            ['sku', 'name'],
+            fn (Product $p) => "{$p->sku} — {$p->name}",
+            'name',
+            queryCallback: fn ($query, $search, $extraFilters) => $query
+                ->where('is_active', true)
+                ->when($search !== '', fn ($q) => $q->where(function ($q) use ($search) {
+                    $q->where('sku', 'ilike', '%'.$search.'%')
+                        ->orWhere('name', 'ilike', '%'.$search.'%');
+                })),
+            filterable: [],
+            menuCode: 'INVENTORY',
+        );
+
+        // §3L Batch/Lot line picker — always scoped to one product (`extraFilters['product_id']`,
+        // required, same `exclude_id`-style bypass-of-`filterable` pattern as DMS's document
+        // relation picker), since a lot number is only meaningful within its product.
+        AsyncSearchRegistry::register(
+            'inventory_batch',
+            StockBatch::class,
+            ['batch_number'],
+            fn (StockBatch $b) => $b->batch_number,
+            fn (StockBatch $b) => $b->expiry_date ? "Expires {$b->expiry_date->format('d M Y')}" : null,
+            null,
+            queryCallback: fn ($query, $search, $extraFilters) => $query
+                ->where('product_id', $extraFilters['product_id'] ?? 0)
+                ->when($search !== '', fn ($q) => $q->where('batch_number', 'ilike', '%'.$search.'%')),
+            filterable: [],
+            menuCode: 'INVENTORY',
         );
     }
 }

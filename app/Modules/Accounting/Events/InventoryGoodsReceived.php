@@ -5,14 +5,14 @@ namespace App\Modules\Accounting\Events;
 use Illuminate\Foundation\Events\Dispatchable;
 
 /**
- * §3H: the payload shape Inventory's Goods Receipt engine (`INVENTORY_SPECS.md` §3D) will
- * dispatch once it exists, mirroring `inventory.goods_received`. Consumed by
- * App\Modules\Accounting\Listeners\PostGoodsReceivedToGl.
+ * §3H: the payload shape Inventory's Goods Receipt engine (`INVENTORY_SPECS.md` §3D)
+ * dispatches on `GoodsReceiptService::post()`, mirroring `inventory.goods_received`.
+ * Consumed by App\Modules\Accounting\Listeners\PostGoodsReceivedToGl.
  *
- * No real caller exists yet — Inventory only has InventoryItem/InventoryCategory CRUD today,
- * not the Goods Receipt/Issue/Adjustment engine or `stock_ledger` this event describes. Same
- * "engine ships before its caller" precedent as §3D's InvoiceRequested — this event and its
- * listener are the seam §3H is written against.
+ * `inventoryItemId` is `App\Modules\Inventory\Models\Product::id` (INVENTORY.products) — the
+ * real Inventory engine's identity, not the legacy public-schema `inventory_items` demo table
+ * (CLAUDE.md §7A). `InventoryGlPostingService::resolveMapping()`'s category fallback reads
+ * `Product::category_id` accordingly.
  *
  * `unitCost`/`totalValue` are always a figure Inventory has already computed (its own
  * `CostingStrategyInterface`) — this engine holds zero costing logic and never recalculates

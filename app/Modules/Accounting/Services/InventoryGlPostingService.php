@@ -11,7 +11,7 @@ use App\Modules\Accounting\Models\GlJournal;
 use App\Modules\Accounting\Models\InventoryGlMapping;
 use App\Modules\Accounting\Models\InventoryGlPosting;
 use App\Modules\Accounting\Models\InventoryPostingFailure;
-use App\Modules\Inventory\Models\InventoryItem;
+use App\Modules\Inventory\Models\Product;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -209,7 +209,13 @@ class InventoryGlPostingService
         return InventoryGlPosting::query()->where('subject_type', $subjectType)->where('subject_id', $subjectId)->exists();
     }
 
-    /** Item-level mapping wins; falls back to the item's category mapping. */
+    /**
+     * Item-level mapping wins; falls back to the item's category mapping. `$inventoryItemId`
+     * is `App\Modules\Inventory\Models\Product::id` (INVENTORY.products) — the real Inventory
+     * engine's identity, not the legacy public-schema `inventory_items` demo table (CLAUDE.md
+     * §7A). `inventory_gl_mappings.inventory_category_id` correspondingly means
+     * `INVENTORY.product_categories.id` going forward.
+     */
     private function resolveMapping(int $companyId, int $inventoryItemId): ?InventoryGlMapping
     {
         $mapping = InventoryGlMapping::query()
@@ -220,7 +226,7 @@ class InventoryGlPostingService
             return $mapping;
         }
 
-        $categoryId = InventoryItem::query()->find($inventoryItemId)?->inventory_category_id;
+        $categoryId = Product::query()->find($inventoryItemId)?->category_id;
         if (! $categoryId) {
             return null;
         }

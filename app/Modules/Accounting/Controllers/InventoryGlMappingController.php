@@ -10,8 +10,8 @@ use App\Modules\Accounting\Requests\StoreInventoryGlMappingRequest;
 use App\Modules\Accounting\Requests\UpdateInventoryGlMappingRequest;
 use App\Modules\Accounting\Services\CompanyContextService;
 use App\Modules\Accounting\Services\InventoryGlMappingService;
-use App\Modules\Inventory\Models\InventoryCategory;
-use App\Modules\Inventory\Models\InventoryItem;
+use App\Modules\Inventory\Models\Product;
+use App\Modules\Inventory\Models\ProductCategory;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -26,8 +26,8 @@ class InventoryGlMappingController extends Controller
         $companies = Company::query()->where('is_active', true)->orderBy('legal_name')->get(['id', 'legal_name']);
         $companyId = (int) $this->companyContext->resolve($request, $companies);
 
-        $items = InventoryItem::query()->orderBy('code')->get(['id', 'code', 'name'])->keyBy('id');
-        $categories = InventoryCategory::query()->orderBy('name')->get(['id', 'code', 'name'])->keyBy('id');
+        $items = Product::query()->orderBy('sku')->get(['id', 'sku', 'name'])->keyBy('id');
+        $categories = ProductCategory::query()->orderBy('name')->get(['id', 'name'])->keyBy('id');
 
         $mappings = InventoryGlMapping::query()
             ->where('company_id', $companyId)
@@ -39,7 +39,7 @@ class InventoryGlMappingController extends Controller
             'selectedCompanyId' => $companyId,
             'mappings' => $mappings->map(function (InventoryGlMapping $m) use ($items, $categories) {
                 $scopeLabel = $m->inventory_item_id
-                    ? 'Item: '.($items->get($m->inventory_item_id)?->code ?? '#'.$m->inventory_item_id).' — '.($items->get($m->inventory_item_id)?->name ?? 'Unknown item')
+                    ? 'Item: '.($items->get($m->inventory_item_id)?->sku ?? '#'.$m->inventory_item_id).' — '.($items->get($m->inventory_item_id)?->name ?? 'Unknown item')
                     : 'Category: '.($categories->get($m->inventory_category_id)?->name ?? 'Unknown category');
 
                 return [
@@ -98,10 +98,10 @@ class InventoryGlMappingController extends Controller
     private function formOptions(?int $companyId): array
     {
         return [
-            'items' => InventoryItem::query()->orderBy('code')->get(['id', 'code', 'name'])
-                ->map(fn (InventoryItem $i) => ['value' => $i->id, 'label' => "{$i->code} — {$i->name}"]),
-            'categories' => InventoryCategory::query()->orderBy('name')->get(['id', 'code', 'name'])
-                ->map(fn (InventoryCategory $c) => ['value' => $c->id, 'label' => $c->name]),
+            'items' => Product::query()->orderBy('sku')->get(['id', 'sku', 'name'])
+                ->map(fn (Product $i) => ['value' => $i->id, 'label' => "{$i->sku} — {$i->name}"]),
+            'categories' => ProductCategory::query()->orderBy('name')->get(['id', 'name'])
+                ->map(fn (ProductCategory $c) => ['value' => $c->id, 'label' => $c->name]),
             'accounts' => $companyId
                 ? Account::query()->where('company_id', $companyId)->where('is_active', true)->orderBy('account_code')
                     ->get(['id', 'account_code', 'account_name'])
