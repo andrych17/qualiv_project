@@ -7,6 +7,7 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
+import FormMultiSelect from '@/Components/forms/FormMultiSelect.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 
@@ -47,23 +48,6 @@ const removeLine = (idx: number) => {
   }
 }
 
-const toggleSupplier = (supplierId: number) => {
-  const index = form.suppliers.indexOf(supplierId)
-  if (index === -1) {
-    form.suppliers.push(supplierId)
-  } else {
-    form.suppliers.splice(index, 1)
-  }
-}
-
-const selectAllSuppliers = () => {
-  if (form.suppliers.length === props.vendors.length) {
-    form.suppliers = []
-  } else {
-    form.suppliers = props.vendors.map((v) => v.id)
-  }
-}
-
 const submit = () => form.post(route('purchase.sourcing.store'))
 </script>
 
@@ -100,38 +84,19 @@ const submit = () => form.post(route('purchase.sourcing.store'))
 
       <!-- Invited Vendors -->
       <Panel title="Invited Vendors / Suppliers *">
-        <div class="space-y-3">
-          <div class="flex justify-between items-center pb-2 border-b border-border">
-            <span class="text-xs text-ink-500 font-medium">Select vendors to receive quotation requests</span>
-            <button
-              type="button"
-              class="text-xs font-semibold text-accent hover:underline"
-              @click="selectAllSuppliers"
-            >
-              {{ form.suppliers.length === vendors.length ? 'Deselect All' : 'Select All' }}
-            </button>
-          </div>
-
-          <div v-if="vendors.length > 0" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-48 overflow-y-auto p-1">
-            <label
-              v-for="v in vendors"
-              :key="v.id"
-              class="flex items-center gap-2 p-2 rounded border transition cursor-pointer text-xs"
-              :class="form.suppliers.includes(v.id) ? 'bg-accent/10 border-accent text-ink-900 font-semibold' : 'bg-surface border-border text-ink-700 hover:bg-surface-elevated'"
-            >
-              <input
-                type="checkbox"
-                :checked="form.suppliers.includes(v.id)"
-                class="rounded border-border text-accent focus:ring-accent"
-                @change="toggleSupplier(v.id)"
-              />
-              <span class="truncate">{{ v.name }}</span>
-            </label>
-          </div>
-          <div v-else class="text-xs text-ink-500">No active vendors found. Please register vendors first.</div>
-
-          <div v-if="form.errors.suppliers" class="text-xs text-rose-600 font-medium">
-            {{ form.errors.suppliers }}
+        <div class="space-y-2">
+          <FormMultiSelect
+            v-model="form.suppliers"
+            name="suppliers"
+            label="Select vendors to receive quotation requests"
+            placeholder="Pilih vendor yang diundang..."
+            search-placeholder="Cari nama vendor..."
+            :options="vendors.map((v) => ({ label: v.name, value: v.id }))"
+            :error="form.errors.suppliers"
+            required
+          />
+          <div v-if="vendors.length === 0" class="text-xs text-ink-600">
+            No active vendors found. Please register vendors first.
           </div>
         </div>
       </Panel>

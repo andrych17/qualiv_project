@@ -9,6 +9,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import PayrollSubNav from '@/Components/payroll/PayrollSubNav.vue'
+import Modal from '@/Components/Modal.vue'
 
 interface Claim {
   id: number
@@ -136,8 +137,8 @@ const statusVariant = (st: string) => {
     </div>
 
     <!-- Submit Claim Modal -->
-    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/50 p-4">
-      <div class="w-full max-w-md rounded-lg bg-surface p-6 shadow-xl border border-border">
+    <Modal :show="showModal" max-width="md" @close="showModal = false">
+      <div class="p-6 bg-white rounded-lg">
         <h3 class="text-lg font-bold text-ink-900">Submit Reimbursement Claim</h3>
         <form @submit.prevent="submit" class="mt-4 space-y-4">
           <div>
@@ -145,7 +146,7 @@ const statusVariant = (st: string) => {
             <select
               v-model="form.employee_id"
               required
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             >
               <option value="" disabled>-- Select Employee --</option>
               <option v-for="e in employees" :key="e.id" :value="e.id">{{ e.employee_no }} - {{ e.full_name }}</option>
@@ -156,7 +157,7 @@ const statusVariant = (st: string) => {
             <select
               v-model="form.reimbursement_category_id"
               required
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             >
               <option value="" disabled>-- Select Category --</option>
               <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
@@ -168,7 +169,7 @@ const statusVariant = (st: string) => {
               v-model="form.claim_date"
               type="date"
               required
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             />
           </div>
           <div>
@@ -178,7 +179,7 @@ const statusVariant = (st: string) => {
               type="number"
               min="1"
               required
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             />
           </div>
           <div>
@@ -186,7 +187,7 @@ const statusVariant = (st: string) => {
             <textarea
               v-model="form.description"
               rows="2"
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             ></textarea>
           </div>
           <div class="flex justify-end space-x-3 pt-2">
@@ -195,6 +196,6 @@ const statusVariant = (st: string) => {
           </div>
         </form>
       </div>
-    </div>
+    </Modal>
   </AppLayout>
 </template>

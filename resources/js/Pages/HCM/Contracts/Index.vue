@@ -9,6 +9,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import HcmSubNav from '@/Components/hcm/HcmSubNav.vue'
+import Modal from '@/Components/Modal.vue'
 
 interface Contract {
   id: number
@@ -156,8 +157,8 @@ const terminateContract = (c: Contract) => {
     </div>
 
     <!-- Renew Modal -->
-    <div v-if="showRenewModal" class="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/50 p-4">
-      <div class="w-full max-w-md rounded-lg bg-surface p-6 shadow-xl border border-border">
+    <Modal :show="showRenewModal" max-width="md" @close="showRenewModal = false">
+      <div class="p-6 bg-white rounded-lg">
         <h3 class="text-lg font-bold text-ink-900">Renew Employment Contract</h3>
         <p class="mt-1 text-sm text-ink-600">Employee: {{ selectedContract?.employee.full_name }}</p>
 
@@ -166,7 +167,7 @@ const terminateContract = (c: Contract) => {
             <label class="block text-xs font-medium text-ink-700">Contract Type *</label>
             <select
               v-model="renewForm.contract_type"
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             >
               <option value="PKWT">PKWT (Fixed Term)</option>
               <option value="PKWTT">PKWTT (Permanent Conversion)</option>
@@ -178,7 +179,7 @@ const terminateContract = (c: Contract) => {
               v-model="renewForm.start_date"
               type="date"
               required
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             />
           </div>
           <div v-if="renewForm.contract_type === 'PKWT'">
@@ -187,7 +188,7 @@ const terminateContract = (c: Contract) => {
               v-model="renewForm.end_date"
               type="date"
               required
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             />
           </div>
           <div>
@@ -197,7 +198,7 @@ const terminateContract = (c: Contract) => {
               type="number"
               min="0"
               required
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             />
           </div>
 
@@ -207,6 +208,6 @@ const terminateContract = (c: Contract) => {
           </div>
         </form>
       </div>
-    </div>
+    </Modal>
   </AppLayout>
 </template>

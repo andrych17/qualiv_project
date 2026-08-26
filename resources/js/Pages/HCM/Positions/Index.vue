@@ -8,6 +8,7 @@ import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 import HcmSubNav from '@/Components/hcm/HcmSubNav.vue'
+import Modal from '@/Components/Modal.vue'
 import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface Position {
@@ -143,8 +144,8 @@ const deletePos = (pos: Position) => {
     </div>
 
     <!-- Create/Edit Modal -->
-    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/50 p-4">
-      <div class="w-full max-w-md rounded-lg bg-surface p-6 shadow-xl border border-border">
+    <Modal :show="showModal" max-width="md" @close="showModal = false">
+      <div class="p-6 bg-white rounded-lg">
         <h3 class="text-lg font-bold text-ink-900">{{ isEditing ? 'Edit Position' : 'New Position' }}</h3>
         <form @submit.prevent="submit" class="mt-4 space-y-4">
           <div>
@@ -152,7 +153,7 @@ const deletePos = (pos: Position) => {
             <select
               v-model="form.job_id"
               required
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             >
               <option value="" disabled>-- Select Job --</option>
               <option v-for="j in jobs" :key="j.id" :value="j.id">{{ j.title }}</option>
@@ -163,7 +164,7 @@ const deletePos = (pos: Position) => {
             <select
               v-model="form.org_unit_id"
               required
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             >
               <option value="" disabled>-- Select Department --</option>
               <option v-for="u in orgUnits" :key="u.id" :value="u.id">{{ u.name }}</option>
@@ -173,7 +174,7 @@ const deletePos = (pos: Position) => {
             <label class="block text-xs font-medium text-ink-700">Reports To (Direct Manager Position)</label>
             <select
               v-model="form.reports_to_position_id"
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             >
               <option value="">-- None (Top Level) --</option>
               <option v-for="p in allPositions" :key="p.id" :value="p.id" :disabled="form.id === p.id">
@@ -187,7 +188,7 @@ const deletePos = (pos: Position) => {
               v-model.number="form.headcount_cap"
               type="number"
               min="1"
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             />
           </div>
           <div class="flex justify-end space-x-3 pt-2">
@@ -196,6 +197,6 @@ const deletePos = (pos: Position) => {
           </div>
         </form>
       </div>
-    </div>
+    </Modal>
   </AppLayout>
 </template>

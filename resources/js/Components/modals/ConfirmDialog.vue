@@ -3,6 +3,7 @@
      destructive = signal-danger, default = accent. -->
 <script setup lang="ts">
 import { confirmState, useConfirm } from '@/Composables/useConfirmDialog'
+import Modal from '@/Components/Modal.vue'
 
 const { close } = useConfirm()
 
@@ -14,23 +15,19 @@ const handleConfirm = () => {
 </script>
 
 <template>
-  <div
-    v-if="confirmState?.open"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/50 p-4"
-    @click.self="close"
-  >
+  <Modal :show="!!confirmState?.open" max-width="lg" @close="close">
     <div
       role="alertdialog"
       aria-modal="true"
       aria-labelledby="confirm-dialog-title"
-      class="relative w-full max-w-lg transform overflow-hidden rounded-lg border border-border bg-surface-0 text-left shadow-xl"
+      class="text-left"
     >
       <div class="p-6">
         <h3 id="confirm-dialog-title" class="text-base font-semibold text-ink-900">
-          {{ confirmState.title }}
+          {{ confirmState?.title }}
         </h3>
-        <p v-if="confirmState.description" class="mt-2 text-sm text-ink-600">
-          {{ confirmState.description }}
+        <p v-if="confirmState?.description" class="mt-2 text-sm text-ink-600">
+          {{ confirmState?.description }}
         </p>
       </div>
       <div class="flex flex-row-reverse gap-2 border-t border-border bg-surface-50 px-6 py-3">
@@ -38,22 +35,22 @@ const handleConfirm = () => {
           type="button"
           class="inline-flex items-center justify-center rounded-sm px-3 py-2 text-sm font-semibold text-white shadow-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           :class="
-            confirmState.variant === 'destructive'
+            confirmState?.variant === 'destructive'
               ? 'bg-signal-danger hover:bg-signal-danger/90'
               : 'bg-accent hover:bg-accent/90'
           "
           @click="handleConfirm"
         >
-          {{ confirmState.confirmText }}
+          {{ confirmState?.confirmText }}
         </button>
         <button
           type="button"
-          class="inline-flex items-center justify-center rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm font-semibold text-ink-900 shadow-sm transition hover:bg-surface-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          class="inline-flex items-center justify-center rounded-sm border border-border bg-white px-3 py-2 text-sm font-semibold text-ink-900 shadow-sm transition hover:bg-surface-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           @click="close"
         >
-          {{ confirmState.cancelText }}
+          {{ confirmState?.cancelText }}
         </button>
       </div>
     </div>
-  </div>
+  </Modal>
 </template>

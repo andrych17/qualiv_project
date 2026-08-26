@@ -8,6 +8,7 @@ import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
+import Modal from '@/Components/Modal.vue'
 import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface Employee {
@@ -307,8 +308,8 @@ const statusVariant = (st: string) => {
     </div>
 
     <!-- Terminate Modal -->
-    <div v-if="showTerminateModal" class="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/50 p-4">
-      <div class="w-full max-w-md rounded-lg bg-surface p-6 shadow-xl border border-border">
+    <Modal :show="showTerminateModal" max-width="md" @close="showTerminateModal = false">
+      <div class="p-6 bg-white rounded-lg">
         <h3 class="text-lg font-bold text-ink-900">Terminate Employment</h3>
         <p class="mt-1 text-sm text-ink-600">Mark employee as terminated and close active contract.</p>
 
@@ -319,7 +320,7 @@ const statusVariant = (st: string) => {
               v-model="terminateForm.termination_date"
               type="date"
               required
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             />
           </div>
           <div>
@@ -328,7 +329,7 @@ const statusVariant = (st: string) => {
               v-model="terminateForm.termination_reason"
               type="text"
               placeholder="e.g. Resignation, End of Contract, Severance"
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             />
           </div>
 
@@ -338,6 +339,6 @@ const statusVariant = (st: string) => {
           </div>
         </form>
       </div>
-    </div>
+    </Modal>
   </AppLayout>
 </template>

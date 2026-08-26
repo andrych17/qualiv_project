@@ -8,6 +8,7 @@ import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 import PayrollSubNav from '@/Components/payroll/PayrollSubNav.vue'
+import Modal from '@/Components/Modal.vue'
 
 interface Structure {
   id: number
@@ -126,8 +127,8 @@ const submitAttach = () => {
     </div>
 
     <!-- Create Structure Modal -->
-    <div v-if="showCreateModal" class="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/50 p-4">
-      <div class="w-full max-w-md rounded-lg bg-surface p-6 shadow-xl border border-border">
+    <Modal :show="showCreateModal" max-width="md" @close="showCreateModal = false">
+      <div class="p-6 bg-white rounded-lg">
         <h3 class="text-lg font-bold text-ink-900">New Salary Structure</h3>
         <form @submit.prevent="submitCreate" class="mt-4 space-y-4">
           <div>
@@ -136,14 +137,14 @@ const submitAttach = () => {
               v-model="form.name"
               type="text"
               required
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             />
           </div>
           <div>
             <label class="block text-xs font-medium text-ink-700">Grade</label>
             <select
               v-model="form.grade_id"
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             >
               <option value="">-- No Grade --</option>
               <option v-for="g in grades" :key="g.id" :value="g.id">{{ g.name }}</option>
@@ -154,7 +155,7 @@ const submitAttach = () => {
             <input
               v-model="form.description"
               type="text"
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             />
           </div>
           <div class="flex justify-end space-x-3 pt-2">
@@ -163,11 +164,11 @@ const submitAttach = () => {
           </div>
         </form>
       </div>
-    </div>
+    </Modal>
 
     <!-- Attach Component Modal -->
-    <div v-if="showAttachModal" class="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/50 p-4">
-      <div class="w-full max-w-md rounded-lg bg-surface p-6 shadow-xl border border-border">
+    <Modal :show="showAttachModal" max-width="md" @close="showAttachModal = false">
+      <div class="p-6 bg-white rounded-lg">
         <h3 class="text-lg font-bold text-ink-900">Attach Component to {{ selectedStructure?.name }}</h3>
         <form @submit.prevent="submitAttach" class="mt-4 space-y-4">
           <div>
@@ -175,7 +176,7 @@ const submitAttach = () => {
             <select
               v-model="attachForm.payroll_component_id"
               required
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             >
               <option value="" disabled>-- Select Component --</option>
               <option v-for="c in components" :key="c.id" :value="c.id">{{ c.name }} ({{ c.code }})</option>
@@ -187,7 +188,7 @@ const submitAttach = () => {
               v-model.number="attachForm.default_amount"
               type="number"
               min="0"
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             />
           </div>
           <div class="flex justify-end space-x-3 pt-2">
@@ -196,6 +197,6 @@ const submitAttach = () => {
           </div>
         </form>
       </div>
-    </div>
+    </Modal>
   </AppLayout>
 </template>

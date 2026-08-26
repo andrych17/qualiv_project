@@ -8,6 +8,7 @@ import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 import HcmSubNav from '@/Components/hcm/HcmSubNav.vue'
+import Modal from '@/Components/Modal.vue'
 import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface OrgUnit {
@@ -133,8 +134,8 @@ const deleteUnit = (unit: OrgUnit) => {
     </div>
 
     <!-- Create/Edit Modal -->
-    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/50 p-4">
-      <div class="w-full max-w-md rounded-lg bg-surface p-6 shadow-xl border border-border">
+    <Modal :show="showModal" max-width="md" @close="showModal = false">
+      <div class="p-6 bg-white rounded-lg">
         <h3 class="text-lg font-bold text-ink-900">{{ isEditing ? 'Edit Org Unit' : 'New Org Unit' }}</h3>
         <form @submit.prevent="submit" class="mt-4 space-y-4">
           <div>
@@ -143,14 +144,14 @@ const deleteUnit = (unit: OrgUnit) => {
               v-model="form.name"
               type="text"
               required
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             />
           </div>
           <div>
             <label class="block text-xs font-medium text-ink-700">Parent Unit</label>
             <select
               v-model="form.parent_org_unit_id"
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             >
               <option value="">-- None (Top Level) --</option>
               <option v-for="u in allOrgUnits" :key="u.id" :value="u.id" :disabled="form.id === u.id">
@@ -168,6 +169,6 @@ const deleteUnit = (unit: OrgUnit) => {
           </div>
         </form>
       </div>
-    </div>
+    </Modal>
   </AppLayout>
 </template>

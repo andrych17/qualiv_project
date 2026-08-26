@@ -9,6 +9,7 @@ import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 import DangerButton from '@/Components/DangerButton.vue'
+import Modal from '@/Components/Modal.vue'
 
 interface BillingScheduleItem {
   id: number
@@ -213,8 +214,8 @@ const submitRenew = () => {
     </div>
 
     <!-- Renew Modal -->
-    <div v-if="showRenewModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div class="w-full max-w-md rounded-lg bg-surface-0 p-6 shadow-xl border border-border">
+    <Modal :show="showRenewModal" max-width="md" @close="showRenewModal = false">
+      <div class="p-6 bg-white rounded-lg">
         <h3 class="text-lg font-semibold text-ink-900">Renew Contract Agreement</h3>
         <p class="mt-1 text-sm text-ink-600">Extend the term end date for <strong>{{ props.contract.name }}</strong>.</p>
 
@@ -224,7 +225,7 @@ const submitRenew = () => {
             <input
               v-model="newTermEnd"
               type="date"
-              class="w-full rounded border border-border bg-surface-0 py-2 px-3 text-sm text-ink-900 focus:outline-none"
+              class="w-full rounded border border-border bg-white py-2 px-3 text-sm text-ink-900 focus:outline-none"
               required
             />
           </div>
@@ -235,6 +236,6 @@ const submitRenew = () => {
           </div>
         </div>
       </div>
-    </div>
+    </Modal>
   </AppLayout>
 </template>

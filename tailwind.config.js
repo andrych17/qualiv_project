@@ -18,6 +18,7 @@ export default {
                     600: 'var(--color-ink-600)',
                 },
                 surface: {
+                    DEFAULT: 'var(--color-surface-0)',
                     0: 'var(--color-surface-0)',
                     50: 'var(--color-surface-50)',
                 },

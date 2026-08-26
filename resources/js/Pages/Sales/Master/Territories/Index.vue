@@ -9,6 +9,7 @@ import SecondaryButton from '@/Components/SecondaryButton.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 import SalesSubNav from '@/Components/sales/SalesSubNav.vue'
 import SalesMasterSubNav from '@/Components/sales/SalesMasterSubNav.vue'
+import Modal from '@/Components/Modal.vue'
 
 interface TerritoryItem {
   id: number
@@ -131,8 +132,8 @@ const deleteTerritory = (id: number) => {
     </div>
 
     <!-- Territory Modal -->
-    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div class="w-full max-w-md rounded-lg bg-surface-0 p-6 shadow-xl border border-border">
+    <Modal :show="showModal" max-width="md" @close="showModal = false">
+      <div class="p-6 bg-white rounded-lg">
         <h3 class="text-lg font-semibold text-ink-900">{{ editingTerritory ? 'Edit Territory' : 'New Territory' }}</h3>
 
         <form @submit.prevent="submit" class="mt-4 space-y-4">
@@ -163,6 +164,6 @@ const deleteTerritory = (id: number) => {
           </div>
         </form>
       </div>
-    </div>
+    </Modal>
   </AppLayout>
 </template>

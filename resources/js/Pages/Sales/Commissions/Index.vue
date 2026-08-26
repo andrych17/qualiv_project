@@ -9,6 +9,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import SalesSubNav from '@/Components/sales/SalesSubNav.vue'
+import Modal from '@/Components/Modal.vue'
 
 interface SettlementItem {
   id: number
@@ -140,8 +141,8 @@ const submitBatch = () => {
     </div>
 
     <!-- Batch Generation Modal -->
-    <div v-if="showBatchModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div class="w-full max-w-md rounded-lg bg-surface-0 p-6 shadow-xl border border-border">
+    <Modal :show="showBatchModal" max-width="md" @close="showBatchModal = false">
+      <div class="p-6 bg-white rounded-lg">
         <h3 class="text-lg font-semibold text-ink-900">Generate Commission Settlement</h3>
         <p class="mt-1 text-sm text-ink-600">Calculates earned commissions for a sales rep based on settled payments.</p>
 
@@ -150,7 +151,7 @@ const submitBatch = () => {
             <label class="block text-xs font-medium text-ink-700 mb-1">Sales Representative *</label>
             <select
               v-model="batchForm.rep_id"
-              class="w-full rounded border border-border bg-surface-0 py-2 px-3 text-sm text-ink-900 focus:outline-none"
+              class="w-full rounded border border-border bg-white py-2 px-3 text-sm text-ink-900 focus:outline-none"
               required
             >
               <option :value="null">-- Select sales rep --</option>
@@ -163,7 +164,7 @@ const submitBatch = () => {
             <input
               v-model="batchForm.period_start"
               type="date"
-              class="w-full rounded border border-border bg-surface-0 py-2 px-3 text-sm text-ink-900 focus:outline-none"
+              class="w-full rounded border border-border bg-white py-2 px-3 text-sm text-ink-900 focus:outline-none"
               required
             />
           </div>
@@ -173,7 +174,7 @@ const submitBatch = () => {
             <input
               v-model="batchForm.period_end"
               type="date"
-              class="w-full rounded border border-border bg-surface-0 py-2 px-3 text-sm text-ink-900 focus:outline-none"
+              class="w-full rounded border border-border bg-white py-2 px-3 text-sm text-ink-900 focus:outline-none"
               required
             />
           </div>
@@ -184,6 +185,6 @@ const submitBatch = () => {
           </div>
         </form>
       </div>
-    </div>
+    </Modal>
   </AppLayout>
 </template>

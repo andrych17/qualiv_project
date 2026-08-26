@@ -8,6 +8,7 @@ import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 import PayrollSubNav from '@/Components/payroll/PayrollSubNav.vue'
+import Modal from '@/Components/Modal.vue'
 
 interface Employee {
   id: number
@@ -141,8 +142,8 @@ const submit = () => {
     </div>
 
     <!-- Edit Profile Modal -->
-    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/50 p-4">
-      <div class="w-full max-w-lg rounded-lg bg-surface p-6 shadow-xl border border-border">
+    <Modal :show="showModal" max-width="lg" @close="showModal = false">
+      <div class="p-6 bg-white rounded-lg">
         <h3 class="text-lg font-bold text-ink-900">Payroll Profile: {{ selectedEmployee?.full_name }}</h3>
         <form @submit.prevent="submit" class="mt-4 space-y-4">
           <div class="grid grid-cols-2 gap-4">
@@ -151,7 +152,7 @@ const submit = () => {
               <select
                 v-model="form.ptkp_status_code"
                 required
-                class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+                class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
               >
                 <option v-for="p in ptkpStatuses" :key="p.code" :value="p.code">
                   {{ p.code }} (TER {{ p.ter_category }})
@@ -162,7 +163,7 @@ const submit = () => {
               <label class="block text-xs font-medium text-ink-700">Payroll Group</label>
               <select
                 v-model="form.payroll_group_id"
-                class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+                class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
               >
                 <option value="">-- None --</option>
                 <option v-for="g in payrollGroups" :key="g.id" :value="g.id">{{ g.name }}</option>
@@ -175,7 +176,7 @@ const submit = () => {
             <input
               v-model="form.npwp_number"
               type="text"
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             />
           </div>
 
@@ -185,7 +186,7 @@ const submit = () => {
               <input
                 v-model="form.bpjs_kesehatan_no"
                 type="text"
-                class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+                class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
               />
             </div>
             <div>
@@ -193,7 +194,7 @@ const submit = () => {
               <input
                 v-model="form.bpjs_ketenagakerjaan_no"
                 type="text"
-                class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+                class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
               />
             </div>
           </div>
@@ -202,7 +203,7 @@ const submit = () => {
             <label class="block text-xs font-medium text-ink-700">Salary Structure</label>
             <select
               v-model="form.salary_structure_id"
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             >
               <option value="">-- None --</option>
               <option v-for="s in salaryStructures" :key="s.id" :value="s.id">{{ s.name }}</option>
@@ -215,6 +216,6 @@ const submit = () => {
           </div>
         </form>
       </div>
-    </div>
+    </Modal>
   </AppLayout>
 </template>

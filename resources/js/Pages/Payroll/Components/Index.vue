@@ -8,6 +8,7 @@ import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 import PayrollSubNav from '@/Components/payroll/PayrollSubNav.vue'
+import Modal from '@/Components/Modal.vue'
 
 interface Component {
   id: number
@@ -148,8 +149,8 @@ const submit = () => {
     </div>
 
     <!-- Create/Edit Modal -->
-    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/50 p-4">
-      <div class="w-full max-w-md rounded-lg bg-surface p-6 shadow-xl border border-border">
+    <Modal :show="showModal" max-width="md" @close="showModal = false">
+      <div class="p-6 bg-white rounded-lg">
         <h3 class="text-lg font-bold text-ink-900">{{ isEditing ? 'Edit Component' : 'New Component' }}</h3>
         <form @submit.prevent="submit" class="mt-4 space-y-4">
           <div>
@@ -159,7 +160,7 @@ const submit = () => {
               type="text"
               :disabled="isEditing"
               required
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent disabled:bg-surface-sunken"
+              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent disabled:bg-surface-50"
             />
           </div>
           <div>
@@ -168,7 +169,7 @@ const submit = () => {
               v-model="form.name"
               type="text"
               required
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             />
           </div>
           <div class="grid grid-cols-2 gap-4">
@@ -176,7 +177,7 @@ const submit = () => {
               <label class="block text-xs font-medium text-ink-700">Type *</label>
               <select
                 v-model="form.type"
-                class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+                class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
               >
                 <option value="earning">Earning</option>
                 <option value="deduction">Deduction</option>
@@ -186,7 +187,7 @@ const submit = () => {
               <label class="block text-xs font-medium text-ink-700">Category *</label>
               <select
                 v-model="form.category"
-                class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+                class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
               >
                 <option value="fixed">Fixed</option>
                 <option value="variable_input">Variable Input</option>
@@ -211,6 +212,6 @@ const submit = () => {
           </div>
         </form>
       </div>
-    </div>
+    </Modal>
   </AppLayout>
 </template>

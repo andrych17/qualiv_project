@@ -8,6 +8,7 @@ import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 import HcmSubNav from '@/Components/hcm/HcmSubNav.vue'
+import Modal from '@/Components/Modal.vue'
 import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface Shift {
@@ -137,8 +138,8 @@ const deleteShift = (shift: Shift) => {
     </div>
 
     <!-- Create/Edit Modal -->
-    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/50 p-4">
-      <div class="w-full max-w-md rounded-lg bg-surface p-6 shadow-xl border border-border">
+    <Modal :show="showModal" max-width="md" @close="showModal = false">
+      <div class="p-6 bg-white rounded-lg">
         <h3 class="text-lg font-bold text-ink-900">{{ isEditing ? 'Edit Shift' : 'New Shift' }}</h3>
         <form @submit.prevent="submit" class="mt-4 space-y-4">
           <div>
@@ -147,7 +148,7 @@ const deleteShift = (shift: Shift) => {
               v-model="form.name"
               type="text"
               required
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             />
           </div>
           <div class="grid grid-cols-2 gap-4">
@@ -158,7 +159,7 @@ const deleteShift = (shift: Shift) => {
                 type="text"
                 required
                 placeholder="09:00"
-                class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+                class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
               />
             </div>
             <div>
@@ -168,7 +169,7 @@ const deleteShift = (shift: Shift) => {
                 type="text"
                 required
                 placeholder="17:00"
-                class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+                class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
               />
             </div>
           </div>
@@ -178,7 +179,7 @@ const deleteShift = (shift: Shift) => {
               v-model.number="form.break_minutes"
               type="number"
               min="0"
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             />
           </div>
           <div class="flex justify-end space-x-3 pt-2">
@@ -187,6 +188,6 @@ const deleteShift = (shift: Shift) => {
           </div>
         </form>
       </div>
-    </div>
+    </Modal>
   </AppLayout>
 </template>
