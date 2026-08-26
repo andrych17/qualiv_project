@@ -88,27 +88,18 @@ class PurchaseSeeder extends Seeder
         $vendorPartners = [
             [
                 'name' => 'PT Mitra Solusi Teknologi',
-                'reg_type' => 'company',
-                'email' => 'sales@mitrasolusi.example.com',
-                'phone' => '021-5551234',
                 'tax_no' => '01.234.567.8-012.000',
                 'bank' => 'BCA',
                 'terms' => 30,
             ],
             [
                 'name' => 'CV Sumber Kertas Nusantara',
-                'reg_type' => 'company',
-                'email' => 'order@sumberkertas.example.com',
-                'phone' => '031-7778899',
                 'tax_no' => '02.345.678.9-034.000',
                 'bank' => 'Mandiri',
                 'terms' => 14,
             ],
             [
                 'name' => 'PT Prima Logistik Ekpres',
-                'reg_type' => 'company',
-                'email' => 'dispatch@primalogistik.example.com',
-                'phone' => '021-8889900',
                 'tax_no' => '03.456.789.0-056.000',
                 'bank' => 'BNI',
                 'terms' => 45,
@@ -117,18 +108,17 @@ class PurchaseSeeder extends Seeder
 
         $vendorProfiles = [];
         foreach ($vendorPartners as $vp) {
-            $partner = Partner::query()->updateOrCreate(
-                ['email' => $vp['email']],
+            $partner = Partner::query()->firstOrCreate(
+                ['name' => $vp['name']],
                 [
-                    'name' => $vp['name'],
-                    'reg_type' => $vp['reg_type'],
-                    'phone' => $vp['phone'],
+                    'type' => Partner::TYPE_ORGANIZATION,
+                    'registration_tax_id' => $vp['tax_no'],
                     'is_active' => true,
                 ]
             );
 
             // Ensure vendor role assigned in CRM
-            PartnerRoleType::query()->updateOrCreate(
+            PartnerRoleType::query()->firstOrCreate(
                 ['partner_id' => $partner->id, 'role_type' => 'vendor'],
                 ['is_active' => true]
             );
