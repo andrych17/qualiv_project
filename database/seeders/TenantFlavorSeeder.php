@@ -47,8 +47,13 @@ use App\Modules\Payroll\Models\JkkRiskCategory;
 use App\Modules\Payroll\Models\PayrollCalendar;
 use App\Modules\Payroll\Models\PayrollComponent;
 use App\Modules\Payroll\Models\PayrollGroup;
+use App\Modules\Payroll\Models\PayrollRun;
+use App\Modules\Payroll\Models\PayrollRunLine;
+use App\Modules\Payroll\Models\PayrollRunLineDetail;
 use App\Modules\Payroll\Models\Pph21TerRate;
 use App\Modules\Payroll\Models\PtkpStatus;
+use App\Modules\Payroll\Models\ReimbursementCategory;
+use App\Modules\Payroll\Models\ReimbursementClaim;
 use App\Modules\Payroll\Models\SalaryStructure;
 use App\Modules\Legal\Models\DeedType;
 use App\Modules\Legal\Models\FieldVisitType;
@@ -932,8 +937,8 @@ class TenantFlavorSeeder extends Seeder
             ['reports_to_position_id' => $posMp->id, 'is_active' => true]
         );
 
-        // 4. Demo Employee + Contract
-        $employee = Employee::query()->updateOrCreate(
+        // 4. Demo Employees + Contracts + Attendance + Leave
+        $empSiti = Employee::query()->updateOrCreate(
             ['employee_no' => 'EMP-0001'],
             [
                 'full_name' => 'Siti Aminah',
@@ -955,20 +960,118 @@ class TenantFlavorSeeder extends Seeder
             ]
         );
 
-        EmployeePositionHistory::query()->updateOrCreate(
-            ['employee_id' => $employee->id, 'position_id' => $posSa->id, 'effective_from' => '2024-01-15']
+        $empBudi = Employee::query()->updateOrCreate(
+            ['employee_no' => 'EMP-0002'],
+            [
+                'full_name' => 'Budi Santoso',
+                'date_of_birth' => '1995-08-20',
+                'gender' => 'male',
+                'nik' => '3171234567890002',
+                'npwp' => '08.123.456.7-101.000',
+                'bpjs_kesehatan_no' => '0001234567891',
+                'bpjs_ketenagakerjaan_no' => '11223344557',
+                'marital_status' => 'single',
+                'dependents_count' => 0,
+                'religion' => 'Islam',
+                'hire_date' => '2025-02-01',
+                'employment_status' => Employee::STATUS_ACTIVE,
+                'position_id' => $posSa->id,
+                'bank_name' => 'Bank Mandiri',
+                'bank_account_no' => '123000998877',
+                'bank_account_holder_name' => 'Budi Santoso',
+            ]
+        );
+
+        $empDewi = Employee::query()->updateOrCreate(
+            ['employee_no' => 'EMP-0003'],
+            [
+                'full_name' => 'Dewi Lestari',
+                'date_of_birth' => '1990-11-05',
+                'gender' => 'female',
+                'nik' => '3171234567890003',
+                'npwp' => '07.654.321.0-102.000',
+                'bpjs_kesehatan_no' => '0001234567892',
+                'bpjs_ketenagakerjaan_no' => '11223344558',
+                'marital_status' => 'married',
+                'dependents_count' => 2,
+                'religion' => 'Kristen',
+                'hire_date' => '2023-06-01',
+                'employment_status' => Employee::STATUS_ACTIVE,
+                'position_id' => $posMp->id,
+                'bank_name' => 'Bank BNI',
+                'bank_account_no' => '0987654321',
+                'bank_account_holder_name' => 'Dewi Lestari',
+            ]
+        );
+
+        foreach ([$empSiti, $empBudi, $empDewi] as $emp) {
+            EmployeePositionHistory::query()->updateOrCreate(
+                ['employee_id' => $emp->id, 'position_id' => $emp->position_id, 'effective_from' => $emp->hire_date]
+            );
+        }
+
+        EmploymentContract::query()->updateOrCreate(
+            ['employee_id' => $empSiti->id, 'start_date' => '2024-01-15'],
+            ['contract_type' => 'PKWTT', 'base_salary' => 15000000, 'work_location' => 'Jakarta HQ', 'status' => 'active']
         );
 
         EmploymentContract::query()->updateOrCreate(
-            ['employee_id' => $employee->id, 'start_date' => '2024-01-15'],
-            [
-                'contract_type' => 'PKWTT',
-                'base_salary' => 15000000,
-                'work_location' => 'Jakarta HQ',
-                'probation_end_date' => '2024-04-15',
-                'status' => 'active',
-            ]
+            ['employee_id' => $empBudi->id, 'start_date' => '2025-02-01'],
+            ['contract_type' => 'PKWT', 'end_date' => '2026-02-01', 'base_salary' => 8500000, 'work_location' => 'Jakarta HQ', 'status' => 'active']
         );
+
+        EmploymentContract::query()->updateOrCreate(
+            ['employee_id' => $empDewi->id, 'start_date' => '2023-06-01'],
+            ['contract_type' => 'PKWTT', 'base_salary' => 11000000, 'work_location' => 'Jakarta HQ', 'status' => 'active']
+        );
+
+        // Attendance & Shift
+        $shift = Shift::query()->first();
+        if ($shift) {
+            $today = now()->format('Y-m-d');
+            foreach ([$empSiti, $empBudi, $empDewi] as $emp) {
+                ShiftAssignment::query()->updateOrCreate(
+                    ['employee_id' => $emp->id, 'work_date' => $today],
+                    ['shift_id' => $shift->id]
+                );
+            }
+
+            AttendanceLog::query()->create([
+                'employee_id' => $empSiti->id,
+                'clock_in_at' => now()->setTime(8, 52, 0),
+                'exception_flag' => 'on_time',
+                'source' => 'web',
+            ]);
+            AttendanceLog::query()->create([
+                'employee_id' => $empBudi->id,
+                'clock_in_at' => now()->setTime(9, 22, 0),
+                'exception_flag' => 'late',
+                'source' => 'web',
+            ]);
+        }
+
+        // Leave Balances & Sample Request
+        $annualLeave = LeaveType::query()->where('code', 'ANNUAL')->first();
+        $sickLeave = LeaveType::query()->where('code', 'SICK')->first();
+        if ($annualLeave) {
+            foreach ([$empSiti, $empBudi, $empDewi] as $emp) {
+                LeaveBalance::query()->updateOrCreate(
+                    ['employee_id' => $emp->id, 'leave_type_id' => $annualLeave->id, 'period_year' => 2026],
+                    ['entitled_days' => 12, 'used_days' => 2, 'carried_over_days' => 0]
+                );
+            }
+        }
+        if ($sickLeave) {
+            LeaveRequest::query()->updateOrCreate(
+                ['employee_id' => $empBudi->id, 'start_date' => now()->addDays(1)->format('Y-m-d')],
+                [
+                    'leave_type_id' => $sickLeave->id,
+                    'end_date' => now()->addDays(2)->format('Y-m-d'),
+                    'reason' => 'Demam dan istirahat dokter',
+                    'status' => 'pending',
+                ]
+            );
+        }
     }
 
     private function seedPayroll(): void
@@ -1075,24 +1178,117 @@ class TenantFlavorSeeder extends Seeder
             ]
         );
 
-        // 6. Demo Employee Payroll Profile for Siti Aminah
-        $emp = Employee::query()->where('employee_no', 'EMP-0001')->first();
-        if ($emp) {
-            EmployeePayrollProfile::query()->updateOrCreate(
-                ['employee_id' => $emp->id],
+        // 6. Demo Employee Payroll Profiles
+        $profiles = [
+            ['emp_no' => 'EMP-0001', 'ptkp' => 'K/1', 'npwp' => '09.876.543.2-109.000', 'has_npwp' => true, 'kes' => '0001234567890', 'tk' => '11223344556'],
+            ['emp_no' => 'EMP-0002', 'ptkp' => 'TK/0', 'npwp' => '08.123.456.7-101.000', 'has_npwp' => true, 'kes' => '0001234567891', 'tk' => '11223344557'],
+            ['emp_no' => 'EMP-0003', 'ptkp' => 'K/2', 'npwp' => '07.654.321.0-102.000', 'has_npwp' => true, 'kes' => '0001234567892', 'tk' => '11223344558'],
+        ];
+
+        foreach ($profiles as $p) {
+            $emp = Employee::query()->where('employee_no', $p['emp_no'])->first();
+            if ($emp) {
+                EmployeePayrollProfile::query()->updateOrCreate(
+                    ['employee_id' => $emp->id],
+                    [
+                        'payroll_group_id' => $group->id,
+                        'salary_structure_id' => $structure->id,
+                        'ptkp_status_code' => $p['ptkp'],
+                        'npwp_number' => $p['npwp'],
+                        'has_npwp' => $p['has_npwp'],
+                        'bpjs_kesehatan_no' => $p['kes'],
+                        'bpjs_ketenagakerjaan_no' => $p['tk'],
+                        'jkk_risk_category_id' => $jkk->id,
+                        'is_tax_borne_by_company' => false,
+                        'proration_rule' => 'work_days',
+                        'is_active' => true,
+                    ]
+                );
+            }
+        }
+
+        // 7. Reimbursement Categories & Demo Claim
+        $catMed = ReimbursementCategory::query()->updateOrCreate(
+            ['code' => 'MEDICAL'],
+            ['name' => 'Kesehatan / Rawat Jalan', 'max_claim_amount' => 3000000, 'is_active' => true]
+        );
+        ReimbursementCategory::query()->updateOrCreate(
+            ['code' => 'TRANSPORT'],
+            ['name' => 'Transportasi & Bensin', 'max_claim_amount' => 1500000, 'is_active' => true]
+        );
+
+        $empBudi = Employee::query()->where('employee_no', 'EMP-0002')->first();
+        if ($empBudi && $catMed) {
+            ReimbursementClaim::query()->updateOrCreate(
+                ['employee_id' => $empBudi->id, 'claim_date' => now()->subDays(2)->format('Y-m-d')],
                 [
-                    'payroll_group_id' => $group->id,
-                    'salary_structure_id' => $structure->id,
-                    'ptkp_status_code' => 'K/1', // Married 1 dependent -> Category B
-                    'npwp_number' => '09.876.543.2-109.000',
-                    'has_npwp' => true,
-                    'bpjs_kesehatan_no' => '0001234567890',
-                    'bpjs_ketenagakerjaan_no' => '11223344556',
-                    'jkk_risk_category_id' => $jkk->id,
-                    'is_tax_borne_by_company' => false,
-                    'proration_rule' => 'work_days',
-                    'is_active' => true,
+                    'reimbursement_category_id' => $catMed->id,
+                    'amount' => 450000,
+                    'description' => 'Kuitansi pemeriksaan dokter & vitamin',
+                    'status' => 'pending',
                 ]
+            );
+        }
+
+        // 8. Sample Calculated & Paid Payroll Run
+        $run = PayrollRun::query()->updateOrCreate(
+            ['run_number' => 'PR-2026-02-REG'],
+            [
+                'payroll_group_id' => $group->id,
+                'period_start' => '2026-02-01',
+                'period_end' => '2026-02-28',
+                'pay_date' => '2026-02-28',
+                'run_type' => 'regular',
+                'status' => 'paid',
+                'total_gross' => 34500000,
+                'total_deductions' => 2850000,
+                'total_net' => 31650000,
+                'total_tax_pph21' => 745000,
+                'total_bpjs_employer' => 2105000,
+                'total_bpjs_employee' => 1035000,
+                'paid_at' => '2026-02-28 17:00:00',
+                'is_locked' => true,
+            ]
+        );
+
+        $empSiti = Employee::query()->where('employee_no', 'EMP-0001')->first();
+        if ($empSiti) {
+            $line = PayrollRunLine::query()->updateOrCreate(
+                ['payroll_run_id' => $run->id, 'employee_id' => $empSiti->id],
+                [
+                    'basic_salary' => 15000000,
+                    'gross_total' => 15000000,
+                    'taxable_earnings' => 15000000,
+                    'non_taxable_earnings' => 0,
+                    'bpjs_kesehatan_employer' => 480000,
+                    'bpjs_kesehatan_employee' => 120000,
+                    'bpjs_tk_employer' => 885000,
+                    'bpjs_tk_employee' => 450000,
+                    'pph21_amount' => 375000,
+                    'other_deductions' => 0,
+                    'net_total' => 14055000,
+                    'take_home_pay' => 14055000,
+                    'ptkp_status_code' => 'K/1',
+                    'ter_category' => 'B',
+                    'ter_rate_percentage' => 0.025,
+                ]
+            );
+
+            PayrollRunLineDetail::query()->updateOrCreate(
+                ['payroll_run_line_id' => $line->id, 'component_name' => 'Gaji Pokok'],
+                ['type' => 'earning', 'category' => 'fixed', 'amount' => 15000000]
+            );
+            PayrollRunLineDetail::query()->updateOrCreate(
+                ['payroll_run_line_id' => $line->id, 'component_name' => 'PPh 21 (TER B 2.50%)'],
+                ['type' => 'deduction', 'category' => 'statutory', 'amount' => 375000]
+            );
+            PayrollRunLineDetail::query()->updateOrCreate(
+                ['payroll_run_line_id' => $line->id, 'component_name' => 'BPJS Kesehatan (1%)'],
+                ['type' => 'deduction', 'category' => 'statutory', 'amount' => 120000]
+            );
+            PayrollRunLineDetail::query()->updateOrCreate(
+                ['payroll_run_line_id' => $line->id, 'component_name' => 'BPJS Ketenagakerjaan (3%)'],
+                ['type' => 'deduction', 'category' => 'statutory', 'amount' => 450000]
             );
         }
     }
