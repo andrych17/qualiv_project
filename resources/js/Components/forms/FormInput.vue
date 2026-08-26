@@ -5,12 +5,13 @@ import { computed } from 'vue'
 const props = withDefaults(defineProps<{
   modelValue: string | number | null
   label: string
-  name: string
+  name?: string
   type?: string
   placeholder?: string
   error?: string
   required?: boolean
 }>(), {
+  name: '',
   type: 'text',
   placeholder: '',
   required: false,
@@ -20,7 +21,7 @@ const emit = defineEmits<{
   'update:modelValue': [value: string | number]
 }>()
 
-const inputId = computed(() => `input-${props.name}`)
+const inputId = computed(() => props.name ? `input-${props.name}` : undefined)
 </script>
 
 <template>

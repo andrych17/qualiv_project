@@ -86,6 +86,11 @@ class AppServiceProvider extends ServiceProvider
         // also auto-posts (see PostPayrollRunToGl's docblock).
         Event::listen(PayrollRunPaid::class, PostPayrollRunToGl::class);
 
+        // Sales module listeners (§3I/§3M/§5)
+        Event::listen(\App\Modules\Accounting\Events\InvoicePosted::class, \App\Modules\Sales\Listeners\UpdateSalesOrderOnInvoicePosted::class);
+        Event::listen(\App\Modules\Accounting\Events\PaymentRecorded::class, \App\Modules\Sales\Listeners\ProcessCommissionOnPaymentRecorded::class);
+        Event::listen(\App\Modules\Sales\Events\SalesOrderRequested::class, \App\Modules\Sales\Listeners\CreateSalesOrderFromRequested::class);
+
         Auth::provider('eloquent', function ($app, array $config) {
             return new TenantAwareUserProvider($app['hash'], $config['model']);
         });

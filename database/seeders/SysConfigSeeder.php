@@ -116,7 +116,7 @@ class SysConfigSeeder extends Seeder
             ['code' => 'LEGAL', 'menu_header' => 'Vertical', 'menu_caption' => 'Legal', 'menu_link' => '/legal/matters', 'icon' => 'Scale', 'seq' => 60, 'status_code' => 'A'],
             // Internal-only (Nusaevo's own team) — not part of any sellable plan, see config/tenant_modules.php.
             ['code' => 'PROJECTS', 'menu_header' => 'Internal', 'menu_caption' => 'Projects', 'menu_link' => '/projects', 'icon' => 'Kanban', 'seq' => 65, 'status_code' => 'A'],
-            ['code' => 'SALES', 'menu_header' => 'Operations', 'menu_caption' => 'Sales', 'menu_link' => '#', 'icon' => 'ShoppingCart', 'seq' => 80, 'status_code' => 'I'],
+            ['code' => 'SALES', 'menu_header' => 'Operations', 'menu_caption' => 'Sales', 'menu_link' => '/sales/dashboard', 'icon' => 'ShoppingCart', 'seq' => 80, 'status_code' => 'A'],
             ['code' => 'PURCHASE', 'menu_header' => 'Operations', 'menu_caption' => 'Purchase', 'menu_link' => '#', 'icon' => 'Truck', 'seq' => 90, 'status_code' => 'I'],
             // §3B ships (COA/GL setup) — Accounts is the section landing page for now
             // (no §3A dashboard yet), same "point straight at the built page" convention
@@ -168,6 +168,8 @@ class SysConfigSeeder extends Seeder
                 'ACCOUNTING' => 'CRUD',
                 'HCM' => 'CRUD',
                 'PAYROLL' => 'CRUD',
+                'PURCHASE' => 'CRUD',
+                'SALES' => 'CRUD',
                 'DESIGN_SYSTEM' => 'R',
             ],
             'VIEWER' => [
@@ -182,6 +184,8 @@ class SysConfigSeeder extends Seeder
                 'ACCOUNTING' => 'R',
                 'HCM' => 'R',
                 'PAYROLL' => 'R',
+                'PURCHASE' => 'R',
+                'SALES' => 'R',
                 'DESIGN_SYSTEM' => 'R',
             ],
         ];

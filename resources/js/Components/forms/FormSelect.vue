@@ -5,13 +5,14 @@ import { computed } from 'vue'
 const props = withDefaults(defineProps<{
   modelValue: string | number | null
   label?: string
-  name: string
+  name?: string
   options: Array<{ label: string; value: string | number }>
   placeholder?: string
   error?: string
   required?: boolean
 }>(), {
   label: '',
+  name: '',
   placeholder: 'Select option...',
   required: false,
 })
@@ -20,7 +21,7 @@ const emit = defineEmits<{
   'update:modelValue': [value: string | number]
 }>()
 
-const selectId = computed(() => `select-${props.name}`)
+const selectId = computed(() => props.name ? `select-${props.name}` : undefined)
 </script>
 
 <template>
