@@ -8,7 +8,7 @@ services:
     build:
       context: ./docker/php
     ports:
-      - "8000:8000"
+      - "8001:8000"
     volumes:
       - .:/var/www/html
       # Object file storage (CLAUDE.md §7B) — host folder bound to the shared path so
