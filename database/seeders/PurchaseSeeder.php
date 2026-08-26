@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use App\Modules\CRM\Models\Partner;
+use App\Modules\CRM\Models\PartnerRole;
 use App\Modules\CRM\Models\PartnerRoleType;
 use App\Modules\Purchase\Models\Category;
 use App\Modules\Purchase\Models\CostCenter;
@@ -118,9 +119,10 @@ class PurchaseSeeder extends Seeder
             );
 
             // Ensure vendor role assigned in CRM
-            PartnerRoleType::query()->firstOrCreate(
-                ['partner_id' => $partner->id, 'role_type' => 'vendor'],
-                ['is_active' => true]
+            $vendorRoleTypeId = PartnerRoleType::query()->where('code', 'VENDOR')->value('id') ?? 2;
+            PartnerRole::query()->firstOrCreate(
+                ['partner_id' => $partner->id, 'role_type_id' => $vendorRoleTypeId],
+                ['is_active' => true, 'assigned_at' => now()]
             );
 
             $profile = VendorProfile::query()->updateOrCreate(
