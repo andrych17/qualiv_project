@@ -10,6 +10,21 @@ use App\Modules\Purchase\Models\Category;
 use App\Modules\Purchase\Models\CostCenter;
 use App\Modules\Purchase\Models\PurBudget;
 use App\Modules\Purchase\Models\PurCatalogItem;
+use App\Modules\Purchase\Models\PurContractHdr;
+use App\Modules\Purchase\Models\PurException;
+use App\Modules\Purchase\Models\PurInvoiceHdr;
+use App\Modules\Purchase\Models\PurInvoiceLine;
+use App\Modules\Purchase\Models\PurInvoiceMatch;
+use App\Modules\Purchase\Models\PurOrderHdr;
+use App\Modules\Purchase\Models\PurOrderLine;
+use App\Modules\Purchase\Models\PurOrderRevision;
+use App\Modules\Purchase\Models\PurReceiptHdr;
+use App\Modules\Purchase\Models\PurReceiptLine;
+use App\Modules\Purchase\Models\PurRequisitionHdr;
+use App\Modules\Purchase\Models\PurRequisitionLine;
+use App\Modules\Purchase\Models\PurRfxHdr;
+use App\Modules\Purchase\Models\PurRfxInvitation;
+use App\Modules\Purchase\Models\PurRfxLine;
 use App\Modules\Purchase\Models\VendorProfile;
 use Illuminate\Database\Seeder;
 
@@ -17,6 +32,9 @@ class PurchaseSeeder extends Seeder
 {
     public function run(): void
     {
+        $admin = User::query()->where('email', 'admin@nusaevo.com')->first() ?? User::query()->first();
+        $staff = User::query()->where('email', 'staff@nusaevo.com')->first() ?? $admin;
+
         // 1. Categories
         $categoriesData = [
             ['name' => 'IT & Hardware Equipment', 'kind' => 'direct', 'capex_opex' => 'capex'],
@@ -179,11 +197,12 @@ class PurchaseSeeder extends Seeder
             ],
         ];
 
+        $catalogMap = [];
         foreach ($catalogItems as $item) {
             $catId = $categories[$item['category']]->id ?? null;
             $vendorId = $vendorProfiles[$item['vendor']]['partner']->id ?? null;
 
-            PurCatalogItem::query()->updateOrCreate(
+            $catalogMap[$item['item_code']] = PurCatalogItem::query()->updateOrCreate(
                 ['item_code' => $item['item_code']],
                 [
                     'description' => $item['description'],
@@ -198,5 +217,338 @@ class PurchaseSeeder extends Seeder
                 ]
             );
         }
+
+        // 6. Purchase Requisitions (PR)
+        $pr1 = PurRequisitionHdr::query()->updateOrCreate(
+            ['pr_no' => 'PR-202608-0001'],
+            [
+                'requester_id' => $staff?->id ?? $admin->id,
+                'cost_center_id' => $costCenters['CC-IT']->id,
+                'needed_by' => now()->addDays(10)->toDateString(),
+                'status' => PurRequisitionHdr::STATUS_APPROVED,
+                'estimated_total' => 45000000.00,
+                'budget_warning' => false,
+                'duplicate_warning' => false,
+                'notes' => 'Procurement of development hardware and cloud compute nodes for Q3 expansion.',
+                'created_by' => $staff?->id ?? $admin->id,
+            ]
+        );
+        $pr1->lines()->delete();
+        $pr1->lines()->createMany([
+            [
+                'line_no' => 1,
+                'catalog_item_id' => $catalogMap['IT-MON-4K']->id,
+                'description' => 'Ultra-wide 34-inch Professional Monitor',
+                'qty' => 5,
+                'estimated_unit_price' => 6200000.00,
+                'category_id' => $categories['IT & Hardware Equipment']->id,
+                'local_content_pct' => 40.0,
+            ],
+            [
+                'line_no' => 2,
+                'catalog_item_id' => $catalogMap['IT-SRV-CLOUD']->id,
+                'description' => 'Dedicated Cloud Compute Node (8 vCPU, 32GB RAM)',
+                'qty' => 4,
+                'estimated_unit_price' => 3500000.00,
+                'category_id' => $categories['Cloud & Software Subscriptions']->id,
+                'local_content_pct' => 60.0,
+            ],
+        ]);
+
+        $pr2 = PurRequisitionHdr::query()->updateOrCreate(
+            ['pr_no' => 'PR-202608-0002'],
+            [
+                'requester_id' => $staff?->id ?? $admin->id,
+                'cost_center_id' => $costCenters['CC-OPS']->id,
+                'needed_by' => now()->addDays(5)->toDateString(),
+                'status' => PurRequisitionHdr::STATUS_PENDING_APPROVAL,
+                'estimated_total' => 12250000.00,
+                'budget_warning' => false,
+                'duplicate_warning' => false,
+                'notes' => 'Monthly office supplies and high-performance printing paper for general operations.',
+                'created_by' => $staff?->id ?? $admin->id,
+            ]
+        );
+        $pr2->lines()->delete();
+        $pr2->lines()->create([
+            'line_no' => 1,
+            'catalog_item_id' => $catalogMap['OFF-PPR-A4']->id,
+            'description' => 'A4 80gsm High Performance Paper (Box / 5 Reams)',
+            'qty' => 50,
+            'estimated_unit_price' => 245000.00,
+            'category_id' => $categories['Office Supplies & Stationery']->id,
+            'local_content_pct' => 90.0,
+        ]);
+
+        $pr3 = PurRequisitionHdr::query()->updateOrCreate(
+            ['pr_no' => 'PR-202608-0003'],
+            [
+                'requester_id' => $admin->id,
+                'cost_center_id' => $costCenters['CC-OPS']->id,
+                'needed_by' => now()->addDays(20)->toDateString(),
+                'status' => PurRequisitionHdr::STATUS_DRAFT,
+                'estimated_total' => 17000000.00,
+                'budget_warning' => false,
+                'duplicate_warning' => false,
+                'notes' => 'Logistics container shipment for branch office material transfer.',
+                'created_by' => $admin->id,
+            ]
+        );
+        $pr3->lines()->delete();
+        $pr3->lines()->create([
+            'line_no' => 1,
+            'catalog_item_id' => $catalogMap['LOG-CARGO-CONTAINER']->id,
+            'description' => 'Domestic Inter-Island Cargo Freight (Per 20ft TEU)',
+            'qty' => 2,
+            'estimated_unit_price' => 8500000.00,
+            'category_id' => $categories['Logistics & Facility Operations']->id,
+            'local_content_pct' => 100.0,
+        ]);
+
+        // 7. Purchase Orders (PO)
+        $po1 = PurOrderHdr::query()->updateOrCreate(
+            ['po_no' => 'PO-202608-0001'],
+            [
+                'supplier_id' => $vendorProfiles['PT Mitra Solusi Teknologi']['partner']->id,
+                'pr_id' => $pr1->id,
+                'ship_to' => 'Head Office HQ, Level 8, Jakarta',
+                'bill_to' => 'PT Nusaevo ERP Finance Dept',
+                'currency_code' => 'IDR',
+                'incoterms' => 'DDP',
+                'payment_terms_days' => 30,
+                'status' => PurOrderHdr::STATUS_PARTIALLY_RECEIVED,
+                'revision_no' => 1,
+                'subtotal' => 45000000.00,
+                'tax_amount' => 4950000.00,
+                'total_amount' => 49950000.00,
+                'expected_delivery_date' => now()->addDays(5)->toDateString(),
+                'ack_status' => PurOrderHdr::ACK_ACCEPTED,
+                'created_by' => $admin->id,
+            ]
+        );
+        $po1->lines()->delete();
+        $po1Line1 = $po1->lines()->create([
+            'line_no' => 1,
+            'catalog_item_id' => $catalogMap['IT-MON-4K']->id,
+            'description' => 'Ultra-wide 34-inch Professional Monitor',
+            'qty_ordered' => 5,
+            'qty_received' => 5,
+            'unit_price' => 6200000.00,
+            'tax_amount' => 3410000.00,
+            'expected_delivery_date' => now()->addDays(3)->toDateString(),
+            'category_id' => $categories['IT & Hardware Equipment']->id,
+            'local_content_pct' => 40.0,
+        ]);
+        $po1Line2 = $po1->lines()->create([
+            'line_no' => 2,
+            'catalog_item_id' => $catalogMap['IT-SRV-CLOUD']->id,
+            'description' => 'Dedicated Cloud Compute Node (8 vCPU, 32GB RAM)',
+            'qty_ordered' => 4,
+            'qty_received' => 0,
+            'unit_price' => 3500000.00,
+            'tax_amount' => 1540000.00,
+            'expected_delivery_date' => now()->addDays(7)->toDateString(),
+            'category_id' => $categories['Cloud & Software Subscriptions']->id,
+            'local_content_pct' => 60.0,
+        ]);
+        $po1->revisions()->delete();
+        $po1->revisions()->create([
+            'revision_no' => 1,
+            'snapshot' => [
+                'po_no' => 'PO-202608-0001',
+                'total_amount' => 49950000.00,
+                'lines_count' => 2,
+            ],
+            'revised_by' => $admin->id,
+            'revised_at' => now(),
+        ]);
+
+        $po2 = PurOrderHdr::query()->updateOrCreate(
+            ['po_no' => 'PO-202608-0002'],
+            [
+                'supplier_id' => $vendorProfiles['CV Sumber Kertas Nusantara']['partner']->id,
+                'pr_id' => $pr2->id,
+                'ship_to' => 'Head Office HQ, Level 8, Jakarta',
+                'bill_to' => 'PT Nusaevo ERP Finance Dept',
+                'currency_code' => 'IDR',
+                'payment_terms_days' => 14,
+                'status' => PurOrderHdr::STATUS_SENT,
+                'revision_no' => 1,
+                'subtotal' => 12250000.00,
+                'tax_amount' => 1347500.00,
+                'total_amount' => 13597500.00,
+                'expected_delivery_date' => now()->addDays(3)->toDateString(),
+                'ack_status' => PurOrderHdr::ACK_ACCEPTED,
+                'created_by' => $admin->id,
+            ]
+        );
+        $po2->lines()->delete();
+        $po2->lines()->create([
+            'line_no' => 1,
+            'catalog_item_id' => $catalogMap['OFF-PPR-A4']->id,
+            'description' => 'A4 80gsm High Performance Paper (Box / 5 Reams)',
+            'qty_ordered' => 50,
+            'qty_received' => 0,
+            'unit_price' => 245000.00,
+            'tax_amount' => 1347500.00,
+            'expected_delivery_date' => now()->addDays(3)->toDateString(),
+            'category_id' => $categories['Office Supplies & Stationery']->id,
+            'local_content_pct' => 90.0,
+        ]);
+        $po2->revisions()->delete();
+        $po2->revisions()->create([
+            'revision_no' => 1,
+            'snapshot' => [
+                'po_no' => 'PO-202608-0002',
+                'total_amount' => 13597500.00,
+                'lines_count' => 1,
+            ],
+            'revised_by' => $admin->id,
+            'revised_at' => now(),
+        ]);
+
+        $po3 = PurOrderHdr::query()->updateOrCreate(
+            ['po_no' => 'PO-202608-0003'],
+            [
+                'supplier_id' => $vendorProfiles['PT Prima Logistik Ekpres']['partner']->id,
+                'pr_id' => $pr3->id,
+                'ship_to' => 'Surabaya Depot Warehouse',
+                'bill_to' => 'PT Nusaevo ERP Finance Dept',
+                'currency_code' => 'IDR',
+                'payment_terms_days' => 45,
+                'status' => PurOrderHdr::STATUS_DRAFT,
+                'revision_no' => 1,
+                'subtotal' => 17000000.00,
+                'tax_amount' => 1870000.00,
+                'total_amount' => 18870000.00,
+                'expected_delivery_date' => now()->addDays(14)->toDateString(),
+                'created_by' => $admin->id,
+            ]
+        );
+        $po3->lines()->delete();
+        $po3->lines()->create([
+            'line_no' => 1,
+            'catalog_item_id' => $catalogMap['LOG-CARGO-CONTAINER']->id,
+            'description' => 'Domestic Inter-Island Cargo Freight (Per 20ft TEU)',
+            'qty_ordered' => 2,
+            'qty_received' => 0,
+            'unit_price' => 8500000.00,
+            'tax_amount' => 1870000.00,
+            'expected_delivery_date' => now()->addDays(14)->toDateString(),
+            'category_id' => $categories['Logistics & Facility Operations']->id,
+            'local_content_pct' => 100.0,
+        ]);
+
+        // 8. Goods Receipts (GR)
+        $gr1 = PurReceiptHdr::query()->updateOrCreate(
+            ['gr_no' => 'GR-202608-0001'],
+            [
+                'po_id' => $po1->id,
+                'receiver_id' => $admin->id,
+                'received_at' => now()->subDay(),
+                'status' => PurReceiptHdr::STATUS_POSTED,
+                'discrepancy_notes' => null,
+            ]
+        );
+        $gr1->lines()->delete();
+        $gr1->lines()->create([
+            'po_line_id' => $po1Line1->id,
+            'quantity_received' => 5,
+            'unit_cost' => 6200000.00,
+            'condition_notes' => 'All 5 monitors received in pristine condition and operational.',
+            'over_receipt_flag' => false,
+        ]);
+
+        // 9. Vendor Invoices (Three-Way Match)
+        $inv1 = PurInvoiceHdr::query()->updateOrCreate(
+            [
+                'supplier_id' => $vendorProfiles['PT Mitra Solusi Teknologi']['partner']->id,
+                'supplier_invoice_no' => 'INV-MST-2026-0881',
+            ],
+            [
+                'po_id' => $po1->id,
+                'supplier_invoice_date' => now()->subDay()->toDateString(),
+                'currency_code' => 'IDR',
+                'amount' => 34410000.00,
+                'submission_channel' => 'manual',
+                'match_status' => PurInvoiceHdr::MATCH_MATCHED,
+                'status' => PurInvoiceHdr::STATUS_CAPTURED,
+                'created_by' => $admin->id,
+            ]
+        );
+        $inv1->lines()->delete();
+        $inv1->lines()->create([
+            'po_line_id' => $po1Line1->id,
+            'qty' => 5,
+            'unit_price' => 6200000.00,
+            'line_amount' => 31000000.00,
+        ]);
+        $inv1->matches()->delete();
+        $inv1->matches()->create([
+            'po_line_id' => $po1Line1->id,
+            'po_qty' => 5,
+            'po_price' => 6200000.00,
+            'gr_qty' => 5,
+            'invoice_qty' => 5,
+            'invoice_price' => 6200000.00,
+            'qty_variance_pct' => 0.00,
+            'price_variance_pct' => 0.00,
+            'within_tolerance' => true,
+        ]);
+
+        // 10. Contracts
+        PurContractHdr::query()->updateOrCreate(
+            [
+                'supplier_id' => $vendorProfiles['PT Mitra Solusi Teknologi']['partner']->id,
+                'title' => 'Master IT Infrastructure & Cloud Hosting Retainer 2026',
+            ],
+            [
+                'type' => PurContractHdr::TYPE_FRAMEWORK,
+                'value' => 180000000.00,
+                'currency_code' => 'IDR',
+                'start_date' => now()->startOfYear()->toDateString(),
+                'end_date' => now()->endOfYear()->toDateString(),
+                'auto_renew' => true,
+                'notice_period_days' => 30,
+                'status' => PurContractHdr::STATUS_ACTIVE,
+                'created_by' => $admin->id,
+            ]
+        );
+
+        // 11. Sourcing (RFX / RFQ)
+        $rfx1 = PurRfxHdr::query()->updateOrCreate(
+            ['rfx_no' => 'RFQ-202608-0001'],
+            [
+                'type' => PurRfxHdr::TYPE_RFQ,
+                'pr_id' => $pr2->id,
+                'due_date' => now()->addDays(14)->toDateString(),
+                'status' => PurRfxHdr::STATUS_RESPONSES_OPEN,
+                'created_by' => $admin->id,
+            ]
+        );
+        $rfx1->lines()->delete();
+        $rfx1->lines()->create([
+            'line_no' => 1,
+            'description' => 'High Performance Office Stationery & A4 Paper 80gsm Bulk Order (100 Boxes)',
+            'qty' => 100,
+        ]);
+        $rfx1->invitations()->delete();
+        $rfx1->invitations()->create([
+            'supplier_id' => $vendorProfiles['CV Sumber Kertas Nusantara']['partner']->id,
+            'invited_at' => now()->subDays(2),
+        ]);
+
+        // 12. Exceptions
+        PurException::query()->updateOrCreate(
+            [
+                'exception_type' => PurException::TYPE_PRICE_VARIANCE,
+                'subject_type' => 'App\Modules\Purchase\Models\PurOrderHdr',
+                'subject_id' => $po2->id,
+            ],
+            [
+                'summary' => 'Price variance of 2.1% flagged on A4 paper ream order compared to last quarter average.',
+                'status' => PurException::STATUS_OPEN,
+            ]
+        );
     }
 }
