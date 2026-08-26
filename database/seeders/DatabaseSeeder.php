@@ -75,6 +75,7 @@ class DatabaseSeeder extends Seeder
                 $this->call(AccountingSeeder::class);
                 $this->call(TenantFlavorSeeder::class);
                 $this->call(SalesSeeder::class);
+                $this->call(PurchaseSeeder::class);
             });
 
             foreach ($users as $u) {
