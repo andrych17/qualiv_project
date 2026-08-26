@@ -9,6 +9,7 @@ import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 import DangerButton from '@/Components/DangerButton.vue'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface SalesOrderLine {
   id: number
@@ -86,20 +87,29 @@ const formatCurrency = (val: number, curr = 'IDR') => {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: curr, maximumFractionDigits: 0 }).format(val)
 }
 
+const { confirm } = useConfirm()
+
 const confirmOrder = () => {
   router.post(route('sales.orders.confirm', props.order.id))
 }
 
 const cancelOrder = () => {
-  if (confirm('Are you sure you want to cancel this order?')) {
-    router.post(route('sales.orders.cancel', props.order.id))
-  }
+  confirm({
+    title: 'Cancel Sales Order?',
+    description: 'Are you sure you want to cancel this order? This action cannot be undone.',
+    variant: 'destructive',
+    confirmText: 'Cancel Order',
+    onConfirm: () => router.post(route('sales.orders.cancel', props.order.id)),
+  })
 }
 
 const requestInvoice = () => {
-  if (confirm('Submit invoice request to Accounting module?')) {
-    router.post(route('sales.orders.invoice', props.order.id))
-  }
+  confirm({
+    title: 'Submit Invoice Request?',
+    description: 'Submit invoice request to Accounting module?',
+    confirmText: 'Submit Invoice',
+    onConfirm: () => router.post(route('sales.orders.invoice', props.order.id)),
+  })
 }
 </script>
 

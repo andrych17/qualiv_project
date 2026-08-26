@@ -8,6 +8,7 @@ import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface PreviewLine { cost_center: string; amount: number }
 interface RunRow { id: number; period_no: number; source_amount: number; journal_id: number; created_at: string }
@@ -23,11 +24,18 @@ const props = defineProps<{
 
 const switchPeriod = (e: Event) => router.get(route('accounting.allocation-rules.run.show', props.rule.id), { fiscal_period_id: (e.target as HTMLSelectElement).value }, { preserveState: true })
 
+const { confirm } = useConfirm()
 const running = ref(false)
 const confirmRun = () => {
-  if (!confirm(`Post this allocation journal for ${props.rule.name}? This cannot be undone (only reversed like any other posted journal).`)) return
-  running.value = true
-  router.post(route('accounting.allocation-rules.run.store', props.rule.id), { fiscal_period_id: props.selectedPeriodId }, { onFinish: () => (running.value = false) })
+  confirm({
+    title: 'Post Allocation Journal?',
+    description: `Post this allocation journal for ${props.rule.name}? This cannot be undone (only reversed like any other posted journal).`,
+    confirmText: 'Post Journal',
+    onConfirm: () => {
+      running.value = true
+      router.post(route('accounting.allocation-rules.run.store', props.rule.id), { fiscal_period_id: props.selectedPeriodId }, { onFinish: () => (running.value = false) })
+    },
+  })
 }
 </script>
 

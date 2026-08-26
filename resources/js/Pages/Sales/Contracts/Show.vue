@@ -10,6 +10,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 import DangerButton from '@/Components/DangerButton.vue'
 import Modal from '@/Components/Modal.vue'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface BillingScheduleItem {
   id: number
@@ -53,16 +54,25 @@ const formatCurrency = (val: number, curr = 'IDR') => {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: curr, maximumFractionDigits: 0 }).format(val)
 }
 
+const { confirm } = useConfirm()
+
 const activateContract = () => {
-  if (confirm('Activate contract and generate recurring billing schedules?')) {
-    router.post(route('sales.contracts.activate', props.contract.id))
-  }
+  confirm({
+    title: 'Activate Contract?',
+    description: 'Activate contract and generate recurring billing schedules?',
+    confirmText: 'Activate',
+    onConfirm: () => router.post(route('sales.contracts.activate', props.contract.id)),
+  })
 }
 
 const cancelContract = () => {
-  if (confirm('Cancel this contract and all future billing schedules?')) {
-    router.post(route('sales.contracts.cancel', props.contract.id))
-  }
+  confirm({
+    title: 'Cancel Contract?',
+    description: 'Cancel this contract and all future billing schedules?',
+    variant: 'destructive',
+    confirmText: 'Cancel Contract',
+    onConfirm: () => router.post(route('sales.contracts.cancel', props.contract.id)),
+  })
 }
 
 const submitRenew = () => {

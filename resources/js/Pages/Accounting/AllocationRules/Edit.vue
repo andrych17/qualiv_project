@@ -11,6 +11,7 @@ import FormSearchableSelect from '@/Components/forms/FormSearchableSelect.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import { Plus, Trash2 } from 'lucide-vue-next'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 type Option = { value: number; label: string }
 type Target = { cost_center_id: number | null; percentage: number }
@@ -42,10 +43,16 @@ const submit = () => form.transform((data) => ({
 
 const toggleActive = () => router.post(route('accounting.allocation-rules.set-active', props.rule.id), { is_active: !props.rule.is_active }, { preserveScroll: true })
 
+const { confirm } = useConfirm()
+
 const destroy = () => {
-  if (confirm(`Delete allocation rule "${props.rule.name}"? Only possible if it has never been run.`)) {
-    router.delete(route('accounting.allocation-rules.destroy', props.rule.id))
-  }
+  confirm({
+    title: 'Delete Allocation Rule?',
+    description: `Delete allocation rule "${props.rule.name}"? Only possible if it has never been run.`,
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () => router.delete(route('accounting.allocation-rules.destroy', props.rule.id)),
+  })
 }
 </script>
 

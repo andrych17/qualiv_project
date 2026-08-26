@@ -6,6 +6,7 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SalesSubNav from '@/Components/sales/SalesSubNav.vue'
 import SalesMasterSubNav from '@/Components/sales/SalesMasterSubNav.vue'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface PriceListItem {
   id: number
@@ -22,10 +23,16 @@ const props = defineProps<{
   priceLists: PriceListItem[]
 }>()
 
+const { confirm } = useConfirm()
+
 const deletePriceList = (id: number) => {
-  if (confirm('Delete this price list?')) {
-    router.delete(route('sales.master.price-lists.destroy', id))
-  }
+  confirm({
+    title: 'Delete Price List?',
+    description: 'Are you sure you want to delete this price list?',
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () => router.delete(route('sales.master.price-lists.destroy', id)),
+  })
 }
 </script>
 

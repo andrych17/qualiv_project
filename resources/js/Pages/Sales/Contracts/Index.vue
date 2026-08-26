@@ -8,6 +8,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import SalesSubNav from '@/Components/sales/SalesSubNav.vue'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface ContractItem {
   id: number
@@ -47,10 +48,15 @@ const applyFilters = () => {
   }, { preserveState: true })
 }
 
+const { confirm } = useConfirm()
+
 const triggerRecurringBilling = () => {
-  if (confirm('Run recurring billing cycle sweep now?')) {
-    router.post(route('sales.contracts.recurring.process'))
-  }
+  confirm({
+    title: 'Process Recurring Billing?',
+    description: 'Run recurring billing cycle sweep now?',
+    confirmText: 'Run Sweep',
+    onConfirm: () => router.post(route('sales.contracts.recurring.process')),
+  })
 }
 </script>
 

@@ -13,6 +13,7 @@ import Modal from '@/Components/Modal.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 import FormTextarea from '@/Components/forms/FormTextarea.vue'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface LineItem {
   id: number
@@ -93,14 +94,20 @@ const submitForApproval = () => {
   router.post(route('purchase.requisitions.submit', props.requisition.id))
 }
 
+const { confirm } = useConfirm()
+
 const approve = () => {
   router.post(route('purchase.requisitions.approve', props.requisition.id))
 }
 
 const cancel = () => {
-  if (confirm('Are you sure you want to cancel this requisition?')) {
-    router.post(route('purchase.requisitions.cancel', props.requisition.id))
-  }
+  confirm({
+    title: 'Cancel Requisition?',
+    description: 'Are you sure you want to cancel this requisition?',
+    variant: 'destructive',
+    confirmText: 'Cancel Requisition',
+    onConfirm: () => router.post(route('purchase.requisitions.cancel', props.requisition.id)),
+  })
 }
 </script>
 

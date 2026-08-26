@@ -11,6 +11,7 @@ import FormSelect from '@/Components/forms/FormSelect.vue'
 import SalesSubNav from '@/Components/sales/SalesSubNav.vue'
 import SalesMasterSubNav from '@/Components/sales/SalesMasterSubNav.vue'
 import Modal from '@/Components/Modal.vue'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface PlanItem {
   id: number
@@ -83,10 +84,16 @@ const submit = () => {
   }
 }
 
+const { confirm } = useConfirm()
+
 const deletePlan = (id: number) => {
-  if (confirm('Delete this commission plan?')) {
-    router.delete(route('sales.master.commission-plans.destroy', id))
-  }
+  confirm({
+    title: 'Delete Commission Plan?',
+    description: 'Are you sure you want to delete this commission plan?',
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () => router.delete(route('sales.master.commission-plans.destroy', id)),
+  })
 }
 </script>
 

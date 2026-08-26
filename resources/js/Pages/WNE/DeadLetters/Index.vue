@@ -9,6 +9,7 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import DataTable from '@/Components/tables/DataTable.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import WneSubNav from '@/Components/wne/WneSubNav.vue'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 type DeadLetterRow = {
   id: number
@@ -39,16 +40,25 @@ const columns = [
 
 const stateOf = (row: DeadLetterRow) => (row.resent_at ? 'resent' : row.discarded_at ? 'discarded' : 'open')
 
+const { confirm } = useConfirm()
+
 const resend = (row: DeadLetterRow) => {
-  if (confirm('Re-queue this delivery with a fresh attempt counter?')) {
-    router.post(route('wne.dead-letters.resend', row.id), {}, { preserveScroll: true })
-  }
+  confirm({
+    title: 'Re-queue Delivery?',
+    description: 'Re-queue this delivery with a fresh attempt counter?',
+    confirmText: 'Re-queue',
+    onConfirm: () => router.post(route('wne.dead-letters.resend', row.id), {}, { preserveScroll: true }),
+  })
 }
 
 const discard = (row: DeadLetterRow) => {
-  if (confirm('Discard this dead letter? This is logged and cannot be undone.')) {
-    router.post(route('wne.dead-letters.discard', row.id), {}, { preserveScroll: true })
-  }
+  confirm({
+    title: 'Discard Dead Letter?',
+    description: 'Discard this dead letter? This is logged and cannot be undone.',
+    variant: 'destructive',
+    confirmText: 'Discard',
+    onConfirm: () => router.post(route('wne.dead-letters.discard', row.id), {}, { preserveScroll: true }),
+  })
 }
 </script>
 

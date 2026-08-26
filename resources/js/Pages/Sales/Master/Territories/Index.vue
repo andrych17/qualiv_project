@@ -10,6 +10,7 @@ import FormInput from '@/Components/forms/FormInput.vue'
 import SalesSubNav from '@/Components/sales/SalesSubNav.vue'
 import SalesMasterSubNav from '@/Components/sales/SalesMasterSubNav.vue'
 import Modal from '@/Components/Modal.vue'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface TerritoryItem {
   id: number
@@ -62,10 +63,16 @@ const submit = () => {
   }
 }
 
+const { confirm } = useConfirm()
+
 const deleteTerritory = (id: number) => {
-  if (confirm('Delete this territory?')) {
-    router.delete(route('sales.master.territories.destroy', id))
-  }
+  confirm({
+    title: 'Delete Territory?',
+    description: 'Are you sure you want to delete this territory?',
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () => router.delete(route('sales.master.territories.destroy', id)),
+  })
 }
 </script>
 

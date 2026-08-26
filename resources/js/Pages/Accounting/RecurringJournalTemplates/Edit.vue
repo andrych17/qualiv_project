@@ -12,6 +12,7 @@ import FormSearchableSelect from '@/Components/forms/FormSearchableSelect.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import { Plus, Trash2 } from 'lucide-vue-next'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 type AccountOption = { value: number; label: string; is_control_account: boolean }
 type TemplateLine = { account_id: number | null; cost_center_id: number | null; debit: number; credit: number; description: string | null }
@@ -55,10 +56,16 @@ const submit = () => form.transform((data) => ({
 
 const toggleActive = () => router.post(route('accounting.recurring-journal-templates.set-active', props.template.id), { is_active: !props.template.is_active }, { preserveScroll: true })
 
+const { confirm } = useConfirm()
+
 const destroy = () => {
-  if (confirm(`Delete recurring template "${props.template.name}"? This does not affect journals already generated.`)) {
-    router.delete(route('accounting.recurring-journal-templates.destroy', props.template.id))
-  }
+  confirm({
+    title: 'Delete Recurring Template?',
+    description: `Delete recurring template "${props.template.name}"? This does not affect journals already generated.`,
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () => router.delete(route('accounting.recurring-journal-templates.destroy', props.template.id)),
+  })
 }
 </script>
 

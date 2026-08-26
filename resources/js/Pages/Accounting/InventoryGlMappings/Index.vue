@@ -5,6 +5,7 @@ import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface MappingRow {
   id: number
@@ -21,12 +22,18 @@ const props = defineProps<{
   mappings: MappingRow[]
 }>()
 
+const { confirm } = useConfirm()
+
 const switchCompany = (e: Event) => router.get(route('accounting.inventory-gl-mappings.index'), { company_id: (e.target as HTMLSelectElement).value }, { preserveState: true })
 
 const destroy = (m: MappingRow) => {
-  if (confirm(`Delete the mapping for "${m.scope_label}"? Movements for it will fail loudly and queue for review until it's remapped.`)) {
-    router.delete(route('accounting.inventory-gl-mappings.destroy', m.id))
-  }
+  confirm({
+    title: 'Delete Inventory GL Mapping?',
+    description: `Delete the mapping for "${m.scope_label}"? Movements for it will fail loudly and queue for review until it's remapped.`,
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () => router.delete(route('accounting.inventory-gl-mappings.destroy', m.id)),
+  })
 }
 </script>
 

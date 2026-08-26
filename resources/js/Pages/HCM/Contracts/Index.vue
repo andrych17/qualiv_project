@@ -10,6 +10,7 @@ import SecondaryButton from '@/Components/SecondaryButton.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import HcmSubNav from '@/Components/hcm/HcmSubNav.vue'
 import Modal from '@/Components/Modal.vue'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface Contract {
   id: number
@@ -67,10 +68,16 @@ const submitRenew = () => {
   })
 }
 
+const { confirm } = useConfirm()
+
 const terminateContract = (c: Contract) => {
-  if (confirm(`Terminate contract for ${c.employee.full_name}?`)) {
-    router.post(route('hcm.contracts.terminate', c.id))
-  }
+  confirm({
+    title: 'Terminate Contract?',
+    description: `Terminate contract for ${c.employee.full_name}?`,
+    variant: 'destructive',
+    confirmText: 'Terminate',
+    onConfirm: () => router.post(route('hcm.contracts.terminate', c.id)),
+  })
 }
 </script>
 

@@ -14,6 +14,7 @@ import FormAsyncSearchableSelect from '@/Components/forms/FormAsyncSearchableSel
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import { Plus, Trash2 } from 'lucide-vue-next'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 type Option = { value: number; label: string }
 type TemplateLine = { description: string; qty: number; unit_price: number; discount_amount: number; tax_code_id: number | null; revenue_account_id: number | null }
@@ -69,10 +70,16 @@ const submit = () => form.transform((data) => ({
 
 const toggleActive = () => router.post(route('accounting.recurring-ar-templates.set-active', props.template.id), { is_active: !props.template.is_active }, { preserveScroll: true })
 
+const { confirm } = useConfirm()
+
 const destroy = () => {
-  if (confirm(`Delete recurring template "${props.template.name}"? This does not affect invoices already generated.`)) {
-    router.delete(route('accounting.recurring-ar-templates.destroy', props.template.id))
-  }
+  confirm({
+    title: 'Delete Recurring Template?',
+    description: `Delete recurring template "${props.template.name}"? This does not affect invoices already generated.`,
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () => router.delete(route('accounting.recurring-ar-templates.destroy', props.template.id)),
+  })
 }
 </script>
 

@@ -12,6 +12,7 @@ import DangerButton from '@/Components/DangerButton.vue'
 import Modal from '@/Components/Modal.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
 import FormTextarea from '@/Components/forms/FormTextarea.vue'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface LineItem {
   id: number
@@ -129,20 +130,29 @@ const approve = () => {
   router.post(route('purchase.orders.approve', props.order.id))
 }
 
+const { confirm } = useConfirm()
+
 const sendToSupplier = () => {
   router.post(route('purchase.orders.send', props.order.id))
 }
 
 const closeOrder = () => {
-  if (confirm('Are you sure you want to close this purchase order?')) {
-    router.post(route('purchase.orders.close', props.order.id))
-  }
+  confirm({
+    title: 'Close Purchase Order?',
+    description: 'Are you sure you want to close this purchase order?',
+    confirmText: 'Close Order',
+    onConfirm: () => router.post(route('purchase.orders.close', props.order.id)),
+  })
 }
 
 const cancelOrder = () => {
-  if (confirm('Are you sure you want to cancel this purchase order?')) {
-    router.post(route('purchase.orders.cancel', props.order.id))
-  }
+  confirm({
+    title: 'Cancel Purchase Order?',
+    description: 'Are you sure you want to cancel this purchase order?',
+    variant: 'destructive',
+    confirmText: 'Cancel Order',
+    onConfirm: () => router.post(route('purchase.orders.cancel', props.order.id)),
+  })
 }
 
 const hasReceivedGoods = computed(() => {

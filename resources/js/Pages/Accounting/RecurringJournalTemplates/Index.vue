@@ -8,6 +8,7 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface TemplateRow {
   id: number
@@ -28,10 +29,16 @@ const switchCompany = (e: Event) => router.get(route('accounting.recurring-journ
 
 const toggleActive = (t: TemplateRow) => router.post(route('accounting.recurring-journal-templates.set-active', t.id), { is_active: !t.is_active }, { preserveScroll: true })
 
+const { confirm } = useConfirm()
+
 const destroy = (t: TemplateRow) => {
-  if (confirm(`Delete recurring template "${t.name}"? This does not affect journals already generated.`)) {
-    router.delete(route('accounting.recurring-journal-templates.destroy', t.id))
-  }
+  confirm({
+    title: 'Delete Recurring Template?',
+    description: `Delete recurring template "${t.name}"? This does not affect journals already generated.`,
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () => router.delete(route('accounting.recurring-journal-templates.destroy', t.id)),
+  })
 }
 </script>
 

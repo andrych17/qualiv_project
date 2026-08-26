@@ -14,6 +14,7 @@ import WorkflowGraphPreview from '@/Components/wne/WorkflowGraphPreview.vue'
 import WorkflowStepModal from '@/Components/wne/WorkflowStepModal.vue'
 import WorkflowTransitionModal from '@/Components/wne/WorkflowTransitionModal.vue'
 import WneSubNav from '@/Components/wne/WneSubNav.vue'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 type StepRow = {
   id: number
@@ -68,9 +69,16 @@ const openEditStep = (step: StepRow) => {
   editingStep.value = step
   showStepModal.value = true
 }
+const { confirm } = useConfirm()
+
 const deleteStep = (step: StepRow) => {
-  if (!confirm(`Remove step "${step.step_code}"? Its transitions will be removed too.`)) return
-  router.delete(route('wne.workflows.steps.destroy', [props.definition.id, step.id]), { preserveScroll: true })
+  confirm({
+    title: 'Remove Step?',
+    description: `Remove step "${step.step_code}"? Its transitions will be removed too.`,
+    variant: 'destructive',
+    confirmText: 'Remove Step',
+    onConfirm: () => router.delete(route('wne.workflows.steps.destroy', [props.definition.id, step.id]), { preserveScroll: true }),
+  })
 }
 
 // --- Transition modal ---
@@ -88,8 +96,13 @@ const publish = () => {
   router.post(route('wne.workflows.publish', props.definition.id), {}, { onFinish: () => (publishing.value = false) })
 }
 const unpublish = () => {
-  if (!confirm('Unpublish this workflow? New instances will be blocked; running instances are unaffected.')) return
-  router.post(route('wne.workflows.unpublish', props.definition.id))
+  confirm({
+    title: 'Unpublish Workflow?',
+    description: 'Unpublish this workflow? New instances will be blocked; running instances are unaffected.',
+    variant: 'destructive',
+    confirmText: 'Unpublish',
+    onConfirm: () => router.post(route('wne.workflows.unpublish', props.definition.id)),
+  })
 }
 </script>
 

@@ -298,13 +298,57 @@ One-off artisan (examples):
 - **Tailwind CSS**: Use utility classes directly for layouts and UI styling. Maintain clean structure and consistent spacing.
 - **Lucide Icons**: Render Lucide icons dynamically in layouts and sidebars using the `<component :is="..." />` helper.
 
+### D. Strict Frontend Component Standards (MANDATORY)
+Every UI view must strictly compose from shared components in `resources/js/Components/`. **NEVER create ad-hoc UI primitives or raw HTML replacements.**
+
+1. **Modals & Dialogs (STRICT)**:
+   - **MUST** use `@/Components/Modal.vue` (`<Modal :show="showModal" max-width="md|lg|xl|2xl" @close="showModal = false">`).
+   - **NEVER** write inline `<div class="fixed inset-0 ...">` overlays.
+   - Modal inner card **MUST** have an opaque background (e.g. `bg-white` or `bg-surface rounded-lg p-6`) to prevent transparent content leaks.
+   - For confirmation alerts / delete actions: **MUST** use `@/Components/modals/ConfirmDialog.vue` via the `useConfirm()` composable (`const { confirm } = useConfirm()`). **NEVER** use browser-native `confirm()` or alert boxes.
+
+2. **Form Controls & Inputs (`@/Components/forms/`)**:
+   - Text, Email, Number, Date: `FormInput.vue` (handles label, error, required asterisk).
+   - Long text: `FormTextarea.vue`.
+   - Native select dropdown: `FormSelect.vue`.
+   - Single searchable select (in-memory): `FormSearchableSelect.vue`.
+   - Async / remote searchable select: `FormAsyncSearchableSelect.vue` (for large sets: partners, products, users).
+   - Multi-Select tags / badges: `FormMultiSelect.vue`. **NEVER** build manual checkbox grid loops for multiple entity selection.
+   - Boolean toggles: `FormSwitch.vue`.
+   - Option group: `FormRadioGroup.vue`.
+   - Dynamic custom fields: `CustomFieldInputs.vue` (for EAV attributes from `CUSTOMFIELDS`).
+
+3. **Buttons (`@/Components/`)**:
+   - Primary action: `PrimaryButton.vue` (supports `:href` link or submit action, handles loading).
+   - Secondary / cancel action: `SecondaryButton.vue`.
+   - Destructive / delete action: `DangerButton.vue`.
+   - **NEVER** write unstyled raw `<button>` elements with inline ad-hoc color classes.
+
+4. **Tables & Lists (`@/Components/tables/`)**:
+   - **MUST** use `DataTable.vue` (`@/Components/tables/DataTable.vue`).
+   - Built-in support for: sorting, server pagination, search toolbar, row status rail, expandable rows, and groupBy outline subtotals.
+
+5. **Cards & Containers (`@/Components/cards/`)**:
+   - Panel container: `Panel.vue` (with header title, action slot, footer slot, and optional Status Rail).
+   - KPI / Metric card: `StatCard.vue` (uses Source Serif 4 for numbers).
+
+6. **Feedback & Badges (`@/Components/feedback/`)**:
+   - Status badge: `StatusBadge.vue` with semantic tokens (`variant="success|warning|danger|info|neutral"`). **NEVER** invent ad-hoc badge colors.
+   - Flash messages / Toasts: `Toast.vue`.
+
+7. **Layout & Navigation (`@/Components/layout/` & `@/Components/navigation/`)**:
+   - Main page layout: `AppLayout.vue`.
+   - Standard page header: `PageHeader.vue` (title, description, and action button slots).
+   - Sub-tabs: `Tabs.vue`.
+   - Module sub-navs: reuse module subnavs (e.g. `HcmSubNav.vue`, `CrmSubNav.vue`, `InventorySubNav.vue`).
+
 ## 10. Working with Claude Code
 
 - Before adding a new module or service, state which category it falls into (Core / Vertical / Microservice / Platform-level) and why, per Section 2 and Section 5.
 - When a task could reasonably be solved either inside the monolith or as a separate service, default to the monolith and flag the tradeoff rather than silently extracting a service.
 - When touching multi-tenant data paths, double-check tenant scoping is present — this is a recurring risk area.
 - Prefer the customization ladder in §2 / `ARCHITECTURE.md` (consts → serials → custom fields → logic) over tenant_id branches.
-- Reference `resources/DESIGN.md` before building any new UI — compose from `resources/js/Components/` (StatusBadge, DataTable Status Rail, Panel, StatCard, PrimaryButton). Do not invent ad hoc gray/indigo chrome.
+- **Strict UI standard enforcement**: Reference `resources/DESIGN.md` and Section 9D before building any new UI. Always compose from `resources/js/Components/` (`Modal.vue`, `FormMultiSelect`, `FormInput`, `DataTable`, `Panel`, `StatCard`, `PrimaryButton`, `StatusBadge`). Never write ad-hoc modal overlays, manual checkbox loops, or unstyled controls.
 - Since this is a commercial SaaS product, when proposing a feature or implementation approach, briefly note if there's a simpler version that would still be sellable (MVP bias), especially for the Legal module which is closest to revenue.
 
 ## 11. Open Items to Fill In As the Project Grows

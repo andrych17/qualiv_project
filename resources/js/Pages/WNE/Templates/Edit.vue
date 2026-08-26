@@ -13,6 +13,7 @@ import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import WneSubNav from '@/Components/wne/WneSubNav.vue'
 import TemplatePreviewPanel from '@/Components/wne/TemplatePreviewPanel.vue'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 type TemplateDetail = {
   id: number
@@ -47,10 +48,16 @@ const toggleActive = () => {
   router.post(route(props.template.is_active ? 'wne.templates.deactivate' : 'wne.templates.activate', props.template.id))
 }
 
+const { confirm } = useConfirm()
+
 const destroy = () => {
-  if (confirm('Delete this template?')) {
-    router.delete(route('wne.templates.destroy', props.template.id))
-  }
+  confirm({
+    title: 'Delete Template?',
+    description: 'Are you sure you want to delete this template?',
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () => router.delete(route('wne.templates.destroy', props.template.id)),
+  })
 }
 </script>
 

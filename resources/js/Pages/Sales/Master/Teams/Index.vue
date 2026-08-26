@@ -11,6 +11,7 @@ import FormSelect from '@/Components/forms/FormSelect.vue'
 import SalesSubNav from '@/Components/sales/SalesSubNav.vue'
 import SalesMasterSubNav from '@/Components/sales/SalesMasterSubNav.vue'
 import Modal from '@/Components/Modal.vue'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface MemberItem {
   id: number
@@ -71,10 +72,16 @@ const submit = () => {
   }
 }
 
+const { confirm } = useConfirm()
+
 const deleteTeam = (id: number) => {
-  if (confirm('Delete this sales team?')) {
-    router.delete(route('sales.master.teams.destroy', id))
-  }
+  confirm({
+    title: 'Delete Sales Team?',
+    description: 'Are you sure you want to delete this sales team?',
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () => router.delete(route('sales.master.teams.destroy', id)),
+  })
 }
 </script>
 

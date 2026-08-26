@@ -11,6 +11,7 @@ import SecondaryButton from '@/Components/SecondaryButton.vue'
 import Modal from '@/Components/Modal.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 import PurchaseSubNav from '@/Components/purchase/PurchaseSubNav.vue'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface ContractData {
   id: number
@@ -57,11 +58,17 @@ const formatCurrency = (val: number | null, cur: string = 'IDR') => {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: cur || 'IDR', maximumFractionDigits: 0 }).format(val)
 }
 
+const { confirm } = useConfirm()
+
 const activate = () => router.post(route('purchase.contracts.activate', props.contract.id))
 const terminate = () => {
-  if (confirm('Are you sure you want to terminate this contract?')) {
-    router.post(route('purchase.contracts.terminate', props.contract.id))
-  }
+  confirm({
+    title: 'Terminate Contract?',
+    description: 'Are you sure you want to terminate this contract?',
+    variant: 'destructive',
+    confirmText: 'Terminate',
+    onConfirm: () => router.post(route('purchase.contracts.terminate', props.contract.id)),
+  })
 }
 
 const submitRenew = () => {

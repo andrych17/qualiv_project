@@ -7,6 +7,7 @@ import Panel from '@/Components/cards/Panel.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface ReturnLine {
   id: number
@@ -35,6 +36,8 @@ const props = defineProps<{
   returnRecord: ReturnDetail
 }>()
 
+const { confirm } = useConfirm()
+
 const approveReturn = () => {
   router.post(route('sales.returns.approve', props.returnRecord.id))
 }
@@ -44,15 +47,21 @@ const receiveItems = () => {
 }
 
 const processRefund = () => {
-  if (confirm('Issue Accounting Credit Note refund and reverse representative commissions?')) {
-    router.post(route('sales.returns.refund', props.returnRecord.id))
-  }
+  confirm({
+    title: 'Issue Refund?',
+    description: 'Issue Accounting Credit Note refund and reverse representative commissions?',
+    confirmText: 'Issue Refund',
+    onConfirm: () => router.post(route('sales.returns.refund', props.returnRecord.id)),
+  })
 }
 
 const processReplacement = () => {
-  if (confirm('Generate a replacement Sales Order for the returned goods?')) {
-    router.post(route('sales.returns.replace', props.returnRecord.id))
-  }
+  confirm({
+    title: 'Generate Replacement?',
+    description: 'Generate a replacement Sales Order for the returned goods?',
+    confirmText: 'Generate Order',
+    onConfirm: () => router.post(route('sales.returns.replace', props.returnRecord.id)),
+  })
 }
 </script>
 

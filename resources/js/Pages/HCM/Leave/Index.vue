@@ -10,6 +10,7 @@ import SecondaryButton from '@/Components/SecondaryButton.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import HcmSubNav from '@/Components/hcm/HcmSubNav.vue'
 import Modal from '@/Components/Modal.vue'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface LeaveRequest {
   id: number
@@ -67,10 +68,16 @@ const reviewRequest = (id: number, status: 'approved' | 'rejected') => {
   router.patch(route('hcm.leave.requests.review', id), { status })
 }
 
+const { confirm } = useConfirm()
+
 const cancelRequest = (id: number) => {
-  if (confirm('Cancel this leave request?')) {
-    router.post(route('hcm.leave.requests.cancel', id))
-  }
+  confirm({
+    title: 'Cancel Leave Request?',
+    description: 'Are you sure you want to cancel this leave request?',
+    variant: 'destructive',
+    confirmText: 'Cancel Request',
+    onConfirm: () => router.post(route('hcm.leave.requests.cancel', id)),
+  })
 }
 </script>
 

@@ -7,6 +7,7 @@ import Panel from '@/Components/cards/Panel.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface QuotationLine {
   id: number
@@ -58,14 +59,19 @@ const formatCurrency = (val: number, curr = 'IDR') => {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: curr, maximumFractionDigits: 0 }).format(val)
 }
 
+const { confirm } = useConfirm()
+
 const sendQuote = () => {
   router.post(route('sales.quotations.send', props.quotation.id))
 }
 
 const convertToOrder = () => {
-  if (confirm('Convert this quotation to a Sales Order?')) {
-    router.post(route('sales.quotations.convert', props.quotation.id))
-  }
+  confirm({
+    title: 'Convert to Sales Order?',
+    description: 'Convert this quotation to a Sales Order?',
+    confirmText: 'Convert to Order',
+    onConfirm: () => router.post(route('sales.quotations.convert', props.quotation.id)),
+  })
 }
 
 const cloneExpired = () => {

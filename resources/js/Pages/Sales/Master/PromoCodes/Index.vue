@@ -10,6 +10,7 @@ import FormInput from '@/Components/forms/FormInput.vue'
 import SalesSubNav from '@/Components/sales/SalesSubNav.vue'
 import SalesMasterSubNav from '@/Components/sales/SalesMasterSubNav.vue'
 import Modal from '@/Components/Modal.vue'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface PromoCode {
   id: number
@@ -72,10 +73,16 @@ const submit = () => {
   }
 }
 
+const { confirm } = useConfirm()
+
 const deletePromo = (id: number) => {
-  if (confirm('Delete this promo code?')) {
-    router.delete(route('sales.master.promo-codes.destroy', id))
-  }
+  confirm({
+    title: 'Delete Promo Code?',
+    description: 'Are you sure you want to delete this promo code?',
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () => router.delete(route('sales.master.promo-codes.destroy', id)),
+  })
 }
 </script>
 

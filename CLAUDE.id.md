@@ -323,6 +323,50 @@ Artisan sekali-pakai (contoh):
 - **Lucide Icons**: Render icon Lucide secara dinamis di layout dan sidebar memakai helper
   `<component :is="..." />`.
 
+### D. Standar Komponen Frontend yang Baku (WAJIB / STRICT)
+Setiap halaman atau fitur UI **wajib** disusun dari komponen bersama di `resources/js/Components/`. **DILARANG KERAS membuat primitif UI ad-hoc atau elemen HTML mentah tanpa styling standar.**
+
+1. **Modals & Dialogs (STRICT)**:
+   - **WAJIB** memakai `@/Components/Modal.vue` (`<Modal :show="showModal" max-width="md|lg|xl|2xl" @close="showModal = false">`).
+   - **JANGAN PERNAH** membuat overlay manual dengan `<div class="fixed inset-0 ...">`.
+   - Card konten di dalam modal **WAJIB** memiliki background solid/opaque (mis. `bg-white` atau `bg-surface rounded-lg p-6`) agar tidak bocor/transparan.
+   - Untuk konfirmasi aksi / dialog hapus: **WAJIB** memakai `@/Components/modals/ConfirmDialog.vue` lewat composable `useConfirm()` (`const { confirm } = useConfirm()`). **JANGAN PERNAH** memakai `confirm()` bawaan browser.
+
+2. **Form Controls & Inputs (`@/Components/forms/`)**:
+   - Text, Email, Number, Date: `FormInput.vue` (sudah ada label, asterisk required, dan pesan error).
+   - Teks panjang: `FormTextarea.vue`.
+   - Dropdown select native: `FormSelect.vue`.
+   - Single searchable select (in-memory): `FormSearchableSelect.vue`.
+   - Async / remote searchable select: `FormAsyncSearchableSelect.vue` (untuk relasi besar: partners, produk, users).
+   - Multi-Select tags / badges: `FormMultiSelect.vue`. **JANGAN PERNAH** membuat loop checkbox grid manual untuk pemilihan banyak item.
+   - Boolean toggle: `FormSwitch.vue`.
+   - Pilihan radio: `FormRadioGroup.vue`.
+   - Custom field dinamis: `CustomFieldInputs.vue` (untuk atribut EAV dari `CUSTOMFIELDS`).
+
+3. **Tombol / Buttons (`@/Components/`)**:
+   - Aksi utama / CTA: `PrimaryButton.vue` (mendukung link `:href` atau aksi submit/button biasa, mendukung loading state).
+   - Aksi sekunder / batal: `SecondaryButton.vue`.
+   - Aksi destruktif / hapus: `DangerButton.vue`.
+   - **JANGAN PERNAH** menulis elemen `<button>` mentah dengan styling warna ad-hoc.
+
+4. **Tabel & List (`@/Components/tables/`)**:
+   - **WAJIB** memakai `DataTable.vue` (`@/Components/tables/DataTable.vue`).
+   - Fitur bawaan: sorting, server pagination, toolbar pencarian, Status Rail per-baris, row detail expandable, dan subtotal outline groupBy.
+
+5. **Cards & Kontainer (`@/Components/cards/`)**:
+   - Kontainer panel: `Panel.vue` (dengan slot judul header, aksi, footer, dan dukungan Status Rail).
+   - Kartu metrik KPI: `StatCard.vue` (angka memakai font Source Serif 4).
+
+6. **Feedback & Badges (`@/Components/feedback/`)**:
+   - Status badge: `StatusBadge.vue` dengan varian token semantik (`variant="success|warning|danger|info|neutral"`). **JANGAN PERNAH** mengarang warna badge sendiri.
+   - Flash toast notification: `Toast.vue`.
+
+7. **Layout & Navigasi (`@/Components/layout/` & `@/Components/navigation/`)**:
+   - Layout utama halaman: `AppLayout.vue`.
+   - Header halaman standar: `PageHeader.vue` (judul, deskripsi, dan slot tombol aksi).
+   - Sub-tab navigasi: `Tabs.vue`.
+   - Sub-navigasi modul: pakai kembali subnav modul terkait (mis. `HcmSubNav.vue`, `CrmSubNav.vue`, `InventorySubNav.vue`).
+
 ## 10. Bekerja dengan Claude Code
 
 - Sebelum menambahkan modul atau service baru, nyatakan kategorinya (Core / Vertical /
@@ -334,9 +378,7 @@ Artisan sekali-pakai (contoh):
   yang berulang.
 - Utamakan tangga kustomisasi di §2 / `ARCHITECTURE.md` (consts → serials → custom fields →
   logic) di atas cabang tenant_id.
-- Rujuk `resources/DESIGN.md` sebelum membangun UI baru — susun dari
-  `resources/js/Components/` (StatusBadge, DataTable Status Rail, Panel, StatCard,
-  PrimaryButton). Jangan mengarang chrome abu-abu/indigo ad hoc.
+- **Penegakan Standar UI Ketat**: Rujuk `resources/DESIGN.md` dan Section 9D sebelum membangun UI baru. Selalu susun dari `resources/js/Components/` (`Modal.vue`, `FormMultiSelect`, `FormInput`, `DataTable`, `Panel`, `StatCard`, `PrimaryButton`, `StatusBadge`). Jangan pernah mengarang overlay modal ad-hoc, loop checkbox manual, atau kontrol tanpa styling standar.
 - Karena ini produk SaaS komersial, saat mengusulkan fitur atau pendekatan implementasi,
   singgung sebentar apakah ada versi lebih sederhana yang masih layak jual (bias MVP),
   terutama untuk modul Legal yang paling dekat dengan revenue.

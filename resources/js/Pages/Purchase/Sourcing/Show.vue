@@ -12,6 +12,7 @@ import Modal from '@/Components/Modal.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
 import PurchaseSubNav from '@/Components/purchase/PurchaseSubNav.vue'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface SupplierItem {
   invitation_id: number
@@ -117,20 +118,29 @@ const submitQuote = () => {
   })
 }
 
+const { confirm } = useConfirm()
+
 const sendToSuppliers = () => {
   router.post(route('purchase.sourcing.send', props.rfx.id))
 }
 
 const submitAward = () => {
-  if (confirm('Award selected suppliers and generate Purchase Orders?')) {
-    awardForm.post(route('purchase.sourcing.award', props.rfx.id))
-  }
+  confirm({
+    title: 'Award Selected Suppliers?',
+    description: 'Award selected suppliers and generate Purchase Orders?',
+    confirmText: 'Award & Generate POs',
+    onConfirm: () => awardForm.post(route('purchase.sourcing.award', props.rfx.id)),
+  })
 }
 
 const cancelRfx = () => {
-  if (confirm('Are you sure you want to cancel this RFQ?')) {
-    router.post(route('purchase.sourcing.cancel', props.rfx.id))
-  }
+  confirm({
+    title: 'Cancel RFQ?',
+    description: 'Are you sure you want to cancel this RFQ?',
+    variant: 'destructive',
+    confirmText: 'Cancel RFQ',
+    onConfirm: () => router.post(route('purchase.sourcing.cancel', props.rfx.id)),
+  })
 }
 </script>
 

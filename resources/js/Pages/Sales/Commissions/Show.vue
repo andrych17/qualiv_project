@@ -7,6 +7,7 @@ import Panel from '@/Components/cards/Panel.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface CommissionLine {
   id: number
@@ -41,16 +42,24 @@ const formatCurrency = (val: number, curr = 'IDR') => {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: curr, maximumFractionDigits: 0 }).format(val)
 }
 
+const { confirm } = useConfirm()
+
 const approveSettlement = () => {
-  if (confirm('Approve this commission settlement batch?')) {
-    router.post(route('sales.commissions.approve', props.settlement.id))
-  }
+  confirm({
+    title: 'Approve Settlement?',
+    description: 'Approve this commission settlement batch?',
+    confirmText: 'Approve',
+    onConfirm: () => router.post(route('sales.commissions.approve', props.settlement.id)),
+  })
 }
 
 const markPaid = () => {
-  if (confirm('Mark this commission settlement as paid out to representative?')) {
-    router.post(route('sales.commissions.pay', props.settlement.id))
-  }
+  confirm({
+    title: 'Mark as Paid?',
+    description: 'Mark this commission settlement as paid out to representative?',
+    confirmText: 'Mark Paid',
+    onConfirm: () => router.post(route('sales.commissions.pay', props.settlement.id)),
+  })
 }
 </script>
 

@@ -9,6 +9,7 @@ import FormSelect from '@/Components/forms/FormSelect.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 import DangerButton from '@/Components/DangerButton.vue'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface OpportunityItem {
   id: number
@@ -44,14 +45,20 @@ const form = useForm({
   loss_reason: props.opportunity.loss_reason,
 })
 
+const { confirm } = useConfirm()
+
 const submit = () => {
   form.put(route('sales.opportunities.update', props.opportunity.id))
 }
 
 const deleteOpportunity = () => {
-  if (confirm('Are you sure you want to delete this opportunity?')) {
-    form.delete(route('sales.opportunities.destroy', props.opportunity.id))
-  }
+  confirm({
+    title: 'Delete Opportunity?',
+    description: 'Are you sure you want to delete this opportunity?',
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () => form.delete(route('sales.opportunities.destroy', props.opportunity.id)),
+  })
 }
 </script>
 

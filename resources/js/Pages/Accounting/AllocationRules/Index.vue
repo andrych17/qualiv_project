@@ -7,6 +7,7 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
+import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface RuleRow {
   id: number
@@ -26,10 +27,16 @@ const switchCompany = (e: Event) => router.get(route('accounting.allocation-rule
 
 const toggleActive = (r: RuleRow) => router.post(route('accounting.allocation-rules.set-active', r.id), { is_active: !r.is_active }, { preserveScroll: true })
 
+const { confirm } = useConfirm()
+
 const destroy = (r: RuleRow) => {
-  if (confirm(`Delete allocation rule "${r.name}"? Only possible if it has never been run.`)) {
-    router.delete(route('accounting.allocation-rules.destroy', r.id))
-  }
+  confirm({
+    title: 'Delete Allocation Rule?',
+    description: `Delete allocation rule "${r.name}"? Only possible if it has never been run.`,
+    variant: 'destructive',
+    confirmText: 'Delete',
+    onConfirm: () => router.delete(route('accounting.allocation-rules.destroy', r.id)),
+  })
 }
 </script>
 
