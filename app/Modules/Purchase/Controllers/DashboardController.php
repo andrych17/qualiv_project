@@ -60,7 +60,7 @@ class DashboardController extends Controller
             ]);
 
         $recentPrs = PurRequisitionHdr::query()
-            ->with(['requester:id,name', 'department:id,name'])
+            ->with(['requester:id,name', 'costCenter:id,name'])
             ->orderByDesc('id')
             ->limit(5)
             ->get()

@@ -59,6 +59,11 @@ class PurRequisitionHdr extends Model
         return $this->belongsTo(CostCenter::class, 'cost_center_id');
     }
 
+    public function department()
+    {
+        return $this->costCenter();
+    }
+
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
