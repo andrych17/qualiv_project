@@ -121,7 +121,7 @@ class SalesSeeder extends Seeder
                 'valid_from' => '2026-01-01',
                 'valid_to' => '2026-12-31',
                 'usage_limit' => 500,
-                'times_used' => 12,
+                'usage_count' => 12,
                 'is_active' => true,
             ]
         );
@@ -134,7 +134,7 @@ class SalesSeeder extends Seeder
                 'valid_from' => '2026-01-01',
                 'valid_to' => '2026-12-31',
                 'usage_limit' => 50,
-                'times_used' => 3,
+                'usage_count' => 3,
                 'is_active' => true,
             ]
         );
@@ -143,9 +143,11 @@ class SalesSeeder extends Seeder
         $planFlat = CommissionPlan::updateOrCreate(
             ['name' => 'Standard Sales Rep 5% Incentive'],
             [
-                'sales_team_id' => $teamEnterprise->id,
-                'calc_type' => 'flat',
-                'flat_rate' => 5,
+                'basis' => CommissionPlan::BASIS_FLAT_PCT,
+                'flat_rate_pct' => 5,
+                'applies_to_type' => CommissionPlan::APPLIES_TO_TEAM,
+                'applies_to_sales_team_id' => $teamEnterprise->id,
+                'effective_from' => '2026-01-01',
                 'is_active' => true,
             ]
         );
@@ -153,10 +155,14 @@ class SalesSeeder extends Seeder
         $planTiered = CommissionPlan::updateOrCreate(
             ['name' => 'Senior Executive Tiered Plan (3% Base / 7% Over 100M)'],
             [
-                'calc_type' => 'tiered',
-                'tier_threshold' => 100000000,
-                'tier_base_rate' => 3,
-                'tier_excess_rate' => 7,
+                'basis' => CommissionPlan::BASIS_TIERED,
+                'tier_rules' => [
+                    ['min_revenue' => 0, 'max_revenue' => 100000000, 'rate_pct' => 3],
+                    ['min_revenue' => 100000000, 'max_revenue' => null, 'rate_pct' => 7],
+                ],
+                'applies_to_type' => CommissionPlan::APPLIES_TO_REP,
+                'applies_to_user_id' => $rep->id,
+                'effective_from' => '2026-01-01',
                 'is_active' => true,
             ]
         );
@@ -166,19 +172,19 @@ class SalesSeeder extends Seeder
 
         $customerA = Partner::firstOrCreate(
             ['name' => 'PT Astra Graha Pratama'],
-            ['type' => 'company', 'is_active' => true, 'tax_number' => '01.234.567.8-012.000']
+            ['type' => Partner::TYPE_ORGANIZATION, 'is_active' => true, 'registration_tax_id' => '01.234.567.8-012.000']
         );
         $customerA->roles()->firstOrCreate(['role_type_id' => $roleCustomer->id]);
 
         $customerB = Partner::firstOrCreate(
             ['name' => 'PT Mandiri Sejahtera Abadi'],
-            ['type' => 'company', 'is_active' => true, 'tax_number' => '02.345.678.9-034.000']
+            ['type' => Partner::TYPE_ORGANIZATION, 'is_active' => true, 'registration_tax_id' => '02.345.678.9-034.000']
         );
         $customerB->roles()->firstOrCreate(['role_type_id' => $roleCustomer->id]);
 
         $customerC = Partner::firstOrCreate(
             ['name' => 'CV Karya Gemilang Mandiri'],
-            ['type' => 'company', 'is_active' => true]
+            ['type' => Partner::TYPE_ORGANIZATION, 'is_active' => true]
         );
         $customerC->roles()->firstOrCreate(['role_type_id' => $roleCustomer->id]);
 
@@ -230,13 +236,13 @@ class SalesSeeder extends Seeder
 
         // Sales Portal Tokens
         SalesPortalToken::updateOrCreate(
-            ['customer_id' => $customerA->id],
-            ['token' => 'cust-tok-astra-graha-pratama-'.Str::random(16), 'expires_at' => now()->addYear()]
+            ['partner_id' => $customerA->id],
+            ['token' => (string) Str::uuid(), 'expires_at' => now()->addYear()]
         );
 
         SalesPortalToken::updateOrCreate(
-            ['customer_id' => $customerB->id],
-            ['token' => 'cust-tok-mandiri-sejahtera-'.Str::random(16), 'expires_at' => now()->addYear()]
+            ['partner_id' => $customerB->id],
+            ['token' => (string) Str::uuid(), 'expires_at' => now()->addYear()]
         );
 
         // 7. Opportunities
@@ -249,7 +255,6 @@ class SalesSeeder extends Seeder
                 'sales_team_id' => $teamEnterprise->id,
                 'estimated_value' => 150000000,
                 'expected_close_date' => now()->addMonth()->format('Y-m-d'),
-                'created_by' => $admin->id,
             ]
         );
 
@@ -262,7 +267,6 @@ class SalesSeeder extends Seeder
                 'sales_team_id' => $teamSMB->id,
                 'estimated_value' => 85000000,
                 'expected_close_date' => now()->addWeeks(2)->format('Y-m-d'),
-                'created_by' => $admin->id,
             ]
         );
 
@@ -275,7 +279,6 @@ class SalesSeeder extends Seeder
                 'sales_team_id' => $teamSMB->id,
                 'estimated_value' => 45000000,
                 'expected_close_date' => now()->subDays(5)->format('Y-m-d'),
-                'created_by' => $admin->id,
             ]
         );
 
@@ -318,7 +321,7 @@ class SalesSeeder extends Seeder
         if (! $orderA) {
             $orderA = $soService->create([
                 'customer_id' => $customerA->id,
-                'quot_hdr_id' => $quoteA->id,
+                'quote_id' => $quoteA->id,
                 'price_list_id' => $priceListEnterprise->id,
                 'lines' => [
                     [
@@ -377,19 +380,21 @@ class SalesSeeder extends Seeder
             ]);
 
             $sub = $contract->subscriptions()->create([
+                'line_no' => 1,
+                'item_type' => 'service',
                 'description' => 'Monthly Retainer Retainer Hours & Compliance',
                 'billing_interval' => 'monthly',
                 'recurring_amount' => 12500000,
-                'next_billing_date' => now()->addMonth()->startOfMonth()->format('Y-m-d'),
+                'currency' => 'IDR',
+                'is_active' => true,
             ]);
 
             // Seed recurring schedules
-            for ($month = 1; $month <= 12; $month++) {
-                $sub->recurringSchedules()->create([
-                    'scheduled_date' => sprintf('2026-%02d-01', $month),
-                    'status' => $month <= now()->month ? 'invoiced' : 'pending',
-                ]);
-            }
+            $sub->recurringSchedules()->create([
+                'customer_id' => $customerA->id,
+                'next_bill_date' => '2026-01-01',
+                'is_active' => true,
+            ]);
         }
 
         // 12. Returns (RMA)
@@ -420,7 +425,7 @@ class SalesSeeder extends Seeder
                 'rep_id' => $rep->id,
                 'period_start' => now()->startOfMonth()->format('Y-m-d'),
                 'period_end' => now()->endOfMonth()->format('Y-m-d'),
-                'total_commission' => 2500000,
+                'total_amount' => 2500000,
                 'status' => CommissionSettlement::STATUS_APPROVED,
                 'approved_by' => $admin->id,
                 'approved_at' => now(),
@@ -430,8 +435,9 @@ class SalesSeeder extends Seeder
                 $settlement->lines()->create([
                     'so_line_id' => $orderA->lines->first()->id,
                     'commission_plan_id' => $planFlat->id,
-                    'commission_rate' => 5,
-                    'commission_amount' => 1000000,
+                    'line_type' => 'earned',
+                    'amount' => 1000000,
+                    'notes' => '5% on SO lines',
                 ]);
             }
         }

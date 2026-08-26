@@ -10,7 +10,7 @@ import FormInput from '@/Components/forms/FormInput.vue'
 import SalesSubNav from '@/Components/sales/SalesSubNav.vue'
 import SalesMasterSubNav from '@/Components/sales/SalesMasterSubNav.vue'
 
-interface PromoCodeItem {
+interface PromoCode {
   id: number
   code: string
   discount_type: 'percentage' | 'fixed'
@@ -18,12 +18,12 @@ interface PromoCodeItem {
   valid_from: string
   valid_to: string
   usage_limit: number | null
-  times_used: number
+  usage_count: number
   is_active: boolean
 }
 
 const props = defineProps<{
-  promoCodes: PromoCodeItem[]
+  promoCodes: PromoCode[]
 }>()
 
 const showModal = ref(false)
@@ -118,7 +118,7 @@ const deletePromo = (id: number) => {
             </td>
             <td class="py-3 px-4 font-mono text-xs text-ink-600">{{ p.valid_from }} &rarr; {{ p.valid_to }}</td>
             <td class="py-3 px-4 text-xs font-mono">
-              {{ p.times_used }} / {{ p.usage_limit ?? '&infin;' }}
+              {{ p.usage_count }} / {{ p.usage_limit ?? '&infin;' }}
             </td>
             <td class="py-3 px-4 text-xs font-semibold" :class="p.is_active ? 'text-emerald-600' : 'text-ink-400'">
               {{ p.is_active ? 'Active' : 'Inactive' }}
