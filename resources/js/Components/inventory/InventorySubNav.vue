@@ -5,7 +5,7 @@
 import { Link } from '@inertiajs/vue3'
 
 defineProps<{
-  active: 'products' | 'categories' | 'uoms' | 'warehouses' | 'goodsReceipts' | 'goodsIssues' | 'transfers' | 'adjustments' | 'adjustmentReasons' | 'stockCard' | 'valuation' | 'batches' | 'serials' | 'reservations'
+  active: 'products' | 'categories' | 'uoms' | 'warehouses' | 'goodsReceipts' | 'goodsIssues' | 'transfers' | 'adjustments' | 'adjustmentReasons' | 'stockCard' | 'valuation' | 'batches' | 'serials' | 'reservations' | 'pickLists'
 }>()
 </script>
 
@@ -106,6 +106,14 @@ defineProps<{
       :class="active === 'reservations' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Reservations
+    </Link>
+    <Link
+      :href="route('inventory.pickLists.index')"
+      role="tab"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      :class="active === 'pickLists' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
+    >
+      Pick Lists
     </Link>
     <Link
       :href="route('inventory.stockCard.index')"

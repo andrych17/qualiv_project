@@ -48,6 +48,7 @@ const filters = ref({ product_id: props.filters.product_id ?? '', status: props.
 const sort = ref<SortState>(
   props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
 )
+const selected = ref<Array<string | number>>([])
 const perPage = ref(Number(props.filters.per_page) || props.reservations.per_page)
 
 const filterFields: FilterFieldDef[] = [
@@ -101,6 +102,14 @@ const confirmRelease = (item: ReservationRow | Record<string, unknown>) => {
     onConfirm: () => router.patch(route('inventory.reservations.release', row.id)),
   })
 }
+
+// §3O: the actual pick-list creation trigger — see PickListService::generate(). Any
+// non-active rows in the selection are silently skipped server-side.
+const generatePickList = () => {
+  router.post(route('inventory.reservations.generatePickList'), { ids: selected.value }, {
+    onSuccess: () => { selected.value = [] },
+  })
+}
 </script>
 
 <template>
@@ -114,8 +123,10 @@ const confirmRelease = (item: ReservationRow | Record<string, unknown>) => {
         :columns="columns"
         :items="reservations.data"
         v-model:sort="sort"
+        v-model:selected="selected"
         v-model:filters="filters"
         v-model:per-page="perPage"
+        selectable
         sticky-header
         storage-key="inventory.reservations"
         :filter-fields="filterFields"
@@ -127,6 +138,15 @@ const confirmRelease = (item: ReservationRow | Record<string, unknown>) => {
         empty-title="No reservations yet"
         empty-description="Reservations are created automatically by a caller promising stock to an order — none have been made yet."
       >
+        <template #bulk-actions>
+          <button
+            type="button"
+            class="text-sm font-medium text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            @click="generatePickList"
+          >
+            Generate pick list
+          </button>
+        </template>
         <template #cell-product_sku="{ item }">
           <span class="text-ink-900">{{ (item as ReservationRow).product_sku }}</span>
           <span class="block text-xs text-ink-600">{{ (item as ReservationRow).product_name }}</span>

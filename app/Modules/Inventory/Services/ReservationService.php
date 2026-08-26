@@ -167,8 +167,14 @@ class ReservationService
      * unlike costing (§3L), which never mixes a batch's layers with the non-batch pool, a
      * reservation not pinned to a lot is a floating claim against ANY of that product's lots,
      * so it reduces every lot's own ATP too.
+     *
+     * `$excludeIds` (§3O): lets a caller resolving bin assignments for a specific *set* of
+     * reservations ask "how much is committed by everyone ELSE", so it can maintain its own
+     * running per-bin allocation ledger for that set instead of double-counting them.
+     *
+     * @param  list<int>  $excludeIds
      */
-    public function activeReservedQty(int $productId, int $warehouseId, ?int $locationId = null, ?int $batchId = null): float
+    public function activeReservedQty(int $productId, int $warehouseId, ?int $locationId = null, ?int $batchId = null, array $excludeIds = []): float
     {
         return (float) StockReservation::query()
             ->where('product_id', $productId)
@@ -177,6 +183,7 @@ class ReservationService
             ->where(fn ($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now()))
             ->when($locationId !== null, fn ($q) => $q->where(fn ($q2) => $q2->where('location_id', $locationId)->orWhereNull('location_id')))
             ->when($batchId !== null, fn ($q) => $q->where(fn ($q2) => $q2->where('batch_id', $batchId)->orWhereNull('batch_id')))
+            ->when($excludeIds !== [], fn ($q) => $q->whereNotIn('id', $excludeIds))
             ->sum('qty');
     }
 

@@ -5,6 +5,7 @@ namespace App\Modules\Inventory\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Inventory\Models\Product;
 use App\Modules\Inventory\Models\StockReservation;
+use App\Modules\Inventory\Services\PickListService;
 use App\Modules\Inventory\Services\ReservationService;
 use App\Shared\Helpers\TableQuery;
 use Illuminate\Http\Request;
@@ -71,5 +72,23 @@ class ReservationController extends Controller
         $this->service->release($reservation);
 
         return redirect()->route('inventory.reservations.index')->with('success', 'Reservation released.');
+    }
+
+    /** §3O bulk action — the actual pick-list creation trigger; see PickListService::generate(). */
+    public function generatePickList(Request $request, PickListService $pickLists)
+    {
+        $data = $request->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'integer',
+        ]);
+
+        $result = $pickLists->generate($data['ids']);
+
+        $message = 'Generated '.$result['lists']->count().' pick list(s).';
+        if ($result['errors'] !== []) {
+            $message .= ' Skipped: '.implode(' ', $result['errors']);
+        }
+
+        return redirect()->route('inventory.pickLists.index')->with('success', $message);
     }
 }

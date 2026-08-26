@@ -73,6 +73,9 @@ const badgeClass = computed(() => {
     // Inventory §3N reservation status ('active' reuses the key above)
     fulfilled: 'bg-signal-success/10 text-signal-success border-signal-success/25',
     released: 'bg-surface-50 text-ink-600 border-border',
+    // Inventory §3O pick list / line status ('pending'/'in_progress' reuse the keys above)
+    ready_for_packing: 'bg-signal-success/10 text-signal-success border-signal-success/25',
+    picked: 'bg-signal-success/10 text-signal-success border-signal-success/25',
   }
 
   return map[normalizedStatus.value] ?? 'bg-surface-50 text-ink-600 border-border'

@@ -9,6 +9,7 @@ use App\Modules\Inventory\Controllers\GoodsReceiptController;
 use App\Modules\Inventory\Controllers\InventoryItemController;
 use App\Modules\Inventory\Controllers\InventoryValuationController;
 use App\Modules\Inventory\Controllers\LocationController;
+use App\Modules\Inventory\Controllers\PickListController;
 use App\Modules\Inventory\Controllers\ProductCategoryController;
 use App\Modules\Inventory\Controllers\ProductController;
 use App\Modules\Inventory\Controllers\ReservationController;
@@ -85,6 +86,15 @@ Route::middleware(['auth', 'verified', 'module:INVENTORY', 'menu.perm:INVENTORY'
         // InventoryService::reserve() (a future caller, not by hand — see ReservationController).
         Route::get('reservations', [ReservationController::class, 'index'])->name('reservations.index');
         Route::patch('reservations/{reservation}/release', [ReservationController::class, 'release'])->name('reservations.release');
+        Route::post('reservations/generate-pick-list', [ReservationController::class, 'generatePickList'])->name('reservations.generatePickList');
+
+        // §3O Picking — generated from reservations (bulk action on the Reservations page,
+        // above), never created by hand. `show` is the mobile-friendly scan-to-pick workspace.
+        Route::get('pick-lists', [PickListController::class, 'index'])->name('pickLists.index');
+        Route::get('pick-lists/{pickList}', [PickListController::class, 'show'])->name('pickLists.show');
+        Route::patch('pick-lists/{pickList}/assign', [PickListController::class, 'assign'])->name('pickLists.assign');
+        Route::patch('pick-lists/{pickList}/lines/{line}/pick', [PickListController::class, 'pickLine'])->name('pickLists.pickLine');
+        Route::delete('pick-lists/{pickList}', [PickListController::class, 'destroy'])->name('pickLists.destroy');
 
         // Legacy demo tables (public schema) — CLAUDE.md §7A. Not wired to the new
         // INVENTORY.* schema; kept reachable during the transition, not linked from the
