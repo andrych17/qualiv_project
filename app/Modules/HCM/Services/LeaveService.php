@@ -51,10 +51,35 @@ class LeaveService
     {
         $year = $year ?? (int) date('Y');
 
-        return LeaveBalance::firstOrCreate(
-            ['employee_id' => $employeeId, 'leave_type_id' => $leaveTypeId, 'period_year' => $year],
-            ['entitled_days' => 12, 'used_days' => 0, 'carried_over_days' => 0]
-        );
+        $balance = LeaveBalance::query()
+            ->where('employee_id', $employeeId)
+            ->where('leave_type_id', $leaveTypeId)
+            ->where('period_year', $year)
+            ->first();
+
+        if ($balance) {
+            return $balance;
+        }
+
+        $employee = Employee::query()->find($employeeId);
+        $activeContract = $employee?->contracts()->where('status', EmploymentContract::STATUS_ACTIVE)->latest('start_date')->first();
+        $contractType = $activeContract?->contract_type;
+
+        $policy = LeavePolicy::query()
+            ->where('leave_type_id', $leaveTypeId)
+            ->when($contractType, fn ($q) => $q->where(fn ($sub) => $sub->where('contract_type', $contractType)->orWhereNull('contract_type')))
+            ->first();
+
+        $entitledDays = $policy ? (float) $policy->entitlement_days_per_year : 12.0;
+
+        return LeaveBalance::create([
+            'employee_id' => $employeeId,
+            'leave_type_id' => $leaveTypeId,
+            'period_year' => $year,
+            'entitled_days' => $entitledDays,
+            'used_days' => 0,
+            'carried_over_days' => 0,
+        ]);
     }
 
     public function getEmployeeBalances(int $employeeId, ?int $year = null): Collection
@@ -95,11 +120,10 @@ class LeaveService
         $year = (int) $startDate->format('Y');
         $balance = $this->getBalance($employeeId, $leaveType->id, $year);
 
-        if ($balance->remaining_days < $daysRequested && $leaveType->code === 'ANNUAL') {
-            // Soft warning or validate balance
-            if ($balance->remaining_days <= 0) {
-                throw ValidationException::withMessages(['leave_type_id' => 'Insufficient leave balance. Remaining days: '.$balance->remaining_days]);
-            }
+        if ($leaveType->code === 'ANNUAL' && $daysRequested > $balance->remaining_days) {
+            throw ValidationException::withMessages([
+                'leave_type_id' => "Insufficient leave balance. Requested {$daysRequested} days, but only {$balance->remaining_days} days remaining.",
+            ]);
         }
 
         return LeaveRequest::create([
@@ -114,6 +138,10 @@ class LeaveService
 
     public function reviewRequest(LeaveRequest $request, string $status, int $reviewerUserId): LeaveRequest
     {
+        if ($request->status !== LeaveRequest::STATUS_PENDING) {
+            throw ValidationException::withMessages(['status' => 'Only a pending leave request can be reviewed.']);
+        }
+
         return DB::transaction(function () use ($request, $status, $reviewerUserId) {
             $request->update([
                 'status' => $status,
@@ -137,14 +165,22 @@ class LeaveService
     public function cancelRequest(LeaveRequest $request): LeaveRequest
     {
         return DB::transaction(function () use ($request) {
-            if ($request->status === LeaveRequest::STATUS_APPROVED) {
+            if ($request->status === LeaveRequest::STATUS_CANCELLED) {
+                throw ValidationException::withMessages(['status' => 'This request is already cancelled.']);
+            }
+
+            $wasApproved = $request->status === LeaveRequest::STATUS_APPROVED;
+
+            $request->update([
+                'status' => LeaveRequest::STATUS_CANCELLED,
+            ]);
+
+            if ($wasApproved) {
                 // Refund deducted balance
                 $year = (int) Carbon::parse($request->start_date)->format('Y');
                 $balance = $this->getBalance($request->employee_id, $request->leave_type_id, $year);
                 $balance->decrement('used_days', $request->days_count);
             }
-
-            $request->update(['status' => LeaveRequest::STATUS_CANCELLED]);
 
             return $request;
         });

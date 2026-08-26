@@ -96,14 +96,14 @@ class GoodsReceiptService
                 if ($product->tracking_mode === Product::TRACKING_BATCH && $line->batch_id === null) {
                     throw ValidationException::withMessages(['lines' => "{$product->sku} is batch-tracked — every line needs a lot number before posting."]);
                 }
-                if ($product->tracking_mode === Product::TRACKING_SERIAL) {
-                    $this->assertSerialCountMatchesQty($product, $line->serial_numbers ?? [], (float) $line->qty);
-                }
-                $this->assertLocationInWarehouse($line->destination_location_id, $receipt->warehouse_id);
-
                 [$baseQty, $baseUnitCost] = $this->uomResolver->toBaseUnits(
                     $product, $line->uom_id, (float) $line->qty, (float) $line->unit_cost,
                 );
+
+                if ($product->tracking_mode === Product::TRACKING_SERIAL) {
+                    $this->assertSerialCountMatchesQty($product, $line->serial_numbers ?? [], (float) $baseQty);
+                }
+                $this->assertLocationInWarehouse($line->destination_location_id, $receipt->warehouse_id);
 
                 $balance = $this->balances->lockOrCreate($product->id, $receipt->warehouse_id, $line->destination_location_id, $line->batch_id);
 

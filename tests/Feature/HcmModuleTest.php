@@ -12,7 +12,6 @@ use App\Modules\HCM\Models\LeaveRequest;
 use App\Modules\HCM\Models\LeaveType;
 use App\Modules\HCM\Models\OrgUnit;
 use App\Modules\HCM\Models\Position;
-use App\Modules\HCM\Models\Shift;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\SetsUpTenant;
 use Tests\TestCase;

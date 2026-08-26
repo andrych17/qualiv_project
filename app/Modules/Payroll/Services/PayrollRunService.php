@@ -2,16 +2,14 @@
 
 namespace App\Modules\Payroll\Services;
 
+use App\Modules\Accounting\Events\PayrollRunPaid;
+use App\Modules\Accounting\Models\Company;
 use App\Modules\HCM\Models\Employee;
-use App\Modules\HCM\Models\EmploymentContract;
 use App\Modules\Payroll\Models\EmployeeLoan;
-use App\Modules\Payroll\Models\EmployeePayrollProfile;
 use App\Modules\Payroll\Models\EmployeeRecurringDeduction;
 use App\Modules\Payroll\Models\PayrollComponent;
 use App\Modules\Payroll\Models\PayrollRun;
 use App\Modules\Payroll\Models\PayrollRunLine;
-use App\Modules\Payroll\Models\PayrollRunLineDetail;
-use App\Modules\Payroll\Models\ReimbursementClaim;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -147,7 +145,7 @@ class PayrollRunService
                     'payroll_run_id' => $run->id,
                     'employee_id' => $emp->id,
                     'basic_salary' => $basicSalary,
-                    'taxable_earnings' => $grossTotal,
+                    'taxable_earnings' => $taxableGross,
                     'non_taxable_earnings' => 0,
                     'gross_total' => $grossTotal,
                     'bpjs_kesehatan_employer' => $bpjsKesEmployer,
@@ -223,6 +221,13 @@ class PayrollRunService
 
     public function approveRun(PayrollRun $run, int $userId): PayrollRun
     {
+        if ($run->status !== PayrollRun::STATUS_CALCULATED) {
+            throw ValidationException::withMessages(['status' => 'Only calculated payroll runs with processed lines can be approved.']);
+        }
+        if ($run->lines()->count() === 0) {
+            throw ValidationException::withMessages(['status' => 'Cannot approve a payroll run with zero lines.']);
+        }
+
         $run->update([
             'status' => PayrollRun::STATUS_APPROVED,
             'approved_by' => $userId,
@@ -234,16 +239,55 @@ class PayrollRunService
 
     public function markPaid(PayrollRun $run): PayrollRun
     {
+        if ($run->status !== PayrollRun::STATUS_APPROVED) {
+            throw ValidationException::withMessages(['status' => 'Only approved payroll runs can be marked as paid.']);
+        }
+
         $run->update([
             'status' => PayrollRun::STATUS_PAID,
             'paid_at' => now(),
         ]);
+
+        $run->load(['lines.details', 'payrollGroup']);
+
+        $componentTotals = [];
+        foreach ($run->lines as $line) {
+            foreach ($line->details as $detail) {
+                $code = Str::slug($detail->component_name, '_');
+                $componentTotals[$code] = ($componentTotals[$code] ?? 0.0) + (float) $detail->amount;
+            }
+        }
+
+        $eventLines = [];
+        foreach ($componentTotals as $code => $amount) {
+            $eventLines[] = [
+                'component_code' => $code,
+                'amount' => round($amount, 2),
+            ];
+        }
+
+        $company = Company::query()->first();
+
+        if ($company) {
+            event(new PayrollRunPaid(
+                companyId: $company->id,
+                runDate: $run->pay_date ? $run->pay_date->toDateString() : now()->toDateString(),
+                lines: $eventLines,
+                subjectType: 'payroll.runs',
+                subjectId: (string) $run->id,
+                memo: "Payroll run #{$run->run_number}",
+            ));
+        }
 
         return $run;
     }
 
     public function lockRun(PayrollRun $run, int $userId): PayrollRun
     {
+        if ($run->status !== PayrollRun::STATUS_PAID) {
+            throw ValidationException::withMessages(['status' => 'Only paid payroll runs can be locked.']);
+        }
+
         $run->update([
             'is_locked' => true,
             'status' => PayrollRun::STATUS_LOCKED,

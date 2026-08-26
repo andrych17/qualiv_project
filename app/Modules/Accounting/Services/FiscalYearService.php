@@ -57,13 +57,29 @@ class FiscalYearService
      * §3O period locking: soft-close blocks ordinary posting, hard-close blocks all posting
      * (see JournalService::assertPeriodOpen()). Every transition is audited — moving to a
      * more restrictive status logs period_closed, less restrictive logs period_reopened
-     * (so hard_closed -> soft_closed is correctly a reopen-class event, not just "not open
-     * yet"); a same-status update logs nothing, since it changed nothing.
+     * (so hard_closed -> soft_closed is correctly a reopen-class event, not just "not open yet").
      */
     public function setPeriodStatus(FiscalPeriod $period, string $status): FiscalPeriod
     {
         if (! in_array($status, FiscalPeriod::STATUSES, true)) {
             throw ValidationException::withMessages(['status' => 'Invalid period status.']);
+        }
+
+        if ($status === FiscalPeriod::STATUS_OPEN && $period->status !== FiscalPeriod::STATUS_OPEN) {
+            $fiscalYear = $period->fiscalYear;
+            if ($fiscalYear) {
+                $hasSubsequentClosedYear = FiscalYear::query()
+                    ->where('company_id', $period->company_id)
+                    ->where('year', '>', $fiscalYear->year)
+                    ->where('status', FiscalYear::STATUS_CLOSED)
+                    ->exists();
+
+                if ($hasSubsequentClosedYear) {
+                    throw ValidationException::withMessages([
+                        'status' => 'Cannot reopen a period when a subsequent fiscal year is already closed.',
+                    ]);
+                }
+            }
         }
 
         return DB::transaction(function () use ($period, $status) {

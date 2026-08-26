@@ -26,6 +26,7 @@ use App\Modules\Accounting\Listeners\RecordPaymentFromRequest;
 use App\Modules\Accounting\Services\XmlCoretaxExportDriver;
 use App\Modules\CRM\Models\Partner;
 use App\Modules\DMS\Models\Document;
+use App\Modules\HCM\Models\Employee;
 use App\Modules\Inventory\Models\Product;
 use App\Modules\Inventory\Models\StockBatch;
 use App\Modules\Legal\Contracts\MatterCodeGenerator;
@@ -222,14 +223,14 @@ class AppServiceProvider extends ServiceProvider
         // §3B Employee picker
         AsyncSearchRegistry::register(
             'hcm_employee',
-            \App\Modules\HCM\Models\Employee::class,
+            Employee::class,
             ['employee_no', 'full_name', 'nik'],
-            fn (\App\Modules\HCM\Models\Employee $e) => "{$e->employee_no} — {$e->full_name}",
-            fn (\App\Modules\HCM\Models\Employee $e) => $e->position?->job?->title ?? 'Employee',
+            fn (Employee $e) => "{$e->employee_no} — {$e->full_name}",
+            fn (Employee $e) => $e->position?->job?->title ?? 'Employee',
             'employment_status',
             queryCallback: fn ($query, $search, $extraFilters) => $query
                 ->with(['position.job'])
-                ->where('employment_status', \App\Modules\HCM\Models\Employee::STATUS_ACTIVE)
+                ->where('employment_status', Employee::STATUS_ACTIVE)
                 ->when($search !== '', fn ($q) => $q->where(function ($q) use ($search) {
                     $q->where('full_name', 'ilike', '%'.$search.'%')
                         ->orWhere('employee_no', 'ilike', '%'.$search.'%');

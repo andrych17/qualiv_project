@@ -81,10 +81,10 @@ class DocumentController extends Controller
             'documents' => $documents,
             'filters' => $filters,
             'summary' => [
-                'total_documents' => Document::query()->count(),
-                'expiring_soon' => Document::query()->filter(['flag' => 'expiring_soon'])->count(),
-                'on_legal_hold' => Document::query()->where('legal_hold', true)->count(),
-                'active_documents' => Document::query()->where('status', Document::STATUS_ACTIVE)->count(),
+                'total_documents' => Document::query()->accessibleTo($userId)->count(),
+                'expiring_soon' => Document::query()->accessibleTo($userId)->filter(['flag' => 'expiring_soon'])->count(),
+                'on_legal_hold' => Document::query()->accessibleTo($userId)->where('legal_hold', true)->count(),
+                'active_documents' => Document::query()->accessibleTo($userId)->where('status', Document::STATUS_ACTIVE)->count(),
             ],
             'folders' => $this->folderTree($userId),
             'docTypes' => DocType::query()->where('is_active', true)->orderBy('name')->get(['id', 'name']),
@@ -115,6 +115,7 @@ class DocumentController extends Controller
     /** §3B Edit — metadata form, pre-filled; re-upload is a separate action on the same page. */
     public function edit(Document $document): Response
     {
+        $this->assertAccessible($document, (int) auth()->id());
         $document->load(['tags:id,name', 'currentVersion']);
 
         return Inertia::render('DMS/Documents/Edit', [
@@ -142,6 +143,7 @@ class DocumentController extends Controller
 
     public function update(UpdateDocumentRequest $request, Document $document)
     {
+        $this->assertAccessible($document, $request->user()->id);
         $this->service->updateMetadata($document, $request->validated(), $request->user()->id);
 
         return redirect()->route('dms.documents.edit', $document)->with('success', 'Document updated.');
@@ -150,6 +152,7 @@ class DocumentController extends Controller
     /** §3B re-upload — a new immutable version, kept separate from the metadata form above. */
     public function storeVersion(StoreDocumentVersionRequest $request, Document $document)
     {
+        $this->assertAccessible($document, $request->user()->id);
         $this->service->uploadNewVersion($document, $request->file('file'), $request->user()->id, $request->validated('version_note'));
 
         return redirect()->route('dms.documents.edit', $document)->with('success', 'New version uploaded.');
@@ -158,6 +161,7 @@ class DocumentController extends Controller
     /** §3C Version History Viewer — full list (uploader, timestamp, size, checksum, note) + restore/compare. */
     public function versions(Document $document): Response
     {
+        $this->assertAccessible($document, (int) auth()->id());
         $document->load('versions.uploadedBy:id,name');
 
         return Inertia::render('DMS/Documents/Versions', [
@@ -181,6 +185,7 @@ class DocumentController extends Controller
     /** §3C restore — never destructive, always creates a new version (DocumentService::restoreVersion). */
     public function restoreVersion(Request $request, Document $document, DocumentVersion $version)
     {
+        $this->assertAccessible($document, $request->user()->id);
         abort_unless($version->document_id === $document->id, 404);
 
         $this->service->restoreVersion($document, $version, $request->user()->id);
@@ -191,6 +196,7 @@ class DocumentController extends Controller
     /** §3H — link {document} (as source) to another document; read side is DocumentController::show()'s 'relations' key. */
     public function storeRelation(StoreDocumentRelationRequest $request, Document $document)
     {
+        $this->assertAccessible($document, $request->user()->id);
         $this->service->addRelation($document, (int) $request->validated('target_document_id'), $request->validated('relation_type'));
 
         return back()->with('success', 'Relation added.');
@@ -198,6 +204,7 @@ class DocumentController extends Controller
 
     public function destroyRelation(Document $document, DocumentRelation $relation)
     {
+        $this->assertAccessible($document, (int) auth()->id());
         abort_unless($relation->source_document_id === $document->id || $relation->target_document_id === $document->id, 404);
 
         $this->service->removeRelation($relation);
@@ -208,6 +215,7 @@ class DocumentController extends Controller
     /** JSON drawer payload — metadata, version history, audit trail, relations (§3A row-click drawer). */
     public function show(Request $request, Document $document)
     {
+        $this->assertAccessible($document, $request->user()->id);
         $document->load([
             'folder:id,name',
             'docType:id,name',
@@ -289,6 +297,9 @@ class DocumentController extends Controller
      */
     public function versionFile(Request $request, DocumentVersion $version): StreamedResponse
     {
+        $document = $version->document ?? Document::query()->findOrFail($version->document_id);
+        $this->assertAccessible($document, $request->user()->id);
+
         AccessLog::record([
             'document_id' => $version->document_id,
             'document_version_id' => $version->id,
@@ -305,6 +316,11 @@ class DocumentController extends Controller
             'Content-Type' => $version->mime_type ?? 'application/octet-stream',
             'X-Content-Type-Options' => 'nosniff',
         ], 'inline');
+    }
+
+    private function assertAccessible(Document $document, int $userId): void
+    {
+        abort_unless($document->isAccessibleTo($userId), 403, 'You do not have access to this document.');
     }
 
     /** §3H: a relationsTo row reads backwards if shown with its literal type — "supersedes" from

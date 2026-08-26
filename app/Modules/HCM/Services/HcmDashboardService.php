@@ -4,7 +4,6 @@ namespace App\Modules\HCM\Services;
 
 use App\Modules\HCM\Models\AttendanceLog;
 use App\Modules\HCM\Models\Employee;
-use App\Modules\HCM\Models\EmploymentContract;
 use App\Modules\HCM\Models\LeaveRequest;
 use Carbon\Carbon;
 

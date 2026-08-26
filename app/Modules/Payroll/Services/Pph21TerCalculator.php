@@ -90,53 +90,134 @@ class Pph21TerCalculator
     {
         // Indonesian statutory baseline fallback brackets (PP 58/2023)
         if ($category === 'A') {
-            if ($gross <= 5400000) return 0.00;
-            if ($gross <= 5650000) return 0.0025;
-            if ($gross <= 5950000) return 0.005;
-            if ($gross <= 6300000) return 0.0075;
-            if ($gross <= 6750000) return 0.01;
-            if ($gross <= 7500000) return 0.0125;
-            if ($gross <= 8550000) return 0.015;
-            if ($gross <= 9650000) return 0.0175;
-            if ($gross <= 10050000) return 0.02;
-            if ($gross <= 10350000) return 0.0225;
-            if ($gross <= 10700000) return 0.025;
-            if ($gross <= 11050000) return 0.03;
-            if ($gross <= 11600000) return 0.035;
-            if ($gross <= 12500000) return 0.04;
-            if ($gross <= 13750000) return 0.05;
-            if ($gross <= 15100000) return 0.06;
-            if ($gross <= 16950000) return 0.07;
-            if ($gross <= 19750000) return 0.08;
-            if ($gross <= 24150000) return 0.09;
-            if ($gross <= 26450000) return 0.10;
+            if ($gross <= 5400000) {
+                return 0.00;
+            }
+            if ($gross <= 5650000) {
+                return 0.0025;
+            }
+            if ($gross <= 5950000) {
+                return 0.005;
+            }
+            if ($gross <= 6300000) {
+                return 0.0075;
+            }
+            if ($gross <= 6750000) {
+                return 0.01;
+            }
+            if ($gross <= 7500000) {
+                return 0.0125;
+            }
+            if ($gross <= 8550000) {
+                return 0.015;
+            }
+            if ($gross <= 9650000) {
+                return 0.0175;
+            }
+            if ($gross <= 10050000) {
+                return 0.02;
+            }
+            if ($gross <= 10350000) {
+                return 0.0225;
+            }
+            if ($gross <= 10700000) {
+                return 0.025;
+            }
+            if ($gross <= 11050000) {
+                return 0.03;
+            }
+            if ($gross <= 11600000) {
+                return 0.035;
+            }
+            if ($gross <= 12500000) {
+                return 0.04;
+            }
+            if ($gross <= 13750000) {
+                return 0.05;
+            }
+            if ($gross <= 15100000) {
+                return 0.06;
+            }
+            if ($gross <= 16950000) {
+                return 0.07;
+            }
+            if ($gross <= 19750000) {
+                return 0.08;
+            }
+            if ($gross <= 24150000) {
+                return 0.09;
+            }
+            if ($gross <= 26450000) {
+                return 0.10;
+            }
+
             return 0.15;
         }
 
         if ($category === 'B') {
-            if ($gross <= 6200000) return 0.00;
-            if ($gross <= 6500000) return 0.0025;
-            if ($gross <= 6850000) return 0.005;
-            if ($gross <= 7300000) return 0.0075;
-            if ($gross <= 9200000) return 0.01;
-            if ($gross <= 10750000) return 0.015;
-            if ($gross <= 11250000) return 0.02;
-            if ($gross <= 11600000) return 0.025;
-            if ($gross <= 12600000) return 0.03;
-            if ($gross <= 13600000) return 0.04;
-            if ($gross <= 14950000) return 0.05;
+            if ($gross <= 6200000) {
+                return 0.00;
+            }
+            if ($gross <= 6500000) {
+                return 0.0025;
+            }
+            if ($gross <= 6850000) {
+                return 0.005;
+            }
+            if ($gross <= 7300000) {
+                return 0.0075;
+            }
+            if ($gross <= 9200000) {
+                return 0.01;
+            }
+            if ($gross <= 10750000) {
+                return 0.015;
+            }
+            if ($gross <= 11250000) {
+                return 0.02;
+            }
+            if ($gross <= 11600000) {
+                return 0.025;
+            }
+            if ($gross <= 12600000) {
+                return 0.03;
+            }
+            if ($gross <= 13600000) {
+                return 0.04;
+            }
+            if ($gross <= 14950000) {
+                return 0.05;
+            }
+
             return 0.09;
         }
 
         // Category C
-        if ($gross <= 6600000) return 0.00;
-        if ($gross <= 6950000) return 0.0025;
-        if ($gross <= 7350000) return 0.005;
-        if ($gross <= 7800000) return 0.0075;
-        if ($gross <= 8850000) return 0.01;
-        if ($gross <= 9800000) return 0.0125;
-        if ($gross <= 10950000) return 0.015;
-        if ($gross <= 11200000) return 0.0175;
+        if ($gross <= 6600000) {
+            return 0.00;
+        }
+        if ($gross <= 6950000) {
+            return 0.0025;
+        }
+        if ($gross <= 7350000) {
+            return 0.005;
+        }
+        if ($gross <= 7800000) {
+            return 0.0075;
+        }
+        if ($gross <= 8850000) {
+            return 0.01;
+        }
+        if ($gross <= 9800000) {
+            return 0.0125;
+        }
+        if ($gross <= 10950000) {
+            return 0.015;
+        }
+        if ($gross <= 11200000) {
+            return 0.0175;
+        }
+
         return 0.05;
     }
 }

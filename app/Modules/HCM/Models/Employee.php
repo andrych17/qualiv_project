@@ -2,6 +2,7 @@
 
 namespace App\Modules\HCM\Models;
 
+use App\Modules\Payroll\Models\EmployeePayrollProfile;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -113,7 +114,7 @@ class Employee extends Model
 
     public function payrollProfile(): HasOne
     {
-        return $this->hasOne(\App\Modules\Payroll\Models\EmployeePayrollProfile::class, 'employee_id');
+        return $this->hasOne(EmployeePayrollProfile::class, 'employee_id');
     }
 
     public function scopeFilter(Builder $query, array $filters): void

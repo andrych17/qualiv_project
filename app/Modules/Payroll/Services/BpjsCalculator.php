@@ -10,7 +10,22 @@ use App\Modules\Payroll\Models\BpjsConfig;
 class BpjsCalculator
 {
     public const DEFAULT_KES_CAP = 12000000.0;
+
     public const DEFAULT_JP_CAP = 10042300.0;
+
+    public const DEFAULT_KES_EMPLOYER_RATE = 0.0400;
+
+    public const DEFAULT_KES_EMPLOYEE_RATE = 0.0100;
+
+    public const DEFAULT_JHT_EMPLOYER_RATE = 0.0370;
+
+    public const DEFAULT_JHT_EMPLOYEE_RATE = 0.0200;
+
+    public const DEFAULT_JP_EMPLOYER_RATE = 0.0200;
+
+    public const DEFAULT_JP_EMPLOYEE_RATE = 0.0100;
+
+    public const DEFAULT_JKM_EMPLOYER_RATE = 0.0030;
 
     /**
      * Calculate all BPJS contributions for employee.
@@ -45,27 +60,30 @@ class BpjsCalculator
             ];
         }
 
-        // 1. BPJS Kesehatan (Cap Rp 12.000.000)
-        $kesCap = $this->getWageCap(BpjsConfig::PROG_KES, self::DEFAULT_KES_CAP);
-        $kesBasis = min($basicSalary, $kesCap);
-        $kesEmployer = round($kesBasis * 0.0400, 2);
-        $kesEmployee = round($kesBasis * 0.0100, 2);
+        $kesConfig = $this->getConfig(BpjsConfig::PROG_KES, self::DEFAULT_KES_EMPLOYER_RATE, self::DEFAULT_KES_EMPLOYEE_RATE, self::DEFAULT_KES_CAP);
+        $jhtConfig = $this->getConfig(BpjsConfig::PROG_JHT, self::DEFAULT_JHT_EMPLOYER_RATE, self::DEFAULT_JHT_EMPLOYEE_RATE);
+        $jpConfig = $this->getConfig(BpjsConfig::PROG_JP, self::DEFAULT_JP_EMPLOYER_RATE, self::DEFAULT_JP_EMPLOYEE_RATE, self::DEFAULT_JP_CAP);
+        $jkmConfig = $this->getConfig(BpjsConfig::PROG_JKM, self::DEFAULT_JKM_EMPLOYER_RATE, 0.0);
 
-        // 2. BPJS TK - JHT (Uncapped: 3.7% Employer, 2% Employee)
-        $jhtEmployer = round($basicSalary * 0.0370, 2);
-        $jhtEmployee = round($basicSalary * 0.0200, 2);
+        // 1. BPJS Kesehatan
+        $kesBasis = $kesConfig['wage_cap'] ? min($basicSalary, $kesConfig['wage_cap']) : $basicSalary;
+        $kesEmployer = round($kesBasis * $kesConfig['employer_rate'], 2);
+        $kesEmployee = round($kesBasis * $kesConfig['employee_rate'], 2);
 
-        // 3. BPJS TK - JP (Cap Rp 10.042.300: 2% Employer, 1% Employee)
-        $jpCap = $this->getWageCap(BpjsConfig::PROG_JP, self::DEFAULT_JP_CAP);
-        $jpBasis = min($basicSalary, $jpCap);
-        $jpEmployer = round($jpBasis * 0.0200, 2);
-        $jpEmployee = round($jpBasis * 0.0100, 2);
+        // 2. BPJS TK - JHT
+        $jhtEmployer = round($basicSalary * $jhtConfig['employer_rate'], 2);
+        $jhtEmployee = round($basicSalary * $jhtConfig['employee_rate'], 2);
 
-        // 4. BPJS TK - JKK (Employer only: risk rate 0.24% - 1.74%)
+        // 3. BPJS TK - JP
+        $jpBasis = $jpConfig['wage_cap'] ? min($basicSalary, $jpConfig['wage_cap']) : $basicSalary;
+        $jpEmployer = round($jpBasis * $jpConfig['employer_rate'], 2);
+        $jpEmployee = round($jpBasis * $jpConfig['employee_rate'], 2);
+
+        // 4. BPJS TK - JKK
         $jkkEmployer = round($basicSalary * $jkkRiskRate, 2);
 
-        // 5. BPJS TK - JKM (Employer only: 0.30%)
-        $jkmEmployer = round($basicSalary * 0.0030, 2);
+        // 5. BPJS TK - JKM
+        $jkmEmployer = round($basicSalary * $jkmConfig['employer_rate'], 2);
 
         $totalEmployer = round($kesEmployer + $jhtEmployer + $jpEmployer + $jkkEmployer + $jkmEmployer, 2);
         $totalEmployee = round($kesEmployee + $jhtEmployee + $jpEmployee, 2);
@@ -84,17 +102,28 @@ class BpjsCalculator
         ];
     }
 
-    protected function getWageCap(string $progCode, float $defaultCap): float
+    /**
+     * @return array{employer_rate: float, employee_rate: float, wage_cap: ?float}
+     */
+    protected function getConfig(string $progCode, float $defaultEmployerRate, float $defaultEmployeeRate, ?float $defaultCap = null): array
     {
         try {
             $config = BpjsConfig::query()->where('program_code', $progCode)->first();
-            if ($config && $config->wage_cap) {
-                return (float) $config->wage_cap;
+            if ($config) {
+                return [
+                    'employer_rate' => $config->employer_rate !== null ? (float) $config->employer_rate : $defaultEmployerRate,
+                    'employee_rate' => $config->employee_rate !== null ? (float) $config->employee_rate : $defaultEmployeeRate,
+                    'wage_cap' => $config->wage_cap !== null ? (float) $config->wage_cap : $defaultCap,
+                ];
             }
         } catch (\Throwable) {
             // Fallback gracefully
         }
 
-        return $defaultCap;
+        return [
+            'employer_rate' => $defaultEmployerRate,
+            'employee_rate' => $defaultEmployeeRate,
+            'wage_cap' => $defaultCap,
+        ];
     }
 }

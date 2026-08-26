@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Tenant;
+use App\Models\TenantUserLookup;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -39,6 +41,17 @@ class NewPasswordController extends Controller
             'email' => 'required|email',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
+
+        $email = Str::lower($request->string('email')->toString());
+        $lookups = TenantUserLookup::query()->where('email', $email)->get();
+
+        if ($lookups->isNotEmpty()) {
+            $tenantId = $request->input('tenant_id') ?? $lookups->first()->tenant_id;
+            $tenant = Tenant::query()->find($tenantId);
+            if ($tenant) {
+                tenancy()->initialize($tenant);
+            }
+        }
 
         // Here we will attempt to reset the user's password. If it is successful we
         // will update the password on an actual user model and persist it to the

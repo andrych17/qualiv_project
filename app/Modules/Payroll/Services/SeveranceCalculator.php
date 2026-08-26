@@ -68,7 +68,7 @@ class SeveranceCalculator
         };
 
         $finalUpMonths = $upMonths * $multiplier;
-        $finalUpmkMonths = $reason === 'resignation' ? 0 : $upmkMonths;
+        $finalUpmkMonths = in_array($reason, ['resignation', 'end_of_contract'], true) ? 0 : $upmkMonths;
 
         $upAmount = round($monthlySalary * $finalUpMonths, 2);
         $upmkAmount = round($monthlySalary * $finalUpmkMonths, 2);

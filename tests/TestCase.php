@@ -22,7 +22,11 @@ abstract class TestCase extends BaseTestCase
             'DB_HOST' => getenv('TEST_DB_HOST') ?: 'postgres',
             'DB_PORT' => '5432',
             'DB_DATABASE' => 'nusaevo_testing',
-            'DB_USERNAME' => 'nusaevo',
+            // Dedicated test role (SUPERUSER so teardown can DROP ... WITH (FORCE)
+            // even when GUI/backup clients on the shared dev instance hold
+            // connections to tenant_* mid-run). Create once on the instance:
+            //   CREATE ROLE nusa_test LOGIN PASSWORD 'secret' SUPERUSER CREATEDB;
+            'DB_USERNAME' => getenv('TEST_DB_USERNAME') ?: 'nusa_test',
             'DB_PASSWORD' => 'secret',
             'REDIS_HOST' => 'redis',
         ] as $key => $value) {

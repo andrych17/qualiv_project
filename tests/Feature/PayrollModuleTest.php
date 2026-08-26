@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Modules\HCM\Models\Employee;
 use App\Modules\HCM\Models\EmploymentContract;
 use App\Modules\Payroll\Models\EmployeePayrollProfile;
-use App\Modules\Payroll\Models\PayrollGroup;
 use App\Modules\Payroll\Models\PayrollRun;
 use App\Modules\Payroll\Models\PayrollRunLine;
 use App\Modules\Payroll\Models\ReimbursementCategory;

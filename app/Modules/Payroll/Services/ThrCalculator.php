@@ -45,6 +45,7 @@ class ThrCalculator
 
         if ($tenureMonths >= 1) {
             $factor = $tenureMonths / 12.0;
+
             return [
                 'tenure_months' => round($tenureMonths, 1),
                 'is_prorated' => true,

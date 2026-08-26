@@ -4,6 +4,7 @@ namespace App\Modules\Inventory\Services;
 
 use App\Modules\Inventory\Models\Location;
 use App\Modules\Inventory\Models\LocationBarcode;
+use App\Modules\Inventory\Models\StockBalance;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -32,18 +33,23 @@ class LocationService
         });
     }
 
-    /**
-     * §3C: "A location cannot be deleted while it holds on-hand stock (per `stock_balances`)."
-     * The stock_balances check is deferred — that table doesn't exist until §3D/§3J ship, so
-     * no location can hold stock yet. The children guard (a zone/aisle with bins beneath it)
-     * applies now regardless, same as DMS's FolderService::delete().
-     */
     public function delete(Location $location): void
     {
         $childCount = $location->children()->count();
         if ($childCount > 0) {
             throw ValidationException::withMessages([
                 'code' => "This location has {$childCount} sub-location(s) — delete or move them first.",
+            ]);
+        }
+
+        $hasStock = StockBalance::query()
+            ->where('location_id', $location->id)
+            ->where('qty_on_hand', '>', 0)
+            ->exists();
+
+        if ($hasStock) {
+            throw ValidationException::withMessages([
+                'code' => "Cannot delete location {$location->code} because it holds on-hand stock.",
             ]);
         }
 

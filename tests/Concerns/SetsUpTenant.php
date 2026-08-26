@@ -55,9 +55,10 @@ trait SetsUpTenant
         // Use a dedicated connection so we are not inside a test transaction.
         DB::purge('pgsql');
         $pdo = DB::connection('pgsql')->getPdo();
-        $pdo->exec(
-            'SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '.$pdo->quote($dbName).' AND pid <> pg_backend_pid()'
-        );
-        $pdo->exec('DROP DATABASE IF EXISTS "'.$dbName.'"');
+        // ponytail: WITH (FORCE) (PG13+) terminates stray connections server-side.
+        // The shared dev instance has GUI/backup clients that auto-connect to every
+        // new database (including tenant_* mid-test); tests therefore run as the
+        // dedicated nusa_test SUPERUSER role so teardown can always drop cleanly.
+        $pdo->exec('DROP DATABASE IF EXISTS "'.$dbName.'" WITH (FORCE)');
     }
 }

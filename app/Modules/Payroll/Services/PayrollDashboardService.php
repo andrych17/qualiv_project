@@ -3,7 +3,6 @@
 namespace App\Modules\Payroll\Services;
 
 use App\Modules\HCM\Models\Employee;
-use App\Modules\Payroll\Models\EmployeePayrollProfile;
 use App\Modules\Payroll\Models\PayrollRun;
 use App\Modules\Payroll\Models\ReimbursementClaim;
 

@@ -27,6 +27,12 @@ trait ValidatesRecurrenceRule
             return;
         }
 
+        if (preg_match('/\bCOUNT=(\d+)/i', $rrule, $m) && (int) $m[1] > 366) {
+            $validator->errors()->add('recurrence_rule', 'Recurrence COUNT cannot exceed 366 occurrences.');
+
+            return;
+        }
+
         try {
             new Rule($rrule, now());
         } catch (InvalidRRule $e) {

@@ -9,9 +9,13 @@ class BpjsConfig extends Model
     protected $table = 'PAYROLL.bpjs_config';
 
     public const PROG_KES = 'KES';
+
     public const PROG_JHT = 'JHT';
+
     public const PROG_JP = 'JP';
+
     public const PROG_JKK = 'JKK';
+
     public const PROG_JKM = 'JKM';
 
     protected $fillable = [

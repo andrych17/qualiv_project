@@ -19,6 +19,7 @@ Route::redirect('/legal', '/legal/matters');
 Route::middleware(['auth', 'verified', 'module:LEGAL', 'menu.perm:LEGAL'])
     ->prefix('legal')
     ->name('legal.')
+    ->scopeBindings()
     ->group(function () {
         Route::delete('matters/bulk-destroy', [MatterController::class, 'bulkDestroy'])->name('matters.bulkDestroy');
         Route::resource('matters', MatterController::class)

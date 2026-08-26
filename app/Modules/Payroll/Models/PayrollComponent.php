@@ -9,11 +9,15 @@ class PayrollComponent extends Model
     protected $table = 'PAYROLL.payroll_components';
 
     public const TYPE_EARNING = 'earning';
+
     public const TYPE_DEDUCTION = 'deduction';
 
     public const CATEGORY_FIXED = 'fixed';
+
     public const CATEGORY_FORMULA = 'formula';
+
     public const CATEGORY_STATUTORY = 'statutory';
+
     public const CATEGORY_VARIABLE_INPUT = 'variable_input';
 
     protected $fillable = [

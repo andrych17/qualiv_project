@@ -15,17 +15,27 @@ class PayrollRun extends Model
     protected $table = 'PAYROLL.payroll_runs';
 
     public const TYPE_REGULAR = 'regular';
+
     public const TYPE_OFF_CYCLE = 'off_cycle';
+
     public const TYPE_THR = 'thr';
+
     public const TYPE_BONUS = 'bonus';
+
     public const TYPE_SEVERANCE = 'severance';
 
     public const STATUS_DRAFT = 'draft';
+
     public const STATUS_CALCULATING = 'calculating';
+
     public const STATUS_CALCULATED = 'calculated';
+
     public const STATUS_APPROVED = 'approved';
+
     public const STATUS_PAID = 'paid';
+
     public const STATUS_LOCKED = 'locked';
+
     public const STATUS_CANCELLED = 'cancelled';
 
     protected $fillable = [
