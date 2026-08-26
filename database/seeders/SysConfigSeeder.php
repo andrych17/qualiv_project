@@ -122,8 +122,8 @@ class SysConfigSeeder extends Seeder
             // (no §3A dashboard yet), same "point straight at the built page" convention
             // WNE/DMS used before their own dashboards existed.
             ['code' => 'ACCOUNTING', 'menu_header' => 'Operations', 'menu_caption' => 'Accounting', 'menu_link' => '/accounting/accounts', 'icon' => 'Calculator', 'seq' => 120, 'status_code' => 'A'],
-            ['code' => 'HCM', 'menu_header' => 'People', 'menu_caption' => 'HCM', 'menu_link' => '#', 'icon' => 'UserCog', 'seq' => 130, 'status_code' => 'I'],
-            ['code' => 'PAYROLL', 'menu_header' => 'People', 'menu_caption' => 'Payroll', 'menu_link' => '#', 'icon' => 'Wallet', 'seq' => 140, 'status_code' => 'I'],
+            ['code' => 'HCM', 'menu_header' => 'People', 'menu_caption' => 'HCM', 'menu_link' => '/hcm/dashboard', 'icon' => 'UserCog', 'seq' => 130, 'status_code' => 'A'],
+            ['code' => 'PAYROLL', 'menu_header' => 'People', 'menu_caption' => 'Payroll', 'menu_link' => '/payroll/dashboard', 'icon' => 'Wallet', 'seq' => 140, 'status_code' => 'A'],
         ];
 
         $map = [];
@@ -166,6 +166,8 @@ class SysConfigSeeder extends Seeder
                 'DMS' => 'CRUD',
                 'PROJECTS' => 'CRUD',
                 'ACCOUNTING' => 'CRUD',
+                'HCM' => 'CRUD',
+                'PAYROLL' => 'CRUD',
                 'DESIGN_SYSTEM' => 'R',
             ],
             'VIEWER' => [
@@ -178,6 +180,8 @@ class SysConfigSeeder extends Seeder
                 'DMS' => 'R',
                 'PROJECTS' => 'R',
                 'ACCOUNTING' => 'R',
+                'HCM' => 'R',
+                'PAYROLL' => 'R',
                 'DESIGN_SYSTEM' => 'R',
             ],
         ];

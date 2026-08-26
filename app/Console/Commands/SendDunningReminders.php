@@ -55,8 +55,9 @@ class SendDunningReminders extends Command
 
     private function sendOnce(CentralInvoice $invoice, string $tenantId, string $email, int $offset): void
     {
+        $sent = false;
         try {
-            DB::transaction(function () use ($invoice, $tenantId, $email, $offset): void {
+            DB::transaction(function () use ($tenantId, $invoice, $offset, &$sent) {
                 // The unique (tenant_id, invoice_id, offset_days) constraint is the real
                 // guarantee against a duplicate send — this pre-check just avoids a noisy
                 // exception on the expected "already sent" path.
@@ -78,10 +79,13 @@ class SendDunningReminders extends Command
                     'sent_at' => now(),
                 ]);
 
-                Mail::to($email)->send(new DunningReminderMail($invoice->tenant, $invoice, $offset));
+                $sent = true;
             });
 
-            $this->info("Reminder sent: tenant={$tenantId} invoice={$invoice->id} offset={$offset}");
+            if ($sent) {
+                Mail::to($email)->send(new DunningReminderMail($invoice->tenant, $invoice, $offset));
+                $this->info("Reminder sent: tenant={$tenantId} invoice={$invoice->id} offset={$offset}");
+            }
         } catch (UniqueConstraintViolationException) {
             // A concurrent/overlapping run already logged this exact offset — no-op, not an error.
         }

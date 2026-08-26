@@ -27,7 +27,7 @@
         <env name="DB_HOST" value="postgres" force="true"/>
         <env name="DB_PORT" value="5432" force="true"/>
         <env name="DB_DATABASE" value="nusaevo_testing" force="true"/>
-        <env name="DB_USERNAME" value="nusaevo" force="true"/>
+        <env name="DB_USERNAME" value="nusa_test" force="true"/>
         <env name="DB_PASSWORD" value="secret" force="true"/>
         <env name="DB_URL" value="" force="true"/>
         <env name="MAIL_MAILER" value="array" force="true"/>

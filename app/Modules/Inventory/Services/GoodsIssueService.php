@@ -92,13 +92,13 @@ class GoodsIssueService
                 if ($product->tracking_mode === Product::TRACKING_BATCH && $line->batch_id === null) {
                     throw ValidationException::withMessages(['lines' => "{$product->sku} is batch-tracked — every line needs a lot selected before posting."]);
                 }
+                [$baseQty] = $this->uomResolver->toBaseUnits($product, $line->uom_id, (float) $line->qty, 0.0);
+
                 if ($product->tracking_mode === Product::TRACKING_SERIAL) {
-                    $this->assertSerialCountMatchesQty($product, $line->serial_numbers ?? [], (float) $line->qty);
+                    $this->assertSerialCountMatchesQty($product, $line->serial_numbers ?? [], (float) $baseQty);
                 }
                 $this->assertLocationInWarehouse($line->source_location_id, $issue->warehouse_id);
                 $this->assertNotExpired($line, $issue->issue_date);
-
-                [$baseQty] = $this->uomResolver->toBaseUnits($product, $line->uom_id, (float) $line->qty, 0.0);
 
                 $balance = $this->balances->lockOrCreate($product->id, $issue->warehouse_id, $line->source_location_id, $line->batch_id);
 

@@ -22,7 +22,7 @@ class EnsureTenantStanding
 {
     private const SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS'];
 
-    private const EXEMPT_ROUTE_NAMES = ['billing.payments.store'];
+    private const EXEMPT_ROUTE_NAMES = ['billing.payments.store', 'tenant.switch'];
 
     private const MESSAGE = 'Your subscription is past due. You can still view your data, but changes are paused until payment is confirmed.';
 

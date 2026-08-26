@@ -83,6 +83,9 @@ class TransferService
 
         $lines = $lines->sortBy('product_id')->values();
 
+        $this->assertLocationInWarehouse($transfer->source_location_id, $transfer->source_warehouse_id, 'source');
+        $this->assertLocationInWarehouse($transfer->destination_location_id, $transfer->destination_warehouse_id, 'destination');
+
         DB::transaction(function () use ($transfer, $lines) {
             foreach ($lines as $line) {
                 $product = $line->product;
@@ -93,11 +96,12 @@ class TransferService
                 if ($product->tracking_mode === Product::TRACKING_BATCH && $line->batch_id === null) {
                     throw ValidationException::withMessages(['lines' => "{$product->sku} is batch-tracked — every line needs a lot selected before posting."]);
                 }
-                if ($product->tracking_mode === Product::TRACKING_SERIAL) {
-                    $this->assertSerialCountMatchesQty($product, $line->serial_numbers ?? [], (float) $line->qty);
-                }
 
                 [$baseQty] = $this->uomResolver->toBaseUnits($product, $line->uom_id, (float) $line->qty, 0.0);
+
+                if ($product->tracking_mode === Product::TRACKING_SERIAL) {
+                    $this->assertSerialCountMatchesQty($product, $line->serial_numbers ?? [], (float) $baseQty);
+                }
 
                 $sourceBalance = $this->balances->lockOrCreate($product->id, $transfer->source_warehouse_id, $transfer->source_location_id, $line->batch_id);
 
@@ -233,6 +237,22 @@ class TransferService
                 'qty' => $line['qty'],
                 'uom_id' => $line['uom_id'],
                 'serial_numbers' => ! empty($line['serial_numbers']) ? array_values(array_filter($line['serial_numbers'])) : null,
+            ]);
+        }
+    }
+
+    private function assertLocationInWarehouse(int $locationId, int $warehouseId, string $type = 'location'): void
+    {
+        $belongs = Location::query()
+            ->whereKey($locationId)
+            ->where('warehouse_id', $warehouseId)
+            ->exists();
+
+        if (! $belongs) {
+            $location = Location::query()->find($locationId);
+            $warehouse = Warehouse::query()->find($warehouseId);
+            throw ValidationException::withMessages([
+                'lines' => "The {$type} location ({$location?->code}) does not belong to the selected {$type} warehouse ({$warehouse?->code}).",
             ]);
         }
     }

@@ -26,12 +26,18 @@ class CentralPaymentService
     public function submit(CentralInvoice $invoice, array $data): CentralPayment
     {
         return DB::transaction(function () use ($invoice, $data) {
+            if ($invoice->status === 'paid') {
+                abort(422, 'Cannot submit payment for an invoice that is already paid.');
+            }
+
             $payment = CentralPayment::query()->create([
-                'invoice_id' => $invoice->id,
                 'tenant_id' => $invoice->tenant_id,
+                'invoice_id' => $invoice->id,
                 'amount' => $data['amount'],
+                'currency' => $data['currency'] ?? $invoice->currency,
                 'method' => $data['method'] ?? 'bank_transfer',
-                'paid_at' => $data['paid_at'] ?? now(),
+                'payment_reference' => $data['payment_reference'] ?? null,
+                'paid_at' => $data['paid_at'] ?? $data['payment_date'] ?? now(),
                 'notes' => $data['notes'] ?? null,
                 'status' => 'pending_review',
                 'submitted_at' => now(),
@@ -112,12 +118,14 @@ class CentralPaymentService
                 'rejection_reason' => $reason,
             ]);
 
-            // Reverts to issued, or overdue if the due date has passed — the derived state
-            // the dunning sweep would have set anyway (CENTRAL_SPECS.md §3E/§3F).
+            // Reverts to issued/overdue only if the invoice has no other confirmed payments
             $invoice = $payment->invoice;
-            $invoice->update([
-                'status' => $invoice->due_date->isBefore(today()) ? 'overdue' : 'issued',
-            ]);
+            $hasConfirmed = $invoice->payments()->where('status', 'confirmed')->exists();
+            if (! $hasConfirmed) {
+                $invoice->update([
+                    'status' => $invoice->due_date->isBefore(today()) ? 'overdue' : 'issued',
+                ]);
+            }
 
             // Receipt file is deliberately NOT deleted (§3F) — kept as evidence.
             $this->auditLogger->log(

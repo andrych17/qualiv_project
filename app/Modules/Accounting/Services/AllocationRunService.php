@@ -48,6 +48,9 @@ class AllocationRunService
             }
 
             $targetLines = array_filter($this->splitAmount($sourceAmount, $lockedRule->targets), fn ($l) => abs($l['amount']) > 0.005);
+            if ($targetLines === []) {
+                throw ValidationException::withMessages(['fiscal_period_id' => 'No active allocation targets configured for this rule.']);
+            }
 
             $lines = array_map(fn ($l) => [
                 'account_id' => $lockedRule->source_account_id,

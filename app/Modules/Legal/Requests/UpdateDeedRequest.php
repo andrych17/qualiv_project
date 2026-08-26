@@ -37,7 +37,8 @@ class UpdateDeedRequest extends FormRequest
             }
 
             $deedTypeId = $this->input('deed_type_id');
-            if ($deedTypeId && ! DeedType::query()->whereKey($deedTypeId)->exists()) {
+            $deedType = $deedTypeId ? DeedType::query()->find($deedTypeId) : null;
+            if ($deedTypeId && (! $deedType || $deedType->category !== DeedType::CATEGORY_NOTARY)) {
                 $validator->errors()->add('deed_type_id', 'The selected deed type is invalid.');
             }
         });

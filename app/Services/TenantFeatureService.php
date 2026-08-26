@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Modules\Central\Models\CentralPlanModule;
 use App\Modules\Central\Services\CentralEntitlementService;
+use App\Modules\SysConfig\Services\TenantModuleService;
 use Illuminate\Support\Facades\Config;
 
 /**
@@ -35,11 +37,17 @@ class TenantFeatureService
     {
         if (tenancy()->initialized) {
             $tenantId = (string) tenant()->getTenantKey();
-            $entitled = app(CentralEntitlementService::class)->entitledModules($tenantId);
+            $plan = $this->plan();
 
-            if ($entitled !== []) {
-                return $entitled;
+            if (CentralPlanModule::query()->where('plan_code', $plan)->exists()) {
+                return app(CentralEntitlementService::class)->entitledModules($tenantId);
             }
+
+            $plans = Config::get('tenant_modules.plans', []);
+            $planModules = $plans[$plan] ?? $plans['starter'] ?? [];
+            $addons = app(CentralEntitlementService::class)->addonsForTenant($tenantId);
+
+            return array_values(array_unique([...$planModules, ...$addons]));
         }
 
         $plans = Config::get('tenant_modules.plans', []);
@@ -63,6 +71,6 @@ class TenantFeatureService
             return false;
         }
 
-        return app(\App\Modules\SysConfig\Services\TenantModuleService::class)->isActive($moduleCode);
+        return app(TenantModuleService::class)->isActive($moduleCode);
     }
 }

@@ -147,7 +147,7 @@ class DepreciationRunService
 
         $raw = $method === FixedAsset::METHOD_DECLINING_BALANCE
             ? $remaining * ($annualRate / 12)
-            : (float) $asset->acquisition_cost / $usefulLifeMonths;
+            : ($usefulLifeMonths > 0 ? (float) $asset->acquisition_cost / $usefulLifeMonths : 0.0);
 
         return min(round($raw, 2), $remaining);
     }

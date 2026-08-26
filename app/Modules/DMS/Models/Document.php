@@ -68,6 +68,25 @@ class Document extends Model
         });
     }
 
+    public function scopeAccessibleTo(Builder $query, int $userId): void
+    {
+        $query->where(fn ($q) => $q->whereHas('folder', fn ($q2) => $q2->accessibleTo($userId))->orWhereNull('folder_id'));
+    }
+
+    public function isAccessibleTo(int $userId): bool
+    {
+        if ($this->folder_id === null) {
+            return true;
+        }
+
+        $folder = $this->folder ?? Folder::query()->find($this->folder_id);
+        if (! $folder) {
+            return true;
+        }
+
+        return $folder->access_flag !== Folder::ACCESS_PRIVATE || $folder->created_by === $userId;
+    }
+
     /** §3A Status Rail vocabulary: danger = expired/purged/on hold, warning = expiring soon, neutral = archived, success = active. */
     public function getRailAttribute(): string
     {

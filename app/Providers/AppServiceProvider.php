@@ -26,6 +26,7 @@ use App\Modules\Accounting\Listeners\RecordPaymentFromRequest;
 use App\Modules\Accounting\Services\XmlCoretaxExportDriver;
 use App\Modules\CRM\Models\Partner;
 use App\Modules\DMS\Models\Document;
+use App\Modules\HCM\Models\Employee;
 use App\Modules\Inventory\Models\Product;
 use App\Modules\Inventory\Models\StockBatch;
 use App\Modules\Legal\Contracts\MatterCodeGenerator;
@@ -217,6 +218,25 @@ class AppServiceProvider extends ServiceProvider
                 ->when($search !== '', fn ($q) => $q->where('batch_number', 'ilike', '%'.$search.'%')),
             filterable: [],
             menuCode: 'INVENTORY',
+        );
+
+        // §3B Employee picker
+        AsyncSearchRegistry::register(
+            'hcm_employee',
+            Employee::class,
+            ['employee_no', 'full_name', 'nik'],
+            fn (Employee $e) => "{$e->employee_no} — {$e->full_name}",
+            fn (Employee $e) => $e->position?->job?->title ?? 'Employee',
+            'employment_status',
+            queryCallback: fn ($query, $search, $extraFilters) => $query
+                ->with(['position.job'])
+                ->where('employment_status', Employee::STATUS_ACTIVE)
+                ->when($search !== '', fn ($q) => $q->where(function ($q) use ($search) {
+                    $q->where('full_name', 'ilike', '%'.$search.'%')
+                        ->orWhere('employee_no', 'ilike', '%'.$search.'%');
+                })),
+            filterable: [],
+            menuCode: 'HCM',
         );
     }
 }

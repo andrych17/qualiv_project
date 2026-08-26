@@ -141,13 +141,25 @@ class JournalService
         }
 
         return DB::transaction(function () use ($journal, $userId, $memo) {
-            $this->assertPeriodOpen($journal->fiscalPeriod ?? $journal->fiscalPeriod()->first());
+            $today = now()->toDateString();
+            $period = $journal->fiscalPeriod ?? $journal->fiscalPeriod()->first();
+
+            if (! $period || $period->status !== FiscalPeriod::STATUS_OPEN) {
+                $period = FiscalPeriod::query()
+                    ->where('company_id', $journal->company_id)
+                    ->where('status', FiscalPeriod::STATUS_OPEN)
+                    ->where('start_date', '<=', $today)
+                    ->where('end_date', '>=', $today)
+                    ->first() ?? $period;
+            }
+
+            $this->assertPeriodOpen($period);
 
             $reversal = GlJournal::query()->create([
                 'uuid' => (string) Str::uuid(),
                 'company_id' => $journal->company_id,
-                'fiscal_period_id' => $journal->fiscal_period_id,
-                'journal_date' => now()->toDateString(),
+                'fiscal_period_id' => $period->id,
+                'journal_date' => $today,
                 'currency_code' => $journal->currency_code,
                 'memo' => $memo ?? "Reversal of journal #{$journal->id}",
                 'source' => $journal->source,

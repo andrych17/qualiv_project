@@ -9,6 +9,7 @@ use App\Modules\Accounting\Models\GlJournal;
 use App\Modules\Accounting\Models\PayrollComponentGlMapping;
 use App\Modules\Accounting\Models\PayrollGlPosting;
 use App\Modules\Accounting\Models\PayrollPostingFailure;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -42,7 +43,11 @@ class PayrollGlPostingService
             return;
         }
 
-        $company = Company::query()->findOrFail($event->companyId);
+        $company = Company::query()->find($event->companyId);
+        if (! $company) {
+            return;
+        }
+
         $lines = $this->aggregateLines($event->lines);
 
         $mappings = PayrollComponentGlMapping::query()
@@ -111,19 +116,21 @@ class PayrollGlPostingService
             return; // every line rounded to zero — nothing to post, safe to skip (naturally idempotent, no row needed)
         }
 
-        $journal = $this->journals->create([
-            'company_id' => $company->id,
-            'fiscal_period_id' => $period->id,
-            'journal_date' => $event->runDate,
-            'currency_code' => $company->base_currency,
-            'memo' => $event->memo ?? 'Payroll run',
-            'subject_type' => $event->subjectType,
-            'subject_id' => $event->subjectId,
-        ], $glLines, null, 'payroll');
+        DB::transaction(function () use ($company, $period, $event, $glLines) {
+            $journal = $this->journals->create([
+                'company_id' => $company->id,
+                'fiscal_period_id' => $period->id,
+                'journal_date' => $event->runDate,
+                'currency_code' => $company->base_currency,
+                'memo' => $event->memo ?? 'Payroll run',
+                'subject_type' => $event->subjectType,
+                'subject_id' => $event->subjectId,
+            ], $glLines, null, 'payroll');
 
-        $journal = $this->journals->post($journal, null);
+            $journal = $this->journals->post($journal, null);
 
-        $this->finalizePosting($event, $journal);
+            $this->finalizePosting($event, $journal);
+        });
     }
 
     /** Rebuilds the event from a failure row's stored payload and re-attempts posting — a no-op if it was already resolved by a concurrent retry. */

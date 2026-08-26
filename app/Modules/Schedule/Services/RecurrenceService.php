@@ -44,7 +44,7 @@ class RecurrenceService
         );
 
         $rule = new Rule($rrule, $anchorStart, $anchorEnd);
-        $transformer = new ArrayTransformer();
+        $transformer = new ArrayTransformer;
         $constraint = new BetweenConstraint($rangeStart, $rangeEnd, true);
         $recurrences = $transformer->transform($rule, $constraint);
 

@@ -1,0 +1,188 @@
+<?php
+
+namespace App\Modules\HCM\Services;
+
+use App\Modules\HCM\Models\LeaveBalance;
+use App\Modules\HCM\Models\LeavePolicy;
+use App\Modules\HCM\Models\LeaveRequest;
+use App\Modules\HCM\Models\LeaveType;
+use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+
+class LeaveService
+{
+    // --- Leave Types & Policies ---
+    public function allTypes(): Collection
+    {
+        return LeaveType::query()->with('policies')->where('is_active', true)->orderBy('name')->get();
+    }
+
+    public function createType(array $data): LeaveType
+    {
+        return LeaveType::create($data);
+    }
+
+    public function updateType(LeaveType $type, array $data): LeaveType
+    {
+        $type->update($data);
+
+        return $type;
+    }
+
+    public function setPolicy(LeaveType $type, array $data): LeavePolicy
+    {
+        return LeavePolicy::updateOrCreate(
+            ['leave_type_id' => $type->id, 'contract_type' => $data['contract_type'] ?? null],
+            [
+                'entitlement_days_per_year' => $data['entitlement_days_per_year'],
+                'accrual_method' => $data['accrual_method'] ?? 'annual_grant',
+                'carry_over_max_days' => $data['carry_over_max_days'] ?? 0,
+                'carry_over_expiry_months' => $data['carry_over_expiry_months'] ?? null,
+                'is_paid' => $data['is_paid'] ?? true,
+            ]
+        );
+    }
+
+    // --- Leave Balances ---
+    public function getBalance(int $employeeId, int $leaveTypeId, ?int $year = null): LeaveBalance
+    {
+        $year = $year ?? (int) date('Y');
+
+        $balance = LeaveBalance::query()
+            ->where('employee_id', $employeeId)
+            ->where('leave_type_id', $leaveTypeId)
+            ->where('period_year', $year)
+            ->first();
+
+        if ($balance) {
+            return $balance;
+        }
+
+        $employee = Employee::query()->find($employeeId);
+        $activeContract = $employee?->contracts()->where('status', EmploymentContract::STATUS_ACTIVE)->latest('start_date')->first();
+        $contractType = $activeContract?->contract_type;
+
+        $policy = LeavePolicy::query()
+            ->where('leave_type_id', $leaveTypeId)
+            ->when($contractType, fn ($q) => $q->where(fn ($sub) => $sub->where('contract_type', $contractType)->orWhereNull('contract_type')))
+            ->first();
+
+        $entitledDays = $policy ? (float) $policy->entitlement_days_per_year : 12.0;
+
+        return LeaveBalance::create([
+            'employee_id' => $employeeId,
+            'leave_type_id' => $leaveTypeId,
+            'period_year' => $year,
+            'entitled_days' => $entitledDays,
+            'used_days' => 0,
+            'carried_over_days' => 0,
+        ]);
+    }
+
+    public function getEmployeeBalances(int $employeeId, ?int $year = null): Collection
+    {
+        $year = $year ?? (int) date('Y');
+
+        return LeaveBalance::query()
+            ->with('leaveType')
+            ->where('employee_id', $employeeId)
+            ->where('period_year', $year)
+            ->get();
+    }
+
+    // --- Leave Requests ---
+    public function paginateRequests(array $filters = [], int $perPage = 15): LengthAwarePaginator
+    {
+        return LeaveRequest::query()
+            ->with(['employee.position.job', 'employee.position.orgUnit', 'leaveType', 'reviewedBy'])
+            ->filter($filters)
+            ->orderByDesc('created_at')
+            ->paginate($perPage)
+            ->withQueryString();
+    }
+
+    public function submitRequest(int $employeeId, array $data): LeaveRequest
+    {
+        $startDate = Carbon::parse($data['start_date']);
+        $endDate = Carbon::parse($data['end_date']);
+
+        if ($endDate->lt($startDate)) {
+            throw ValidationException::withMessages(['end_date' => 'End date cannot be earlier than start date.']);
+        }
+
+        $daysRequested = $startDate->diffInDays($endDate) + 1;
+        $leaveType = LeaveType::findOrFail($data['leave_type_id']);
+
+        // Check balance if leave type is paid/entitled
+        $year = (int) $startDate->format('Y');
+        $balance = $this->getBalance($employeeId, $leaveType->id, $year);
+
+        if ($leaveType->code === 'ANNUAL' && $daysRequested > $balance->remaining_days) {
+            throw ValidationException::withMessages([
+                'leave_type_id' => "Insufficient leave balance. Requested {$daysRequested} days, but only {$balance->remaining_days} days remaining.",
+            ]);
+        }
+
+        return LeaveRequest::create([
+            'employee_id' => $employeeId,
+            'leave_type_id' => $data['leave_type_id'],
+            'start_date' => $data['start_date'],
+            'end_date' => $data['end_date'],
+            'reason' => $data['reason'] ?? null,
+            'status' => LeaveRequest::STATUS_PENDING,
+        ]);
+    }
+
+    public function reviewRequest(LeaveRequest $request, string $status, int $reviewerUserId): LeaveRequest
+    {
+        if ($request->status !== LeaveRequest::STATUS_PENDING) {
+            throw ValidationException::withMessages(['status' => 'Only a pending leave request can be reviewed.']);
+        }
+
+        return DB::transaction(function () use ($request, $status, $reviewerUserId) {
+            $request->update([
+                'status' => $status,
+                'reviewed_by' => $reviewerUserId,
+                'reviewed_at' => Carbon::now(),
+            ]);
+
+            if ($status === LeaveRequest::STATUS_APPROVED) {
+                // Deduct from leave balance
+                $year = (int) Carbon::parse($request->start_date)->format('Y');
+                $balance = $this->getBalance($request->employee_id, $request->leave_type_id, $year);
+                $days = $request->days_count;
+
+                $balance->increment('used_days', $days);
+            }
+
+            return $request;
+        });
+    }
+
+    public function cancelRequest(LeaveRequest $request): LeaveRequest
+    {
+        return DB::transaction(function () use ($request) {
+            if ($request->status === LeaveRequest::STATUS_CANCELLED) {
+                throw ValidationException::withMessages(['status' => 'This request is already cancelled.']);
+            }
+
+            $wasApproved = $request->status === LeaveRequest::STATUS_APPROVED;
+
+            $request->update([
+                'status' => LeaveRequest::STATUS_CANCELLED,
+            ]);
+
+            if ($wasApproved) {
+                // Refund deducted balance
+                $year = (int) Carbon::parse($request->start_date)->format('Y');
+                $balance = $this->getBalance($request->employee_id, $request->leave_type_id, $year);
+                $balance->decrement('used_days', $request->days_count);
+            }
+
+            return $request;
+        });
+    }
+}
