@@ -34,6 +34,7 @@ Route::middleware(['auth', 'verified', 'module:LEGAL', 'menu.perm:LEGAL'])
         Route::delete('ppat-deeds/bulk-destroy', [PpatDeedController::class, 'bulkDestroy'])->name('ppatDeeds.bulkDestroy');
         Route::resource('ppat-deeds', PpatDeedController::class)
             ->parameters(['ppat-deeds' => 'deed'])
+            ->names('ppatDeeds')
             ->except(['show']);
 
         Route::post('deeds/{deed}/parties', [DeedPartyController::class, 'store'])->name('deeds.parties.store');
@@ -63,11 +64,13 @@ Route::middleware(['auth', 'verified', 'module:LEGAL', 'menu.perm:LEGAL'])
         Route::patch('protocol-books/{protocolBook}/handover', [ProtocolBookController::class, 'handover'])->name('protocolBooks.handover');
         Route::resource('protocol-books', ProtocolBookController::class)
             ->parameters(['protocol-books' => 'protocolBook'])
+            ->names('protocolBooks')
             ->except(['edit', 'update', 'destroy']);
 
         Route::delete('land-objects/bulk-destroy', [LandObjectController::class, 'bulkDestroy'])->name('landObjects.bulkDestroy');
         Route::resource('land-objects', LandObjectController::class)
             ->parameters(['land-objects' => 'landObject'])
+            ->names('landObjects')
             ->except(['show']);
 
         Route::post('land-objects/{landObject}/checks', [DueDiligenceCheckController::class, 'store'])->name('landObjects.checks.store');
@@ -79,5 +82,6 @@ Route::middleware(['auth', 'verified', 'module:LEGAL', 'menu.perm:LEGAL'])
         Route::patch('field-visits/{fieldVisit}/complete', [FieldVisitController::class, 'complete'])->name('fieldVisits.complete');
         Route::resource('field-visits', FieldVisitController::class)
             ->parameters(['field-visits' => 'fieldVisit'])
+            ->names('fieldVisits')
             ->except(['show']);
     });

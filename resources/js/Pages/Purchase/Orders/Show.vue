@@ -13,6 +13,7 @@ import Modal from '@/Components/Modal.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
 import FormTextarea from '@/Components/forms/FormTextarea.vue'
 import { useConfirm } from '@/Composables/useConfirmDialog'
+import { formatCurrency, formatDate } from '@/Utils/formatters'
 
 interface LineItem {
   id: number
@@ -81,14 +82,6 @@ const props = defineProps<{
     invoices: InvoiceSummaryItem[]
   }
 }>()
-
-const formatCurrency = (val: number) => {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: props.order.currency_code || 'IDR',
-    maximumFractionDigits: 0,
-  }).format(val)
-}
 
 // Acknowledgment Modal
 const showAckModal = ref(false)

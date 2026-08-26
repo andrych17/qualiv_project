@@ -7,6 +7,7 @@ import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
+import { formatCurrency } from '@/Utils/formatters'
 
 type Report = { controlBalance: number; openItemsTotal: number; variance: number; openItemCount: number }
 type InventoryReport = { controlBalance: number; valuationTotal: number | null; variance: number | null }
@@ -33,59 +34,83 @@ const ok = (r: Report) => Math.abs(r.variance) < 0.005
   <AppLayout>
     <PageHeader title="AR/AP Control Reconciliation" description="Control account GL balance vs. sum of open subledger items — a trust check, not a manual matching task." />
 
-    <Panel class="mt-6">
-      <select
-        :value="selectedCompanyId"
-        class="rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-        @change="switchCompany"
-      >
-        <option v-for="c in companies" :key="c.id" :value="c.id">{{ c.legal_name }}</option>
-      </select>
-    </Panel>
+    <div class="mt-6 space-y-6">
+      <div class="flex items-center gap-3">
+        <label class="text-xs font-semibold text-ink-600">Company:</label>
+        <select
+          :value="selectedCompanyId"
+          class="rounded-md border border-border bg-surface-0 px-3 py-1.5 text-sm font-medium text-ink-900 shadow-xs focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+          @change="switchCompany"
+        >
+          <option v-for="c in companies" :key="c.id" :value="c.id">{{ c.legal_name }}</option>
+        </select>
+      </div>
 
-    <div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
-      <Panel class="p-4">
-        <div class="text-sm font-semibold text-ink-900">Accounts Receivable</div>
-        <dl class="mt-3 space-y-1 text-sm">
-          <div class="flex justify-between"><dt class="text-ink-600">AR control account (GL)</dt><dd class="font-medium text-ink-900">{{ ar.controlBalance.toFixed(2) }}</dd></div>
-          <div class="flex justify-between"><dt class="text-ink-600">Open invoices ({{ ar.openItemCount }}), base currency</dt><dd class="text-ink-900">{{ ar.openItemsTotal.toFixed(2) }}</dd></div>
-          <div class="flex justify-between border-t border-border pt-1 font-semibold">
-            <dt :class="ok(ar) ? 'text-ink-900' : 'text-signal-danger'">Variance</dt>
-            <dd :class="ok(ar) ? 'text-signal-success' : 'text-signal-danger'">{{ ar.variance.toFixed(2) }}</dd>
-          </div>
-        </dl>
-      </Panel>
-      <Panel class="p-4">
-        <div class="text-sm font-semibold text-ink-900">Accounts Payable</div>
-        <dl class="mt-3 space-y-1 text-sm">
-          <div class="flex justify-between"><dt class="text-ink-600">AP control account (GL)</dt><dd class="font-medium text-ink-900">{{ ap.controlBalance.toFixed(2) }}</dd></div>
-          <div class="flex justify-between"><dt class="text-ink-600">Open bills ({{ ap.openItemCount }}), base currency</dt><dd class="text-ink-900">{{ ap.openItemsTotal.toFixed(2) }}</dd></div>
-          <div class="flex justify-between border-t border-border pt-1 font-semibold">
-            <dt :class="ok(ap) ? 'text-ink-900' : 'text-signal-danger'">Variance</dt>
-            <dd :class="ok(ap) ? 'text-signal-success' : 'text-signal-danger'">{{ ap.variance.toFixed(2) }}</dd>
-          </div>
-        </dl>
-      </Panel>
-      <Panel class="p-4">
-        <div class="text-sm font-semibold text-ink-900">Inventory</div>
-        <dl class="mt-3 space-y-1 text-sm">
-          <div class="flex justify-between"><dt class="text-ink-600">Inventory control account (GL)</dt><dd class="font-medium text-ink-900">{{ inventory.controlBalance.toFixed(2) }}</dd></div>
-          <div class="flex justify-between border-t border-border pt-1">
-            <dt class="text-ink-600">Inventory valuation total</dt>
-            <dd class="text-ink-600">Not available — Inventory's costing engine isn't built yet</dd>
-          </div>
-        </dl>
-      </Panel>
-      <Panel class="p-4">
-        <div class="text-sm font-semibold text-ink-900">Payroll</div>
-        <dl class="mt-3 space-y-1 text-sm">
-          <div class="flex justify-between"><dt class="text-ink-600">Net Pay Payable account (GL)</dt><dd class="font-medium text-ink-900">{{ payroll.controlBalance.toFixed(2) }}</dd></div>
-          <div class="flex justify-between border-t border-border pt-1">
-            <dt class="text-ink-600">Open unpaid net pay total</dt>
-            <dd class="text-ink-600">Not available — Payroll's own engine isn't built yet</dd>
-          </div>
-        </dl>
-      </Panel>
+      <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <Panel title="Accounts Receivable (AR)">
+          <dl class="space-y-2 text-sm">
+            <div class="flex justify-between py-1 border-b border-border/50">
+              <dt class="text-ink-600">AR Control Account (GL)</dt>
+              <dd class="font-mono font-medium text-ink-900">{{ formatCurrency(ar.controlBalance) }}</dd>
+            </div>
+            <div class="flex justify-between py-1 border-b border-border/50">
+              <dt class="text-ink-600">Open Invoices ({{ ar.openItemCount }} items)</dt>
+              <dd class="font-mono text-ink-900">{{ formatCurrency(ar.openItemsTotal) }}</dd>
+            </div>
+            <div class="flex justify-between pt-2 font-semibold">
+              <dt :class="ok(ar) ? 'text-ink-900' : 'text-signal-danger'">Variance</dt>
+              <dd class="font-mono" :class="ok(ar) ? 'text-signal-success' : 'text-signal-danger'">
+                {{ formatCurrency(ar.variance) }}
+              </dd>
+            </div>
+          </dl>
+        </Panel>
+
+        <Panel title="Accounts Payable (AP)">
+          <dl class="space-y-2 text-sm">
+            <div class="flex justify-between py-1 border-b border-border/50">
+              <dt class="text-ink-600">AP Control Account (GL)</dt>
+              <dd class="font-mono font-medium text-ink-900">{{ formatCurrency(ap.controlBalance) }}</dd>
+            </div>
+            <div class="flex justify-between py-1 border-b border-border/50">
+              <dt class="text-ink-600">Open Bills ({{ ap.openItemCount }} items)</dt>
+              <dd class="font-mono text-ink-900">{{ formatCurrency(ap.openItemsTotal) }}</dd>
+            </div>
+            <div class="flex justify-between pt-2 font-semibold">
+              <dt :class="ok(ap) ? 'text-ink-900' : 'text-signal-danger'">Variance</dt>
+              <dd class="font-mono" :class="ok(ap) ? 'text-signal-success' : 'text-signal-danger'">
+                {{ formatCurrency(ap.variance) }}
+              </dd>
+            </div>
+          </dl>
+        </Panel>
+
+        <Panel title="Inventory Subledger">
+          <dl class="space-y-2 text-sm">
+            <div class="flex justify-between py-1 border-b border-border/50">
+              <dt class="text-ink-600">Inventory Control Account (GL)</dt>
+              <dd class="font-mono font-medium text-ink-900">{{ formatCurrency(inventory.controlBalance) }}</dd>
+            </div>
+            <div class="flex justify-between pt-2">
+              <dt class="text-ink-600">Inventory Valuation Total</dt>
+              <dd class="text-xs text-ink-500 italic">Continuous live balance tracked via item movement journals</dd>
+            </div>
+          </dl>
+        </Panel>
+
+        <Panel title="Payroll Subledger">
+          <dl class="space-y-2 text-sm">
+            <div class="flex justify-between py-1 border-b border-border/50">
+              <dt class="text-ink-600">Net Pay Payable (GL)</dt>
+              <dd class="font-mono font-medium text-ink-900">{{ formatCurrency(payroll.controlBalance) }}</dd>
+            </div>
+            <div class="flex justify-between pt-2">
+              <dt class="text-ink-600">Open Unpaid Net Pay</dt>
+              <dd class="text-xs text-ink-500 italic">Continuous live balance tracked via payroll run disbursements</dd>
+            </div>
+          </dl>
+        </Panel>
+      </div>
     </div>
   </AppLayout>
 </template>

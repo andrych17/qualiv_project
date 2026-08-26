@@ -8,10 +8,14 @@ import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
+import FormCurrencyInput from '@/Components/forms/FormCurrencyInput.vue'
+import FormNumberInput from '@/Components/forms/FormNumberInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
 import FormSearchableSelect from '@/Components/forms/FormSearchableSelect.vue'
 import FormAsyncSearchableSelect from '@/Components/forms/FormAsyncSearchableSelect.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
+import SecondaryButton from '@/Components/SecondaryButton.vue'
+import { formatCurrency } from '@/Utils/formatters'
 import { Plus, Trash2 } from 'lucide-vue-next'
 
 type Option = { value: number; label: string }
@@ -27,9 +31,9 @@ const props = defineProps<{
 
 const blankLine = () => ({
   description: '',
-  qty: '1',
-  unit_price: '',
-  discount_amount: '0',
+  qty: 1 as number | null,
+  unit_price: 0 as number | null,
+  discount_amount: 0 as number | null,
   tax_code_id: null as number | null,
   revenue_account_id: props.revenueAccounts[0]?.value ?? null,
 })
@@ -73,7 +77,7 @@ const submit = () => form.transform((data) => ({
 
 <template>
   <AppLayout>
-    <PageHeader title="New recurring invoice" description="Drafted automatically each time the rule comes due — a human always reviews and posts it, nothing here posts on its own." />
+    <PageHeader title="New Recurring Invoice Template" description="Drafted automatically each time the rule comes due — reviewed and posted manually." />
 
     <Panel class="mt-6">
       <form class="space-y-6" @submit.prevent="submit">
@@ -87,15 +91,15 @@ const submit = () => form.transform((data) => ({
             required
           />
           <FormAsyncSearchableSelect v-model="form.partner_id" name="partner_id" label="Customer" api-entity="crm_partner" placeholder="Search customer..." :error="form.errors.partner_id" required />
-          <FormInput v-model="form.name" name="name" label="Template name" placeholder="e.g. Monthly retainer" :error="form.errors.name" required />
+          <FormInput v-model="form.name" name="name" label="Template Name" placeholder="e.g. Monthly Retainer" :error="form.errors.name" required />
           <FormSearchableSelect v-model="form.currency_code" name="currency_code" label="Currency" :options="currencyOptions" :error="form.errors.currency_code" required />
-          <FormSelect v-model="form.invoice_type" name="invoice_type" label="Invoice type" :options="invoiceTypeOptions" :error="form.errors.invoice_type" required />
-          <FormInput v-model="form.payment_terms_days" name="payment_terms_days" type="number" min="0" label="Payment terms (days)" :error="form.errors.payment_terms_days" required />
-          <FormInput v-model="form.anchor_date" name="anchor_date" type="date" label="First occurrence (issue date)" :error="form.errors.anchor_date" required />
+          <FormSelect v-model="form.invoice_type" name="invoice_type" label="Invoice Type" :options="invoiceTypeOptions" :error="form.errors.invoice_type" required />
+          <FormInput v-model="form.payment_terms_days" name="payment_terms_days" type="number" min="0" label="Payment Terms (days)" :error="form.errors.payment_terms_days" required />
+          <FormInput v-model="form.anchor_date" name="anchor_date" type="date" label="First Occurrence (Issue Date)" :error="form.errors.anchor_date" required />
           <FormInput
             v-model="form.recurrence_rule"
             name="recurrence_rule"
-            label="Recurrence rule"
+            label="Recurrence Rule (iCal RRule)"
             placeholder="e.g. FREQ=MONTHLY;BYMONTHDAY=1"
             :error="form.errors.recurrence_rule"
             required
@@ -103,59 +107,61 @@ const submit = () => form.transform((data) => ({
         </div>
 
         <div>
-          <div class="mb-2 flex items-center justify-between">
-            <h3 class="text-sm font-semibold text-ink-900">Lines</h3>
-            <button type="button" class="inline-flex items-center gap-1 text-sm font-medium text-accent hover:underline" @click="addLine">
-              <Plus class="h-4 w-4" /> Add line
+          <div class="mb-3 flex items-center justify-between">
+            <h3 class="text-sm font-semibold text-ink-900">Template Lines</h3>
+            <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline" @click="addLine">
+              <Plus class="h-4 w-4" /> Add Line
             </button>
           </div>
 
-          <div class="overflow-x-auto rounded-sm border border-border">
+          <div class="overflow-x-auto rounded-lg border border-border">
             <table class="w-full text-sm">
               <thead>
-                <tr class="border-b border-border bg-surface-50 text-left text-xs uppercase text-ink-600">
-                  <th class="w-1/4 px-3 py-2">Description</th>
-                  <th class="px-3 py-2">Revenue account</th>
-                  <th class="px-3 py-2 text-right">Qty</th>
-                  <th class="px-3 py-2 text-right">Unit price</th>
-                  <th class="px-3 py-2 text-right">Discount</th>
-                  <th class="px-3 py-2">Tax code</th>
-                  <th class="px-3 py-2 text-right">Amount</th>
-                  <th class="px-3 py-2"></th>
+                <tr class="border-b border-border bg-surface-50 text-left text-xs uppercase tracking-wider text-ink-600 font-semibold">
+                  <th class="w-1/4 px-3 py-2.5">Description</th>
+                  <th class="px-3 py-2.5">Revenue Account</th>
+                  <th class="px-3 py-2.5 text-right">Qty</th>
+                  <th class="px-3 py-2.5 text-right">Unit Price</th>
+                  <th class="px-3 py-2.5 text-right">Discount</th>
+                  <th class="px-3 py-2.5">Tax Code</th>
+                  <th class="px-3 py-2.5 text-right">Amount</th>
+                  <th class="px-3 py-2.5"></th>
                 </tr>
               </thead>
-              <tbody>
-                <tr v-for="(line, i) in form.lines" :key="i" class="border-b border-border last:border-b-0 align-top">
+              <tbody class="divide-y divide-border bg-surface">
+                <tr v-for="(line, i) in form.lines" :key="i" class="align-top hover:bg-surface-50/50 transition-colors">
                   <td class="px-3 py-2">
-                    <input v-model="line.description" type="text" class="w-full rounded-sm border border-border bg-surface-0 px-2 py-1.5 text-sm" />
+                    <input v-model="line.description" type="text" placeholder="Item description" class="w-full rounded-md border border-border bg-surface-0 px-2.5 py-1.5 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent" />
                   </td>
                   <td class="px-3 py-2">
                     <FormSearchableSelect v-model="line.revenue_account_id" :name="`lines.${i}.revenue_account_id`" :options="revenueAccounts" />
                   </td>
                   <td class="px-3 py-2">
-                    <input v-model="line.qty" type="number" step="0.0001" min="0" class="w-20 rounded-sm border border-border bg-surface-0 px-2 py-1.5 text-right text-sm" />
+                    <FormNumberInput v-model="line.qty" :name="`lines.${i}.qty`" :decimals="2" class="w-24" />
                   </td>
                   <td class="px-3 py-2">
-                    <input v-model="line.unit_price" type="number" step="0.01" min="0" class="w-28 rounded-sm border border-border bg-surface-0 px-2 py-1.5 text-right text-sm" />
+                    <FormCurrencyInput v-model="line.unit_price" :name="`lines.${i}.unit_price`" prefix="" :decimals="2" class="w-32" />
                   </td>
                   <td class="px-3 py-2">
-                    <input v-model="line.discount_amount" type="number" step="0.01" min="0" class="w-24 rounded-sm border border-border bg-surface-0 px-2 py-1.5 text-right text-sm" />
+                    <FormCurrencyInput v-model="line.discount_amount" :name="`lines.${i}.discount_amount`" prefix="" :decimals="2" class="w-28" />
                   </td>
                   <td class="px-3 py-2">
                     <FormSearchableSelect v-model="line.tax_code_id" :name="`lines.${i}.tax_code_id`" placeholder="None" :options="taxCodes" />
                   </td>
-                  <td class="px-3 py-2 text-right text-ink-900">{{ (lineAmount(line) + lineTax(line)).toFixed(2) }}</td>
-                  <td class="px-3 py-2 text-right">
-                    <button type="button" class="text-ink-600 hover:text-signal-danger" :disabled="form.lines.length <= 1" @click="removeLine(i)">
+                  <td class="px-3 py-2 text-right font-mono text-xs font-semibold text-ink-900 pt-3.5">{{ formatCurrency(lineAmount(line) + lineTax(line), form.currency_code) }}</td>
+                  <td class="px-3 py-2 text-right pt-3">
+                    <button type="button" class="text-ink-400 hover:text-signal-danger transition-colors" :disabled="form.lines.length <= 1" @click="removeLine(i)">
                       <Trash2 class="h-4 w-4" />
                     </button>
                   </td>
                 </tr>
               </tbody>
               <tfoot>
-                <tr class="border-t border-border bg-surface-50 font-semibold">
-                  <td class="px-3 py-2" colspan="6">Subtotal / Tax / Total</td>
-                  <td class="px-3 py-2 text-right" colspan="2">{{ subtotal.toFixed(2) }} / {{ taxTotal.toFixed(2) }} / {{ grandTotal.toFixed(2) }}</td>
+                <tr class="border-t-2 border-border bg-surface-100/75 font-semibold text-xs">
+                  <td class="px-4 py-3 text-ink-900" colspan="5">Subtotal / Tax / Total</td>
+                  <td class="px-4 py-3 text-right font-mono text-accent font-bold" colspan="3">
+                    {{ formatCurrency(subtotal, form.currency_code) }} + {{ formatCurrency(taxTotal, form.currency_code) }} = {{ formatCurrency(grandTotal, form.currency_code) }}
+                  </td>
                 </tr>
               </tfoot>
             </table>
@@ -164,13 +170,10 @@ const submit = () => form.transform((data) => ({
         </div>
 
         <div class="flex items-center justify-end gap-3 border-t border-border pt-4">
-          <Link
-            :href="route('accounting.recurring-ar-templates.index', { company_id: form.company_id })"
-            class="inline-flex items-center justify-center rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm font-semibold text-ink-900 shadow-sm transition hover:bg-surface-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-          >
+          <SecondaryButton :href="route('accounting.recurring-ar-templates.index', { company_id: form.company_id })">
             Cancel
-          </Link>
-          <PrimaryButton type="submit" :disabled="form.processing">Save template</PrimaryButton>
+          </SecondaryButton>
+          <PrimaryButton type="submit" :disabled="form.processing">Save Template</PrimaryButton>
         </div>
       </form>
     </Panel>

@@ -8,6 +8,7 @@ import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import PurchaseSubNav from '@/Components/purchase/PurchaseSubNav.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
+import { formatCurrency, formatDate } from '@/Utils/formatters'
 
 interface Metrics {
   open_prs_count: number
@@ -52,10 +53,6 @@ const props = defineProps<{
   recentPrs: RecentPr[]
   recentPos: RecentPo[]
 }>()
-
-const formatCurrency = (val: number, cur: string = 'IDR') => {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: cur || 'IDR', maximumFractionDigits: 0 }).format(val)
-}
 
 const resolveException = (id: number) => {
   router.post(route('purchase.exceptions.resolve', id))

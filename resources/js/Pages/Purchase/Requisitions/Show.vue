@@ -14,6 +14,7 @@ import FormSelect from '@/Components/forms/FormSelect.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 import FormTextarea from '@/Components/forms/FormTextarea.vue'
 import { useConfirm } from '@/Composables/useConfirmDialog'
+import { formatCurrency, formatDate } from '@/Utils/formatters'
 
 interface LineItem {
   id: number
@@ -56,10 +57,6 @@ const props = defineProps<{
   }
   eligiblePartners: Array<{ id: number; name: string; type: string }>
 }>()
-
-const formatCurrency = (val: number) => {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val)
-}
 
 // Convert to PO Modal
 const showConvertModal = ref(false)

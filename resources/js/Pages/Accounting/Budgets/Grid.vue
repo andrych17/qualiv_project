@@ -8,6 +8,7 @@ import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
+import SecondaryButton from '@/Components/SecondaryButton.vue'
 
 type Cell = { fiscal_period_id: number; amount: number | null }
 type AccountRow = { account_id: number; account_code: string; account_name: string; cells: Cell[] }
@@ -101,66 +102,72 @@ const hasGrid = computed(() => local.accounts.length > 0 && local.periods.length
 
 <template>
   <AppLayout>
-    <PageHeader title="Budget" description="One flat annual budget per company/fiscal year — account × cost center × period. Paste a block copied from a spreadsheet directly into the grid.">
+    <PageHeader title="Budget Matrix" description="Annual budget matrix by Account × Cost Center × Period. Excel paste supported.">
       <template #actions>
-        <Link :href="route('accounting.reports.budget-vs-actual', { company_id: selectedCompanyId, fiscal_year_id: selectedFiscalYearId })" class="text-sm font-medium text-accent hover:underline">Budget vs. Actual →</Link>
+        <SecondaryButton :href="route('accounting.reports.budget-vs-actual', { company_id: selectedCompanyId, fiscal_year_id: selectedFiscalYearId })">
+          Budget vs. Actual &rarr;
+        </SecondaryButton>
       </template>
     </PageHeader>
 
     <Panel class="mt-6 p-4">
       <div class="flex flex-wrap items-center gap-3">
-        <select :value="selectedCompanyId" class="rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" @change="switchCompany">
+        <select :value="selectedCompanyId" class="rounded-md border border-border bg-surface-0 px-3 py-1.5 text-sm font-medium text-ink-900 shadow-xs focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" @change="switchCompany">
           <option v-for="c in companies" :key="c.id" :value="c.id">{{ c.legal_name }}</option>
         </select>
-        <select :value="selectedFiscalYearId" class="rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" @change="switchFiscalYear">
+        <select :value="selectedFiscalYearId" class="rounded-md border border-border bg-surface-0 px-3 py-1.5 text-sm font-medium text-ink-900 shadow-xs focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" @change="switchFiscalYear">
           <option v-for="y in fiscalYears" :key="y.value" :value="y.value">{{ y.label }}</option>
         </select>
-        <select :value="selectedCostCenterId ?? ''" class="rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" @change="switchCostCenter">
+        <select :value="selectedCostCenterId ?? ''" class="rounded-md border border-border bg-surface-0 px-3 py-1.5 text-sm font-medium text-ink-900 shadow-xs focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" @change="switchCostCenter">
           <option value="">Unassigned (no cost center)</option>
           <option v-for="c in costCenters" :key="c.value" :value="c.value">{{ c.label }}</option>
         </select>
 
         <div class="ml-auto flex items-center gap-3">
-          <span v-if="savedMessage" class="text-sm text-ink-600">{{ savedMessage }}</span>
-          <button type="button" class="text-sm font-medium text-accent hover:underline" @click="importOpen = !importOpen">Import CSV</button>
-          <PrimaryButton :disabled="saving" @click="save">{{ saving ? 'Saving…' : 'Save' }}</PrimaryButton>
+          <span v-if="savedMessage" class="text-xs font-semibold text-signal-success">{{ savedMessage }}</span>
+          <SecondaryButton type="button" @click="importOpen = !importOpen">Import CSV</SecondaryButton>
+          <PrimaryButton :disabled="saving" @click="save">{{ saving ? 'Saving…' : 'Save Changes' }}</PrimaryButton>
         </div>
       </div>
 
-      <div v-if="importOpen" class="mt-4 flex items-center gap-3 rounded-sm border border-border bg-surface-50 p-3">
+      <div v-if="importOpen" class="mt-4 flex items-center gap-3 rounded-lg border border-border bg-surface-50 p-3">
         <input type="file" accept=".csv,.txt" class="text-sm" @change="importForm.file = ($event.target as HTMLInputElement).files?.[0] ?? null" />
         <PrimaryButton :disabled="!importForm.file || importForm.processing" @click="submitImport">{{ importForm.processing ? 'Importing…' : 'Import' }}</PrimaryButton>
-        <span class="text-xs text-ink-600">Columns: account_code, cost_center_code (blank = unassigned), period_no, amount. Any invalid row rejects the whole file.</span>
+        <span class="text-xs text-ink-600">Columns: account_code, cost_center_code (blank = unassigned), period_no, amount.</span>
       </div>
       <ul v-if="importForm.errors.file" class="mt-2 list-disc pl-5 text-sm text-signal-danger">
         <li v-for="(err, i) in (Array.isArray(importForm.errors.file) ? importForm.errors.file : [importForm.errors.file])" :key="i">{{ err }}</li>
       </ul>
     </Panel>
 
-    <Panel v-if="hasGrid" class="mt-4 overflow-x-auto">
-      <table class="w-full text-sm">
-        <thead>
-          <tr class="border-b border-border text-left text-xs uppercase text-ink-600">
-            <th class="sticky left-0 bg-surface-0 px-3 py-2">Account</th>
-            <th v-for="p in local.periods" :key="p.fiscal_period_id" class="px-2 py-2 text-right">{{ monthLabel(p.period_no) }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(a, ai) in local.accounts" :key="a.account_id" class="border-b border-border">
-            <td class="sticky left-0 whitespace-nowrap bg-surface-0 px-3 py-1.5 text-ink-900">{{ a.account_code }} — {{ a.account_name }}</td>
-            <td v-for="(cell, ci) in a.cells" :key="cell.fiscal_period_id" class="px-1 py-1">
-              <input
-                v-model.number="cell.amount"
-                type="number"
-                step="0.01"
-                class="w-24 rounded-sm border border-border px-1.5 py-1 text-right text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
-                @paste="onPaste($event, ai, ci)"
-              />
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <Panel v-if="hasGrid" class="mt-6">
+      <div class="overflow-x-auto rounded-lg border border-border">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-border bg-surface-50 text-left text-xs uppercase tracking-wider text-ink-600 font-semibold">
+              <th class="sticky left-0 bg-surface-50 px-4 py-3 z-10">Account</th>
+              <th v-for="p in local.periods" :key="p.fiscal_period_id" class="px-2 py-3 text-right">{{ monthLabel(p.period_no) }}</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border bg-surface">
+            <tr v-for="(a, ai) in local.accounts" :key="a.account_id" class="hover:bg-surface-50/50 transition-colors">
+              <td class="sticky left-0 whitespace-nowrap bg-surface-0 px-4 py-2 font-medium text-ink-900 z-10">
+                <span class="font-mono text-xs text-ink-600 mr-2">{{ a.account_code }}</span>{{ a.account_name }}
+              </td>
+              <td v-for="(cell, ci) in a.cells" :key="cell.fiscal_period_id" class="px-1 py-1 text-right">
+                <input
+                  v-model.number="cell.amount"
+                  type="number"
+                  step="0.01"
+                  class="w-24 rounded-md border border-border bg-surface-0 px-2 py-1 text-right font-mono text-xs text-ink-900 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                  @paste="onPaste($event, ai, ci)"
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </Panel>
-    <Panel v-else class="mt-4 p-6 text-center text-ink-600">No active accounts to budget for this company.</Panel>
+    <Panel v-else class="mt-6 p-8 text-center text-ink-500">No active accounts to budget for this company.</Panel>
   </AppLayout>
 </template>

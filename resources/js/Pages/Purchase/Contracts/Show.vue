@@ -12,6 +12,7 @@ import Modal from '@/Components/Modal.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 import PurchaseSubNav from '@/Components/purchase/PurchaseSubNav.vue'
 import { useConfirm } from '@/Composables/useConfirmDialog'
+import { formatCurrency, formatDate } from '@/Utils/formatters'
 
 interface ContractData {
   id: number
@@ -52,11 +53,6 @@ const renewForm = useForm({
   end_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
   value: props.contract.value,
 })
-
-const formatCurrency = (val: number | null, cur: string = 'IDR') => {
-  if (val === null) return '—'
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: cur || 'IDR', maximumFractionDigits: 0 }).format(val)
-}
 
 const { confirm } = useConfirm()
 

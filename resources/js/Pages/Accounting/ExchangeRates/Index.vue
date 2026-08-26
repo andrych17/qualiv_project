@@ -1,11 +1,13 @@
 <!-- ponytail: Accounting §3L exchange rates — plain company-scoped list, same convention as TaxCodes. -->
 <script setup lang="ts">
+import { ref, computed } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
-import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
+import DataTable, { type SortState } from '@/Components/tables/DataTable.vue'
 import { useConfirm } from '@/Composables/useConfirmDialog'
+import { formatDate } from '@/Utils/formatters'
 
 interface RateRow {
   id: number
@@ -21,6 +23,24 @@ const props = defineProps<{
   baseCurrency: string | null
   rates: RateRow[]
 }>()
+
+const search = ref('')
+const sort = ref<SortState>(null)
+const selected = ref<Array<string | number>>([])
+
+const columns = [
+  { key: 'currency_code', label: 'Currency', sortable: true },
+  { key: 'rate_to_base', label: `Rate to ${props.baseCurrency ?? 'Base'}`, sortable: true, align: 'right' as const },
+  { key: 'effective_date', label: 'Effective Date', sortable: true },
+  { key: 'source', label: 'Source', sortable: true },
+  { key: 'actions', label: 'Actions', align: 'right' as const },
+]
+
+const filteredRates = computed(() => {
+  const q = search.value.trim().toLowerCase()
+  if (!q) return props.rates
+  return props.rates.filter((r) => r.currency_code.toLowerCase().includes(q) || r.source.toLowerCase().includes(q))
+})
 
 const switchCompany = (e: Event) => {
   const companyId = (e.target as HTMLSelectElement).value
@@ -42,43 +62,71 @@ const confirmDelete = (rate: RateRow) => {
   <AppLayout>
     <PageHeader title="Exchange Rates" :description="`Rate to base currency (${baseCurrency ?? '—'}), effective on a date — AR/AP posting picks the most recent rate on or before the transaction date.`">
       <template #actions>
-        <PrimaryButton :href="route('accounting.exchange-rates.create', { company_id: selectedCompanyId })">New rate</PrimaryButton>
+        <PrimaryButton :href="route('accounting.exchange-rates.create', { company_id: selectedCompanyId })">
+          New Rate
+        </PrimaryButton>
       </template>
     </PageHeader>
 
-    <Panel class="mt-6">
-      <select
-        :value="selectedCompanyId"
-        class="mb-4 rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-        @change="switchCompany"
-      >
-        <option v-for="c in companies" :key="c.id" :value="c.id">{{ c.legal_name }}</option>
-      </select>
+    <div class="mt-6 space-y-4">
+      <div class="flex items-center gap-3">
+        <label class="text-xs font-semibold text-ink-600">Company:</label>
+        <select
+          :value="selectedCompanyId"
+          class="rounded-md border border-border bg-surface-0 px-3 py-1.5 text-sm font-medium text-ink-900 shadow-xs focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+          @change="switchCompany"
+        >
+          <option v-for="c in companies" :key="c.id" :value="c.id">{{ c.legal_name }}</option>
+        </select>
+      </div>
 
-      <table class="w-full text-sm">
-        <thead>
-          <tr class="border-b border-border text-left text-xs uppercase text-ink-600">
-            <th class="py-2">Currency</th>
-            <th class="py-2 text-right">Rate to {{ baseCurrency ?? 'base' }}</th>
-            <th class="py-2">Effective date</th>
-            <th class="py-2">Source</th>
-            <th class="py-2 text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="r in rates" :key="r.id" class="border-b border-border hover:bg-surface-50">
-            <td class="py-2 text-ink-900">{{ r.currency_code }}</td>
-            <td class="py-2 text-right text-ink-700">{{ r.rate_to_base }}</td>
-            <td class="py-2 text-ink-700">{{ r.effective_date }}</td>
-            <td class="py-2 text-ink-700 capitalize">{{ r.source }}</td>
-            <td class="py-2 text-right">
-              <Link :href="route('accounting.exchange-rates.edit', r.id)" class="mr-3 text-sm font-medium text-accent hover:underline">Edit</Link>
-              <button type="button" class="text-sm font-medium text-signal-danger hover:underline" @click="confirmDelete(r)">Delete</button>
-            </td>
-          </tr>
-          <tr v-if="!rates.length"><td colspan="5" class="py-6 text-center text-ink-600">No exchange rates yet — {{ baseCurrency ?? 'the base currency' }}-only transactions don't need one.</td></tr>
-        </tbody>
-      </table>
-    </Panel>
+      <DataTable
+        :columns="columns"
+        :items="filteredRates"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        v-model:search="search"
+        sticky-header
+        storage-key="accounting.exchange-rates"
+        search-placeholder="Search currency code or source…"
+        export-filename="exchange-rates"
+        empty-title="No exchange rates found"
+        :empty-description="`No foreign exchange rates defined. ${baseCurrency ?? 'Base currency'}-only transactions do not require conversion rates.`"
+      >
+        <template #cell-currency_code="{ item }">
+          <span class="font-mono font-medium text-ink-900">{{ (item as RateRow).currency_code }}</span>
+        </template>
+
+        <template #cell-rate_to_base="{ item }">
+          <span class="font-mono text-xs font-semibold text-ink-900">{{ (item as RateRow).rate_to_base }}</span>
+        </template>
+
+        <template #cell-effective_date="{ item }">
+          <span class="font-mono text-xs text-ink-700">{{ formatDate((item as RateRow).effective_date) }}</span>
+        </template>
+
+        <template #cell-source="{ item }">
+          <span class="text-xs capitalize text-ink-700">{{ (item as RateRow).source }}</span>
+        </template>
+
+        <template #cell-actions="{ item }">
+          <div class="flex items-center justify-end gap-3">
+            <Link
+              :href="route('accounting.exchange-rates.edit', (item as RateRow).id)"
+              class="text-xs font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              Edit
+            </Link>
+            <button
+              type="button"
+              class="text-xs font-medium text-signal-danger hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              @click="confirmDelete(item as RateRow)"
+            >
+              Delete
+            </button>
+          </div>
+        </template>
+      </DataTable>
+    </div>
   </AppLayout>
 </template>

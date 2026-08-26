@@ -7,7 +7,9 @@ import Panel from '@/Components/cards/Panel.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
 import FormSearchableSelect from '@/Components/forms/FormSearchableSelect.vue'
+import FormSwitch from '@/Components/forms/FormSwitch.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
+import SecondaryButton from '@/Components/SecondaryButton.vue'
 
 const props = defineProps<{
   companies: Array<{ id: number; legal_name: string }>
@@ -32,17 +34,17 @@ const submit = () => form.post(route('accounting.accounts.store'))
 
 <template>
   <AppLayout>
-    <PageHeader title="New account" description="Chart of Accounts entry — numbering convention: 1xxxx Aset, 2xxxx Liabilitas, 3xxxx Ekuitas, 4xxxx Pendapatan, 5xxxx HPP, 6xxxx Beban." />
+    <PageHeader title="New Account" description="Chart of Accounts entry — 1xxxx Aset, 2xxxx Liabilitas, 3xxxx Ekuitas, 4xxxx Pendapatan, 5xxxx HPP, 6xxxx Beban." />
 
     <Panel class="mt-6 max-w-xl">
       <form class="space-y-4" @submit.prevent="submit">
         <FormSearchableSelect v-model="form.company_id" name="company_id" label="Company" :options="companyOptions" :error="form.errors.company_id" required />
-        <FormInput v-model="form.account_code" name="account_code" label="Account code" :error="form.errors.account_code" required />
-        <FormInput v-model="form.account_name" name="account_name" label="Account name" :error="form.errors.account_name" required />
+        <FormInput v-model="form.account_code" name="account_code" label="Account Code" :error="form.errors.account_code" required />
+        <FormInput v-model="form.account_name" name="account_name" label="Account Name" :error="form.errors.account_name" required />
         <FormSelect
           v-model="form.account_type"
           name="account_type"
-          label="Account type"
+          label="Account Type"
           :options="[
             { label: 'Asset (Aset)', value: 'asset' },
             { label: 'Liability (Liabilitas)', value: 'liability' },
@@ -57,26 +59,24 @@ const submit = () => form.post(route('accounting.accounts.store'))
         <FormSelect
           v-model="form.normal_balance"
           name="normal_balance"
-          label="Normal balance"
+          label="Normal Balance"
           :options="[{ label: 'Debit', value: 'debit' }, { label: 'Credit', value: 'credit' }]"
           :error="form.errors.normal_balance"
           required
         />
-        <FormSearchableSelect v-model="form.parent_account_id" name="parent_account_id" label="Parent account" placeholder="No parent (top-level)" :options="parents" :error="form.errors.parent_account_id" />
+        <FormSearchableSelect v-model="form.parent_account_id" name="parent_account_id" label="Parent Account" placeholder="No parent (top-level)" :options="parents" :error="form.errors.parent_account_id" />
 
-        <label class="flex items-center gap-2 text-sm text-ink-900">
-          <input v-model="form.is_control_account" type="checkbox" class="rounded border-border" />
-          Control account (AR/AP/Inventory — rejects direct manual journal lines)
-        </label>
+        <FormSwitch
+          v-model="form.is_control_account"
+          name="is_control_account"
+          label="Control Account (AR/AP/Inventory — rejects direct manual journal entries)"
+        />
 
         <div class="flex items-center justify-end gap-3 border-t border-border pt-4">
-          <Link
-            :href="route('accounting.accounts.index', { company_id: form.company_id })"
-            class="inline-flex items-center justify-center rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm font-semibold text-ink-900 shadow-sm transition hover:bg-surface-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-          >
+          <SecondaryButton :href="route('accounting.accounts.index', { company_id: form.company_id })">
             Cancel
-          </Link>
-          <PrimaryButton type="submit" :disabled="form.processing">Create account</PrimaryButton>
+          </SecondaryButton>
+          <PrimaryButton type="submit" :disabled="form.processing">Create Account</PrimaryButton>
         </div>
       </form>
     </Panel>

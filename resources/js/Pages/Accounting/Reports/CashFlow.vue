@@ -6,6 +6,8 @@ import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
+import SecondaryButton from '@/Components/SecondaryButton.vue'
+import { formatCurrency } from '@/Utils/formatters'
 
 type Report = {
   periodLabel: string; periodEnd: string
@@ -41,63 +43,99 @@ const exportHref = () => route('accounting.reports.cash-flow.export', {
 
 <template>
   <AppLayout>
-    <PageHeader title="Cash Flow Statement" description="Indirect method — derived from balance sheet movement + P&amp;L, no separate cash-flow entry.">
+    <PageHeader title="Cash Flow Statement" description="Indirect method — derived from balance sheet movement + P&amp;L, continuous live calculation.">
       <template #actions>
-        <a v-if="report" :href="exportHref()" class="mr-4 text-sm font-medium text-accent hover:underline">Export CSV</a>
-        <Link :href="route('accounting.reports.index')" class="text-sm font-medium text-accent hover:underline">← Reports</Link>
+        <div class="flex items-center gap-2">
+          <SecondaryButton v-if="report" :href="exportHref()">Export CSV</SecondaryButton>
+          <SecondaryButton :href="route('accounting.reports.index')">&larr; Reports</SecondaryButton>
+        </div>
       </template>
     </PageHeader>
 
     <Panel class="mt-6">
       <div class="flex flex-wrap items-center gap-4">
-        <select :value="selectedCompanyId" class="rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" @change="switchCompany">
+        <select :value="selectedCompanyId" class="rounded-md border border-border bg-surface-0 px-3 py-1.5 text-sm font-medium text-ink-900 shadow-xs focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" @change="switchCompany">
           <option v-for="c in companies" :key="c.id" :value="c.id">{{ c.legal_name }}</option>
         </select>
-        <select :value="selectedPeriodId" class="rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" @change="switchPeriod">
+        <select :value="selectedPeriodId" class="rounded-md border border-border bg-surface-0 px-3 py-1.5 text-sm font-medium text-ink-900 shadow-xs focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" @change="switchPeriod">
           <option v-for="p in periods" :key="p.value" :value="p.value">{{ p.label }}</option>
         </select>
-        <label class="flex items-center gap-2 text-sm text-ink-900">
-          <input type="checkbox" :checked="combined" class="rounded border-border" @change="toggleCombined" />
+        <label class="flex items-center gap-2 text-sm text-ink-900 font-medium">
+          <input type="checkbox" :checked="combined" class="rounded border-border text-accent focus:ring-accent" @change="toggleCombined" />
           Combined (all companies, matched by period number)
         </label>
       </div>
     </Panel>
 
     <template v-if="report">
-      <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Panel class="p-4">
-          <div class="text-sm font-semibold text-ink-900">Operating Activities</div>
-          <dl class="mt-2 space-y-1 text-sm">
-            <div class="flex justify-between"><dt class="text-ink-600">Net income</dt><dd class="text-ink-900">{{ report.netIncome.toFixed(2) }}</dd></div>
-            <div class="flex justify-between"><dt class="text-ink-600">Depreciation add-back</dt><dd class="text-ink-900">{{ report.depreciationAddBack.toFixed(2) }}</dd></div>
-            <div class="flex justify-between"><dt class="text-ink-600">Disposal gain/loss reversal</dt><dd class="text-ink-900">{{ report.disposalGainLossReversal.toFixed(2) }}</dd></div>
-            <div class="flex justify-between"><dt class="text-ink-600">Other working-capital movement</dt><dd class="text-ink-900">{{ report.operatingOther.toFixed(2) }}</dd></div>
-            <div class="flex justify-between border-t border-border pt-1 font-semibold"><dt>Total operating</dt><dd>{{ report.operatingTotal.toFixed(2) }}</dd></div>
+      <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <Panel title="Operating Activities">
+          <dl class="space-y-2 text-sm">
+            <div class="flex justify-between py-1 border-b border-border/50">
+              <dt class="text-ink-600">Net Income</dt>
+              <dd class="font-mono text-ink-900">{{ formatCurrency(report.netIncome) }}</dd>
+            </div>
+            <div class="flex justify-between py-1 border-b border-border/50">
+              <dt class="text-ink-600">Depreciation Add-back</dt>
+              <dd class="font-mono text-ink-900">{{ formatCurrency(report.depreciationAddBack) }}</dd>
+            </div>
+            <div class="flex justify-between py-1 border-b border-border/50">
+              <dt class="text-ink-600">Disposal Gain/Loss Reversal</dt>
+              <dd class="font-mono text-ink-900">{{ formatCurrency(report.disposalGainLossReversal) }}</dd>
+            </div>
+            <div class="flex justify-between py-1 border-b border-border/50">
+              <dt class="text-ink-600">Other Working Capital</dt>
+              <dd class="font-mono text-ink-900">{{ formatCurrency(report.operatingOther) }}</dd>
+            </div>
+            <div class="flex justify-between pt-2 font-semibold">
+              <dt class="text-ink-900">Total Operating</dt>
+              <dd class="font-mono text-accent">{{ formatCurrency(report.operatingTotal) }}</dd>
+            </div>
           </dl>
         </Panel>
-        <Panel class="p-4">
-          <div class="text-sm font-semibold text-ink-900">Investing Activities</div>
-          <dl class="mt-2 space-y-1 text-sm">
-            <div class="flex justify-between"><dt class="text-ink-600">Disposal proceeds</dt><dd class="text-ink-900">{{ report.disposalProceeds.toFixed(2) }}</dd></div>
-            <div class="flex justify-between"><dt class="text-ink-600">Asset additions</dt><dd class="text-ink-900">({{ report.assetAdditions.toFixed(2) }})</dd></div>
-            <div class="flex justify-between border-t border-border pt-1 font-semibold"><dt>Total investing</dt><dd>{{ report.investingTotal.toFixed(2) }}</dd></div>
+
+        <Panel title="Investing Activities">
+          <dl class="space-y-2 text-sm">
+            <div class="flex justify-between py-1 border-b border-border/50">
+              <dt class="text-ink-600">Disposal Proceeds</dt>
+              <dd class="font-mono text-ink-900">{{ formatCurrency(report.disposalProceeds) }}</dd>
+            </div>
+            <div class="flex justify-between py-1 border-b border-border/50">
+              <dt class="text-ink-600">Asset Additions</dt>
+              <dd class="font-mono text-ink-900">({{ formatCurrency(report.assetAdditions) }})</dd>
+            </div>
+            <div class="flex justify-between pt-2 font-semibold">
+              <dt class="text-ink-900">Total Investing</dt>
+              <dd class="font-mono text-accent">{{ formatCurrency(report.investingTotal) }}</dd>
+            </div>
           </dl>
         </Panel>
-        <Panel class="p-4">
-          <div class="text-sm font-semibold text-ink-900">Financing Activities</div>
-          <dl class="mt-2 space-y-1 text-sm">
-            <div class="flex justify-between border-t border-border pt-1 font-semibold"><dt>Total financing</dt><dd>{{ report.financingTotal.toFixed(2) }}</dd></div>
+
+        <Panel title="Financing Activities">
+          <dl class="space-y-2 text-sm">
+            <div class="flex justify-between pt-2 font-semibold">
+              <dt class="text-ink-900">Total Financing</dt>
+              <dd class="font-mono text-accent">{{ formatCurrency(report.financingTotal) }}</dd>
+            </div>
           </dl>
         </Panel>
       </div>
 
-      <Panel class="mt-4 p-4" :class="Math.abs(report.variance) < 0.005 ? '' : 'ring-1 ring-signal-danger/40'">
-        <dl class="space-y-1 text-sm">
-          <div class="flex justify-between text-base font-bold"><dt>Net change in cash</dt><dd>{{ report.netChange.toFixed(2) }}</dd></div>
-          <div class="flex justify-between"><dt class="text-ink-600">Actual cash-account movement</dt><dd class="text-ink-900">{{ report.actualCashChange.toFixed(2) }}</dd></div>
-          <div class="flex justify-between border-t border-border pt-1 font-semibold">
+      <Panel class="mt-6 p-4" :class="Math.abs(report.variance) < 0.005 ? '' : 'border-signal-danger ring-1 ring-signal-danger/40'">
+        <dl class="space-y-2 text-sm">
+          <div class="flex justify-between text-base font-bold">
+            <dt class="text-ink-900">Net Change in Cash</dt>
+            <dd class="font-mono text-ink-900">{{ formatCurrency(report.netChange) }}</dd>
+          </div>
+          <div class="flex justify-between py-1 border-b border-border/50">
+            <dt class="text-ink-600">Actual Cash-Account Movement</dt>
+            <dd class="font-mono text-ink-900">{{ formatCurrency(report.actualCashChange) }}</dd>
+          </div>
+          <div class="flex justify-between pt-2 font-semibold">
             <dt :class="Math.abs(report.variance) < 0.005 ? 'text-ink-900' : 'text-signal-danger'">Variance (should be 0)</dt>
-            <dd :class="Math.abs(report.variance) < 0.005 ? 'text-signal-success' : 'text-signal-danger'">{{ report.variance.toFixed(2) }}</dd>
+            <dd class="font-mono" :class="Math.abs(report.variance) < 0.005 ? 'text-signal-success' : 'text-signal-danger'">
+              {{ formatCurrency(report.variance) }}
+            </dd>
           </div>
         </dl>
       </Panel>

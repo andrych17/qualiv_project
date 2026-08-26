@@ -1,18 +1,15 @@
-<!-- ponytail: DMS §3D Folder / Category Management — depth-indented flat listing (folder counts
-     are small, so a plain client-filtered table beats wiring server-side search/pagination
-     just for this, same reasoning Versions.vue used). Delete is guarded server-side
-     (FolderService::delete) — a blocked delete redirects back with a validation error, which
-     has no automatic toast anywhere else in this codebase either, so this page reads
-     page.props.errors.folder itself and shows it via the shared toast store. -->
+<!-- ponytail: DMS §3D Folder / Category Management — depth-indented flat listing. -->
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { Link, router, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
-import Panel from '@/Components/cards/Panel.vue'
+import DataTable from '@/Components/tables/DataTable.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
+import SecondaryButton from '@/Components/SecondaryButton.vue'
 import { useConfirm } from '@/Composables/useConfirmDialog'
 import { showToast } from '@/Composables/useFlashToast'
+import { Folder } from 'lucide-vue-next'
 
 interface FolderRow {
   id: number
@@ -34,6 +31,15 @@ const filtered = computed(() => {
   return props.folders.filter((f) => f.name.toLowerCase().includes(q))
 })
 
+const columns = [
+  { key: 'name', label: 'Folder Name', sortable: true },
+  { key: 'default_doc_type_name', label: 'Default Doc Type', sortable: true },
+  { key: 'access_flag', label: 'Access Level', sortable: true },
+  { key: 'document_count', label: 'Documents', align: 'right' as const, sortable: true },
+  { key: 'child_count', label: 'Subfolders', align: 'right' as const, sortable: true },
+  { key: 'actions', label: 'Actions', align: 'right' as const },
+]
+
 const { confirm } = useConfirm()
 const confirmDelete = (folder: FolderRow) => {
   confirm({
@@ -47,8 +53,6 @@ const confirmDelete = (folder: FolderRow) => {
   })
 }
 
-// Blocked-delete guard surfaces as a validation error (FolderService throws ValidationException),
-// not a flash message — watch for it and show it the same way every flash success/error shows.
 const page = usePage()
 watch(() => (page.props.errors as { folder?: string })?.folder, (message) => {
   if (message) showToast(message, 'error')
@@ -57,47 +61,54 @@ watch(() => (page.props.errors as { folder?: string })?.folder, (message) => {
 
 <template>
   <AppLayout>
-    <PageHeader title="Folders" description="Standalone folder tree — default doc type, retention policy, and access per folder.">
+    <PageHeader title="DMS Folders" description="Organize documents into structured taxonomy with inherited access controls.">
       <template #actions>
-        <Link :href="route('dms.dashboard')" class="mr-4 text-sm font-medium text-accent hover:underline">← Back to library</Link>
-        <PrimaryButton :href="route('dms.folders.create')">New folder</PrimaryButton>
+        <div class="flex items-center gap-2">
+          <SecondaryButton :href="route('dms.dashboard')">
+            &larr; Document Library
+          </SecondaryButton>
+          <PrimaryButton :href="route('dms.folders.create')">
+            + New Folder
+          </PrimaryButton>
+        </div>
       </template>
     </PageHeader>
 
-    <Panel class="mt-6">
-      <input
-        v-model="search"
-        type="text"
-        placeholder="Search folders…"
-        class="mb-4 w-full max-w-xs rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-      />
-
-      <table class="w-full text-sm">
-        <thead>
-          <tr class="border-b border-border text-left text-xs uppercase text-ink-600">
-            <th class="py-2">Name</th>
-            <th class="py-2">Default doc type</th>
-            <th class="py-2">Access</th>
-            <th class="py-2 text-right">Documents</th>
-            <th class="py-2 text-right">Subfolders</th>
-            <th class="py-2 text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="f in filtered" :key="f.id" class="border-b border-border hover:bg-surface-50">
-            <td class="py-2 text-ink-900" :style="{ paddingLeft: `${8 + f.depth * 16}px` }">{{ f.name }}</td>
-            <td class="py-2 text-ink-700">{{ f.default_doc_type_name ?? '—' }}</td>
-            <td class="py-2 text-ink-700 capitalize">{{ f.access_flag }}</td>
-            <td class="py-2 text-right text-ink-700">{{ f.document_count }}</td>
-            <td class="py-2 text-right text-ink-700">{{ f.child_count }}</td>
-            <td class="py-2 text-right">
-              <Link :href="route('dms.folders.edit', f.id)" class="mr-3 text-sm font-medium text-accent hover:underline">Edit</Link>
-              <button type="button" class="text-sm font-medium text-signal-danger hover:underline" @click="confirmDelete(f)">Delete</button>
-            </td>
-          </tr>
-          <tr v-if="!filtered.length"><td colspan="6" class="py-6 text-center text-ink-600">No folders yet.</td></tr>
-        </tbody>
-      </table>
-    </Panel>
+    <div class="mt-6">
+      <DataTable
+        :columns="columns"
+        :items="filtered"
+        :search="search"
+        search-placeholder="Search folders..."
+        empty-title="No folders found"
+        empty-description="Create your first folder to organize files in the document management system."
+        @update:search="search = $event"
+      >
+        <template #cell-name="{ item }">
+          <div class="flex items-center gap-2" :style="{ paddingLeft: `${item.depth * 20}px` }">
+            <Folder class="h-4 w-4 text-accent flex-shrink-0" />
+            <span class="font-medium text-ink-900">{{ item.name }}</span>
+          </div>
+        </template>
+        <template #cell-default_doc_type_name="{ item }">
+          <span class="text-xs font-mono text-ink-700">{{ item.default_doc_type_name ?? '—' }}</span>
+        </template>
+        <template #cell-access_flag="{ item }">
+          <span class="capitalize text-xs font-semibold px-2 py-0.5 rounded-full bg-surface-100 text-ink-700">{{ item.access_flag }}</span>
+        </template>
+        <template #cell-document_count="{ item }">
+          <span class="font-mono text-xs text-ink-800">{{ item.document_count }}</span>
+        </template>
+        <template #cell-child_count="{ item }">
+          <span class="font-mono text-xs text-ink-800">{{ item.child_count }}</span>
+        </template>
+        <template #cell-actions="{ item }">
+          <div class="flex items-center justify-end gap-3 text-xs font-semibold">
+            <Link :href="route('dms.folders.edit', item.id)" class="text-accent hover:underline">Edit</Link>
+            <button type="button" class="text-signal-danger hover:underline" @click="confirmDelete(item as FolderRow)">Delete</button>
+          </div>
+        </template>
+      </DataTable>
+    </div>
   </AppLayout>
 </template>

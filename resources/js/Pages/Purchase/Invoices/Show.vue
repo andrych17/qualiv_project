@@ -11,6 +11,7 @@ import SecondaryButton from '@/Components/SecondaryButton.vue'
 import DangerButton from '@/Components/DangerButton.vue'
 import Modal from '@/Components/Modal.vue'
 import FormTextarea from '@/Components/forms/FormTextarea.vue'
+import { formatCurrency, formatDate } from '@/Utils/formatters'
 
 interface InvoiceLineItem {
   id: number
@@ -60,14 +61,6 @@ const props = defineProps<{
 
 const showRejectModal = ref(false)
 const rejectForm = useForm({ reason: '' })
-
-const formatCurrency = (val: number) => {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: props.invoice.currency_code || 'IDR',
-    maximumFractionDigits: 0,
-  }).format(val)
-}
 
 const rematch = () => {
   router.post(route('purchase.invoices.rematch', props.invoice.id))

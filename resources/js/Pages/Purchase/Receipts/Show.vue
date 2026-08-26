@@ -6,6 +6,7 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
+import { formatCurrency, formatDate } from '@/Utils/formatters'
 
 interface LineItem {
   id: number
@@ -34,10 +35,6 @@ const props = defineProps<{
     lines: LineItem[]
   }
 }>()
-
-const formatCurrency = (val: number) => {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val)
-}
 </script>
 
 <template>

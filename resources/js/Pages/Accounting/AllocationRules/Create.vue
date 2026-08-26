@@ -8,8 +8,10 @@ import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
+import FormNumberInput from '@/Components/forms/FormNumberInput.vue'
 import FormSearchableSelect from '@/Components/forms/FormSearchableSelect.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
+import SecondaryButton from '@/Components/SecondaryButton.vue'
 import { Plus, Trash2 } from 'lucide-vue-next'
 
 type Option = { value: number; label: string }
@@ -21,7 +23,7 @@ const props = defineProps<{
   costCenters: Option[]
 }>()
 
-const blankTarget = () => ({ cost_center_id: null as number | null, percentage: '' })
+const blankTarget = () => ({ cost_center_id: null as number | null, percentage: null as number | null })
 
 const form = useForm({
   company_id: props.selectedCompanyId,
@@ -46,7 +48,7 @@ const submit = () => form.transform((data) => ({
 
 <template>
   <AppLayout>
-    <PageHeader title="New allocation rule" description="Percentages must sum to exactly 100 — a rule always redistributes its entire source pool, never leaves a portion behind." />
+    <PageHeader title="New Cost Allocation Rule" description="Percentages must sum to exactly 100% — rules redistribute the complete source pool." />
 
     <Panel class="mt-6">
       <form class="space-y-6" @submit.prevent="submit">
@@ -59,12 +61,12 @@ const submit = () => form.transform((data) => ({
             :error="form.errors.company_id"
             required
           />
-          <FormInput v-model="form.name" name="name" label="Rule name" placeholder="e.g. Office rent → case teams" :error="form.errors.name" required />
-          <FormSearchableSelect v-model="form.source_account_id" name="source_account_id" label="Source account" :options="accounts" :error="form.errors.source_account_id" required />
+          <FormInput v-model="form.name" name="name" label="Rule Name" placeholder="e.g. Office Rent → Practice Teams" :error="form.errors.name" required />
+          <FormSearchableSelect v-model="form.source_account_id" name="source_account_id" label="Source Account" :options="accounts" :error="form.errors.source_account_id" required />
           <FormSearchableSelect
             v-model="form.source_cost_center_id"
             name="source_cost_center_id"
-            label="Source cost center"
+            label="Source Cost Center"
             placeholder="Unassigned (no cost center)"
             :options="costCenters"
             :error="form.errors.source_cost_center_id"
@@ -72,60 +74,57 @@ const submit = () => form.transform((data) => ({
         </div>
 
         <div>
-          <div class="mb-2 flex items-center justify-between">
-            <h3 class="text-sm font-semibold text-ink-900">Target cost centers</h3>
-            <button type="button" class="inline-flex items-center gap-1 text-sm font-medium text-accent hover:underline" @click="addTarget">
-              <Plus class="h-4 w-4" /> Add target
+          <div class="mb-3 flex items-center justify-between">
+            <h3 class="text-sm font-semibold text-ink-900">Target Cost Centers</h3>
+            <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline" @click="addTarget">
+              <Plus class="h-4 w-4" /> Add Target
             </button>
           </div>
 
-          <div class="overflow-x-auto rounded-sm border border-border">
+          <div class="overflow-x-auto rounded-lg border border-border">
             <table class="w-full text-sm">
               <thead>
-                <tr class="border-b border-border bg-surface-50 text-left text-xs uppercase text-ink-600">
-                  <th class="w-3/5 px-3 py-2">Cost center</th>
-                  <th class="px-3 py-2 text-right">Percentage</th>
-                  <th class="px-3 py-2"></th>
+                <tr class="border-b border-border bg-surface-50 text-left text-xs uppercase tracking-wider text-ink-600 font-semibold">
+                  <th class="w-3/5 px-3 py-2.5">Target Cost Center</th>
+                  <th class="px-3 py-2.5 text-right">Allocation (%)</th>
+                  <th class="px-3 py-2.5"></th>
                 </tr>
               </thead>
-              <tbody>
-                <tr v-for="(target, i) in form.targets" :key="i" class="border-b border-border last:border-b-0">
+              <tbody class="divide-y divide-border bg-surface">
+                <tr v-for="(target, i) in form.targets" :key="i" class="align-top hover:bg-surface-50/50 transition-colors">
                   <td class="px-3 py-2">
                     <FormSearchableSelect v-model="target.cost_center_id" :name="`targets.${i}.cost_center_id`" :options="costCenters" :error="(form.errors as any)[`targets.${i}.cost_center_id`]" />
                   </td>
-                  <td class="px-3 py-2">
-                    <input v-model="target.percentage" type="number" step="0.01" min="0" max="100" class="w-28 rounded-sm border border-border bg-surface-0 px-2 py-1.5 text-right text-sm" />
-                  </td>
                   <td class="px-3 py-2 text-right">
-                    <button type="button" class="text-ink-600 hover:text-signal-danger" :disabled="form.targets.length <= 1" @click="removeTarget(i)">
+                    <FormNumberInput v-model="target.percentage" :name="`targets.${i}.percentage`" :decimals="2" suffix="%" class="w-32 inline-block" />
+                  </td>
+                  <td class="px-3 py-2 text-right pt-3">
+                    <button type="button" class="text-ink-400 hover:text-signal-danger transition-colors" :disabled="form.targets.length <= 1" @click="removeTarget(i)">
                       <Trash2 class="h-4 w-4" />
                     </button>
                   </td>
                 </tr>
               </tbody>
               <tfoot>
-                <tr class="border-t border-border bg-surface-50 font-semibold">
-                  <td class="px-3 py-2">Total</td>
-                  <td class="px-3 py-2 text-right">{{ totalPercentage.toFixed(2) }}%</td>
-                  <td class="px-3 py-2">
-                    <span :class="isValidTotal ? 'text-signal-success' : 'text-signal-danger'">{{ isValidTotal ? 'OK' : 'Must total 100' }}</span>
+                <tr class="border-t-2 border-border bg-surface-100/75 font-semibold text-xs">
+                  <td class="px-4 py-3 text-ink-900">Total Percentage</td>
+                  <td class="px-4 py-3 text-right font-mono text-xs font-bold" :class="isValidTotal ? 'text-signal-success' : 'text-signal-danger'">
+                    {{ totalPercentage.toFixed(2) }}% ({{ isValidTotal ? '✓ 100%' : 'Must equal 100%' }})
                   </td>
+                  <td class="px-4 py-3"></td>
                 </tr>
               </tfoot>
             </table>
           </div>
-          <p v-if="sourceEqualsTarget" class="mt-2 text-sm text-signal-danger">A target cannot be the same as the source cost center — that portion would net to zero.</p>
+          <p v-if="sourceEqualsTarget" class="mt-2 text-sm text-signal-danger">A target cost center cannot be the same as the source cost center.</p>
           <p v-if="(form.errors as any).targets" class="mt-2 text-sm text-signal-danger">{{ (form.errors as any).targets }}</p>
         </div>
 
         <div class="flex items-center justify-end gap-3 border-t border-border pt-4">
-          <Link
-            :href="route('accounting.allocation-rules.index', { company_id: form.company_id })"
-            class="inline-flex items-center justify-center rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm font-semibold text-ink-900 shadow-sm transition hover:bg-surface-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-          >
+          <SecondaryButton :href="route('accounting.allocation-rules.index', { company_id: form.company_id })">
             Cancel
-          </Link>
-          <PrimaryButton type="submit" :disabled="form.processing">Save rule</PrimaryButton>
+          </SecondaryButton>
+          <PrimaryButton type="submit" :disabled="form.processing || !isValidTotal || sourceEqualsTarget">Save Rule</PrimaryButton>
         </div>
       </form>
     </Panel>

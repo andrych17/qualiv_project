@@ -12,6 +12,7 @@ import FormSelect from '@/Components/forms/FormSelect.vue'
 import FormSearchableSelect from '@/Components/forms/FormSearchableSelect.vue'
 import FormAsyncSearchableSelect from '@/Components/forms/FormAsyncSearchableSelect.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
+import SecondaryButton from '@/Components/SecondaryButton.vue'
 import { formatCurrency } from '@/Utils/formatters'
 import { Plus, Trash2 } from 'lucide-vue-next'
 
@@ -69,19 +70,19 @@ const submit = () => form.transform((data) => ({
 
 <template>
   <AppLayout>
-    <PageHeader title="Edit invoice" description="Draft only — balance and control-account rules are enforced when you post it." />
+    <PageHeader title="Edit Customer Invoice" description="Draft only — balance and control-account rules are enforced when you post it." />
 
     <Panel class="mt-6">
       <form class="space-y-6" @submit.prevent="submit">
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <FormAsyncSearchableSelect v-model="form.partner_id" name="partner_id" label="Customer" api-entity="crm_partner" :error="form.errors.partner_id" required />
           <FormSearchableSelect v-model="form.currency_code" name="currency_code" label="Currency" :options="currencyOptions" :error="form.errors.currency_code" required />
-          <FormInput v-model="form.issue_date" name="issue_date" type="date" label="Issue date" :error="form.errors.issue_date" required />
-          <FormInput v-model="form.due_date" name="due_date" type="date" label="Due date" :error="form.errors.due_date" required />
+          <FormInput v-model="form.issue_date" name="issue_date" type="date" label="Issue Date" :error="form.errors.issue_date" required />
+          <FormInput v-model="form.due_date" name="due_date" type="date" label="Due Date" :error="form.errors.due_date" required />
           <FormSelect
             v-model="form.invoice_type"
             name="invoice_type"
-            label="Invoice type"
+            label="Invoice Type"
             :options="[{ label: 'Standard', value: 'standard' }, { label: 'Deposit', value: 'deposit' }]"
             :error="form.errors.invoice_type"
             required
@@ -89,31 +90,31 @@ const submit = () => form.transform((data) => ({
         </div>
 
         <div>
-          <div class="mb-2 flex items-center justify-between">
-            <h3 class="text-sm font-semibold text-ink-900">Lines</h3>
-            <button type="button" class="inline-flex items-center gap-1 text-sm font-medium text-accent hover:underline" @click="addLine">
-              <Plus class="h-4 w-4" /> Add line
+          <div class="mb-3 flex items-center justify-between">
+            <h3 class="text-sm font-semibold text-ink-900">Billed Lines</h3>
+            <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline" @click="addLine">
+              <Plus class="h-4 w-4" /> Add Line
             </button>
           </div>
 
-          <div class="overflow-x-auto rounded-sm border border-border">
+          <div class="overflow-x-auto rounded-lg border border-border">
             <table class="w-full text-sm">
               <thead>
-                <tr class="border-b border-border bg-surface-50 text-left text-xs uppercase text-ink-600">
-                  <th class="w-1/4 px-3 py-2">Description</th>
-                  <th class="px-3 py-2">Revenue account</th>
-                  <th class="px-3 py-2 text-right">Qty</th>
-                  <th class="px-3 py-2 text-right">Unit price</th>
-                  <th class="px-3 py-2 text-right">Discount</th>
-                  <th class="px-3 py-2">Tax code</th>
-                  <th class="px-3 py-2 text-right">Amount</th>
-                  <th class="px-3 py-2"></th>
+                <tr class="border-b border-border bg-surface-50 text-left text-xs uppercase tracking-wider text-ink-600 font-semibold">
+                  <th class="w-1/4 px-3 py-2.5">Description</th>
+                  <th class="px-3 py-2.5">Revenue Account</th>
+                  <th class="px-3 py-2.5 text-right">Qty</th>
+                  <th class="px-3 py-2.5 text-right">Unit Price</th>
+                  <th class="px-3 py-2.5 text-right">Discount</th>
+                  <th class="px-3 py-2.5">Tax Code</th>
+                  <th class="px-3 py-2.5 text-right">Amount</th>
+                  <th class="px-3 py-2.5"></th>
                 </tr>
               </thead>
-              <tbody>
-                <tr v-for="(line, i) in form.lines" :key="i" class="border-b border-border last:border-b-0 align-top">
+              <tbody class="divide-y divide-border bg-surface">
+                <tr v-for="(line, i) in form.lines" :key="i" class="align-top hover:bg-surface-50/50 transition-colors">
                   <td class="px-3 py-2">
-                    <input v-model="line.description" type="text" class="w-full rounded-sm border border-border bg-surface-0 px-2 py-1.5 text-sm" />
+                    <input v-model="line.description" type="text" placeholder="Item description" class="w-full rounded-md border border-border bg-surface-0 px-2.5 py-1.5 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent" />
                   </td>
                   <td class="px-3 py-2">
                     <FormSearchableSelect v-model="line.revenue_account_id" :name="`lines.${i}.revenue_account_id`" :options="revenueAccounts" />
@@ -130,18 +131,18 @@ const submit = () => form.transform((data) => ({
                   <td class="px-3 py-2">
                     <FormSearchableSelect v-model="line.tax_code_id" :name="`lines.${i}.tax_code_id`" placeholder="None" :options="taxCodes" />
                   </td>
-                  <td class="px-3 py-2 text-right font-medium text-ink-900">{{ formatCurrency(lineAmount(line) + lineTax(line), form.currency_code) }}</td>
-                  <td class="px-3 py-2 text-right">
-                    <button type="button" class="text-ink-600 hover:text-signal-danger pt-2" :disabled="form.lines.length <= 1" @click="removeLine(i)">
+                  <td class="px-3 py-2 text-right font-mono text-xs font-semibold text-ink-900 pt-3.5">{{ formatCurrency(lineAmount(line) + lineTax(line), form.currency_code) }}</td>
+                  <td class="px-3 py-2 text-right pt-3">
+                    <button type="button" class="text-ink-400 hover:text-signal-danger transition-colors" :disabled="form.lines.length <= 1" @click="removeLine(i)">
                       <Trash2 class="h-4 w-4" />
                     </button>
                   </td>
                 </tr>
               </tbody>
               <tfoot>
-                <tr class="border-t border-border bg-surface-50 font-semibold">
-                  <td class="px-3 py-2" colspan="6">Total</td>
-                  <td class="px-3 py-2 text-right" colspan="2">{{ formatCurrency(grandTotal, form.currency_code) }}</td>
+                <tr class="border-t-2 border-border bg-surface-100/75 font-semibold text-xs">
+                  <td class="px-4 py-3 text-ink-900" colspan="5">Total</td>
+                  <td class="px-4 py-3 text-right font-mono text-accent font-bold" colspan="3">{{ formatCurrency(grandTotal, form.currency_code) }}</td>
                 </tr>
               </tfoot>
             </table>
@@ -150,13 +151,10 @@ const submit = () => form.transform((data) => ({
         </div>
 
         <div class="flex items-center justify-end gap-3 border-t border-border pt-4">
-          <Link
-            :href="route('accounting.ar-invoices.show', invoice.id)"
-            class="inline-flex items-center justify-center rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm font-semibold text-ink-900 shadow-sm transition hover:bg-surface-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-          >
+          <SecondaryButton :href="route('accounting.ar-invoices.show', invoice.id)">
             Cancel
-          </Link>
-          <PrimaryButton type="submit" :disabled="form.processing">Save changes</PrimaryButton>
+          </SecondaryButton>
+          <PrimaryButton type="submit" :disabled="form.processing">Save Changes</PrimaryButton>
         </div>
       </form>
     </Panel>

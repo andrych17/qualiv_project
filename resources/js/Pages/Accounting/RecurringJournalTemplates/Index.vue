@@ -2,13 +2,15 @@
      itself never happens from this screen (it's the nightly sweep's job); this is just CRUD
      over the template + a view of where each one stands. -->
 <script setup lang="ts">
-import { router } from '@inertiajs/vue3'
+import { ref, computed } from 'vue'
+import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
-import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
+import DataTable, { type SortState } from '@/Components/tables/DataTable.vue'
 import { useConfirm } from '@/Composables/useConfirmDialog'
+import { formatDate } from '@/Utils/formatters'
 
 interface TemplateRow {
   id: number
@@ -24,6 +26,25 @@ const props = defineProps<{
   selectedCompanyId: number | null
   templates: TemplateRow[]
 }>()
+
+const search = ref('')
+const sort = ref<SortState>(null)
+const selected = ref<Array<string | number>>([])
+
+const columns = [
+  { key: 'name', label: 'Template Name', sortable: true },
+  { key: 'recurrence_rule', label: 'Recurrence Rule' },
+  { key: 'last_run_date', label: 'Last Run' },
+  { key: 'next_run_date', label: 'Next Run', sortable: true },
+  { key: 'is_active', label: 'Status' },
+  { key: 'actions', label: 'Actions', align: 'right' as const },
+]
+
+const filteredTemplates = computed(() => {
+  const q = search.value.trim().toLowerCase()
+  if (!q) return props.templates
+  return props.templates.filter((t) => t.name.toLowerCase().includes(q))
+})
 
 const switchCompany = (e: Event) => router.get(route('accounting.recurring-journal-templates.index'), { company_id: (e.target as HTMLSelectElement).value }, { preserveState: true })
 
@@ -44,47 +65,90 @@ const destroy = (t: TemplateRow) => {
 
 <template>
   <AppLayout>
-    <PageHeader title="Recurring journals" description="A journal draft is generated automatically each time the rule comes due — always a draft, never posted, until reviewed.">
+    <PageHeader title="Recurring Journals" description="A journal draft is generated automatically each time the rule comes due — always a draft, never posted, until reviewed.">
       <template #actions>
-        <PrimaryButton :href="route('accounting.recurring-journal-templates.create', { company_id: selectedCompanyId })">New template</PrimaryButton>
+        <PrimaryButton :href="route('accounting.recurring-journal-templates.create', { company_id: selectedCompanyId })">
+          New Template
+        </PrimaryButton>
       </template>
     </PageHeader>
 
-    <Panel class="mt-6">
-      <div class="mb-4 flex flex-wrap items-center gap-3">
-        <select :value="selectedCompanyId" class="rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" @change="switchCompany">
+    <div class="mt-6 space-y-4">
+      <div class="flex items-center gap-3">
+        <label class="text-xs font-semibold text-ink-600">Company:</label>
+        <select
+          :value="selectedCompanyId"
+          class="rounded-md border border-border bg-surface-0 px-3 py-1.5 text-sm font-medium text-ink-900 shadow-xs focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+          @change="switchCompany"
+        >
           <option v-for="c in companies" :key="c.id" :value="c.id">{{ c.legal_name }}</option>
         </select>
       </div>
 
-      <table class="w-full text-sm">
-        <thead>
-          <tr class="border-b border-border text-left text-xs uppercase text-ink-600">
-            <th class="py-2">Name</th>
-            <th class="py-2">Rule</th>
-            <th class="py-2">Last run</th>
-            <th class="py-2">Next run</th>
-            <th class="py-2">Status</th>
-            <th class="py-2"></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="t in templates" :key="t.id" class="border-b border-border hover:bg-surface-50">
-            <td class="py-2">
-              <a :href="route('accounting.recurring-journal-templates.edit', t.id)" class="font-medium text-accent hover:underline">{{ t.name }}</a>
-            </td>
-            <td class="py-2 font-mono text-xs text-ink-600">{{ t.recurrence_rule }}</td>
-            <td class="py-2 text-ink-700">{{ t.last_run_date ?? '—' }}</td>
-            <td class="py-2 text-ink-700">{{ t.next_run_date ?? 'Exhausted' }}</td>
-            <td class="py-2"><StatusBadge :status="t.is_active ? 'active' : 'paused'" /></td>
-            <td class="py-2 text-right">
-              <button type="button" class="mr-3 text-sm font-medium text-accent hover:underline" @click="toggleActive(t)">{{ t.is_active ? 'Pause' : 'Resume' }}</button>
-              <button type="button" class="text-sm font-medium text-signal-danger hover:underline" @click="destroy(t)">Delete</button>
-            </td>
-          </tr>
-          <tr v-if="!templates.length"><td colspan="6" class="py-6 text-center text-ink-600">No recurring journal templates yet.</td></tr>
-        </tbody>
-      </table>
-    </Panel>
+      <DataTable
+        :columns="columns"
+        :items="filteredTemplates"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        v-model:search="search"
+        sticky-header
+        storage-key="accounting.recurring-journal-templates"
+        search-placeholder="Search template name…"
+        export-filename="recurring-journal-templates"
+        status-rail-key="is_active"
+        empty-title="No recurring journal templates found"
+        empty-description="Define automatic recurring journal schedules for monthly depreciation, amortization, or accruals."
+      >
+        <template #cell-name="{ item }">
+          <Link
+            :href="route('accounting.recurring-journal-templates.edit', (item as TemplateRow).id)"
+            class="font-medium text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            {{ (item as TemplateRow).name }}
+          </Link>
+        </template>
+
+        <template #cell-recurrence_rule="{ item }">
+          <span class="font-mono text-xs text-ink-600">{{ (item as TemplateRow).recurrence_rule }}</span>
+        </template>
+
+        <template #cell-last_run_date="{ item }">
+          <span class="font-mono text-xs text-ink-700">{{ (item as TemplateRow).last_run_date ? formatDate((item as TemplateRow).last_run_date!) : '—' }}</span>
+        </template>
+
+        <template #cell-next_run_date="{ item }">
+          <span class="font-mono text-xs font-medium text-ink-900">{{ (item as TemplateRow).next_run_date ? formatDate((item as TemplateRow).next_run_date!) : 'Exhausted' }}</span>
+        </template>
+
+        <template #cell-is_active="{ item }">
+          <StatusBadge :status="(item as TemplateRow).is_active ? 'active' : 'paused'" />
+        </template>
+
+        <template #cell-actions="{ item }">
+          <div class="flex items-center justify-end gap-3">
+            <Link
+              :href="route('accounting.recurring-journal-templates.edit', (item as TemplateRow).id)"
+              class="text-xs font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              Edit
+            </Link>
+            <button
+              type="button"
+              class="text-xs font-medium text-ink-600 hover:text-ink-900 hover:underline"
+              @click="toggleActive(item as TemplateRow)"
+            >
+              {{ (item as TemplateRow).is_active ? 'Pause' : 'Resume' }}
+            </button>
+            <button
+              type="button"
+              class="text-xs font-medium text-signal-danger hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              @click="destroy(item as TemplateRow)"
+            >
+              Delete
+            </button>
+          </div>
+        </template>
+      </DataTable>
+    </div>
   </AppLayout>
 </template>

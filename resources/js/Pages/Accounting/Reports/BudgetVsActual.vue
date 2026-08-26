@@ -8,6 +8,8 @@ import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
+import SecondaryButton from '@/Components/SecondaryButton.vue'
+import { formatCurrency } from '@/Utils/formatters'
 
 type Row = {
   account_id: number
@@ -57,47 +59,59 @@ const drillHref = (row: Row) => route('accounting.reports.account-ledger', {
 
 <template>
   <AppLayout>
-    <PageHeader title="Budget vs. Actual" description="Variance by account, cost center, and period — only cells with a budget or actual figure are shown. Click a row to see the GL detail behind it." />
+    <PageHeader title="Budget vs. Actual" description="Variance by account, cost center, and period. Click a row to see the GL detail behind it.">
+      <template #actions>
+        <SecondaryButton :href="route('accounting.reports.index')">&larr; Reports</SecondaryButton>
+      </template>
+    </PageHeader>
 
     <Panel class="mt-6 p-4">
       <div class="flex flex-wrap items-center gap-3">
-        <select :value="selectedCompanyId" class="rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" @change="switchCompany">
+        <select :value="selectedCompanyId" class="rounded-md border border-border bg-surface-0 px-3 py-1.5 text-sm font-medium text-ink-900 shadow-xs focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" @change="switchCompany">
           <option v-for="c in companies" :key="c.id" :value="c.id">{{ c.legal_name }}</option>
         </select>
-        <select :value="selectedFiscalYearId" class="rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" @change="switchFiscalYear">
+        <select :value="selectedFiscalYearId" class="rounded-md border border-border bg-surface-0 px-3 py-1.5 text-sm font-medium text-ink-900 shadow-xs focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" @change="switchFiscalYear">
           <option v-for="y in fiscalYears" :key="y.value" :value="y.value">{{ y.label }}</option>
         </select>
-        <select :value="selectedCostCenterId ?? ''" class="rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" @change="switchCostCenter">
+        <select :value="selectedCostCenterId ?? ''" class="rounded-md border border-border bg-surface-0 px-3 py-1.5 text-sm font-medium text-ink-900 shadow-xs focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" @change="switchCostCenter">
           <option value="">Unassigned (no cost center)</option>
           <option v-for="c in costCenters" :key="c.value" :value="c.value">{{ c.label }}</option>
         </select>
       </div>
     </Panel>
 
-    <Panel class="mt-4 overflow-x-auto">
-      <table class="w-full text-sm">
-        <thead>
-          <tr class="border-b border-border text-left text-xs uppercase text-ink-600">
-            <th class="px-3 py-2">Period</th>
-            <th class="px-3 py-2">Account</th>
-            <th class="px-3 py-2 text-right">Budget</th>
-            <th class="px-3 py-2 text-right">Actual</th>
-            <th class="px-3 py-2 text-right">Variance</th>
-            <th class="px-3 py-2 text-right">Variance %</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(r, i) in rows" :key="`${r.account_id}-${r.fiscal_period_id}-${i}`" class="cursor-pointer border-b border-border hover:bg-surface-50" @click="router.visit(drillHref(r))">
-            <td class="px-3 py-1.5 text-ink-700">{{ monthLabel(r.period_no) }}</td>
-            <td class="px-3 py-1.5 text-ink-900">{{ r.account_code }} — {{ r.account_name }}</td>
-            <td class="px-3 py-1.5 text-right text-ink-900">{{ r.budget.toFixed(2) }}</td>
-            <td class="px-3 py-1.5 text-right text-ink-900">{{ r.actual.toFixed(2) }}</td>
-            <td class="px-3 py-1.5 text-right font-medium text-ink-900">{{ r.variance.toFixed(2) }}</td>
-            <td class="px-3 py-1.5 text-right text-ink-700">{{ r.variance_pct === null ? '—' : `${r.variance_pct.toFixed(1)}%` }}</td>
-          </tr>
-          <tr v-if="!rows.length"><td colspan="6" class="px-3 py-6 text-center text-ink-600">Nothing budgeted or posted for this scope.</td></tr>
-        </tbody>
-      </table>
+    <Panel class="mt-6">
+      <div class="overflow-x-auto rounded-lg border border-border">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-border bg-surface-50 text-left text-xs uppercase tracking-wider text-ink-600 font-semibold">
+              <th class="px-4 py-3">Period</th>
+              <th class="px-4 py-3">Account</th>
+              <th class="px-4 py-3 text-right">Budget</th>
+              <th class="px-4 py-3 text-right">Actual</th>
+              <th class="px-4 py-3 text-right">Variance</th>
+              <th class="px-4 py-3 text-right">Variance %</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border bg-surface">
+            <tr v-for="(r, i) in rows" :key="`${r.account_id}-${r.fiscal_period_id}-${i}`" class="cursor-pointer hover:bg-surface-50/75 transition-colors" @click="router.visit(drillHref(r))">
+              <td class="px-4 py-3 font-medium text-ink-700">{{ monthLabel(r.period_no) }}</td>
+              <td class="px-4 py-3 text-ink-900">
+                <span class="font-mono text-xs text-ink-600 mr-2">{{ r.account_code }}</span>{{ r.account_name }}
+              </td>
+              <td class="px-4 py-3 text-right font-mono text-xs text-ink-900">{{ formatCurrency(r.budget) }}</td>
+              <td class="px-4 py-3 text-right font-mono text-xs text-ink-900">{{ formatCurrency(r.actual) }}</td>
+              <td class="px-4 py-3 text-right font-mono text-xs font-semibold" :class="r.variance < 0 ? 'text-signal-danger' : 'text-signal-success'">
+                {{ formatCurrency(r.variance) }}
+              </td>
+              <td class="px-4 py-3 text-right font-mono text-xs text-ink-700">{{ r.variance_pct === null ? '—' : `${r.variance_pct.toFixed(1)}%` }}</td>
+            </tr>
+            <tr v-if="!rows.length">
+              <td colspan="6" class="px-4 py-8 text-center text-ink-500">Nothing budgeted or posted for this scope.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </Panel>
   </AppLayout>
 </template>

@@ -1,10 +1,13 @@
 <!-- ponytail: Accounting §3F staged statement lines — read-only, no matching UI yet (§3Q). -->
 <script setup lang="ts">
+import { computed } from 'vue'
 import { Link } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
-import Panel from '@/Components/cards/Panel.vue'
+import DataTable from '@/Components/tables/DataTable.vue'
+import SecondaryButton from '@/Components/SecondaryButton.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
+import { formatCurrency, formatDate, formatDateTime } from '@/Utils/formatters'
 
 interface StatementLine {
   id: number
@@ -26,38 +29,51 @@ const props = defineProps<{
   }
   lines: StatementLine[]
 }>()
+
+const columns = [
+  { key: 'line_date', label: 'Date', sortable: true },
+  { key: 'description', label: 'Description', sortable: true },
+  { key: 'reference', label: 'Reference' },
+  { key: 'amount', label: 'Amount', align: 'right' as const, sortable: true },
+  { key: 'status', label: 'Status' },
+]
 </script>
 
 <template>
   <AppLayout>
-    <PageHeader :title="props.import.original_filename" :description="`${props.import.bank_account_name ?? '—'} — imported ${props.import.imported_at} — ${props.import.line_count} lines`">
+    <PageHeader :title="props.import.original_filename" :description="`${props.import.bank_account_name ?? '—'} — Imported ${formatDateTime(props.import.imported_at)} — ${props.import.line_count} lines`">
       <template #actions>
-        <Link :href="route('accounting.bank-statement-imports.index')" class="text-sm font-medium text-accent hover:underline">← Back to imports</Link>
+        <SecondaryButton :href="route('accounting.bank-statement-imports.index')">
+          &larr; Back to Imports
+        </SecondaryButton>
       </template>
     </PageHeader>
 
-    <Panel class="mt-6">
-      <table class="w-full text-sm">
-        <thead>
-          <tr class="border-b border-border text-left text-xs uppercase text-ink-600">
-            <th class="py-2">Date</th>
-            <th class="py-2">Description</th>
-            <th class="py-2">Reference</th>
-            <th class="py-2 text-right">Amount</th>
-            <th class="py-2">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="l in lines" :key="l.id" class="border-b border-border">
-            <td class="py-2 text-ink-700">{{ l.line_date }}</td>
-            <td class="py-2 text-ink-900">{{ l.description ?? '—' }}</td>
-            <td class="py-2 text-ink-700">{{ l.reference ?? '—' }}</td>
-            <td class="py-2 text-right" :class="l.amount < 0 ? 'text-signal-danger' : 'text-ink-900'">{{ l.amount.toFixed(2) }}</td>
-            <td class="py-2"><StatusBadge :status="l.status" /></td>
-          </tr>
-          <tr v-if="!lines.length"><td colspan="5" class="py-6 text-center text-ink-600">No lines.</td></tr>
-        </tbody>
-      </table>
-    </Panel>
+    <div class="mt-6">
+      <DataTable
+        :columns="columns"
+        :items="lines"
+        empty-title="No lines in this statement import"
+        empty-description="This file contained no parsable statement records."
+      >
+        <template #cell-line_date="{ item }">
+          <span class="font-mono text-xs text-ink-700">{{ formatDate(item.line_date) }}</span>
+        </template>
+        <template #cell-description="{ item }">
+          <span class="font-medium text-ink-900">{{ item.description ?? '—' }}</span>
+        </template>
+        <template #cell-reference="{ item }">
+          <span class="font-mono text-xs text-ink-600">{{ item.reference ?? '—' }}</span>
+        </template>
+        <template #cell-amount="{ item }">
+          <span class="font-mono text-xs font-semibold" :class="item.amount < 0 ? 'text-signal-danger' : 'text-ink-900'">
+            {{ formatCurrency(item.amount, props.import.currency_code ?? undefined) }}
+          </span>
+        </template>
+        <template #cell-status="{ item }">
+          <StatusBadge :status="item.status" />
+        </template>
+      </DataTable>
+    </div>
   </AppLayout>
 </template>

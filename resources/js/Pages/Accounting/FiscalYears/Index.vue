@@ -6,6 +6,8 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
+import { useConfirm } from '@/Composables/useConfirmDialog'
+import { formatDate } from '@/Utils/formatters'
 
 interface PeriodRow {
   id: number
@@ -30,63 +32,92 @@ const props = defineProps<{
   fiscalYears: FiscalYearRow[]
 }>()
 
+const { confirm } = useConfirm()
+
 const switchCompany = (e: Event) => {
   const companyId = (e.target as HTMLSelectElement).value
   router.get(route('accounting.fiscal-years.index'), { company_id: companyId }, { preserveState: true })
 }
 
-const setPeriodStatus = (periodId: number, status: string) => {
+const setPeriodStatus = (periodId: number, periodNo: number, status: string) => {
+  if (status === 'hard_closed') {
+    confirm({
+      title: `Hard-Close Period ${periodNo}?`,
+      description: 'Hard-closing is final and locks all GL postings permanently.',
+      variant: 'destructive',
+      confirmText: 'Hard-Close',
+      onConfirm: () => router.put(route('accounting.fiscal-periods.status', periodId), { status }, { preserveScroll: true }),
+    })
+    return
+  }
   router.put(route('accounting.fiscal-periods.status', periodId), { status }, { preserveScroll: true })
 }
 </script>
 
 <template>
   <AppLayout>
-    <PageHeader title="Fiscal Years" description="Each fiscal year ships with its 12 monthly periods — posting is only allowed into an open period.">
+    <PageHeader title="Fiscal Years &amp; Period Locking" description="Each fiscal year contains 12 monthly periods. Postings are only permitted in open periods.">
       <template #actions>
-        <PrimaryButton :href="route('accounting.fiscal-years.create', { company_id: selectedCompanyId })">New fiscal year</PrimaryButton>
+        <PrimaryButton :href="route('accounting.fiscal-years.create', { company_id: selectedCompanyId })">
+          + New Fiscal Year
+        </PrimaryButton>
       </template>
     </PageHeader>
 
-    <Panel class="mt-6">
-      <select
-        :value="selectedCompanyId"
-        class="mb-4 rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-        @change="switchCompany"
-      >
-        <option v-for="c in companies" :key="c.id" :value="c.id">{{ c.legal_name }}</option>
-      </select>
-
-      <div v-if="!fiscalYears.length" class="py-6 text-center text-ink-600">No fiscal years yet.</div>
-
-      <div v-for="fy in fiscalYears" :key="fy.id" class="mb-6 rounded-sm border border-border">
-        <div class="flex items-center justify-between border-b border-border bg-surface-50 px-4 py-3">
-          <div class="text-sm font-semibold text-ink-900">FY {{ fy.year }} ({{ fy.start_date }} – {{ fy.end_date }})</div>
-          <StatusBadge :status="fy.status" />
-        </div>
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b border-border text-left text-xs uppercase text-ink-600">
-              <th class="py-2 pl-4">Period</th>
-              <th class="py-2">Range</th>
-              <th class="py-2">Status</th>
-              <th class="py-2 pr-4 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="p in fy.periods" :key="p.id" class="border-b border-border last:border-b-0 hover:bg-surface-50">
-              <td class="py-2 pl-4 text-ink-900">{{ p.period_no }}</td>
-              <td class="py-2 text-ink-700">{{ p.start_date }} – {{ p.end_date }}</td>
-              <td class="py-2"><StatusBadge :status="p.status" /></td>
-              <td class="py-2 pr-4 text-right">
-                <button v-if="p.status !== 'open'" type="button" class="mr-3 text-sm font-medium text-accent hover:underline" @click="setPeriodStatus(p.id, 'open')">Reopen</button>
-                <button v-if="p.status !== 'soft_closed'" type="button" class="mr-3 text-sm font-medium text-accent hover:underline" @click="setPeriodStatus(p.id, 'soft_closed')">Soft-close</button>
-                <button v-if="p.status !== 'hard_closed'" type="button" class="text-sm font-medium text-signal-danger hover:underline" @click="setPeriodStatus(p.id, 'hard_closed')">Hard-close</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+    <div class="mt-6 space-y-6">
+      <div class="flex items-center gap-3">
+        <label class="text-xs font-semibold text-ink-600">Company:</label>
+        <select
+          :value="selectedCompanyId"
+          class="rounded-md border border-border bg-surface-0 px-3 py-1.5 text-sm font-medium text-ink-900 shadow-xs focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+          @change="switchCompany"
+        >
+          <option v-for="c in companies" :key="c.id" :value="c.id">{{ c.legal_name }}</option>
+        </select>
       </div>
-    </Panel>
+
+      <div v-if="!fiscalYears.length" class="p-8 text-center text-ink-500 bg-surface border border-border rounded-lg">
+        No fiscal years configured for this company.
+      </div>
+
+      <Panel v-for="fy in fiscalYears" :key="fy.id" class="overflow-hidden">
+        <template #header>
+          <div class="flex items-center justify-between w-full">
+            <div>
+              <span class="font-bold text-ink-900 text-base">FY {{ fy.year }}</span>
+              <span class="ml-3 text-xs font-mono text-ink-600">({{ formatDate(fy.start_date) }} – {{ formatDate(fy.end_date) }})</span>
+            </div>
+            <StatusBadge :status="fy.status" />
+          </div>
+        </template>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-border bg-surface-50 text-left text-xs uppercase tracking-wider text-ink-600 font-semibold">
+                <th class="py-3 px-4">Period</th>
+                <th class="py-3 px-4">Date Range</th>
+                <th class="py-3 px-4">Lock Status</th>
+                <th class="py-3 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-border bg-surface">
+              <tr v-for="p in fy.periods" :key="p.id" class="hover:bg-surface-50/75 transition-colors">
+                <td class="py-3 px-4 font-semibold text-ink-900">Period {{ p.period_no }}</td>
+                <td class="py-3 px-4 font-mono text-xs text-ink-700">{{ formatDate(p.start_date) }} – {{ formatDate(p.end_date) }}</td>
+                <td class="py-3 px-4"><StatusBadge :status="p.status" /></td>
+                <td class="py-3 px-4 text-right">
+                  <div class="flex items-center justify-end gap-3 text-xs font-semibold">
+                    <button v-if="p.status !== 'open'" type="button" class="text-accent hover:underline" @click="setPeriodStatus(p.id, p.period_no, 'open')">Reopen</button>
+                    <button v-if="p.status !== 'soft_closed'" type="button" class="text-accent hover:underline" @click="setPeriodStatus(p.id, p.period_no, 'soft_closed')">Soft-Close</button>
+                    <button v-if="p.status !== 'hard_closed'" type="button" class="text-signal-danger hover:underline" @click="setPeriodStatus(p.id, p.period_no, 'hard_closed')">Hard-Close</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </Panel>
+    </div>
   </AppLayout>
 </template>

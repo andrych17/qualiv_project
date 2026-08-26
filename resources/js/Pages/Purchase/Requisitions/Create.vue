@@ -10,6 +10,7 @@ import FormSelect from '@/Components/forms/FormSelect.vue'
 import FormTextarea from '@/Components/forms/FormTextarea.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
+import { formatCurrency } from '@/Utils/formatters'
 
 interface CostCenter {
   id: number
@@ -112,10 +113,6 @@ const estimatedTotal = computed(() => {
     return sum + (Number(line.qty) || 0) * (Number(line.estimated_unit_price) || 0)
   }, 0)
 })
-
-const formatCurrency = (val: number) => {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val)
-}
 
 const submit = () => form.post(route('purchase.requisitions.store'))
 </script>

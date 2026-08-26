@@ -1,11 +1,12 @@
 <!-- ponytail: Accounting §3M — tenant-entered DJP Faktur Pajak number-allocation blocks. -->
 <script setup lang="ts">
-import { router } from '@inertiajs/vue3'
+import { ref, computed } from 'vue'
+import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
-import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
+import DataTable, { type SortState } from '@/Components/tables/DataTable.vue'
 import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface BlockRow {
@@ -23,6 +24,25 @@ const props = defineProps<{
   selectedCompanyId: number | null
   blocks: BlockRow[]
 }>()
+
+const search = ref('')
+const sort = ref<SortState>(null)
+const selected = ref<Array<string | number>>([])
+
+const columns = [
+  { key: 'prefix', label: 'Prefix', sortable: true },
+  { key: 'range', label: 'NSFP Range' },
+  { key: 'last_issued', label: 'Last Issued' },
+  { key: 'remaining', label: 'Remaining', sortable: true, align: 'right' as const },
+  { key: 'is_active', label: 'Status' },
+  { key: 'actions', label: 'Actions', align: 'right' as const },
+]
+
+const filteredBlocks = computed(() => {
+  const q = search.value.trim().toLowerCase()
+  if (!q) return props.blocks
+  return props.blocks.filter((b) => b.prefix.toLowerCase().includes(q))
+})
 
 const switchCompany = (e: Event) => {
   const companyId = (e.target as HTMLSelectElement).value
@@ -44,44 +64,73 @@ const confirmDeactivate = (block: BlockRow) => {
   <AppLayout>
     <PageHeader title="Faktur Pajak Number Blocks" description="DJP-allocated Nomor Seri Faktur Pajak ranges — output Faktur Pajak numbers are drawn from here sequentially, and a block can never wrap or reuse a number.">
       <template #actions>
-        <PrimaryButton :href="route('accounting.faktur-blocks.create', { company_id: selectedCompanyId })">New block</PrimaryButton>
+        <PrimaryButton :href="route('accounting.faktur-blocks.create', { company_id: selectedCompanyId })">
+          New Block
+        </PrimaryButton>
       </template>
     </PageHeader>
 
-    <Panel class="mt-6">
-      <select
-        :value="selectedCompanyId"
-        class="mb-4 rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-        @change="switchCompany"
-      >
-        <option v-for="c in companies" :key="c.id" :value="c.id">{{ c.legal_name }}</option>
-      </select>
+    <div class="mt-6 space-y-4">
+      <div class="flex items-center gap-3">
+        <label class="text-xs font-semibold text-ink-600">Company:</label>
+        <select
+          :value="selectedCompanyId"
+          class="rounded-md border border-border bg-surface-0 px-3 py-1.5 text-sm font-medium text-ink-900 shadow-xs focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+          @change="switchCompany"
+        >
+          <option v-for="c in companies" :key="c.id" :value="c.id">{{ c.legal_name }}</option>
+        </select>
+      </div>
 
-      <table class="w-full text-sm">
-        <thead>
-          <tr class="border-b border-border text-left text-xs uppercase text-ink-600">
-            <th class="py-2">Prefix</th>
-            <th class="py-2">Range</th>
-            <th class="py-2">Last issued</th>
-            <th class="py-2">Remaining</th>
-            <th class="py-2">Status</th>
-            <th class="py-2 text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="b in blocks" :key="b.id" class="border-b border-border hover:bg-surface-50">
-            <td class="py-2 text-ink-900">{{ b.prefix }}</td>
-            <td class="py-2 text-ink-700">{{ b.range_start }} – {{ b.range_end }}</td>
-            <td class="py-2 text-ink-700">{{ b.last_issued ?? '—' }}</td>
-            <td class="py-2 text-ink-700">{{ b.remaining }}</td>
-            <td class="py-2"><StatusBadge :status="b.is_active ? 'active' : 'inactive'" /></td>
-            <td class="py-2 text-right">
-              <button v-if="b.is_active" type="button" class="text-sm font-medium text-signal-danger hover:underline" @click="confirmDeactivate(b)">Deactivate</button>
-            </td>
-          </tr>
-          <tr v-if="!blocks.length"><td colspan="6" class="py-6 text-center text-ink-600">No number blocks yet.</td></tr>
-        </tbody>
-      </table>
-    </Panel>
+      <DataTable
+        :columns="columns"
+        :items="filteredBlocks"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        v-model:search="search"
+        sticky-header
+        storage-key="accounting.faktur-blocks"
+        search-placeholder="Search prefix…"
+        export-filename="faktur-blocks"
+        status-rail-key="is_active"
+        empty-title="No Faktur Pajak number blocks found"
+        empty-description="Register DJP allocated NSFP serial ranges for tax invoice issuance."
+      >
+        <template #cell-prefix="{ item }">
+          <span class="font-mono font-medium text-ink-900">{{ (item as BlockRow).prefix }}</span>
+        </template>
+
+        <template #cell-range="{ item }">
+          <span class="font-mono text-xs text-ink-700">{{ (item as BlockRow).range_start }} – {{ (item as BlockRow).range_end }}</span>
+        </template>
+
+        <template #cell-last_issued="{ item }">
+          <span class="font-mono text-xs text-ink-700">{{ (item as BlockRow).last_issued ?? '—' }}</span>
+        </template>
+
+        <template #cell-remaining="{ item }">
+          <span class="font-mono text-xs font-semibold" :class="(item as BlockRow).remaining < 50 ? 'text-signal-danger' : 'text-ink-900'">
+            {{ (item as BlockRow).remaining }}
+          </span>
+        </template>
+
+        <template #cell-is_active="{ item }">
+          <StatusBadge :status="(item as BlockRow).is_active ? 'active' : 'inactive'" />
+        </template>
+
+        <template #cell-actions="{ item }">
+          <div class="flex items-center justify-end">
+            <button
+              v-if="(item as BlockRow).is_active"
+              type="button"
+              class="text-xs font-medium text-signal-danger hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              @click="confirmDeactivate(item as BlockRow)"
+            >
+              Deactivate
+            </button>
+          </div>
+        </template>
+      </DataTable>
+    </div>
   </AppLayout>
 </template>

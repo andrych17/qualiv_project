@@ -8,6 +8,8 @@ import { Link } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
+import SecondaryButton from '@/Components/SecondaryButton.vue'
+import { formatCurrency, formatDate } from '@/Utils/formatters'
 
 type LedgerLine = { journal_id: number; date: string; memo: string | null; source: string; debit: number; credit: number; running_balance?: number }
 
@@ -24,43 +26,49 @@ const props = defineProps<{
 
 <template>
   <AppLayout>
-    <PageHeader :title="`${account.account_code} — ${account.account_name}`" :description="periodLabel ?? (throughDate ? `Through ${throughDate}` : 'All posted activity')">
+    <PageHeader :title="`${account.account_code} — ${account.account_name}`" :description="periodLabel ?? (throughDate ? `Through ${formatDate(throughDate)}` : 'All posted activity')">
       <template #actions>
-        <Link :href="back.href" class="text-sm font-medium text-accent hover:underline">← {{ back.label }}</Link>
+        <SecondaryButton :href="back.href">&larr; {{ back.label }}</SecondaryButton>
       </template>
     </PageHeader>
 
     <Panel class="mt-6 p-4">
-      <div class="text-xs uppercase text-ink-600">{{ closingBalanceLabel }}</div>
-      <div class="mt-1 text-lg font-semibold text-ink-900">{{ closingBalance.toFixed(2) }}</div>
+      <div class="text-xs uppercase font-semibold text-ink-600">{{ closingBalanceLabel }}</div>
+      <div class="mt-1 font-mono text-2xl font-bold text-ink-900">{{ formatCurrency(closingBalance) }}</div>
     </Panel>
 
-    <Panel class="mt-4">
-      <table class="w-full text-sm">
-        <thead>
-          <tr class="border-b border-border text-left text-xs uppercase text-ink-600">
-            <th class="px-4 py-2">Date</th>
-            <th class="px-4 py-2">Memo</th>
-            <th class="px-4 py-2">Source</th>
-            <th class="px-4 py-2 text-right">Debit</th>
-            <th class="px-4 py-2 text-right">Credit</th>
-            <th v-if="!periodLabel" class="px-4 py-2 text-right">Balance</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(l, i) in lines" :key="`${l.journal_id}-${i}`" class="border-b border-border">
-            <td class="px-4 py-2 text-ink-700">{{ l.date }}</td>
-            <td class="px-4 py-2">
-              <Link :href="route('accounting.journals.show', l.journal_id)" class="text-accent hover:underline">{{ l.memo ?? `Journal #${l.journal_id}` }}</Link>
-            </td>
-            <td class="px-4 py-2 text-ink-700 capitalize">{{ l.source }}</td>
-            <td class="px-4 py-2 text-right text-ink-900">{{ l.debit ? l.debit.toFixed(2) : '—' }}</td>
-            <td class="px-4 py-2 text-right text-ink-900">{{ l.credit ? l.credit.toFixed(2) : '—' }}</td>
-            <td v-if="!periodLabel" class="px-4 py-2 text-right font-medium text-ink-900">{{ (l.running_balance ?? 0).toFixed(2) }}</td>
-          </tr>
-          <tr v-if="!lines.length"><td :colspan="periodLabel ? 5 : 6" class="px-4 py-6 text-center text-ink-600">No posted activity.</td></tr>
-        </tbody>
-      </table>
+    <Panel class="mt-6">
+      <div class="overflow-x-auto rounded-lg border border-border">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-border bg-surface-50 text-left text-xs uppercase tracking-wider text-ink-600 font-semibold">
+              <th class="px-4 py-3">Date</th>
+              <th class="px-4 py-3">Memo</th>
+              <th class="px-4 py-3">Source</th>
+              <th class="px-4 py-3 text-right">Debit</th>
+              <th class="px-4 py-3 text-right">Credit</th>
+              <th v-if="!periodLabel" class="px-4 py-3 text-right">Balance</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border bg-surface">
+            <tr v-for="(l, i) in lines" :key="`${l.journal_id}-${i}`" class="hover:bg-surface-50/75 transition-colors">
+              <td class="px-4 py-3 font-mono text-xs text-ink-700">{{ formatDate(l.date) }}</td>
+              <td class="px-4 py-3">
+                <Link :href="route('accounting.journals.show', l.journal_id)" class="font-medium text-accent hover:underline">
+                  {{ l.memo ?? `Journal #${l.journal_id}` }}
+                </Link>
+              </td>
+              <td class="px-4 py-3 text-xs capitalize text-ink-700 font-medium">{{ l.source.replace('_', ' ') }}</td>
+              <td class="px-4 py-3 text-right font-mono text-xs text-ink-900">{{ l.debit ? formatCurrency(l.debit) : '—' }}</td>
+              <td class="px-4 py-3 text-right font-mono text-xs text-ink-900">{{ l.credit ? formatCurrency(l.credit) : '—' }}</td>
+              <td v-if="!periodLabel" class="px-4 py-3 text-right font-mono text-xs font-semibold text-ink-900">{{ formatCurrency(l.running_balance ?? 0) }}</td>
+            </tr>
+            <tr v-if="!lines.length">
+              <td :colspan="periodLabel ? 5 : 6" class="px-4 py-8 text-center text-ink-500">No posted activity.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </Panel>
   </AppLayout>
 </template>

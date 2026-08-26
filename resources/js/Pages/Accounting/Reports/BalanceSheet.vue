@@ -5,6 +5,8 @@ import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
+import SecondaryButton from '@/Components/SecondaryButton.vue'
+import { formatCurrency } from '@/Utils/formatters'
 
 type Row = { account_id: number | null; account_code: string | null; account_name: string; balance: number }
 type Snapshot = { periodLabel: string; asOfDate: string; assets: Row[]; liabilities: Row[]; equity: Row[]; totalAssets: number; totalLiabilitiesAndEquity: number; variance: number }
@@ -37,66 +39,80 @@ const exportHref = () => route('accounting.reports.balance-sheet.export', {
 
 <template>
   <AppLayout>
-    <PageHeader title="Balance Sheet" description="Neraca — as of period-end, current vs. prior period.">
+    <PageHeader title="Balance Sheet" description="Neraca — as of period-end, current vs. prior period comparison.">
       <template #actions>
-        <a v-if="report" :href="exportHref()" class="mr-4 text-sm font-medium text-accent hover:underline">Export CSV</a>
-        <Link :href="route('accounting.reports.index')" class="text-sm font-medium text-accent hover:underline">← Reports</Link>
+        <div class="flex items-center gap-2">
+          <SecondaryButton v-if="report" :href="exportHref()">Export CSV</SecondaryButton>
+          <SecondaryButton :href="route('accounting.reports.index')">&larr; Reports</SecondaryButton>
+        </div>
       </template>
     </PageHeader>
 
     <Panel class="mt-6">
       <div class="flex flex-wrap items-center gap-4">
-        <select :value="selectedCompanyId" class="rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" @change="switchCompany">
+        <select :value="selectedCompanyId" class="rounded-md border border-border bg-surface-0 px-3 py-1.5 text-sm font-medium text-ink-900 shadow-xs focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" @change="switchCompany">
           <option v-for="c in companies" :key="c.id" :value="c.id">{{ c.legal_name }}</option>
         </select>
-        <select :value="selectedPeriodId" class="rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" @change="switchPeriod">
+        <select :value="selectedPeriodId" class="rounded-md border border-border bg-surface-0 px-3 py-1.5 text-sm font-medium text-ink-900 shadow-xs focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" @change="switchPeriod">
           <option v-for="p in periods" :key="p.value" :value="p.value">{{ p.label }}</option>
         </select>
-        <label class="flex items-center gap-2 text-sm text-ink-900">
-          <input type="checkbox" :checked="combined" class="rounded border-border" @change="toggleCombined" />
+        <label class="flex items-center gap-2 text-sm text-ink-900 font-medium">
+          <input type="checkbox" :checked="combined" class="rounded border-border text-accent focus:ring-accent" @change="toggleCombined" />
           Combined (all companies, matched by period number)
         </label>
       </div>
     </Panel>
 
     <template v-if="report">
-      <Panel class="mt-4 p-4" :class="Math.abs(report.current.variance) < 0.005 ? '' : 'ring-1 ring-signal-danger/40'">
+      <Panel class="mt-6 p-4" :class="Math.abs(report.current.variance) < 0.005 ? '' : 'border-signal-danger ring-1 ring-signal-danger/40'">
         <div class="flex items-center justify-between text-sm">
-          <span class="text-ink-600">As of {{ report.current.asOfDate }} — Assets vs. Liabilities + Equity</span>
-          <span class="font-semibold" :class="Math.abs(report.current.variance) < 0.005 ? 'text-signal-success' : 'text-signal-danger'">Variance {{ report.current.variance.toFixed(2) }}</span>
+          <span class="text-ink-600 font-medium">As of {{ report.current.asOfDate }} — Assets vs. Liabilities + Equity</span>
+          <span class="font-mono font-semibold" :class="Math.abs(report.current.variance) < 0.005 ? 'text-signal-success' : 'text-signal-danger'">
+            Variance {{ formatCurrency(report.current.variance) }}
+          </span>
         </div>
       </Panel>
 
-      <div class="mt-4 space-y-4">
+      <div class="mt-6 space-y-6">
         <Panel v-for="[key, title] in [['assets','Aset (Assets)'],['liabilities','Liabilitas (Liabilities)'],['equity','Ekuitas (Equity)']] as const" :key="key">
           <div class="border-b border-border px-4 py-3 text-sm font-semibold text-ink-900">{{ title }}</div>
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="border-b border-border text-left text-xs uppercase text-ink-600">
-                <th class="px-4 py-2">Account</th>
-                <th class="px-4 py-2 text-right">{{ report.current.periodLabel }}</th>
-                <th v-if="report.prior" class="px-4 py-2 text-right">{{ report.prior.periodLabel }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="r in (report.current as any)[key] as Row[]" :key="r.account_id ?? r.account_name" class="border-b border-border">
-                <td class="px-4 py-2">
-                  <Link v-if="r.account_id && !combined" :href="route('accounting.reports.account-ledger', { account: r.account_id, fiscal_period_id: selectedPeriodId })" class="text-accent hover:underline">{{ r.account_code }} {{ r.account_name }}</Link>
-                  <span v-else class="italic text-ink-900">{{ r.account_name }}</span>
-                </td>
-                <td class="px-4 py-2 text-right text-ink-900">{{ r.balance.toFixed(2) }}</td>
-                <td v-if="report.prior" class="px-4 py-2 text-right text-ink-700">{{ priorFor(r, (report.prior as any)[key]).toFixed(2) }}</td>
-              </tr>
-              <tr v-if="!(report.current as any)[key].length"><td :colspan="report.prior ? 3 : 2" class="px-4 py-4 text-center text-ink-600">—</td></tr>
-            </tbody>
-          </table>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-border bg-surface-50 text-left text-xs uppercase tracking-wider text-ink-600 font-semibold">
+                  <th class="px-4 py-3">Account</th>
+                  <th class="px-4 py-3 text-right">{{ report.current.periodLabel }}</th>
+                  <th v-if="report.prior" class="px-4 py-3 text-right">{{ report.prior.periodLabel }}</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-border bg-surface">
+                <tr v-for="r in (report.current as any)[key] as Row[]" :key="r.account_id ?? r.account_name" class="hover:bg-surface-50/75 transition-colors">
+                  <td class="px-4 py-3">
+                    <Link v-if="r.account_id && !combined" :href="route('accounting.reports.account-ledger', { account: r.account_id, fiscal_period_id: selectedPeriodId })" class="font-medium text-accent hover:underline">
+                      <span class="font-mono text-xs text-ink-600 mr-2">{{ r.account_code }}</span>{{ r.account_name }}
+                    </Link>
+                    <span v-else class="italic text-ink-900 font-medium">{{ r.account_name }}</span>
+                  </td>
+                  <td class="px-4 py-3 text-right font-mono text-xs text-ink-900">{{ formatCurrency(r.balance) }}</td>
+                  <td v-if="report.prior" class="px-4 py-3 text-right font-mono text-xs text-ink-600">{{ formatCurrency(priorFor(r, (report.prior as any)[key])) }}</td>
+                </tr>
+                <tr v-if="!(report.current as any)[key].length"><td :colspan="report.prior ? 3 : 2" class="px-4 py-6 text-center text-ink-500">—</td></tr>
+              </tbody>
+            </table>
+          </div>
         </Panel>
       </div>
 
-      <Panel class="mt-4 p-4">
-        <dl class="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
-          <div class="flex justify-between border-t border-border pt-2 font-semibold"><dt>Total Assets</dt><dd>{{ report.current.totalAssets.toFixed(2) }}</dd></div>
-          <div class="flex justify-between border-t border-border pt-2 font-semibold"><dt>Total Liabilities + Equity</dt><dd>{{ report.current.totalLiabilitiesAndEquity.toFixed(2) }}</dd></div>
+      <Panel class="mt-6 p-4">
+        <dl class="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
+          <div class="flex justify-between border-t border-border pt-3 font-semibold">
+            <dt class="text-ink-900">Total Assets</dt>
+            <dd class="font-mono text-accent font-bold">{{ formatCurrency(report.current.totalAssets) }}</dd>
+          </div>
+          <div class="flex justify-between border-t border-border pt-3 font-semibold">
+            <dt class="text-ink-900">Total Liabilities + Equity</dt>
+            <dd class="font-mono text-accent font-bold">{{ formatCurrency(report.current.totalLiabilitiesAndEquity) }}</dd>
+          </div>
         </dl>
       </Panel>
     </template>

@@ -5,9 +5,12 @@ import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
+import FormCurrencyInput from '@/Components/forms/FormCurrencyInput.vue'
+import FormNumberInput from '@/Components/forms/FormNumberInput.vue'
 import FormSearchableSelect from '@/Components/forms/FormSearchableSelect.vue'
 import FormAsyncSearchableSelect from '@/Components/forms/FormAsyncSearchableSelect.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
+import SecondaryButton from '@/Components/SecondaryButton.vue'
 
 const props = defineProps<{
   asset: {
@@ -43,11 +46,11 @@ const form = useForm({
   name: props.asset.name,
   vendor_partner_id: props.asset.vendor_partner_id,
   acquisition_date: props.asset.acquisition_date,
-  acquisition_cost: String(props.asset.acquisition_cost),
+  acquisition_cost: Number(props.asset.acquisition_cost) || null,
   asset_gl_account_id: props.asset.asset_gl_account_id,
   accumulated_depreciation_gl_account_id: props.asset.accumulated_depreciation_gl_account_id,
   depreciation_expense_gl_account_id: props.asset.depreciation_expense_gl_account_id,
-  commercial_useful_life_months: String(props.asset.commercial_useful_life_months),
+  commercial_useful_life_months: Number(props.asset.commercial_useful_life_months) || null,
   commercial_method: props.asset.commercial_method,
   commercial_declining_rate: props.asset.commercial_declining_rate ?? '',
   fiscal_method: props.asset.fiscal_method,
@@ -55,48 +58,48 @@ const form = useForm({
 
 const submit = () => form.transform((data) => ({
   ...data,
-  acquisition_cost: Number(data.acquisition_cost),
-  commercial_useful_life_months: Number(data.commercial_useful_life_months),
+  acquisition_cost: Number(data.acquisition_cost) || 0,
+  commercial_useful_life_months: Number(data.commercial_useful_life_months) || 0,
   commercial_declining_rate: data.commercial_method === 'declining_balance' && data.commercial_declining_rate !== '' ? Number(data.commercial_declining_rate) : null,
 })).put(route('accounting.fixed-assets.update', props.asset.id))
 </script>
 
 <template>
   <AppLayout>
-    <PageHeader :title="`Edit ${asset.asset_no}`" />
+    <PageHeader :title="`Edit ${asset.asset_no}`" :description="asset.name" />
 
     <Panel class="mt-6 max-w-3xl">
       <form class="space-y-4" @submit.prevent="submit">
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <FormSearchableSelect v-model="form.asset_group_id" name="asset_group_id" label="Asset group" :options="assetGroups" :error="form.errors.asset_group_id" required />
-          <FormInput v-model="form.asset_no" name="asset_no" label="Asset number" :error="form.errors.asset_no" required />
-          <FormInput v-model="form.name" name="name" label="Name" :error="form.errors.name" required />
-          <FormAsyncSearchableSelect v-model="form.vendor_partner_id" name="vendor_partner_id" label="Vendor (optional)" api-entity="crm_partner" placeholder="Search vendor..." :error="form.errors.vendor_partner_id" />
-          <FormInput v-model="form.acquisition_date" name="acquisition_date" type="date" label="Acquisition date" :error="form.errors.acquisition_date" required />
-          <FormInput v-model="form.acquisition_cost" name="acquisition_cost" type="number" step="0.01" label="Acquisition cost" :error="form.errors.acquisition_cost" required />
+          <FormSearchableSelect v-model="form.asset_group_id" name="asset_group_id" label="Asset Group" :options="assetGroups" :error="form.errors.asset_group_id" required />
+          <FormInput v-model="form.asset_no" name="asset_no" label="Asset Number / Tag" :error="form.errors.asset_no" required />
+          <FormInput v-model="form.name" name="name" label="Asset Name" :error="form.errors.name" required />
+          <FormAsyncSearchableSelect v-model="form.vendor_partner_id" name="vendor_partner_id" label="Vendor (Optional)" api-entity="crm_partner" placeholder="Search vendor..." :error="form.errors.vendor_partner_id" />
+          <FormInput v-model="form.acquisition_date" name="acquisition_date" type="date" label="Acquisition Date" :error="form.errors.acquisition_date" required />
+          <FormCurrencyInput v-model="form.acquisition_cost" name="acquisition_cost" label="Acquisition Cost" :error="form.errors.acquisition_cost" required />
         </div>
 
         <div class="border-t border-border pt-4">
-          <div class="mb-2 text-sm font-semibold text-ink-900">GL accounts</div>
+          <div class="mb-3 text-sm font-semibold text-ink-900">GL Account Mapping</div>
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <FormSearchableSelect v-model="form.asset_gl_account_id" name="asset_gl_account_id" label="Fixed asset account" :options="accounts" :error="form.errors.asset_gl_account_id" required />
-            <FormSearchableSelect v-model="form.accumulated_depreciation_gl_account_id" name="accumulated_depreciation_gl_account_id" label="Accumulated depreciation account" :options="accounts" :error="form.errors.accumulated_depreciation_gl_account_id" required />
-            <FormSearchableSelect v-model="form.depreciation_expense_gl_account_id" name="depreciation_expense_gl_account_id" label="Depreciation expense account" :options="accounts" :error="form.errors.depreciation_expense_gl_account_id" required />
+            <FormSearchableSelect v-model="form.asset_gl_account_id" name="asset_gl_account_id" label="Asset Account" :options="accounts" :error="form.errors.asset_gl_account_id" required />
+            <FormSearchableSelect v-model="form.accumulated_depreciation_gl_account_id" name="accumulated_depreciation_gl_account_id" label="Accumulated Depreciation" :options="accounts" :error="form.errors.accumulated_depreciation_gl_account_id" required />
+            <FormSearchableSelect v-model="form.depreciation_expense_gl_account_id" name="depreciation_expense_gl_account_id" label="Depreciation Expense" :options="accounts" :error="form.errors.depreciation_expense_gl_account_id" required />
           </div>
         </div>
 
         <div class="border-t border-border pt-4">
-          <div class="mb-2 text-sm font-semibold text-ink-900">Commercial depreciation</div>
+          <div class="mb-3 text-sm font-semibold text-ink-900">Commercial Depreciation</div>
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <FormInput v-model="form.commercial_useful_life_months" name="commercial_useful_life_months" type="number" label="Useful life (months)" :error="form.errors.commercial_useful_life_months" required />
-            <FormSearchableSelect v-model="form.commercial_method" name="commercial_method" label="Method" :options="methodOptions" :error="form.errors.commercial_method" required />
+            <FormNumberInput v-model="form.commercial_useful_life_months" name="commercial_useful_life_months" label="Useful Life (Months)" suffix="months" :error="form.errors.commercial_useful_life_months" required />
+            <FormSearchableSelect v-model="form.commercial_method" name="commercial_method" label="Depreciation Method" :options="methodOptions" :error="form.errors.commercial_method" required />
             <FormInput
               v-if="form.commercial_method === 'declining_balance'"
               v-model="form.commercial_declining_rate"
               name="commercial_declining_rate"
               type="number"
               step="0.0001"
-              label="Declining-balance rate (annual)"
+              label="Declining-Balance Rate (annual)"
               :error="form.errors.commercial_declining_rate"
               required
             />
@@ -104,20 +107,17 @@ const submit = () => form.transform((data) => ({
         </div>
 
         <div class="border-t border-border pt-4">
-          <div class="mb-2 text-sm font-semibold text-ink-900">Fiscal depreciation</div>
-          <FormSearchableSelect v-model="form.fiscal_method" name="fiscal_method" label="Method" :options="methodOptions" :error="form.errors.fiscal_method" required class="max-w-xs" />
+          <div class="mb-2 text-sm font-semibold text-ink-900">Fiscal Depreciation (Tax)</div>
+          <FormSearchableSelect v-model="form.fiscal_method" name="fiscal_method" label="Fiscal Method" :options="methodOptions" :error="form.errors.fiscal_method" required class="max-w-xs" />
         </div>
 
-        <p v-if="asset.status === 'disposed'" class="text-sm text-signal-danger">This asset is disposed — it can no longer be edited.</p>
+        <p v-if="asset.status === 'disposed'" class="text-sm text-signal-danger">This asset has been disposed and cannot be modified.</p>
 
         <div class="flex items-center justify-end gap-3 border-t border-border pt-4">
-          <Link
-            :href="route('accounting.fixed-assets.index', { company_id: asset.company_id })"
-            class="inline-flex items-center justify-center rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm font-semibold text-ink-900 shadow-sm transition hover:bg-surface-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-          >
+          <SecondaryButton :href="route('accounting.fixed-assets.index', { company_id: asset.company_id })">
             Cancel
-          </Link>
-          <PrimaryButton type="submit" :disabled="form.processing || asset.status === 'disposed'">Save changes</PrimaryButton>
+          </SecondaryButton>
+          <PrimaryButton type="submit" :disabled="form.processing || asset.status === 'disposed'">Save Changes</PrimaryButton>
         </div>
       </form>
     </Panel>

@@ -122,12 +122,9 @@ const uploadDocument = () => {
           />
 
           <div class="flex items-center justify-end gap-3 border-t border-border pt-4">
-            <Link
-              :href="route('purchase.vendors.index')"
-              class="inline-flex items-center justify-center rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm font-semibold text-ink-900 shadow-sm transition hover:bg-surface-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-            >
+            <SecondaryButton :href="route('purchase.vendors.index')">
               Back
-            </Link>
+            </SecondaryButton>
             <PrimaryButton type="submit" :disabled="form.processing">Save</PrimaryButton>
           </div>
         </form>

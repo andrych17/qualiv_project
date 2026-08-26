@@ -4,9 +4,9 @@ import { ref, computed } from 'vue'
 import { Link } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
-import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
+import DataTable, { type SortState } from '@/Components/tables/DataTable.vue'
 
 interface CompanyRow {
   id: number
@@ -20,10 +20,22 @@ interface CompanyRow {
 const props = defineProps<{ companies: CompanyRow[] }>()
 
 const search = ref('')
-const filtered = computed(() => {
+const sort = ref<SortState>(null)
+const selected = ref<Array<string | number>>([])
+
+const columns = [
+  { key: 'legal_name', label: 'Legal Name', sortable: true },
+  { key: 'npwp', label: 'NPWP', sortable: true },
+  { key: 'base_currency', label: 'Base Currency' },
+  { key: 'fiscal_year_start_month', label: 'FY Start Month' },
+  { key: 'is_active', label: 'Status' },
+  { key: 'actions', label: 'Actions', align: 'right' as const },
+]
+
+const filteredCompanies = computed(() => {
   const q = search.value.trim().toLowerCase()
   if (!q) return props.companies
-  return props.companies.filter((c) => c.legal_name.toLowerCase().includes(q))
+  return props.companies.filter((c) => c.legal_name.toLowerCase().includes(q) || (c.npwp ?? '').includes(q))
 })
 </script>
 
@@ -31,44 +43,67 @@ const filtered = computed(() => {
   <AppLayout>
     <PageHeader title="Companies" description="Legal entities inside this tenant — accounts, fiscal years, and journals all belong to one company.">
       <template #actions>
-        <PrimaryButton :href="route('accounting.companies.create')">New company</PrimaryButton>
+        <PrimaryButton :href="route('accounting.companies.create')">New Company</PrimaryButton>
       </template>
     </PageHeader>
 
-    <Panel class="mt-6">
-      <input
-        v-model="search"
-        type="text"
-        placeholder="Search companies…"
-        class="mb-4 w-full max-w-xs rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-      />
+    <div class="mt-6">
+      <DataTable
+        :columns="columns"
+        :items="filteredCompanies"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        v-model:search="search"
+        sticky-header
+        storage-key="accounting.companies"
+        search-placeholder="Search company or NPWP…"
+        export-filename="companies"
+        status-rail-key="is_active"
+        empty-title="No companies found"
+        empty-description="Register legal entity companies for accounting ledgers."
+      >
+        <template #cell-legal_name="{ item }">
+          <Link
+            :href="route('accounting.companies.edit', (item as CompanyRow).id)"
+            class="font-medium text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            {{ (item as CompanyRow).legal_name }}
+          </Link>
+        </template>
 
-      <table class="w-full text-sm">
-        <thead>
-          <tr class="border-b border-border text-left text-xs uppercase text-ink-600">
-            <th class="py-2">Legal name</th>
-            <th class="py-2">NPWP</th>
-            <th class="py-2">Base currency</th>
-            <th class="py-2">FY start month</th>
-            <th class="py-2">Status</th>
-            <th class="py-2 text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="c in filtered" :key="c.id" class="border-b border-border hover:bg-surface-50">
-            <td class="py-2 text-ink-900">{{ c.legal_name }}</td>
-            <td class="py-2 text-ink-700">{{ c.npwp ?? '—' }}</td>
-            <td class="py-2 text-ink-700">{{ c.base_currency }}</td>
-            <td class="py-2 text-ink-700">{{ c.fiscal_year_start_month }}</td>
-            <td class="py-2"><StatusBadge :status="c.is_active ? 'active' : 'inactive'" /></td>
-            <td class="py-2 text-right">
-              <Link :href="route('accounting.companies.edit', c.id)" class="mr-3 text-sm font-medium text-accent hover:underline">Edit</Link>
-              <Link :href="route('accounting.accounts.index', { company_id: c.id })" class="text-sm font-medium text-accent hover:underline">Accounts</Link>
-            </td>
-          </tr>
-          <tr v-if="!filtered.length"><td colspan="6" class="py-6 text-center text-ink-600">No companies yet.</td></tr>
-        </tbody>
-      </table>
-    </Panel>
+        <template #cell-npwp="{ item }">
+          <span class="font-mono text-xs text-ink-700">{{ (item as CompanyRow).npwp ?? '—' }}</span>
+        </template>
+
+        <template #cell-base_currency="{ item }">
+          <span class="font-mono text-xs text-ink-700">{{ (item as CompanyRow).base_currency }}</span>
+        </template>
+
+        <template #cell-fiscal_year_start_month="{ item }">
+          <span class="text-xs text-ink-700">Month {{ (item as CompanyRow).fiscal_year_start_month }}</span>
+        </template>
+
+        <template #cell-is_active="{ item }">
+          <StatusBadge :status="(item as CompanyRow).is_active ? 'active' : 'inactive'" />
+        </template>
+
+        <template #cell-actions="{ item }">
+          <div class="flex items-center justify-end gap-3">
+            <Link
+              :href="route('accounting.companies.edit', (item as CompanyRow).id)"
+              class="text-xs font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              Edit
+            </Link>
+            <Link
+              :href="route('accounting.accounts.index', { company_id: (item as CompanyRow).id })"
+              class="text-xs font-semibold text-ink-600 hover:text-ink-900 hover:underline"
+            >
+              COA &rarr;
+            </Link>
+          </div>
+        </template>
+      </DataTable>
+    </div>
   </AppLayout>
 </template>

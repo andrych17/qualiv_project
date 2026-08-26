@@ -6,6 +6,7 @@ import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import PurchaseSubNav from '@/Components/purchase/PurchaseSubNav.vue'
+import { formatCurrency } from '@/Utils/formatters'
 
 interface KpiData {
   total_spend: number
@@ -146,10 +147,6 @@ const resetFilters = () => {
     cost_center_id: '',
   }
   applyFilters()
-}
-
-const formatCurrency = (val: number, cur: string = 'IDR') => {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: cur || 'IDR', maximumFractionDigits: 0 }).format(val)
 }
 </script>
 

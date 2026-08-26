@@ -8,11 +8,15 @@ import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
+import FormCurrencyInput from '@/Components/forms/FormCurrencyInput.vue'
 import FormSearchableSelect from '@/Components/forms/FormSearchableSelect.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
+import SecondaryButton from '@/Components/SecondaryButton.vue'
+import DangerButton from '@/Components/DangerButton.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import { Plus, Trash2 } from 'lucide-vue-next'
 import { useConfirm } from '@/Composables/useConfirmDialog'
+import { formatCurrency, formatDate } from '@/Utils/formatters'
 
 type AccountOption = { value: number; label: string; is_control_account: boolean }
 type TemplateLine = { account_id: number | null; cost_center_id: number | null; debit: number; credit: number; description: string | null }
@@ -35,12 +39,12 @@ const form = useForm({
   currency_code: props.template.currency_code,
   recurrence_rule: props.template.recurrence_rule,
   anchor_date: props.template.anchor_date,
-  lines: props.template.lines.map((l) => ({ ...l, debit: String(l.debit), credit: String(l.credit) })),
+  lines: props.template.lines.map((l) => ({ ...l, debit: Number(l.debit) || null, credit: Number(l.credit) || null })),
 })
 
 const currencyOptions = props.currencies.map((c) => ({ value: c.code, label: `${c.code} — ${c.name}` }))
 
-const addLine = () => form.lines.push({ account_id: null, cost_center_id: null, debit: '', credit: '', description: '' })
+const addLine = () => form.lines.push({ account_id: null, cost_center_id: null, debit: null, credit: null, description: '' })
 const removeLine = (i: number) => form.lines.splice(i, 1)
 
 const isControlAccount = (accountId: number | null) => props.accounts.find((a) => a.value === accountId)?.is_control_account ?? false
@@ -73,74 +77,84 @@ const destroy = () => {
   <AppLayout>
     <PageHeader :title="template.name" description="Editing the rule or anchor date recomputes the next occurrence from scratch.">
       <template #actions>
-        <button type="button" class="mr-4 text-sm font-medium text-accent hover:underline" @click="toggleActive">{{ template.is_active ? 'Pause' : 'Resume' }}</button>
-        <button type="button" class="mr-4 text-sm font-medium text-signal-danger hover:underline" @click="destroy">Delete</button>
-        <Link :href="route('accounting.recurring-journal-templates.index', { company_id: template.company_id })" class="text-sm font-medium text-accent hover:underline">← Templates</Link>
+        <div class="flex items-center gap-2">
+          <SecondaryButton type="button" @click="toggleActive">
+            {{ template.is_active ? 'Pause Template' : 'Resume Template' }}
+          </SecondaryButton>
+          <DangerButton type="button" @click="destroy">
+            Delete
+          </DangerButton>
+          <SecondaryButton :href="route('accounting.recurring-journal-templates.index', { company_id: template.company_id })">
+            &larr; Templates
+          </SecondaryButton>
+        </div>
       </template>
     </PageHeader>
 
     <div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
       <Panel class="p-4">
-        <div class="text-xs uppercase text-ink-600">Status</div>
-        <div class="mt-1"><StatusBadge :status="template.is_active ? 'active' : 'paused'" /></div>
+        <div class="text-xs font-semibold uppercase text-ink-600">Status</div>
+        <div class="mt-2"><StatusBadge :status="template.is_active ? 'active' : 'paused'" /></div>
       </Panel>
       <Panel class="p-4">
-        <div class="text-xs uppercase text-ink-600">Last run</div>
-        <div class="mt-1 text-sm text-ink-900">{{ template.last_run_date ?? 'Never' }}</div>
+        <div class="text-xs font-semibold uppercase text-ink-600">Last Run</div>
+        <div class="mt-2 text-sm font-medium text-ink-900">{{ template.last_run_date ? formatDate(template.last_run_date) : 'Never' }}</div>
       </Panel>
       <Panel class="p-4">
-        <div class="text-xs uppercase text-ink-600">Next run</div>
-        <div class="mt-1 text-sm text-ink-900">{{ template.next_run_date ?? 'Exhausted — rule has no further occurrences' }}</div>
+        <div class="text-xs font-semibold uppercase text-ink-600">Next Run</div>
+        <div class="mt-2 text-sm font-medium text-ink-900">{{ template.next_run_date ? formatDate(template.next_run_date) : 'Exhausted' }}</div>
       </Panel>
     </div>
 
     <Panel v-if="upcomingRunDates.length" class="mt-4 p-4">
-      <div class="text-xs uppercase text-ink-600">Upcoming occurrences (preview)</div>
+      <div class="text-xs font-semibold uppercase text-ink-600">Upcoming Occurrences (Preview)</div>
       <div class="mt-2 flex flex-wrap gap-2">
-        <span v-for="d in upcomingRunDates" :key="d" class="rounded-full bg-surface-50 px-2.5 py-0.5 text-xs text-ink-700">{{ d }}</span>
+        <span v-for="d in upcomingRunDates" :key="d" class="rounded-md border border-border bg-surface-50 px-2.5 py-1 text-xs font-mono text-ink-700">
+          {{ formatDate(d) }}
+        </span>
       </div>
     </Panel>
 
-    <Panel class="mt-4">
+    <Panel class="mt-6">
       <form class="space-y-6" @submit.prevent="submit">
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <FormInput v-model="form.name" name="name" label="Template name" :error="form.errors.name" required />
+          <FormInput v-model="form.name" name="name" label="Template Name" :error="form.errors.name" required />
           <FormSearchableSelect v-model="form.currency_code" name="currency_code" label="Currency" :options="currencyOptions" :error="form.errors.currency_code" required />
-          <FormInput v-model="form.anchor_date" name="anchor_date" type="date" label="First occurrence" :error="form.errors.anchor_date" required />
+          <FormInput v-model="form.anchor_date" name="anchor_date" type="date" label="First Occurrence" :error="form.errors.anchor_date" required />
           <FormInput
             v-model="form.recurrence_rule"
             name="recurrence_rule"
-            label="Recurrence rule"
+            label="Recurrence Rule (iCal RRule)"
             placeholder="e.g. FREQ=MONTHLY;BYMONTHDAY=1"
             :error="form.errors.recurrence_rule"
             required
           />
         </div>
 
-        <FormInput v-model="form.memo" name="memo" label="Memo (used on every generated journal)" :error="form.errors.memo" />
+        <FormInput v-model="form.memo" name="memo" label="Memo (Used on Generated Journals)" :error="form.errors.memo" />
 
         <div>
-          <div class="mb-2 flex items-center justify-between">
-            <h3 class="text-sm font-semibold text-ink-900">Lines</h3>
-            <button type="button" class="inline-flex items-center gap-1 text-sm font-medium text-accent hover:underline" @click="addLine">
-              <Plus class="h-4 w-4" /> Add line
+          <div class="mb-3 flex items-center justify-between">
+            <h3 class="text-sm font-semibold text-ink-900">Journal Lines</h3>
+            <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline" @click="addLine">
+              <Plus class="h-4 w-4" /> Add Line
             </button>
           </div>
 
-          <div class="overflow-x-auto rounded-sm border border-border">
+          <div class="overflow-x-auto rounded-lg border border-border">
             <table class="w-full text-sm">
               <thead>
-                <tr class="border-b border-border bg-surface-50 text-left text-xs uppercase text-ink-600">
-                  <th class="w-2/5 px-3 py-2">Account</th>
-                  <th class="px-3 py-2">Cost center</th>
-                  <th class="px-3 py-2 text-right">Debit</th>
-                  <th class="px-3 py-2 text-right">Credit</th>
-                  <th class="px-3 py-2">Description</th>
-                  <th class="px-3 py-2"></th>
+                <tr class="border-b border-border bg-surface-50 text-left text-xs uppercase tracking-wider text-ink-600 font-semibold">
+                  <th class="w-2/5 px-3 py-2.5">Account</th>
+                  <th class="px-3 py-2.5">Cost Center</th>
+                  <th class="px-3 py-2.5 text-right">Debit</th>
+                  <th class="px-3 py-2.5 text-right">Credit</th>
+                  <th class="px-3 py-2.5">Line Description</th>
+                  <th class="px-3 py-2.5"></th>
                 </tr>
               </thead>
-              <tbody>
-                <tr v-for="(line, i) in form.lines" :key="i" class="border-b border-border last:border-b-0">
+              <tbody class="divide-y divide-border bg-surface">
+                <tr v-for="(line, i) in form.lines" :key="i" class="align-top hover:bg-surface-50/50 transition-colors">
                   <td class="px-3 py-2">
                     <FormSearchableSelect v-model="line.account_id" :name="`lines.${i}.account_id`" :options="accounts" :error="(form.errors as any)[`lines.${i}.account_id`]" />
                     <p v-if="isControlAccount(line.account_id)" class="mt-1 text-xs text-signal-danger">Control account — will be rejected on post.</p>
@@ -149,28 +163,28 @@ const destroy = () => {
                     <FormSearchableSelect v-model="line.cost_center_id" :name="`lines.${i}.cost_center_id`" placeholder="None" :options="costCenters" />
                   </td>
                   <td class="px-3 py-2">
-                    <input v-model="line.debit" type="number" step="0.01" min="0" class="w-28 rounded-sm border border-border bg-surface-0 px-2 py-1.5 text-right text-sm" />
+                    <FormCurrencyInput v-model="line.debit" :name="`lines.${i}.debit`" prefix="" :decimals="2" class="w-32" />
                   </td>
                   <td class="px-3 py-2">
-                    <input v-model="line.credit" type="number" step="0.01" min="0" class="w-28 rounded-sm border border-border bg-surface-0 px-2 py-1.5 text-right text-sm" />
+                    <FormCurrencyInput v-model="line.credit" :name="`lines.${i}.credit`" prefix="" :decimals="2" class="w-32" />
                   </td>
                   <td class="px-3 py-2">
-                    <input v-model="line.description" type="text" class="w-full rounded-sm border border-border bg-surface-0 px-2 py-1.5 text-sm" />
+                    <input v-model="line.description" type="text" placeholder="Line note" class="w-full rounded-md border border-border bg-surface-0 px-2.5 py-1.5 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent" />
                   </td>
-                  <td class="px-3 py-2 text-right">
-                    <button type="button" class="text-ink-600 hover:text-signal-danger" :disabled="form.lines.length <= 1" @click="removeLine(i)">
+                  <td class="px-3 py-2 text-right pt-3">
+                    <button type="button" class="text-ink-400 hover:text-signal-danger transition-colors" :disabled="form.lines.length <= 1" @click="removeLine(i)">
                       <Trash2 class="h-4 w-4" />
                     </button>
                   </td>
                 </tr>
               </tbody>
               <tfoot>
-                <tr class="border-t border-border bg-surface-50 font-semibold">
-                  <td class="px-3 py-2" colspan="2">Total</td>
-                  <td class="px-3 py-2 text-right">{{ totalDebit.toFixed(2) }}</td>
-                  <td class="px-3 py-2 text-right">{{ totalCredit.toFixed(2) }}</td>
-                  <td class="px-3 py-2" colspan="2">
-                    <span :class="isBalanced ? 'text-signal-success' : 'text-signal-danger'">{{ isBalanced ? 'Balanced' : 'Not balanced' }}</span>
+                <tr class="border-t-2 border-border bg-surface-100/75 font-semibold text-xs">
+                  <td class="px-4 py-3 text-ink-900" colspan="2">Total</td>
+                  <td class="px-4 py-3 text-right font-mono text-xs font-bold text-ink-900">{{ formatCurrency(totalDebit, form.currency_code) }}</td>
+                  <td class="px-4 py-3 text-right font-mono text-xs font-bold text-ink-900">{{ formatCurrency(totalCredit, form.currency_code) }}</td>
+                  <td class="px-4 py-3 font-semibold" :class="isBalanced ? 'text-signal-success' : 'text-signal-danger'" colspan="2">
+                    {{ isBalanced ? '✓ Balanced' : '⚠ Out of Balance' }}
                   </td>
                 </tr>
               </tfoot>
@@ -180,7 +194,7 @@ const destroy = () => {
         </div>
 
         <div class="flex items-center justify-end gap-3 border-t border-border pt-4">
-          <PrimaryButton type="submit" :disabled="form.processing">Save changes</PrimaryButton>
+          <PrimaryButton type="submit" :disabled="form.processing">Save Changes</PrimaryButton>
         </div>
       </form>
     </Panel>

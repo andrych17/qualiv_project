@@ -9,6 +9,7 @@ import FormInput from '@/Components/forms/FormInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
+import { formatCurrency } from '@/Utils/formatters'
 
 interface PoLine {
   id: number
@@ -81,14 +82,6 @@ watch(() => form.po_id, () => {
 const computedTotal = computed(() => {
   return form.lines.reduce((acc, line) => acc + (Number(line.qty) * Number(line.unit_price)), 0)
 })
-
-const formatCurrency = (val: number) => {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: selectedPo.value?.currency_code || 'IDR',
-    maximumFractionDigits: 0,
-  }).format(val)
-}
 
 const submit = () => form.post(route('purchase.invoices.store'))
 </script>

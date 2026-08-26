@@ -8,6 +8,8 @@ import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
+import SecondaryButton from '@/Components/SecondaryButton.vue'
+import { formatCurrency, formatDate } from '@/Utils/formatters'
 
 type StatementLine = { id: number; line_date: string; description: string | null; reference: string | null; amount: number }
 type JournalLine = { id: number; journal_id: number; date: string; memo: string | null; debit: number; credit: number }
@@ -66,152 +68,167 @@ const varianceOk = computed(() => props.worksheet && Math.abs(props.worksheet.va
   <AppLayout>
     <PageHeader :title="`Reconcile — ${bankAccount.name}`" :description="`${bankAccount.gl_account_label} — ${bankAccount.currency_code}`">
       <template #actions>
-        <Link :href="route('accounting.bank-accounts.show', bankAccount.id)" class="text-sm font-medium text-accent hover:underline">← Back to account</Link>
+        <SecondaryButton :href="route('accounting.bank-accounts.show', bankAccount.id)">
+          &larr; Back to Account
+        </SecondaryButton>
       </template>
     </PageHeader>
 
     <Panel v-if="unsupported" class="mt-6 p-6 text-sm text-ink-700">
       Reconciliation is only available for bank accounts in the company's base currency. This account is
-      denominated in {{ bankAccount.currency_code }}, whose statement amounts can't be compared to the
+      denominated in {{ bankAccount.currency_code }}, whose statement amounts cannot be compared to the
       base-currency GL directly.
     </Panel>
 
     <template v-else>
-      <div v-if="worksheet" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Panel class="p-4">
-          <div class="text-xs uppercase text-ink-600">Book side</div>
-          <dl class="mt-2 space-y-1 text-sm">
-            <div class="flex justify-between"><dt class="text-ink-600">Book closing balance</dt><dd class="font-medium text-ink-900">{{ worksheet.bookClosingBalance.toFixed(2) }}</dd></div>
-            <div class="flex justify-between"><dt class="text-ink-600">Less: outstanding items ({{ worksheet.outstandingBookItems }})</dt><dd class="text-ink-900">{{ worksheet.outstandingBookTotal.toFixed(2) }}</dd></div>
-            <div class="flex justify-between border-t border-border pt-1 font-semibold"><dt class="text-ink-900">Adjusted book balance</dt><dd class="text-ink-900">{{ worksheet.adjustedBookBalance.toFixed(2) }}</dd></div>
+      <div v-if="worksheet" class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <Panel title="Book Side (GL Ledger)">
+          <dl class="space-y-2 text-sm">
+            <div class="flex justify-between py-1 border-b border-border/50">
+              <dt class="text-ink-600">Book Closing Balance</dt>
+              <dd class="font-mono font-medium text-ink-900">{{ formatCurrency(worksheet.bookClosingBalance) }}</dd>
+            </div>
+            <div class="flex justify-between py-1 border-b border-border/50">
+              <dt class="text-ink-600">Less: Outstanding Items ({{ worksheet.outstandingBookItems }})</dt>
+              <dd class="font-mono text-ink-900">{{ formatCurrency(worksheet.outstandingBookTotal) }}</dd>
+            </div>
+            <div class="flex justify-between pt-2 font-semibold">
+              <dt class="text-ink-900">Adjusted Book Balance</dt>
+              <dd class="font-mono text-accent">{{ formatCurrency(worksheet.adjustedBookBalance) }}</dd>
+            </div>
           </dl>
         </Panel>
-        <Panel class="p-4">
-          <div class="text-xs uppercase text-ink-600">Statement side</div>
-          <dl class="mt-2 space-y-1 text-sm">
-            <div class="flex justify-between"><dt class="text-ink-600">Matched statement total</dt><dd class="font-medium text-ink-900">{{ worksheet.matchedStatementTotal.toFixed(2) }}</dd></div>
-            <div class="flex justify-between"><dt class="text-ink-600">Uncleared items ({{ worksheet.unclearedStatementItems }})</dt><dd class="text-ink-900">{{ worksheet.unclearedStatementTotal.toFixed(2) }}</dd></div>
-            <div class="flex justify-between border-t border-border pt-1 font-semibold"><dt class="text-ink-900">Adjusted statement balance</dt><dd class="text-ink-900">{{ worksheet.adjustedStatementBalance.toFixed(2) }}</dd></div>
+
+        <Panel title="Statement Side (Bank)">
+          <dl class="space-y-2 text-sm">
+            <div class="flex justify-between py-1 border-b border-border/50">
+              <dt class="text-ink-600">Matched Statement Total</dt>
+              <dd class="font-mono font-medium text-ink-900">{{ formatCurrency(worksheet.matchedStatementTotal) }}</dd>
+            </div>
+            <div class="flex justify-between py-1 border-b border-border/50">
+              <dt class="text-ink-600">Uncleared Items ({{ worksheet.unclearedStatementItems }})</dt>
+              <dd class="font-mono text-ink-900">{{ formatCurrency(worksheet.unclearedStatementTotal) }}</dd>
+            </div>
+            <div class="flex justify-between pt-2 font-semibold">
+              <dt class="text-ink-900">Adjusted Statement Balance</dt>
+              <dd class="font-mono text-accent">{{ formatCurrency(worksheet.adjustedStatementBalance) }}</dd>
+            </div>
           </dl>
         </Panel>
-        <Panel class="p-4 sm:col-span-2" :class="varianceOk ? '' : 'ring-1 ring-signal-danger/40'">
+
+        <Panel class="p-4 sm:col-span-2" :class="varianceOk ? '' : 'border-signal-danger ring-1 ring-signal-danger/40'">
           <div class="flex items-center justify-between">
-            <div class="text-xs uppercase text-ink-600">Variance</div>
-            <div class="text-lg font-semibold" :class="varianceOk ? 'text-signal-success' : 'text-signal-danger'">{{ worksheet.variance.toFixed(2) }}</div>
+            <div class="text-xs font-semibold uppercase text-ink-600">Reconciliation Variance</div>
+            <div class="font-mono text-xl font-bold" :class="varianceOk ? 'text-signal-success' : 'text-signal-danger'">
+              {{ formatCurrency(worksheet.variance) }}
+            </div>
           </div>
         </Panel>
       </div>
 
       <div class="mt-6 flex justify-end">
         <PrimaryButton :disabled="autoMatching || !unmatchedStatementLines.length" @click="runAutoMatch">
-          {{ autoMatching ? 'Matching…' : 'Auto-match' }}
+          {{ autoMatching ? 'Matching…' : 'Run Auto-Match' }}
         </PrimaryButton>
       </div>
 
-      <Panel class="mt-4">
-        <div class="border-b border-border px-4 py-3 text-sm font-semibold text-ink-900">Unmatched statement lines ({{ unmatchedStatementLines.length }})</div>
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b border-border text-left text-xs uppercase text-ink-600">
-              <th class="px-4 py-2">Date</th>
-              <th class="px-4 py-2">Description</th>
-              <th class="px-4 py-2 text-right">Amount</th>
-              <th class="px-4 py-2">Match to</th>
-              <th class="px-4 py-2"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="l in unmatchedStatementLines" :key="l.id" class="border-b border-border">
-              <td class="px-4 py-2 text-ink-700">{{ l.line_date }}</td>
-              <td class="px-4 py-2 text-ink-900">{{ l.description ?? '—' }} <span v-if="l.reference" class="text-ink-500">({{ l.reference }})</span></td>
-              <td class="px-4 py-2 text-right" :class="l.amount < 0 ? 'text-signal-danger' : 'text-ink-900'">{{ l.amount.toFixed(2) }}</td>
-              <td class="px-4 py-2">
-                <select v-model="picks[l.id]" class="w-full rounded-sm border border-border bg-surface-0 px-2 py-1.5 text-sm">
-                  <option :value="null">— select journal line —</option>
-                  <option v-for="jl in candidatesFor(l)" :key="jl.id" :value="jl.id">
-                    {{ jl.date }} — {{ jl.memo ?? `Journal #${jl.journal_id}` }} — {{ (jl.debit || jl.credit).toFixed(2) }}
-                  </option>
-                </select>
-                <p v-if="!candidatesFor(l).length" class="mt-1 text-xs text-ink-500">No same-amount journal line to match.</p>
-              </td>
-              <td class="px-4 py-2 text-right">
-                <button type="button" class="mr-3 text-sm font-medium text-accent hover:underline disabled:opacity-40" :disabled="!picks[l.id]" @click="submitMatch(l)">Match</button>
-                <button type="button" class="text-sm font-medium text-ink-600 hover:underline" @click="ignoreLine(l.id)">Ignore</button>
-              </td>
-            </tr>
-            <tr v-if="!unmatchedStatementLines.length"><td colspan="5" class="px-4 py-6 text-center text-ink-600">All statement lines matched or ignored.</td></tr>
-          </tbody>
-        </table>
+      <!-- Unmatched Statement Lines -->
+      <Panel title="Unmatched Statement Lines" class="mt-6">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-border bg-surface-50 text-left text-xs uppercase tracking-wider text-ink-600 font-semibold">
+                <th class="py-3 px-4">Date</th>
+                <th class="py-3 px-4">Description / Ref</th>
+                <th class="py-3 px-4 text-right">Amount</th>
+                <th class="py-3 px-4">Matching Candidate</th>
+                <th class="py-3 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-border bg-surface">
+              <tr v-for="l in unmatchedStatementLines" :key="l.id" class="hover:bg-surface-50/75 transition-colors">
+                <td class="py-3 px-4 font-mono text-xs text-ink-700">{{ formatDate(l.line_date) }}</td>
+                <td class="py-3 px-4">
+                  <div class="font-medium text-ink-900">{{ l.description ?? '—' }}</div>
+                  <div v-if="l.reference" class="text-xs text-ink-500 font-mono">{{ l.reference }}</div>
+                </td>
+                <td class="py-3 px-4 text-right font-mono text-xs font-semibold text-ink-900">{{ formatCurrency(l.amount) }}</td>
+                <td class="py-3 px-4">
+                  <select
+                    v-if="candidatesFor(l).length"
+                    v-model="picks[l.id]"
+                    class="rounded-md border border-border bg-surface-0 px-2 py-1 text-xs text-ink-900 shadow-xs focus:border-accent focus:outline-none"
+                  >
+                    <option :value="null">Select GL line…</option>
+                    <option v-for="c in candidatesFor(l)" :key="c.id" :value="c.id">
+                      {{ formatDate(c.date) }} — {{ c.memo ?? `Journal #${c.journal_id}` }}
+                    </option>
+                  </select>
+                  <span v-else class="text-xs text-ink-400 italic">No exact amount candidate</span>
+                </td>
+                <td class="py-3 px-4 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <button
+                      v-if="picks[l.id]"
+                      type="button"
+                      class="text-xs font-semibold text-accent hover:underline"
+                      @click="submitMatch(l)"
+                    >
+                      Match
+                    </button>
+                    <button
+                      type="button"
+                      class="text-xs font-medium text-ink-500 hover:text-ink-900 hover:underline"
+                      @click="ignoreLine(l.id)"
+                    >
+                      Ignore
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr v-if="!unmatchedStatementLines.length">
+                <td colspan="5" class="py-6 text-center text-ink-500">All statement lines matched or cleared.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </Panel>
 
-      <Panel class="mt-4">
-        <div class="border-b border-border px-4 py-3 text-sm font-semibold text-ink-900">Unmatched journal lines ({{ unmatchedJournalLines.length }})</div>
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b border-border text-left text-xs uppercase text-ink-600">
-              <th class="px-4 py-2">Date</th>
-              <th class="px-4 py-2">Memo</th>
-              <th class="px-4 py-2 text-right">Debit</th>
-              <th class="px-4 py-2 text-right">Credit</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="jl in unmatchedJournalLines" :key="jl.id" class="border-b border-border">
-              <td class="px-4 py-2 text-ink-700">{{ jl.date }}</td>
-              <td class="px-4 py-2">
-                <Link :href="route('accounting.journals.show', jl.journal_id)" class="text-accent hover:underline">{{ jl.memo ?? `Journal #${jl.journal_id}` }}</Link>
-              </td>
-              <td class="px-4 py-2 text-right text-ink-900">{{ jl.debit ? jl.debit.toFixed(2) : '—' }}</td>
-              <td class="px-4 py-2 text-right text-ink-900">{{ jl.credit ? jl.credit.toFixed(2) : '—' }}</td>
-            </tr>
-            <tr v-if="!unmatchedJournalLines.length"><td colspan="4" class="px-4 py-6 text-center text-ink-600">No outstanding journal activity.</td></tr>
-          </tbody>
-        </table>
-      </Panel>
-
-      <Panel class="mt-4">
-        <div class="border-b border-border px-4 py-3 text-sm font-semibold text-ink-900">Matched ({{ matchedLines.length }})</div>
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b border-border text-left text-xs uppercase text-ink-600">
-              <th class="px-4 py-2">Statement date</th>
-              <th class="px-4 py-2">Description</th>
-              <th class="px-4 py-2 text-right">Amount</th>
-              <th class="px-4 py-2">Journal</th>
-              <th class="px-4 py-2"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="l in matchedLines" :key="l.id" class="border-b border-border">
-              <td class="px-4 py-2 text-ink-700">{{ l.line_date }}</td>
-              <td class="px-4 py-2 text-ink-900">{{ l.description ?? '—' }}</td>
-              <td class="px-4 py-2 text-right text-ink-900">{{ l.amount.toFixed(2) }}</td>
-              <td class="px-4 py-2">
-                <Link v-if="l.journal_id" :href="route('accounting.journals.show', l.journal_id)" class="text-accent hover:underline">{{ l.journal_memo ?? `Journal #${l.journal_id}` }}</Link>
-              </td>
-              <td class="px-4 py-2 text-right">
-                <button type="button" class="text-sm font-medium text-ink-600 hover:underline" @click="unmatchLine(l.id)">Unmatch</button>
-              </td>
-            </tr>
-            <tr v-if="!matchedLines.length"><td colspan="5" class="px-4 py-6 text-center text-ink-600">Nothing matched yet.</td></tr>
-          </tbody>
-        </table>
-      </Panel>
-
-      <Panel v-if="ignoredLines.length" class="mt-4">
-        <div class="border-b border-border px-4 py-3 text-sm font-semibold text-ink-900">Ignored ({{ ignoredLines.length }})</div>
-        <table class="w-full text-sm">
-          <tbody>
-            <tr v-for="l in ignoredLines" :key="l.id" class="border-b border-border">
-              <td class="px-4 py-2 text-ink-700">{{ l.line_date }}</td>
-              <td class="px-4 py-2 text-ink-900">{{ l.description ?? '—' }}</td>
-              <td class="px-4 py-2 text-right text-ink-900">{{ l.amount.toFixed(2) }}</td>
-              <td class="px-4 py-2 text-right">
-                <button type="button" class="text-sm font-medium text-accent hover:underline" @click="unignoreLine(l.id)">Restore</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- Matched Pairs -->
+      <Panel title="Matched Pairs" class="mt-6">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-border bg-surface-50 text-left text-xs uppercase tracking-wider text-ink-600 font-semibold">
+                <th class="py-3 px-4">Statement Date</th>
+                <th class="py-3 px-4">Statement Item</th>
+                <th class="py-3 px-4 text-right">Amount</th>
+                <th class="py-3 px-4">Matched GL Journal</th>
+                <th class="py-3 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-border bg-surface">
+              <tr v-for="m in matchedLines" :key="m.id" class="hover:bg-surface-50/75 transition-colors">
+                <td class="py-3 px-4 font-mono text-xs text-ink-700">{{ formatDate(m.line_date) }}</td>
+                <td class="py-3 px-4 font-medium text-ink-900">{{ m.description ?? '—' }}</td>
+                <td class="py-3 px-4 text-right font-mono text-xs font-semibold text-ink-900">{{ formatCurrency(m.amount) }}</td>
+                <td class="py-3 px-4">
+                  <Link v-if="m.journal_id" :href="route('accounting.journals.show', m.journal_id)" class="text-xs font-medium text-accent hover:underline">
+                    {{ m.journal_memo ?? `Journal #${m.journal_id}` }} ({{ m.journal_date ? formatDate(m.journal_date) : '' }})
+                  </Link>
+                </td>
+                <td class="py-3 px-4 text-right">
+                  <button type="button" class="text-xs font-medium text-signal-danger hover:underline" @click="unmatchLine(m.id)">
+                    Unmatch
+                  </button>
+                </td>
+              </tr>
+              <tr v-if="!matchedLines.length">
+                <td colspan="5" class="py-6 text-center text-ink-500">No matched pairs yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </Panel>
     </template>
   </AppLayout>

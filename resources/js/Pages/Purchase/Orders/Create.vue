@@ -9,6 +9,7 @@ import FormInput from '@/Components/forms/FormInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
+import { formatCurrency } from '@/Utils/formatters'
 
 interface Partner {
   id: number
@@ -148,10 +149,6 @@ const totalTax = computed(() => {
 })
 
 const totalAmount = computed(() => subtotal.value + totalTax.value)
-
-const formatCurrency = (val: number) => {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: form.currency_code || 'IDR', maximumFractionDigits: 0 }).format(val)
-}
 
 const submit = () => form.post(route('purchase.orders.store'))
 </script>

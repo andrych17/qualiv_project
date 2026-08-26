@@ -13,6 +13,7 @@ import FormInput from '@/Components/forms/FormInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
 import PurchaseSubNav from '@/Components/purchase/PurchaseSubNav.vue'
 import { useConfirm } from '@/Composables/useConfirmDialog'
+import { formatCurrency, formatDate } from '@/Utils/formatters'
 
 interface SupplierItem {
   invitation_id: number
@@ -58,11 +59,6 @@ const props = defineProps<{
   suppliers: SupplierItem[]
   comparisonLines: ComparisonLine[]
 }>()
-
-const formatCurrency = (val: number | null) => {
-  if (val === null) return '—'
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val)
-}
 
 // Award Form
 const awardForm = useForm({

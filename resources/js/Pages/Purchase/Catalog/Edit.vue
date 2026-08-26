@@ -6,6 +6,7 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
+import FormCurrencyInput from '@/Components/forms/FormCurrencyInput.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 
@@ -69,7 +70,7 @@ const submit = () => form.put(route('purchase.catalog.update', props.item.id))
           <FormInput
             v-model="form.item_code"
             name="item_code"
-            label="Item Code / SKU *"
+            label="Item Code / SKU"
             :error="form.errors.item_code"
             required
           />
@@ -77,7 +78,7 @@ const submit = () => form.put(route('purchase.catalog.update', props.item.id))
           <FormInput
             v-model="form.unit"
             name="unit"
-            label="Unit of Measure *"
+            label="Unit of Measure"
             :error="form.errors.unit"
             required
           />
@@ -87,7 +88,7 @@ const submit = () => form.put(route('purchase.catalog.update', props.item.id))
           <FormInput
             v-model="form.description"
             name="description"
-            label="Item Description *"
+            label="Item Description"
             :error="form.errors.description"
             required
           />
@@ -116,14 +117,10 @@ const submit = () => form.put(route('purchase.catalog.update', props.item.id))
 
       <Panel title="Contract / Negotiated Pricing">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <FormInput
-            v-model.number="form.negotiated_price"
+          <FormCurrencyInput
+            v-model="form.negotiated_price"
             name="negotiated_price"
-            type="number"
-            step="0.01"
-            min="0"
             label="Negotiated Price (IDR)"
-            placeholder="0.00"
             :error="form.errors.negotiated_price"
           />
 
