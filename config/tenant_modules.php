@@ -18,6 +18,8 @@ return [
             'WNE',
             'DMS',
             'ACCOUNTING',
+            'HCM',
+            'PAYROLL',
             'DESIGN_SYSTEM',
         ],
         'full' => [

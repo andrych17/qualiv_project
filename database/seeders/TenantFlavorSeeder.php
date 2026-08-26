@@ -27,6 +27,29 @@ use App\Modules\DMS\Models\Folder;
 use App\Modules\DMS\Models\RetentionPolicy;
 use App\Modules\Inventory\Models\InventoryCategory;
 use App\Modules\Inventory\Models\InventoryItem;
+use App\Modules\HCM\Models\AttendanceLog;
+use App\Modules\HCM\Models\Employee;
+use App\Modules\HCM\Models\EmployeePositionHistory;
+use App\Modules\HCM\Models\EmploymentContract;
+use App\Modules\HCM\Models\Job;
+use App\Modules\HCM\Models\LeaveBalance;
+use App\Modules\HCM\Models\LeavePolicy;
+use App\Modules\HCM\Models\LeaveRequest;
+use App\Modules\HCM\Models\LeaveType;
+use App\Modules\HCM\Models\OrgUnit;
+use App\Modules\HCM\Models\Position;
+use App\Modules\HCM\Models\RegionalMinimumWage;
+use App\Modules\HCM\Models\Shift;
+use App\Modules\HCM\Models\ShiftAssignment;
+use App\Modules\Payroll\Models\BpjsConfig;
+use App\Modules\Payroll\Models\EmployeePayrollProfile;
+use App\Modules\Payroll\Models\JkkRiskCategory;
+use App\Modules\Payroll\Models\PayrollCalendar;
+use App\Modules\Payroll\Models\PayrollComponent;
+use App\Modules\Payroll\Models\PayrollGroup;
+use App\Modules\Payroll\Models\Pph21TerRate;
+use App\Modules\Payroll\Models\PtkpStatus;
+use App\Modules\Payroll\Models\SalaryStructure;
 use App\Modules\Legal\Models\DeedType;
 use App\Modules\Legal\Models\FieldVisitType;
 use App\Modules\Legal\Models\Matter;
@@ -85,6 +108,8 @@ class TenantFlavorSeeder extends Seeder
         $this->seedCrmLeads($flavor);
         $this->seedCrmServiceCases($flavor);
         $this->seedCrmTickets($flavor);
+        $this->seedHcm();
+        $this->seedPayroll();
     }
 
     /** @return array<string, array<string, mixed>> */
@@ -848,6 +873,227 @@ class TenantFlavorSeeder extends Seeder
                 'sender_name' => $created->requesterLabel(),
                 'sent_at' => now(),
             ]);
+        }
+    }
+
+    private function seedHcm(): void
+    {
+        // 1. Statutory Leave Types & Policies (§3F)
+        $leaveTypes = [
+            ['code' => 'ANNUAL', 'name' => 'Cuti Tahunan', 'is_paid' => true, 'requires_attachment' => false],
+            ['code' => 'SICK', 'name' => 'Cuti Sakit', 'is_paid' => true, 'requires_attachment' => true],
+            ['code' => 'MATERNITY', 'name' => 'Cuti Melahirkan', 'is_paid' => true, 'requires_attachment' => false],
+            ['code' => 'PATERNITY', 'name' => 'Cuti Ayah', 'is_paid' => true, 'requires_attachment' => false],
+            ['code' => 'MARRIAGE', 'name' => 'Cuti Menikah', 'is_paid' => true, 'requires_attachment' => false],
+            ['code' => 'BEREAVEMENT', 'name' => 'Cuti Duka', 'is_paid' => true, 'requires_attachment' => false],
+            ['code' => 'HAJJ', 'name' => 'Cuti Haji', 'is_paid' => false, 'requires_attachment' => false],
+        ];
+
+        foreach ($leaveTypes as $type) {
+            $createdType = LeaveType::query()->updateOrCreate(['code' => $type['code']], $type);
+            if ($type['code'] === 'ANNUAL') {
+                LeavePolicy::query()->updateOrCreate(
+                    ['leave_type_id' => $createdType->id, 'contract_type' => 'PKWTT'],
+                    [
+                        'entitlement_days_per_year' => 12,
+                        'accrual_method' => 'annual_grant',
+                        'carry_over_max_days' => 6,
+                        'is_paid' => true,
+                    ]
+                );
+            }
+        }
+
+        // 2. Default Shift & Regional Minimum Wage
+        Shift::query()->updateOrCreate(
+            ['name' => 'Kantor 09-17'],
+            ['start_time' => '09:00', 'end_time' => '17:00', 'break_minutes' => 60, 'is_active' => true]
+        );
+
+        RegionalMinimumWage::query()->updateOrCreate(
+            ['region_code' => 'UMP_DKI_JAKARTA', 'effective_date' => '2026-01-01'],
+            ['region_name' => 'DKI Jakarta', 'monthly_wage_amount' => 5396761]
+        );
+
+        // 3. Org Units & Jobs & Positions
+        $ops = OrgUnit::query()->updateOrCreate(['name' => 'Operations'], ['is_active' => true]);
+        $litigation = OrgUnit::query()->updateOrCreate(['name' => 'Litigation'], ['parent_org_unit_id' => $ops->id, 'is_active' => true]);
+
+        $jobMp = Job::query()->updateOrCreate(['code' => 'MANAGING_PARTNER'], ['title' => 'Managing Partner', 'is_active' => true]);
+        $jobSa = Job::query()->updateOrCreate(['code' => 'SENIOR_ASSOCIATE'], ['title' => 'Senior Associate', 'is_active' => true]);
+
+        $posMp = Position::query()->updateOrCreate(
+            ['job_id' => $jobMp->id, 'org_unit_id' => $ops->id],
+            ['is_active' => true]
+        );
+
+        $posSa = Position::query()->updateOrCreate(
+            ['job_id' => $jobSa->id, 'org_unit_id' => $litigation->id],
+            ['reports_to_position_id' => $posMp->id, 'is_active' => true]
+        );
+
+        // 4. Demo Employee + Contract
+        $employee = Employee::query()->updateOrCreate(
+            ['employee_no' => 'EMP-0001'],
+            [
+                'full_name' => 'Siti Aminah',
+                'date_of_birth' => '1992-04-10',
+                'gender' => 'female',
+                'nik' => '3171234567890001',
+                'npwp' => '09.876.543.2-109.000',
+                'bpjs_kesehatan_no' => '0001234567890',
+                'bpjs_ketenagakerjaan_no' => '11223344556',
+                'marital_status' => 'married',
+                'dependents_count' => 1,
+                'religion' => 'Islam',
+                'hire_date' => '2024-01-15',
+                'employment_status' => Employee::STATUS_ACTIVE,
+                'position_id' => $posSa->id,
+                'bank_name' => 'Bank BCA',
+                'bank_account_no' => '9988776655',
+                'bank_account_holder_name' => 'Siti Aminah',
+            ]
+        );
+
+        EmployeePositionHistory::query()->updateOrCreate(
+            ['employee_id' => $employee->id, 'position_id' => $posSa->id, 'effective_from' => '2024-01-15']
+        );
+
+        EmploymentContract::query()->updateOrCreate(
+            ['employee_id' => $employee->id, 'start_date' => '2024-01-15'],
+            [
+                'contract_type' => 'PKWTT',
+                'base_salary' => 15000000,
+                'work_location' => 'Jakarta HQ',
+                'probation_end_date' => '2024-04-15',
+                'status' => 'active',
+            ]
+        );
+    }
+
+    private function seedPayroll(): void
+    {
+        // 1. PTKP Statuses & TER Categories (PP 58/2023)
+        $ptkpList = [
+            ['code' => 'TK/0', 'description' => 'Tidak Kawin / Tanpa Tanggungan', 'annual_ptkp_amount' => 54000000, 'ter_category' => 'A'],
+            ['code' => 'TK/1', 'description' => 'Tidak Kawin / 1 Tanggungan', 'annual_ptkp_amount' => 58500000, 'ter_category' => 'A'],
+            ['code' => 'TK/2', 'description' => 'Tidak Kawin / 2 Tanggungan', 'annual_ptkp_amount' => 63000000, 'ter_category' => 'B'],
+            ['code' => 'TK/3', 'description' => 'Tidak Kawin / 3 Tanggungan', 'annual_ptkp_amount' => 67500000, 'ter_category' => 'B'],
+            ['code' => 'K/0', 'description' => 'Kawin / Tanpa Tanggungan', 'annual_ptkp_amount' => 58500000, 'ter_category' => 'A'],
+            ['code' => 'K/1', 'description' => 'Kawin / 1 Tanggungan', 'annual_ptkp_amount' => 63000000, 'ter_category' => 'B'],
+            ['code' => 'K/2', 'description' => 'Kawin / 2 Tanggungan', 'annual_ptkp_amount' => 67500000, 'ter_category' => 'B'],
+            ['code' => 'K/3', 'description' => 'Kawin / 3 Tanggungan', 'annual_ptkp_amount' => 72000000, 'ter_category' => 'C'],
+        ];
+
+        foreach ($ptkpList as $p) {
+            PtkpStatus::query()->updateOrCreate(
+                ['code' => $p['code']],
+                [
+                    'description' => $p['description'],
+                    'annual_ptkp_amount' => $p['annual_ptkp_amount'],
+                    'ter_category' => $p['ter_category'],
+                    'is_active' => true,
+                ]
+            );
+        }
+
+        // 2. BPJS Configurations
+        $bpjsList = [
+            ['program_code' => BpjsConfig::PROG_KES, 'name' => 'BPJS Kesehatan', 'employer_rate' => 0.0400, 'employee_rate' => 0.0100, 'wage_cap' => 12000000],
+            ['program_code' => BpjsConfig::PROG_JHT, 'name' => 'BPJS TK - Jaminan Hari Tua', 'employer_rate' => 0.0370, 'employee_rate' => 0.0200, 'wage_cap' => null],
+            ['program_code' => BpjsConfig::PROG_JP, 'name' => 'BPJS TK - Jaminan Pensiun', 'employer_rate' => 0.0200, 'employee_rate' => 0.0100, 'wage_cap' => 10042300],
+            ['program_code' => BpjsConfig::PROG_JKK, 'name' => 'BPJS TK - Jaminan Kecelakaan Kerja', 'employer_rate' => 0.0024, 'employee_rate' => 0.0000, 'wage_cap' => null],
+            ['program_code' => BpjsConfig::PROG_JKM, 'name' => 'BPJS TK - Jaminan Kematian', 'employer_rate' => 0.0030, 'employee_rate' => 0.0000, 'wage_cap' => null],
+        ];
+
+        foreach ($bpjsList as $b) {
+            BpjsConfig::query()->updateOrCreate(
+                ['program_code' => $b['program_code']],
+                [
+                    'name' => $b['name'],
+                    'employer_rate' => $b['employer_rate'],
+                    'employee_rate' => $b['employee_rate'],
+                    'wage_cap' => $b['wage_cap'],
+                    'is_active' => true,
+                ]
+            );
+        }
+
+        // 3. JKK Risk Category Level 1 (Very Low Risk - Office/Services)
+        $jkk = JkkRiskCategory::query()->updateOrCreate(
+            ['code' => 'JKK_LV1'],
+            ['name' => 'Tingkat Risiko Sangat Rendah (0.24%)', 'employer_rate' => 0.0024, 'is_active' => true]
+        );
+
+        // 4. Statutory & Common Payroll Components
+        $components = [
+            ['code' => 'BASIC', 'name' => 'Gaji Pokok', 'type' => PayrollComponent::TYPE_EARNING, 'category' => PayrollComponent::CATEGORY_FIXED, 'is_taxable' => true, 'is_bpjs_basis' => true, 'is_system_defined' => true],
+            ['code' => 'ALLOW_TRANSPORT', 'name' => 'Tunjangan Transport', 'type' => PayrollComponent::TYPE_EARNING, 'category' => PayrollComponent::CATEGORY_FIXED, 'is_taxable' => true, 'is_bpjs_basis' => false, 'is_system_defined' => false],
+            ['code' => 'ALLOW_MEAL', 'name' => 'Tunjangan Makan', 'type' => PayrollComponent::TYPE_EARNING, 'category' => PayrollComponent::CATEGORY_FIXED, 'is_taxable' => true, 'is_bpjs_basis' => false, 'is_system_defined' => false],
+            ['code' => 'OVERTIME', 'name' => 'Lembur', 'type' => PayrollComponent::TYPE_EARNING, 'category' => PayrollComponent::CATEGORY_VARIABLE_INPUT, 'is_taxable' => true, 'is_bpjs_basis' => false, 'is_system_defined' => true],
+            ['code' => 'THR', 'name' => 'Tunjangan Hari Raya (THR)', 'type' => PayrollComponent::TYPE_EARNING, 'category' => PayrollComponent::CATEGORY_STATUTORY, 'is_taxable' => true, 'is_bpjs_basis' => false, 'is_system_defined' => true],
+            ['code' => 'BONUS', 'name' => 'Bonus Kinerja', 'type' => PayrollComponent::TYPE_EARNING, 'category' => PayrollComponent::CATEGORY_VARIABLE_INPUT, 'is_taxable' => true, 'is_bpjs_basis' => false, 'is_system_defined' => false],
+            ['code' => 'PPH21', 'name' => 'PPh 21', 'type' => PayrollComponent::TYPE_DEDUCTION, 'category' => PayrollComponent::CATEGORY_STATUTORY, 'is_taxable' => false, 'is_bpjs_basis' => false, 'is_system_defined' => true],
+            ['code' => 'BPJS_KES_EE', 'name' => 'BPJS Kesehatan Karyawan (1%)', 'type' => PayrollComponent::TYPE_DEDUCTION, 'category' => PayrollComponent::CATEGORY_STATUTORY, 'is_taxable' => false, 'is_bpjs_basis' => false, 'is_system_defined' => true],
+            ['code' => 'BPJS_TK_EE', 'name' => 'BPJS TK Karyawan (JHT 2% + JP 1%)', 'type' => PayrollComponent::TYPE_DEDUCTION, 'category' => PayrollComponent::CATEGORY_STATUTORY, 'is_taxable' => false, 'is_bpjs_basis' => false, 'is_system_defined' => true],
+        ];
+
+        foreach ($components as $c) {
+            PayrollComponent::query()->updateOrCreate(
+                ['code' => $c['code']],
+                [
+                    'name' => $c['name'],
+                    'type' => $c['type'],
+                    'category' => $c['category'],
+                    'calculation_basis' => 'flat',
+                    'is_taxable' => $c['is_taxable'],
+                    'is_bpjs_basis' => $c['is_bpjs_basis'],
+                    'is_system_defined' => $c['is_system_defined'],
+                    'is_active' => true,
+                ]
+            );
+        }
+
+        // 5. Default Payroll Calendar & Payroll Group
+        $calendar = PayrollCalendar::query()->updateOrCreate(
+            ['name' => 'Standar Bulanan'],
+            ['pay_frequency' => 'monthly', 'cutoff_day' => 25, 'pay_day' => 28, 'shift_earlier_on_holiday' => true, 'is_active' => true]
+        );
+
+        $structure = SalaryStructure::query()->updateOrCreate(
+            ['name' => 'Struktur Standar Pegawai Tetap'],
+            ['description' => 'Gaji Pokok + Tunjangan Tetap', 'is_active' => true]
+        );
+
+        $group = PayrollGroup::query()->updateOrCreate(
+            ['code' => 'GRP_MONTHLY'],
+            [
+                'name' => 'Pegawai Bulanan Head Office',
+                'payroll_calendar_id' => $calendar->id,
+                'default_salary_structure_id' => $structure->id,
+                'is_active' => true,
+            ]
+        );
+
+        // 6. Demo Employee Payroll Profile for Siti Aminah
+        $emp = Employee::query()->where('employee_no', 'EMP-0001')->first();
+        if ($emp) {
+            EmployeePayrollProfile::query()->updateOrCreate(
+                ['employee_id' => $emp->id],
+                [
+                    'payroll_group_id' => $group->id,
+                    'salary_structure_id' => $structure->id,
+                    'ptkp_status_code' => 'K/1', // Married 1 dependent -> Category B
+                    'npwp_number' => '09.876.543.2-109.000',
+                    'has_npwp' => true,
+                    'bpjs_kesehatan_no' => '0001234567890',
+                    'bpjs_ketenagakerjaan_no' => '11223344556',
+                    'jkk_risk_category_id' => $jkk->id,
+                    'is_tax_borne_by_company' => false,
+                    'proration_rule' => 'work_days',
+                    'is_active' => true,
+                ]
+            );
         }
     }
 }
