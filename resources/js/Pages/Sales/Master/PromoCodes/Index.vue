@@ -27,7 +27,7 @@ const props = defineProps<{
 }>()
 
 const showModal = ref(false)
-const editingPromo = ref<PromoCodeItem | null>(null)
+const editingPromo = ref<PromoCode | null>(null)
 
 const form = useForm({
   code: '',
@@ -47,7 +47,7 @@ const openCreate = () => {
   showModal.value = true
 }
 
-const openEdit = (p: PromoCodeItem) => {
+const openEdit = (p: PromoCode) => {
   editingPromo.value = p
   form.code = p.code
   form.discount_type = p.discount_type
