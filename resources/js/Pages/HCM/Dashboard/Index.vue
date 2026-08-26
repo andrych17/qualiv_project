@@ -4,7 +4,7 @@ import { Link } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
-import MetricCard from '@/Components/cards/MetricCard.vue'
+import StatCard from '@/Components/cards/StatCard.vue'
 import HcmSubNav from '@/Components/hcm/HcmSubNav.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 
@@ -56,25 +56,29 @@ defineProps<{
 
       <!-- Metric Headline Cards -->
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard
-          label="Active Employees"
-          :value="metrics.active_employees"
-          hint="Total active workforce"
+        <StatCard
+          title="Active Employees"
+          :value="String(metrics.active_employees)"
+          description="Total active workforce"
+          icon="Users"
         />
-        <MetricCard
-          label="On Leave Today"
-          :value="metrics.on_leave_today"
-          hint="Approved leave for today"
+        <StatCard
+          title="On Leave Today"
+          :value="String(metrics.on_leave_today)"
+          description="Approved leave for today"
+          icon="Calendar"
         />
-        <MetricCard
-          label="Pending Leave Approvals"
-          :value="metrics.pending_leave_approvals"
-          hint="Awaiting manager review"
+        <StatCard
+          title="Pending Leave Approvals"
+          :value="String(metrics.pending_leave_approvals)"
+          description="Awaiting manager review"
+          icon="Clock"
         />
-        <MetricCard
-          label="Attendance Exceptions"
-          :value="metrics.today_exceptions"
-          hint="Late / missing clock today"
+        <StatCard
+          title="Attendance Exceptions"
+          :value="String(metrics.today_exceptions)"
+          description="Late / missing clock today"
+          icon="AlertCircle"
         />
       </div>
 

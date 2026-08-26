@@ -4,7 +4,7 @@ import { Link } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
-import MetricCard from '@/Components/cards/MetricCard.vue'
+import StatCard from '@/Components/cards/StatCard.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import PayrollSubNav from '@/Components/payroll/PayrollSubNav.vue'
 
@@ -68,25 +68,29 @@ const statusVariant = (st: string) => {
 
       <!-- Metric Headline Cards -->
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard
-          label="Last Run Net Pay"
+        <StatCard
+          title="Last Run Net Pay"
           :value="`Rp ${Number(metrics.last_run_total_net).toLocaleString('id-ID')}`"
-          hint="Disbursed take-home pay"
+          description="Disbursed take-home pay"
+          icon="Wallet"
         />
-        <MetricCard
-          label="PPh 21 Withholding"
+        <StatCard
+          title="PPh 21 Withholding"
           :value="`Rp ${Number(metrics.last_run_tax_pph21).toLocaleString('id-ID')}`"
-          hint="Tax liability from last run"
+          description="Tax liability from last run"
+          icon="Receipt"
         />
-        <MetricCard
-          label="Total BPJS Due"
+        <StatCard
+          title="Total BPJS Due"
           :value="`Rp ${Number(metrics.last_run_bpjs_total).toLocaleString('id-ID')}`"
-          hint="Employer + employee contribution"
+          description="Employer + employee contribution"
+          icon="ShieldCheck"
         />
-        <MetricCard
-          label="Active Employees"
-          :value="metrics.active_employees"
-          hint="Eligible for payroll"
+        <StatCard
+          title="Active Employees"
+          :value="String(metrics.active_employees)"
+          description="Eligible for payroll"
+          icon="Users"
         />
       </div>
 
