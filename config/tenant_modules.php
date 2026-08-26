@@ -20,6 +20,7 @@ return [
             'ACCOUNTING',
             'HCM',
             'PAYROLL',
+            'PROJECTS',
             'DESIGN_SYSTEM',
         ],
         'full' => [
@@ -34,16 +35,21 @@ return [
             'ACCOUNTING',
             'HCM',
             'PAYROLL',
+            'PROJECTS',
             'DESIGN_SYSTEM',
         ],
-        // Not sold on any pricing tier — set only on Nusaevo's own internal tenant's
-        // `tenants.plan` (central DB) so PROJECTS stays invisible/inaccessible to
-        // customer tenants. See CLAUDE.md §2 customization ladder rung 5.
-        // Deliberately just PROJECTS — this tenant is the internal Jira board only,
-        // not a demo of the whole ERP. CONFIG_*/DASHBOARD/DESIGN_SYSTEM menus always
-        // show regardless of plan (see ConfigService::menusForUser()), no need to list them.
         'internal' => [
             'PROJECTS',
+            'HCM',
+            'PAYROLL',
+            'ACCOUNTING',
+            'CRM',
+            'SCHEDULE',
+            'WNE',
+            'DMS',
+            'INVENTORY',
+            'LEGAL',
+            'DESIGN_SYSTEM',
         ],
     ],
 ];

@@ -166,6 +166,8 @@ class SysConfigSeeder extends Seeder
                 'DMS' => 'CRUD',
                 'PROJECTS' => 'CRUD',
                 'ACCOUNTING' => 'CRUD',
+                'HCM' => 'CRUD',
+                'PAYROLL' => 'CRUD',
                 'DESIGN_SYSTEM' => 'R',
             ],
             'VIEWER' => [
@@ -178,6 +180,8 @@ class SysConfigSeeder extends Seeder
                 'DMS' => 'R',
                 'PROJECTS' => 'R',
                 'ACCOUNTING' => 'R',
+                'HCM' => 'R',
+                'PAYROLL' => 'R',
                 'DESIGN_SYSTEM' => 'R',
             ],
         ];
