@@ -1,0 +1,31 @@
+# Cursor Rules for Nusaevo ERP
+
+Universal agent instructions are defined in **[AGENTS.md](AGENTS.md)** and **[resources/DESIGN.md](resources/DESIGN.md)**.
+You MUST strictly follow the guidelines in those documents.
+
+## Key Strict Rules
+
+### 1. Frontend Component Standards (MANDATORY)
+Every UI in `resources/js/Pages/` must strictly compose from shared components in `@/Components/`. NEVER create ad-hoc HTML overlays or unstyled primitives.
+
+- **Modals**: MUST use `@/Components/Modal.vue`. Never `<div class="fixed inset-0 ...">`. Modal card must have solid opaque background (`bg-white` or `bg-surface rounded-lg p-6`).
+- **Confirmations**: MUST use `@/Components/modals/ConfirmDialog.vue` via `useConfirm()` composable. NEVER use native `window.confirm()`.
+- **Forms**: MUST use `@/Components/forms/` (`FormInput`, `FormTextarea`, `FormSelect`, `FormSearchableSelect`, `FormAsyncSearchableSelect`, `FormMultiSelect`, `FormSwitch`, `FormRadioGroup`, `CustomFieldInputs`). NEVER use manual checkbox loops for multi-selection.
+- **Buttons**: MUST use `@/Components/PrimaryButton.vue`, `@/Components/SecondaryButton.vue`, `@/Components/DangerButton.vue`.
+- **Tables**: MUST use `@/Components/tables/DataTable.vue`.
+- **Empty States**: MUST use `@/Components/feedback/EmptyState.vue`.
+- **Formatting**: MUST use `@/Utils/formatters` (`formatCurrency`, `formatDate`, `formatDateTime`, `formatNumber`).
+- **Cards**: MUST use `@/Components/cards/Panel.vue` and `@/Components/cards/StatCard.vue`.
+- **Badges**: MUST use `@/Components/feedback/StatusBadge.vue`.
+
+### 2. Backend & Multi-Tenancy Architecture
+- **Multi-Tenancy (Mode B)**: 1 PostgreSQL database per tenant (`tenant_{id}`) via `stancl/tenancy`. NO `tenant_id` column inside tenant tables.
+- **PostgreSQL Schemas**: Explicitly specify schema in every Eloquent model: `protected $table = '<SCHEMA>.<table_name>';` (`SYSCONFIG`, `WNE`, `DMS`, `CRM`, `SCHEDULE`, `INVENTORY`, `ACCOUNTING`, `SALES`, `PURCHASE`, `HCM`, `PAYROLL`, `PERF`, `PROJECTS`, `AIINSIGHT`, `CUSTOMFIELDS`).
+- **Transactions**: Multi-table and header-line writes MUST be wrapped in `DB::transaction(fn () => ...)`.
+- **Sorting & Pagination**: Use `TableQuery::applySort()` and `TableQuery::perPage()` from `App\Shared\Helpers\TableQuery` to sanitize inputs.
+- **Controllers**: Thin controllers only. Validate via Form Requests, delegate to Services (`app/Modules/<Module>/Services/`), return `Inertia::render(...)`.
+
+### 3. Codebase Navigation (Graphify)
+- Do NOT start with grep/ripgrep. Check `graphify-out/graph.json` first: `graphify query "..."`, `graphify path A B`.
+- After code modifications, run `graphify update .`.
+- NEVER use `git push --force` or `git push -f`.

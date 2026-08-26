@@ -8,6 +8,7 @@ use App\Modules\Sales\Models\CommissionPlan;
 use App\Modules\Sales\Models\CommissionSettlement;
 use App\Modules\Sales\Requests\StoreCommissionSettlementRequest;
 use App\Modules\Sales\Services\CommissionService;
+use App\Shared\Helpers\TableQuery;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -19,12 +20,14 @@ class CommissionSettlementController extends Controller
 
     public function index(Request $request): Response
     {
-        $settlements = CommissionSettlement::with(['rep', 'approver', 'lines'])
+        $perPage = TableQuery::perPage($request->integer('per_page') ?: null, 20);
+        $query = CommissionSettlement::with(['rep', 'approver', 'lines'])
             ->when($request->rep_id, fn ($q, $r) => $q->where('rep_id', $r))
-            ->when($request->status, fn ($q, $s) => $q->where('status', $s))
-            ->orderByDesc('period_start')
-            ->paginate(20)
-            ->withQueryString();
+            ->when($request->status, fn ($q, $s) => $q->where('status', $s));
+
+        TableQuery::applySort($query, $request->sort, $request->direction, ['period_start', 'period_end', 'status', 'created_at'], 'period_start', 'desc');
+
+        $settlements = $query->paginate($perPage)->withQueryString();
 
         $plans = CommissionPlan::with(['salesTeam', 'user'])->get();
 
@@ -33,7 +36,7 @@ class CommissionSettlementController extends Controller
             'plans' => $plans,
             'statuses' => CommissionSettlement::STATUSES,
             'reps' => User::query()->select(['id', 'name'])->get(),
-            'filters' => $request->only(['rep_id', 'status']),
+            'filters' => $request->only(['rep_id', 'status', 'sort', 'direction', 'per_page']),
         ]);
     }
 

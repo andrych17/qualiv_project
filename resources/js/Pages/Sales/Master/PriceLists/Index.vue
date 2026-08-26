@@ -1,11 +1,14 @@
 <!-- Price Lists Index (§3B) -->
 <script setup lang="ts">
+import { ref } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
+import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import SalesSubNav from '@/Components/sales/SalesSubNav.vue'
 import SalesMasterSubNav from '@/Components/sales/SalesMasterSubNav.vue'
+import DataTable, { type SortState } from '@/Components/tables/DataTable.vue'
 import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface PriceListItem {
@@ -23,15 +26,29 @@ const props = defineProps<{
   priceLists: PriceListItem[]
 }>()
 
+const search = ref('')
+const sort = ref<SortState>(null)
+const selected = ref<Array<string | number>>([])
+
+const columns = [
+  { key: 'name', label: 'Price List Name', sortable: true },
+  { key: 'currency', label: 'Currency' },
+  { key: 'territory', label: 'Territory' },
+  { key: 'customer_segment', label: 'Customer Segment' },
+  { key: 'is_tenant_default', label: 'Default', align: 'center' as const },
+  { key: 'is_active', label: 'Status', sortable: true },
+  { key: 'actions', label: 'Actions', align: 'right' as const },
+]
+
 const { confirm } = useConfirm()
 
-const deletePriceList = (id: number) => {
+const deletePriceList = (pl: PriceListItem) => {
   confirm({
-    title: 'Delete Price List?',
-    description: 'Are you sure you want to delete this price list?',
+    title: `Delete Price List "${pl.name}"?`,
+    description: 'Are you sure you want to delete this price list and all its pricing tiers?',
     variant: 'destructive',
     confirmText: 'Delete',
-    onConfirm: () => router.delete(route('sales.master.price-lists.destroy', id)),
+    onConfirm: () => router.delete(route('sales.master.price-lists.destroy', pl.id)),
   })
 }
 </script>
@@ -55,52 +72,71 @@ const deletePriceList = (id: number) => {
       <SalesMasterSubNav active="price-lists" />
     </div>
 
-    <div class="mt-6 rounded-lg border border-border bg-surface-0 overflow-x-auto">
-      <table class="w-full text-left text-sm">
-        <thead class="bg-surface-50 text-xs text-ink-500 uppercase border-b border-border">
-          <tr>
-            <th class="py-3 px-4">Price List Name</th>
-            <th class="py-3 px-4">Currency</th>
-            <th class="py-3 px-4">Territory</th>
-            <th class="py-3 px-4">Customer Segment</th>
-            <th class="py-3 px-4">Default</th>
-            <th class="py-3 px-4">Status</th>
-            <th class="py-3 px-4 text-right">Action</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-border">
-          <tr v-for="pl in props.priceLists" :key="pl.id" class="hover:bg-surface-50">
-            <td class="py-3 px-4 font-semibold text-ink-900">{{ pl.name }}</td>
-            <td class="py-3 px-4 font-mono text-xs">{{ pl.currency }}</td>
-            <td class="py-3 px-4 text-ink-600">{{ pl.territory?.name ?? 'All Territories' }}</td>
-            <td class="py-3 px-4 text-ink-600 capitalize">{{ pl.customer_segment ?? 'General' }}</td>
-            <td class="py-3 px-4">
-              <span v-if="pl.is_tenant_default" class="text-xs font-semibold text-accent bg-accent/10 px-2 py-0.5 rounded">
-                Tenant Default
-              </span>
-              <span v-else class="text-ink-400 text-xs">-</span>
-            </td>
-            <td class="py-3 px-4 text-xs font-semibold" :class="pl.is_active ? 'text-emerald-600' : 'text-ink-400'">
-              {{ pl.is_active ? 'Active' : 'Inactive' }}
-            </td>
-            <td class="py-3 px-4 text-right space-x-2">
-              <Link :href="route('sales.master.price-lists.edit', pl.id)" class="text-xs font-medium text-accent hover:underline">
-                Edit
-              </Link>
-              <button
-                type="button"
-                @click="deletePriceList(pl.id)"
-                class="text-xs font-medium text-rose-600 hover:underline"
-              >
-                Delete
-              </button>
-            </td>
-          </tr>
-          <tr v-if="props.priceLists.length === 0">
-            <td colspan="7" class="py-8 text-center text-ink-500">No price lists configured.</td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="mt-6">
+      <DataTable
+        :columns="columns"
+        :items="props.priceLists"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        v-model:search="search"
+        sticky-header
+        storage-key="sales.master.price-lists"
+        search-placeholder="Search price lists…"
+        export-filename="sales-price-lists"
+        status-rail-key="is_active"
+        empty-title="No price lists found"
+        empty-description="Create your first price list matrix with item discounts."
+      >
+        <template #cell-name="{ item }">
+          <Link
+            :href="route('sales.master.price-lists.edit', item.id)"
+            class="font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            {{ (item as PriceListItem).name }}
+          </Link>
+        </template>
+
+        <template #cell-currency="{ item }">
+          <span class="font-mono text-xs text-ink-700">{{ (item as PriceListItem).currency }}</span>
+        </template>
+
+        <template #cell-territory="{ item }">
+          <span class="text-ink-600">{{ (item as PriceListItem).territory?.name ?? 'All Territories' }}</span>
+        </template>
+
+        <template #cell-customer_segment="{ item }">
+          <span class="text-ink-600 capitalize">{{ (item as PriceListItem).customer_segment ?? 'General' }}</span>
+        </template>
+
+        <template #cell-is_tenant_default="{ item }">
+          <span v-if="(item as PriceListItem).is_tenant_default" class="text-xs font-semibold text-accent bg-accent/10 px-2 py-0.5 rounded">
+            Tenant Default
+          </span>
+          <span v-else class="text-ink-400 text-xs">-</span>
+        </template>
+
+        <template #cell-is_active="{ item }">
+          <StatusBadge :status="(item as PriceListItem).is_active ? 'active' : 'inactive'" />
+        </template>
+
+        <template #cell-actions="{ item }">
+          <div class="flex items-center justify-end gap-3">
+            <Link
+              :href="route('sales.master.price-lists.edit', item.id)"
+              class="text-xs font-semibold text-accent hover:underline"
+            >
+              Edit
+            </Link>
+            <button
+              type="button"
+              @click="deletePriceList(item as PriceListItem)"
+              class="text-xs font-medium text-signal-danger hover:underline"
+            >
+              Delete
+            </button>
+          </div>
+        </template>
+      </DataTable>
     </div>
   </AppLayout>
 </template>

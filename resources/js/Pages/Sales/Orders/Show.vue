@@ -81,11 +81,9 @@ const props = defineProps<{
   qtyInvoicedTotal: number
 }>()
 
-const activeTab = ref<'lines' | 'deliveries' | 'invoices' | 'returns'>('lines')
+import { formatCurrency, formatDate } from '@/Utils/formatters'
 
-const formatCurrency = (val: number, curr = 'IDR') => {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: curr, maximumFractionDigits: 0 }).format(val)
-}
+const activeTab = ref<'lines' | 'deliveries' | 'invoices' | 'returns'>('lines')
 
 const { confirm } = useConfirm()
 

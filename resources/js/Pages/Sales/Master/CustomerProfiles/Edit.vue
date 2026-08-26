@@ -6,8 +6,10 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
+import FormSwitch from '@/Components/forms/FormSwitch.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
+import { formatCurrency } from '@/Utils/formatters'
 
 interface PartnerItem {
   id: number
@@ -51,10 +53,6 @@ const form = useForm({
   on_hold: props.creditProfile.on_hold,
 })
 
-const formatCurrency = (val: number, curr = 'IDR') => {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: curr, maximumFractionDigits: 0 }).format(val)
-}
-
 const submit = () => {
   form.put(route('sales.master.customers.update', props.customer.id))
 }
@@ -79,6 +77,7 @@ const generatePortalToken = () => {
             <div>
               <FormSelect
                 label="Assigned Sales Team"
+                name="sales_team_id"
                 v-model="form.sales_team_id"
                 :options="props.teams.map(t => ({ value: t.id, label: t.name }))"
                 placeholder="Unassigned"
@@ -88,6 +87,7 @@ const generatePortalToken = () => {
             <div>
               <FormSelect
                 label="Assigned Sales Representative"
+                name="assigned_rep_id"
                 v-model="form.assigned_rep_id"
                 :options="props.users.map(u => ({ value: u.id, label: u.name }))"
                 placeholder="Unassigned"
@@ -97,6 +97,7 @@ const generatePortalToken = () => {
             <div>
               <FormSelect
                 label="Custom Price List"
+                name="price_list_id"
                 v-model="form.price_list_id"
                 :options="props.priceLists.map(p => ({ value: p.id, label: p.name }))"
                 placeholder="Tenant default price list"
@@ -110,7 +111,8 @@ const generatePortalToken = () => {
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
               <FormInput
-                label="Credit Limit (IDR) *"
+                label="Credit Limit (IDR)"
+                name="credit_limit"
                 type="number"
                 step="any"
                 min="0"
@@ -122,7 +124,8 @@ const generatePortalToken = () => {
 
             <div>
               <FormInput
-                label="Payment Terms (Days) *"
+                label="Payment Terms (Days)"
+                name="payment_terms_days"
                 type="number"
                 min="0"
                 v-model="form.payment_terms_days"
@@ -131,15 +134,13 @@ const generatePortalToken = () => {
               />
             </div>
 
-            <div class="flex items-center pt-6">
-              <label class="flex items-center gap-2 text-sm text-ink-900 cursor-pointer">
-                <input
-                  type="checkbox"
-                  v-model="form.on_hold"
-                  class="rounded border-border text-rose-600 focus:ring-rose-500"
-                />
-                <span class="font-semibold text-rose-700">Account On Hold (Blocks new SO confirmation)</span>
-              </label>
+            <div class="pt-6">
+              <FormSwitch
+                v-model="form.on_hold"
+                name="on_hold"
+                label="Account On Hold"
+                description="Blocks new sales order confirmation for this client."
+              />
             </div>
           </div>
 
@@ -153,11 +154,11 @@ const generatePortalToken = () => {
               </div>
               <div>
                 <p class="text-xs text-ink-500">Open AR Balance</p>
-                <p class="font-mono text-rose-600 font-semibold">{{ formatCurrency(props.exposure.open_ar_balance) }}</p>
+                <p class="font-mono text-signal-danger font-semibold">{{ formatCurrency(props.exposure.open_ar_balance) }}</p>
               </div>
               <div>
                 <p class="text-xs text-ink-500">Remaining Available Credit</p>
-                <p class="font-mono text-emerald-600 font-bold">{{ formatCurrency(props.exposure.available_credit) }}</p>
+                <p class="font-mono text-signal-success font-bold">{{ formatCurrency(props.exposure.available_credit) }}</p>
               </div>
             </div>
           </div>

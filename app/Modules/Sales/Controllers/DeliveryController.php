@@ -7,6 +7,7 @@ use App\Modules\Sales\Models\Delivery;
 use App\Modules\Sales\Models\SalesOrder;
 use App\Modules\Sales\Requests\StoreDeliveryRequest;
 use App\Modules\Sales\Services\DeliveryService;
+use App\Shared\Helpers\TableQuery;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -18,21 +19,23 @@ class DeliveryController extends Controller
 
     public function index(Request $request): Response
     {
-        $deliveries = Delivery::with(['order.customer', 'lines.salesOrderLine'])
+        $perPage = TableQuery::perPage($request->integer('per_page') ?: null, 20);
+        $query = Delivery::with(['order.customer', 'lines.salesOrderLine'])
             ->when($request->search, function ($q, $s) {
                 $q->where('tracking_number', 'ilike', "%{$s}%")
                     ->orWhere('carrier', 'ilike', "%{$s}%")
                     ->orWhereHas('order', fn ($o) => $o->where('so_number', 'ilike', "%{$s}%"));
             })
-            ->when($request->status, fn ($q, $st) => $q->where('status', $st))
-            ->orderByDesc('created_at')
-            ->paginate(20)
-            ->withQueryString();
+            ->when($request->status, fn ($q, $st) => $q->where('status', $st));
+
+        TableQuery::applySort($query, $request->sort, $request->direction, ['tracking_number', 'carrier', 'created_at', 'status'], 'created_at', 'desc');
+
+        $deliveries = $query->paginate($perPage)->withQueryString();
 
         return Inertia::render('Sales/Deliveries/Index', [
             'deliveries' => $deliveries,
             'statuses' => Delivery::STATUSES,
-            'filters' => $request->only(['search', 'status']),
+            'filters' => $request->only(['search', 'status', 'sort', 'direction', 'per_page']),
         ]);
     }
 

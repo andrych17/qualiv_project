@@ -1,6 +1,6 @@
 <!-- Contracts & Subscriptions List (§3L) -->
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
@@ -8,7 +8,15 @@ import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import SalesSubNav from '@/Components/sales/SalesSubNav.vue'
+import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
+import { debounce } from '@/Composables/debounce'
 import { useConfirm } from '@/Composables/useConfirmDialog'
+import { formatCurrency, formatDate } from '@/Utils/formatters'
+
+interface SubscriptionItem {
+  recurring_amount: number
+  billing_interval: string
+}
 
 interface ContractItem {
   id: number
@@ -19,45 +27,72 @@ interface ContractItem {
   term_end: string
   auto_renew: boolean
   customer: { id: number; name: string } | null
-  subscriptions: Array<{
-    recurring_amount: number
-    billing_interval: string
-  }>
+  subscriptions: SubscriptionItem[]
+}
+
+interface PaginatedData<T> {
+  data: T[]
+  links: Array<{ url: string | null; label: string; active: boolean }>
+  total: number
+  from: number | null
+  to: number | null
+  per_page: number
 }
 
 const props = defineProps<{
-  contracts: {
-    data: ContractItem[]
-    links: Array<{ url: string | null; label: string; active: boolean }>
-  }
+  contracts: PaginatedData<ContractItem>
   statuses: string[]
-  filters: { search?: string; status?: string }
+  filters: { search?: string; status?: string; sort?: string; direction?: string; per_page?: string }
 }>()
 
 const search = ref(props.filters.search ?? '')
-const status = ref(props.filters.status ?? '')
+const filters = ref({ status: props.filters.status ?? '' })
+const sort = ref<SortState>(
+  props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
+)
+const selected = ref<Array<string | number>>([])
+const perPage = ref(Number(props.filters.per_page) || props.contracts.per_page)
 
-const formatCurrency = (val: number, curr = 'IDR') => {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: curr, maximumFractionDigits: 0 }).format(val)
-}
+const filterFields: FilterFieldDef[] = [
+  {
+    key: 'status',
+    label: 'Status',
+    type: 'select',
+    options: props.statuses.map((st) => ({ label: st.toUpperCase(), value: st })),
+  },
+]
 
-const applyFilters = () => {
-  router.get(route('sales.contracts.index'), {
-    search: search.value || undefined,
-    status: status.value || undefined,
-  }, { preserveState: true })
-}
+const columns = [
+  { key: 'name', label: 'Contract Name', sortable: true },
+  { key: 'customer', label: 'Customer' },
+  { key: 'duration', label: 'Term Duration' },
+  { key: 'recurring_value', label: 'Recurring Value', align: 'right' as const },
+  { key: 'auto_renew', label: 'Auto Renew', align: 'center' as const },
+  { key: 'status', label: 'Status', sortable: true },
+  { key: 'actions', label: 'Actions', align: 'right' as const },
+]
 
 const { confirm } = useConfirm()
 
 const triggerRecurringBilling = () => {
   confirm({
     title: 'Process Recurring Billing?',
-    description: 'Run recurring billing cycle sweep now?',
+    description: 'Run recurring billing cycle sweep now for all eligible active contracts?',
     confirmText: 'Run Sweep',
     onConfirm: () => router.post(route('sales.contracts.recurring.process')),
   })
 }
+
+watch([search, filters, sort, perPage], debounce(() => {
+  selected.value = []
+  router.get(route('sales.contracts.index'), {
+    search: search.value || undefined,
+    status: filters.value.status || undefined,
+    sort: sort.value?.key,
+    direction: sort.value?.direction,
+    per_page: perPage.value,
+  }, { preserveState: true, replace: true })
+}, 400))
 </script>
 
 <template>
@@ -76,71 +111,71 @@ const triggerRecurringBilling = () => {
       <SalesSubNav active="contracts" />
     </div>
 
-    <!-- Filters -->
-    <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <input
-          v-model="search"
-          @keydown.enter="applyFilters"
-          type="text"
-          placeholder="Search contract name or customer…"
-          class="rounded-md border border-border bg-surface-0 px-3 py-1.5 text-sm text-ink-900 focus:border-accent focus:outline-none"
-        />
-        <select
-          v-model="status"
-          @change="applyFilters"
-          class="rounded-md border border-border bg-surface-0 px-3 py-1.5 text-sm text-ink-900 focus:border-accent focus:outline-none"
-        >
-          <option value="">All Statuses</option>
-          <option v-for="st in props.statuses" :key="st" :value="st">{{ st.toUpperCase() }}</option>
-        </select>
-      </div>
-    </div>
+    <div class="mt-6">
+      <DataTable
+        :columns="columns"
+        :items="contracts.data"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        v-model:search="search"
+        v-model:filters="filters"
+        v-model:per-page="perPage"
+        sticky-header
+        storage-key="sales.contracts"
+        search-placeholder="Search contract name or customer…"
+        :filter-fields="filterFields"
+        export-filename="sales-contracts"
+        status-rail-key="status"
+        :total="contracts.total"
+        :from="contracts.from"
+        :to="contracts.to"
+        :links="contracts.links"
+        empty-title="No contracts found"
+        empty-description="Create your first client service contract or retainer agreement."
+      >
+        <template #cell-name="{ item }">
+          <Link
+            :href="route('sales.contracts.show', item.id)"
+            class="font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            {{ (item as ContractItem).name }}
+          </Link>
+        </template>
 
-    <!-- Contracts Table -->
-    <div class="mt-6 rounded-lg border border-border bg-surface-0 overflow-x-auto">
-      <table class="w-full text-left text-sm">
-        <thead class="bg-surface-50 text-xs text-ink-500 uppercase border-b border-border">
-          <tr>
-            <th class="py-3 px-4">Contract Name</th>
-            <th class="py-3 px-4">Customer</th>
-            <th class="py-3 px-4">Term Duration</th>
-            <th class="py-3 px-4">Recurring Value</th>
-            <th class="py-3 px-4">Auto Renew</th>
-            <th class="py-3 px-4">Status</th>
-            <th class="py-3 px-4 text-right">Action</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-border">
-          <tr v-for="ctr in props.contracts.data" :key="ctr.id" class="hover:bg-surface-50">
-            <td class="py-3 px-4 font-semibold text-accent">
-              <Link :href="route('sales.contracts.show', ctr.id)" class="hover:underline">
-                {{ ctr.name }}
-              </Link>
-            </td>
-            <td class="py-3 px-4 font-medium text-ink-900">{{ ctr.customer?.name ?? '-' }}</td>
-            <td class="py-3 px-4 text-ink-600 text-xs font-mono">
-              {{ ctr.term_start }} &rarr; {{ ctr.term_end }}
-            </td>
-            <td class="py-3 px-4 font-mono font-semibold text-ink-900">
-              {{ formatCurrency(ctr.subscriptions.reduce((s, sub) => s + Number(sub.recurring_amount), 0)) }}
-            </td>
-            <td class="py-3 px-4 text-xs font-medium">
-              <span v-if="ctr.auto_renew" class="text-emerald-600">Yes</span>
-              <span v-else class="text-ink-400">No</span>
-            </td>
-            <td class="py-3 px-4"><StatusBadge :status="ctr.status" /></td>
-            <td class="py-3 px-4 text-right">
-              <Link :href="route('sales.contracts.show', ctr.id)" class="text-xs font-semibold text-accent hover:underline">
-                View &rarr;
-              </Link>
-            </td>
-          </tr>
-          <tr v-if="props.contracts.data.length === 0">
-            <td colspan="7" class="py-8 text-center text-ink-500">No contracts found.</td>
-          </tr>
-        </tbody>
-      </table>
+        <template #cell-customer="{ item }">
+          <span class="font-medium text-ink-900">{{ (item as ContractItem).customer?.name ?? '-' }}</span>
+        </template>
+
+        <template #cell-duration="{ item }">
+          <span class="font-mono text-xs text-ink-600">
+            {{ formatDate((item as ContractItem).term_start) }} &rarr; {{ formatDate((item as ContractItem).term_end) }}
+          </span>
+        </template>
+
+        <template #cell-recurring_value="{ item }">
+          <span class="font-mono font-semibold text-ink-900">
+            {{ formatCurrency((item as ContractItem).subscriptions.reduce((s, sub) => s + Number(sub.recurring_amount), 0)) }}
+          </span>
+        </template>
+
+        <template #cell-auto_renew="{ item }">
+          <span v-if="(item as ContractItem).auto_renew" class="font-medium text-signal-success">Yes</span>
+          <span v-else class="text-ink-400">No</span>
+        </template>
+
+        <template #cell-status="{ item }">
+          <StatusBadge :status="(item as ContractItem).status" />
+        </template>
+
+        <template #cell-actions="{ item }">
+          <Link
+            :href="route('sales.contracts.show', item.id)"
+            class="text-sm font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            Manage &rarr;
+          </Link>
+        </template>
+      </DataTable>
     </div>
   </AppLayout>
 </template>

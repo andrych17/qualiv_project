@@ -6,11 +6,17 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
+import FormSwitch from '@/Components/forms/FormSwitch.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 
+interface TerritoryOption {
+  id: number
+  name: string
+}
+
 const props = defineProps<{
-  territories: Array<{ id: number; name: string }>
+  territories: TerritoryOption[]
 }>()
 
 const form = useForm({
@@ -63,7 +69,8 @@ const submit = () => {
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
               <FormInput
-                label="Price List Name *"
+                label="Price List Name"
+                name="name"
                 v-model="form.name"
                 :error="form.errors.name"
                 placeholder="e.g. Enterprise Client Pricing 2026"
@@ -73,7 +80,8 @@ const submit = () => {
 
             <div>
               <FormInput
-                label="Currency Code *"
+                label="Currency Code"
+                name="currency"
                 v-model="form.currency"
                 :error="form.errors.currency"
                 required
@@ -83,6 +91,7 @@ const submit = () => {
             <div>
               <FormSelect
                 label="Territory (Optional)"
+                name="territory_id"
                 v-model="form.territory_id"
                 :error="form.errors.territory_id"
                 :options="props.territories.map(t => ({ value: t.id, label: t.name }))"
@@ -93,6 +102,7 @@ const submit = () => {
             <div>
               <FormInput
                 label="Customer Segment"
+                name="customer_segment"
                 v-model="form.customer_segment"
                 :error="form.errors.customer_segment"
                 placeholder="e.g. enterprise, retail, wholesale"
@@ -102,6 +112,7 @@ const submit = () => {
             <div>
               <FormInput
                 label="Effective From"
+                name="effective_from"
                 type="date"
                 v-model="form.effective_from"
                 :error="form.errors.effective_from"
@@ -111,22 +122,27 @@ const submit = () => {
             <div>
               <FormInput
                 label="Effective To"
+                name="effective_to"
                 type="date"
                 v-model="form.effective_to"
                 :error="form.errors.effective_to"
               />
             </div>
 
-            <div class="flex items-center gap-4 sm:col-span-3 pt-2">
-              <label class="flex items-center gap-2 text-sm text-ink-900 cursor-pointer">
-                <input type="checkbox" v-model="form.is_tenant_default" class="rounded border-border text-accent focus:ring-accent" />
-                <span>Set as Tenant Default Price List</span>
-              </label>
+            <div class="sm:col-span-3 pt-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FormSwitch
+                v-model="form.is_tenant_default"
+                name="is_tenant_default"
+                label="Set as Tenant Default"
+                description="Use this price list by default for all unassigned clients."
+              />
 
-              <label class="flex items-center gap-2 text-sm text-ink-900 cursor-pointer">
-                <input type="checkbox" v-model="form.is_active" class="rounded border-border text-accent focus:ring-accent" />
-                <span>Active</span>
-              </label>
+              <FormSwitch
+                v-model="form.is_active"
+                name="is_active"
+                label="Active Status"
+                description="Allow quotes and orders to use this price list."
+              />
             </div>
           </div>
         </Panel>
@@ -177,7 +193,8 @@ const submit = () => {
                     <button
                       type="button"
                       @click="removeLine(idx)"
-                      class="text-rose-500 hover:text-rose-700 text-lg font-bold"
+                      class="text-signal-danger hover:underline text-base font-bold"
+                      title="Remove line"
                     >
                       &times;
                     </button>
@@ -188,13 +205,9 @@ const submit = () => {
           </div>
 
           <div class="mt-4 border-t border-border pt-4">
-            <button
-              type="button"
-              @click="addLine"
-              class="rounded-md border border-border px-3 py-1.5 text-xs font-semibold text-ink-700 hover:bg-surface-100"
-            >
+            <SecondaryButton type="button" @click="addLine">
               + Add Item Price
-            </button>
+            </SecondaryButton>
           </div>
         </Panel>
 

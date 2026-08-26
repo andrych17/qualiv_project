@@ -9,6 +9,7 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import Tabs from '@/Components/navigation/Tabs.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
+import FormNumberInput from '@/Components/forms/FormNumberInput.vue'
 import FormTextarea from '@/Components/forms/FormTextarea.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
 import FormSwitch from '@/Components/forms/FormSwitch.vue'
@@ -120,8 +121,8 @@ const submit = () => form.put(route('inventory.products.update', props.product.i
             :error="form.errors.costing_method"
           />
           <div class="grid grid-cols-2 gap-4">
-            <FormInput v-model.number="form.reorder_point" name="reorder_point" type="number" label="Reorder point" :error="form.errors.reorder_point" />
-            <FormInput v-model.number="form.reorder_quantity" name="reorder_quantity" type="number" label="Reorder quantity" :error="form.errors.reorder_quantity" />
+            <FormNumberInput v-model="form.reorder_point" name="reorder_point" label="Reorder point" :error="form.errors.reorder_point" />
+            <FormNumberInput v-model="form.reorder_quantity" name="reorder_quantity" label="Reorder quantity" :error="form.errors.reorder_quantity" />
           </div>
           <FormSelect
             v-model="form.tracking_mode"

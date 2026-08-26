@@ -1,12 +1,18 @@
 <!-- Returns List (§3J) -->
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import SalesSubNav from '@/Components/sales/SalesSubNav.vue'
+import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
+import { debounce } from '@/Composables/debounce'
+
+interface ReturnLine {
+  qty_returned: number
+}
 
 interface ReturnItem {
   id: number
@@ -17,27 +23,62 @@ interface ReturnItem {
   customer: { id: number; name: string } | null
   order: { id: number; so_number: string } | null
   replacement_order: { id: number; so_number: string } | null
-  lines: Array<{ qty_returned: number }>
+  lines: ReturnLine[]
+}
+
+interface PaginatedData<T> {
+  data: T[]
+  links: Array<{ url: string | null; label: string; active: boolean }>
+  total: number
+  from: number | null
+  to: number | null
+  per_page: number
 }
 
 const props = defineProps<{
-  returns: {
-    data: ReturnItem[]
-    links: Array<{ url: string | null; label: string; active: boolean }>
-  }
+  returns: PaginatedData<ReturnItem>
   statuses: string[]
-  filters: { search?: string; status?: string }
+  filters: { search?: string; status?: string; sort?: string; direction?: string; per_page?: string }
 }>()
 
 const search = ref(props.filters.search ?? '')
-const status = ref(props.filters.status ?? '')
+const filters = ref({ status: props.filters.status ?? '' })
+const sort = ref<SortState>(
+  props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
+)
+const selected = ref<Array<string | number>>([])
+const perPage = ref(Number(props.filters.per_page) || props.returns.per_page)
 
-const applyFilters = () => {
+const filterFields: FilterFieldDef[] = [
+  {
+    key: 'status',
+    label: 'Status',
+    type: 'select',
+    options: props.statuses.map((st) => ({ label: st.toUpperCase(), value: st })),
+  },
+]
+
+const columns = [
+  { key: 'uuid', label: 'Return UUID' },
+  { key: 'customer', label: 'Customer' },
+  { key: 'order', label: 'Original Order' },
+  { key: 'reason_code', label: 'Reason', sortable: true },
+  { key: 'items_count', label: 'Items' },
+  { key: 'replacement_order', label: 'Replacement SO' },
+  { key: 'status', label: 'Status', sortable: true },
+  { key: 'actions', label: 'Actions', align: 'right' as const },
+]
+
+watch([search, filters, sort, perPage], debounce(() => {
+  selected.value = []
   router.get(route('sales.returns.index'), {
     search: search.value || undefined,
-    status: status.value || undefined,
-  }, { preserveState: true })
-}
+    status: filters.value.status || undefined,
+    sort: sort.value?.key,
+    direction: sort.value?.direction,
+    per_page: perPage.value,
+  }, { preserveState: true, replace: true })
+}, 400))
 </script>
 
 <template>
@@ -55,76 +96,86 @@ const applyFilters = () => {
       <SalesSubNav active="returns" />
     </div>
 
-    <!-- Filters -->
-    <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <input
-          v-model="search"
-          @keydown.enter="applyFilters"
-          type="text"
-          placeholder="Search reason or customer…"
-          class="rounded-md border border-border bg-surface-0 px-3 py-1.5 text-sm text-ink-900 focus:border-accent focus:outline-none"
-        />
-        <select
-          v-model="status"
-          @change="applyFilters"
-          class="rounded-md border border-border bg-surface-0 px-3 py-1.5 text-sm text-ink-900 focus:border-accent focus:outline-none"
-        >
-          <option value="">All Statuses</option>
-          <option v-for="st in props.statuses" :key="st" :value="st">{{ st.toUpperCase() }}</option>
-        </select>
-      </div>
-    </div>
+    <div class="mt-6">
+      <DataTable
+        :columns="columns"
+        :items="returns.data"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        v-model:search="search"
+        v-model:filters="filters"
+        v-model:per-page="perPage"
+        sticky-header
+        storage-key="sales.returns"
+        search-placeholder="Search reason or customer…"
+        :filter-fields="filterFields"
+        export-filename="sales-returns"
+        status-rail-key="status"
+        :total="returns.total"
+        :from="returns.from"
+        :to="returns.to"
+        :links="returns.links"
+        empty-title="No returns found"
+        empty-description="Create an RMA request to track returned goods and manage replacements."
+      >
+        <template #cell-uuid="{ item }">
+          <Link
+            :href="route('sales.returns.show', item.id)"
+            class="font-mono font-medium text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            {{ (item as ReturnItem).uuid.slice(0, 8) }}…
+          </Link>
+        </template>
 
-    <!-- Returns Table -->
-    <div class="mt-6 rounded-lg border border-border bg-surface-0 overflow-x-auto">
-      <table class="w-full text-left text-sm">
-        <thead class="bg-surface-50 text-xs text-ink-500 uppercase border-b border-border">
-          <tr>
-            <th class="py-3 px-4">Return UUID</th>
-            <th class="py-3 px-4">Customer</th>
-            <th class="py-3 px-4">Original Order</th>
-            <th class="py-3 px-4">Reason</th>
-            <th class="py-3 px-4">Items</th>
-            <th class="py-3 px-4">Replacement SO</th>
-            <th class="py-3 px-4">Status</th>
-            <th class="py-3 px-4 text-right">Action</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-border">
-          <tr v-for="ret in props.returns.data" :key="ret.id" class="hover:bg-surface-50">
-            <td class="py-3 px-4 font-mono font-medium text-accent">
-              <Link :href="route('sales.returns.show', ret.id)" class="hover:underline">
-                {{ ret.uuid.slice(0, 8) }}…
-              </Link>
-            </td>
-            <td class="py-3 px-4 font-medium text-ink-900">{{ ret.customer?.name ?? '-' }}</td>
-            <td class="py-3 px-4">
-              <Link v-if="ret.order" :href="route('sales.orders.show', ret.order.id)" class="text-accent hover:underline">
-                {{ ret.order.so_number }}
-              </Link>
-              <span v-else class="text-ink-400">Direct RMA</span>
-            </td>
-            <td class="py-3 px-4 text-ink-700">{{ ret.reason_code }}</td>
-            <td class="py-3 px-4 font-mono text-xs">{{ ret.lines.reduce((s, l) => s + Number(l.qty_returned), 0) }} units</td>
-            <td class="py-3 px-4 text-xs font-semibold text-accent">
-              <Link v-if="ret.replacement_order" :href="route('sales.orders.show', ret.replacement_order.id)" class="hover:underline">
-                {{ ret.replacement_order.so_number }}
-              </Link>
-              <span v-else class="text-ink-400 font-normal">-</span>
-            </td>
-            <td class="py-3 px-4"><StatusBadge :status="ret.status" /></td>
-            <td class="py-3 px-4 text-right">
-              <Link :href="route('sales.returns.show', ret.id)" class="text-xs font-semibold text-accent hover:underline">
-                View &rarr;
-              </Link>
-            </td>
-          </tr>
-          <tr v-if="props.returns.data.length === 0">
-            <td colspan="8" class="py-8 text-center text-ink-500">No returns found.</td>
-          </tr>
-        </tbody>
-      </table>
+        <template #cell-customer="{ item }">
+          <span class="font-medium text-ink-900">{{ (item as ReturnItem).customer?.name ?? '-' }}</span>
+        </template>
+
+        <template #cell-order="{ item }">
+          <Link
+            v-if="(item as ReturnItem).order"
+            :href="route('sales.orders.show', (item as ReturnItem).order!.id)"
+            class="text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            {{ (item as ReturnItem).order!.so_number }}
+          </Link>
+          <span v-else class="text-ink-400">Direct RMA</span>
+        </template>
+
+        <template #cell-reason_code="{ item }">
+          <span class="text-ink-700">{{ (item as ReturnItem).reason_code }}</span>
+        </template>
+
+        <template #cell-items_count="{ item }">
+          <span class="font-mono text-xs text-ink-700">
+            {{ (item as ReturnItem).lines.reduce((s, l) => s + Number(l.qty_returned), 0) }} units
+          </span>
+        </template>
+
+        <template #cell-replacement_order="{ item }">
+          <Link
+            v-if="(item as ReturnItem).replacement_order"
+            :href="route('sales.orders.show', (item as ReturnItem).replacement_order!.id)"
+            class="text-xs font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            {{ (item as ReturnItem).replacement_order!.so_number }}
+          </Link>
+          <span v-else class="text-ink-400 text-xs">-</span>
+        </template>
+
+        <template #cell-status="{ item }">
+          <StatusBadge :status="(item as ReturnItem).status" />
+        </template>
+
+        <template #cell-actions="{ item }">
+          <Link
+            :href="route('sales.returns.show', item.id)"
+            class="text-sm font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            View &rarr;
+          </Link>
+        </template>
+      </DataTable>
     </div>
   </AppLayout>
 </template>

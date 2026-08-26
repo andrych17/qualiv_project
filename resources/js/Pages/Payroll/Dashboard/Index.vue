@@ -7,6 +7,7 @@ import Panel from '@/Components/cards/Panel.vue'
 import StatCard from '@/Components/cards/StatCard.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import PayrollSubNav from '@/Components/payroll/PayrollSubNav.vue'
+import { formatCurrency, formatDate } from '@/Utils/formatters'
 
 interface Metrics {
   last_run_total_net: number
@@ -41,48 +42,34 @@ defineProps<{
   metrics: Metrics
   queues: Queues
 }>()
-
-const statusVariant = (st: string) => {
-  switch (st) {
-    case 'paid':
-    case 'locked':
-      return 'success'
-    case 'approved':
-      return 'info'
-    case 'calculated':
-      return 'warning'
-    case 'draft':
-      return 'neutral'
-    default:
-      return 'neutral'
-  }
-}
 </script>
 
 <template>
   <AppLayout title="Payroll Dashboard">
     <PageHeader title="Payroll" subtitle="Indonesian statutory payroll, PPh 21 TER, BPJS, and payslip execution." />
 
-    <div class="space-y-6">
+    <div class="mt-4">
       <PayrollSubNav active="dashboard" />
+    </div>
 
+    <div class="mt-6 space-y-6">
       <!-- Metric Headline Cards -->
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Last Run Net Pay"
-          :value="`Rp ${Number(metrics.last_run_total_net).toLocaleString('id-ID')}`"
+          :value="formatCurrency(metrics.last_run_total_net)"
           description="Disbursed take-home pay"
           icon="Wallet"
         />
         <StatCard
           title="PPh 21 Withholding"
-          :value="`Rp ${Number(metrics.last_run_tax_pph21).toLocaleString('id-ID')}`"
+          :value="formatCurrency(metrics.last_run_tax_pph21)"
           description="Tax liability from last run"
           icon="Receipt"
         />
         <StatCard
           title="Total BPJS Due"
-          :value="`Rp ${Number(metrics.last_run_bpjs_total).toLocaleString('id-ID')}`"
+          :value="formatCurrency(metrics.last_run_bpjs_total)"
           description="Employer + employee contribution"
           icon="ShieldCheck"
         />
@@ -98,32 +85,30 @@ const statusVariant = (st: string) => {
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <!-- Recent Payroll Runs -->
         <Panel title="Recent Payroll Runs">
-          <div v-if="queues.recent_runs.length === 0" class="p-4 text-center text-sm text-ink-500">
+          <div v-if="queues.recent_runs.length === 0" class="p-6 text-center text-sm text-ink-500">
             No payroll runs created yet.
           </div>
           <div v-else class="divide-y divide-border">
             <div
               v-for="run in queues.recent_runs"
               :key="run.id"
-              class="flex items-center justify-between p-3 hover:bg-surface-raised transition"
+              class="flex items-center justify-between p-3.5 hover:bg-surface-50 transition"
             >
               <div>
-                <div class="font-medium text-ink-900">{{ run.run_number }} ({{ run.run_type.toUpperCase() }})</div>
-                <div class="text-xs text-ink-500">
-                  {{ run.payroll_group?.name ?? 'All Groups' }} &bull; Period: {{ run.period_start }} to {{ run.period_end }}
+                <div class="font-medium text-ink-900">{{ run.run_number }} ({{ run.run_type.toUpperCase().replace('_', ' ') }})</div>
+                <div class="text-xs text-ink-500 font-mono">
+                  {{ run.payroll_group?.name ?? 'All Groups' }} &bull; Period: {{ formatDate(run.period_start) }} to {{ formatDate(run.period_end) }}
                 </div>
-                <div class="text-xs font-semibold text-ink-700 mt-0.5">
-                  Net: Rp {{ Number(run.total_net).toLocaleString('id-ID') }}
+                <div class="text-xs font-semibold text-ink-700 mt-1 font-mono">
+                  Net: {{ formatCurrency(Number(run.total_net)) }}
                 </div>
               </div>
-              <div class="text-right space-y-1">
-                <StatusBadge :status="run.status" :variant="statusVariant(run.status)">
-                  {{ run.status }}
-                </StatusBadge>
+              <div class="text-right space-y-1.5">
+                <StatusBadge :status="run.status" />
                 <div>
                   <Link
                     :href="route('payroll.runs.show', run.id)"
-                    class="text-xs font-medium text-accent hover:underline"
+                    class="text-xs font-medium text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                   >
                     View Details &rarr;
                   </Link>
@@ -135,27 +120,27 @@ const statusVariant = (st: string) => {
 
         <!-- Pending Reimbursements -->
         <Panel title="Pending Reimbursement Claims">
-          <div v-if="queues.pending_reimbursements.length === 0" class="p-4 text-center text-sm text-ink-500">
+          <div v-if="queues.pending_reimbursements.length === 0" class="p-6 text-center text-sm text-ink-500">
             No pending reimbursement claims.
           </div>
           <div v-else class="divide-y divide-border">
             <div
               v-for="claim in queues.pending_reimbursements"
               :key="claim.id"
-              class="flex items-center justify-between p-3 hover:bg-surface-raised transition"
+              class="flex items-center justify-between p-3.5 hover:bg-surface-50 transition"
             >
               <div>
                 <div class="font-medium text-ink-900">{{ claim.employee.full_name }}</div>
-                <div class="text-xs text-ink-500">
-                  {{ claim.category.name }} &bull; {{ claim.claim_date }}
+                <div class="text-xs text-ink-500 font-mono">
+                  {{ claim.category.name }} &bull; {{ formatDate(claim.claim_date) }}
                 </div>
-                <div class="text-xs font-semibold text-ink-700">
-                  Rp {{ Number(claim.amount).toLocaleString('id-ID') }}
+                <div class="text-xs font-semibold text-ink-900 font-mono mt-1">
+                  {{ formatCurrency(Number(claim.amount)) }}
                 </div>
               </div>
               <Link
                 :href="route('payroll.reimbursements.index')"
-                class="text-xs font-medium text-accent hover:underline"
+                class="text-xs font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               >
                 Review &rarr;
               </Link>

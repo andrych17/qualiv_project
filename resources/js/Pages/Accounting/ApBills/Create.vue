@@ -8,9 +8,12 @@ import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
+import FormCurrencyInput from '@/Components/forms/FormCurrencyInput.vue'
+import FormNumberInput from '@/Components/forms/FormNumberInput.vue'
 import FormSearchableSelect from '@/Components/forms/FormSearchableSelect.vue'
 import FormAsyncSearchableSelect from '@/Components/forms/FormAsyncSearchableSelect.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
+import { formatCurrency } from '@/Utils/formatters'
 import { Plus, Trash2 } from 'lucide-vue-next'
 
 type Option = { value: number; label: string }
@@ -26,9 +29,9 @@ const props = defineProps<{
 
 const blankLine = () => ({
   description: '',
-  qty: '1',
-  unit_price: '',
-  discount_amount: '0',
+  qty: 1 as number | null,
+  unit_price: 0 as number | null,
+  discount_amount: 0 as number | null,
   tax_code_id: null as number | null,
   expense_account_id: props.expenseAccounts[0]?.value ?? null,
 })
@@ -133,20 +136,20 @@ const submit = () => form.transform((data) => ({
                     <FormSearchableSelect v-model="line.expense_account_id" :name="`lines.${i}.expense_account_id`" :options="expenseAccounts" />
                   </td>
                   <td class="px-3 py-2">
-                    <input v-model="line.qty" type="number" step="0.0001" min="0" class="w-20 rounded-sm border border-border bg-surface-0 px-2 py-1.5 text-right text-sm" />
+                    <FormNumberInput v-model="line.qty" :name="`lines.${i}.qty`" :decimals="2" class="w-24" />
                   </td>
                   <td class="px-3 py-2">
-                    <input v-model="line.unit_price" type="number" step="0.01" min="0" class="w-28 rounded-sm border border-border bg-surface-0 px-2 py-1.5 text-right text-sm" />
+                    <FormCurrencyInput v-model="line.unit_price" :name="`lines.${i}.unit_price`" prefix="" :decimals="2" class="w-32" />
                   </td>
                   <td class="px-3 py-2">
-                    <input v-model="line.discount_amount" type="number" step="0.01" min="0" class="w-24 rounded-sm border border-border bg-surface-0 px-2 py-1.5 text-right text-sm" />
+                    <FormCurrencyInput v-model="line.discount_amount" :name="`lines.${i}.discount_amount`" prefix="" :decimals="2" class="w-28" />
                   </td>
                   <td class="px-3 py-2">
                     <FormSearchableSelect v-model="line.tax_code_id" :name="`lines.${i}.tax_code_id`" placeholder="None" :options="taxCodes" />
                   </td>
-                  <td class="px-3 py-2 text-right text-ink-900">{{ (lineAmount(line) + lineTax(line)).toFixed(2) }}</td>
+                  <td class="px-3 py-2 text-right font-medium text-ink-900">{{ formatCurrency(lineAmount(line) + lineTax(line), form.currency_code) }}</td>
                   <td class="px-3 py-2 text-right">
-                    <button type="button" class="text-ink-600 hover:text-signal-danger" :disabled="form.lines.length <= 1" @click="removeLine(i)">
+                    <button type="button" class="text-ink-600 hover:text-signal-danger pt-2" :disabled="form.lines.length <= 1" @click="removeLine(i)">
                       <Trash2 class="h-4 w-4" />
                     </button>
                   </td>
@@ -155,7 +158,7 @@ const submit = () => form.transform((data) => ({
               <tfoot>
                 <tr class="border-t border-border bg-surface-50 font-semibold">
                   <td class="px-3 py-2" colspan="6">Subtotal / Tax / Withheld / Payable</td>
-                  <td class="px-3 py-2 text-right" colspan="2">{{ subtotal.toFixed(2) }} / {{ taxTotal.toFixed(2) }} / {{ withheld.toFixed(2) }} / {{ payable.toFixed(2) }}</td>
+                  <td class="px-3 py-2 text-right" colspan="2">{{ formatCurrency(subtotal, form.currency_code) }} / {{ formatCurrency(taxTotal, form.currency_code) }} / {{ formatCurrency(withheld, form.currency_code) }} / {{ formatCurrency(payable, form.currency_code) }}</td>
                 </tr>
               </tfoot>
             </table>

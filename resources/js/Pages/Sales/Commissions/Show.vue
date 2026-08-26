@@ -38,9 +38,7 @@ const props = defineProps<{
   settlement: SettlementDetail
 }>()
 
-const formatCurrency = (val: number, curr = 'IDR') => {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: curr, maximumFractionDigits: 0 }).format(val)
-}
+import { formatCurrency, formatDate } from '@/Utils/formatters'
 
 const { confirm } = useConfirm()
 

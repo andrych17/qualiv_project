@@ -1,13 +1,15 @@
 <!-- ponytail: Payroll Runs Index — batch execution list and filterable table. -->
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
-import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import PayrollSubNav from '@/Components/payroll/PayrollSubNav.vue'
+import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
+import { debounce } from '@/Composables/debounce'
+import { formatCurrency, formatDate } from '@/Utils/formatters'
 
 interface Run {
   id: number
@@ -15,7 +17,7 @@ interface Run {
   run_number: string
   period_start: string
   period_end: string
-  pay_date: string
+  pay_date?: string
   run_type: string
   status: string
   total_gross: string
@@ -26,149 +28,185 @@ interface Run {
   payroll_group?: { name: string }
 }
 
+interface PaginatedData<T> {
+  data: T[]
+  links: Array<{ url: string | null; label: string; active: boolean }>
+  total: number
+  from: number | null
+  to: number | null
+  per_page: number
+}
+
 const props = defineProps<{
-  runs: {
-    data: Run[]
-    links: Array<{ url: string | null; label: string; active: boolean }>
-    total: number
-  }
+  runs: PaginatedData<Run>
   filters: {
+    search?: string
     status?: string
     run_type?: string
+    sort?: string
+    direction?: string
+    per_page?: string
   }
 }>()
 
-const status = ref(props.filters.status || '')
-const runType = ref(props.filters.run_type || '')
+const search = ref(props.filters.search ?? '')
+const filters = ref({
+  status: props.filters.status ?? '',
+  run_type: props.filters.run_type ?? '',
+})
+const sort = ref<SortState>(
+  props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
+)
+const selected = ref<Array<string | number>>([])
+const perPage = ref(Number(props.filters.per_page) || props.runs.per_page)
 
-const applyFilters = () => {
+const filterFields: FilterFieldDef[] = [
+  {
+    key: 'status',
+    label: 'Status',
+    type: 'select',
+    options: [
+      { label: 'Draft', value: 'draft' },
+      { label: 'Calculated', value: 'calculated' },
+      { label: 'Approved', value: 'approved' },
+      { label: 'Paid', value: 'paid' },
+      { label: 'Locked', value: 'locked' },
+    ],
+  },
+  {
+    key: 'run_type',
+    label: 'Run Type',
+    type: 'select',
+    options: [
+      { label: 'Regular', value: 'regular' },
+      { label: 'Off Cycle', value: 'off_cycle' },
+      { label: 'THR (Holiday Bonus)', value: 'thr' },
+      { label: 'Bonus', value: 'bonus' },
+      { label: 'Severance', value: 'severance' },
+    ],
+  },
+]
+
+const columns = [
+  { key: 'run_number', label: 'Run Number', sortable: true },
+  { key: 'run_type', label: 'Type', sortable: true },
+  { key: 'period', label: 'Period' },
+  { key: 'pay_date', label: 'Pay Date', sortable: true },
+  { key: 'total_net', label: 'Total Net Pay', sortable: true, align: 'right' as const },
+  { key: 'total_tax_pph21', label: 'PPh 21', align: 'right' as const },
+  { key: 'status', label: 'Status', sortable: true },
+  { key: 'actions', label: 'Actions', align: 'right' as const },
+]
+
+watch([search, filters, sort, perPage], debounce(() => {
+  selected.value = []
   router.get(
     route('payroll.runs.index'),
     {
-      status: status.value || undefined,
-      run_type: runType.value || undefined,
+      search: search.value || undefined,
+      status: filters.value.status || undefined,
+      run_type: filters.value.run_type || undefined,
+      sort: sort.value?.key,
+      direction: sort.value?.direction,
+      per_page: perPage.value,
     },
-    { preserveState: true }
+    { preserveState: true, replace: true }
   )
-}
-
-const statusVariant = (st: string) => {
-  switch (st) {
-    case 'paid':
-    case 'locked':
-      return 'success'
-    case 'approved':
-      return 'info'
-    case 'calculated':
-      return 'warning'
-    case 'draft':
-      return 'neutral'
-    default:
-      return 'neutral'
-  }
-}
+}, 400))
 </script>
 
 <template>
   <AppLayout title="Payroll Runs">
     <PageHeader title="Payroll Runs" subtitle="Manage and execute monthly and off-cycle payroll batches.">
       <template #actions>
-        <Link :href="route('payroll.runs.create')">
-          <PrimaryButton>+ New Payroll Run</PrimaryButton>
-        </Link>
+        <PrimaryButton :href="route('payroll.runs.create')">+ New Payroll Run</PrimaryButton>
       </template>
     </PageHeader>
 
-    <div class="space-y-6">
+    <div class="mt-4">
       <PayrollSubNav active="runs" />
+    </div>
 
-      <!-- Filters -->
-      <Panel>
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div class="mt-6">
+      <DataTable
+        :columns="columns"
+        :items="runs.data"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        v-model:search="search"
+        v-model:filters="filters"
+        v-model:per-page="perPage"
+        sticky-header
+        storage-key="payroll.runs"
+        search-placeholder="Search run #, payroll group…"
+        :filter-fields="filterFields"
+        export-filename="payroll-runs"
+        status-rail-key="status"
+        :total="runs.total"
+        :from="runs.from"
+        :to="runs.to"
+        :links="runs.links"
+        empty-title="No payroll runs found"
+        empty-description="Initiate your first payroll calculation batch."
+      >
+        <template #cell-run_number="{ item }">
           <div>
-            <label class="block text-xs font-medium text-ink-700">Status</label>
-            <select
-              v-model="status"
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
-              @change="applyFilters"
+            <Link
+              :href="route('payroll.runs.show', item.id)"
+              class="font-mono font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             >
-              <option value="">All Statuses</option>
-              <option value="draft">Draft</option>
-              <option value="calculated">Calculated</option>
-              <option value="approved">Approved</option>
-              <option value="paid">Paid</option>
-              <option value="locked">Locked</option>
-            </select>
+              {{ (item as Run).run_number }}
+            </Link>
+            <span v-if="(item as Run).payroll_group" class="block text-[11px] text-ink-400">
+              {{ (item as Run).payroll_group?.name }}
+            </span>
           </div>
-          <div>
-            <label class="block text-xs font-medium text-ink-700">Run Type</label>
-            <select
-              v-model="runType"
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
-              @change="applyFilters"
-            >
-              <option value="">All Run Types</option>
-              <option value="regular">Regular</option>
-              <option value="off_cycle">Off Cycle</option>
-              <option value="thr">THR (Holiday Bonus)</option>
-              <option value="bonus">Bonus</option>
-              <option value="severance">Severance</option>
-            </select>
-          </div>
-        </div>
-      </Panel>
+        </template>
 
-      <!-- Table List -->
-      <Panel>
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-border text-left text-sm">
-            <thead class="bg-surface-sunken text-xs font-medium text-ink-500 uppercase">
-              <tr>
-                <th class="px-4 py-3">Run Number</th>
-                <th class="px-4 py-3">Type</th>
-                <th class="px-4 py-3">Period</th>
-                <th class="px-4 py-3">Pay Date</th>
-                <th class="px-4 py-3">Total Net Pay</th>
-                <th class="px-4 py-3">PPh 21</th>
-                <th class="px-4 py-3">Status</th>
-                <th class="px-4 py-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-border">
-              <tr v-if="runs.data.length === 0">
-                <td colspan="8" class="p-4 text-center text-ink-500">No payroll runs found.</td>
-              </tr>
-              <tr v-for="r in runs.data" :key="r.id" class="hover:bg-surface-raised transition">
-                <td class="px-4 py-3">
-                  <Link :href="route('payroll.runs.show', r.id)" class="font-medium text-ink-900 hover:text-accent">
-                    {{ r.run_number }}
-                  </Link>
-                  <div class="text-xs text-ink-500">{{ r.payroll_group?.name ?? 'All Groups' }}</div>
-                </td>
-                <td class="px-4 py-3 uppercase text-xs font-medium text-ink-700">{{ r.run_type }}</td>
-                <td class="px-4 py-3 text-xs">{{ r.period_start }} to {{ r.period_end }}</td>
-                <td class="px-4 py-3 text-xs">{{ r.pay_date }}</td>
-                <td class="px-4 py-3 font-semibold text-ink-900">
-                  Rp {{ Number(r.total_net).toLocaleString('id-ID') }}
-                </td>
-                <td class="px-4 py-3 text-ink-700">
-                  Rp {{ Number(r.total_tax_pph21).toLocaleString('id-ID') }}
-                </td>
-                <td class="px-4 py-3">
-                  <StatusBadge :status="r.status" :variant="statusVariant(r.status)">
-                    {{ r.status }}
-                  </StatusBadge>
-                </td>
-                <td class="px-4 py-3 text-right">
-                  <Link :href="route('payroll.runs.show', r.id)" class="text-xs font-medium text-accent hover:underline">
-                    View Run &rarr;
-                  </Link>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </Panel>
+        <template #cell-run_type="{ item }">
+          <span class="text-xs capitalize font-medium text-ink-800">{{ (item as Run).run_type.replace('_', ' ') }}</span>
+        </template>
+
+        <template #cell-period="{ item }">
+          <span class="font-mono text-xs text-ink-700">
+            {{ formatDate((item as Run).period_start) }} - {{ formatDate((item as Run).period_end) }}
+          </span>
+        </template>
+
+        <template #cell-pay_date="{ item }">
+          <span v-if="(item as Run).pay_date" class="font-mono text-xs text-ink-700">
+            {{ formatDate((item as Run).pay_date!) }}
+          </span>
+          <span v-else class="text-xs text-ink-400">—</span>
+        </template>
+
+        <template #cell-total_net="{ item }">
+          <span class="font-mono text-xs font-semibold text-ink-900">
+            {{ formatCurrency(Number((item as Run).total_net)) }}
+          </span>
+        </template>
+
+        <template #cell-total_tax_pph21="{ item }">
+          <span class="font-mono text-xs text-ink-600">
+            {{ formatCurrency(Number((item as Run).total_tax_pph21)) }}
+          </span>
+        </template>
+
+        <template #cell-status="{ item }">
+          <StatusBadge :status="(item as Run).status" />
+        </template>
+
+        <template #cell-actions="{ item }">
+          <div class="flex items-center justify-end">
+            <Link
+              :href="route('payroll.runs.show', item.id)"
+              class="text-xs font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              View & Calculate &rarr;
+            </Link>
+          </div>
+        </template>
+      </DataTable>
     </div>
   </AppLayout>
 </template>

@@ -6,9 +6,12 @@ import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
+import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
+import FormSwitch from '@/Components/forms/FormSwitch.vue'
 import SalesSubNav from '@/Components/sales/SalesSubNav.vue'
 import SalesMasterSubNav from '@/Components/sales/SalesMasterSubNav.vue'
+import DataTable, { type SortState } from '@/Components/tables/DataTable.vue'
 import Modal from '@/Components/Modal.vue'
 import { useConfirm } from '@/Composables/useConfirmDialog'
 
@@ -25,6 +28,10 @@ const props = defineProps<{
   territories: TerritoryItem[]
 }>()
 
+const search = ref('')
+const sort = ref<SortState>(null)
+const selected = ref<Array<string | number>>([])
+
 const showModal = ref(false)
 const editingTerritory = ref<TerritoryItem | null>(null)
 
@@ -34,6 +41,14 @@ const form = useForm({
   parent_id: null as number | null,
   is_active: true,
 })
+
+const columns = [
+  { key: 'code', label: 'Code', sortable: true },
+  { key: 'name', label: 'Territory Name', sortable: true },
+  { key: 'teams_count', label: 'Sales Teams', align: 'center' as const },
+  { key: 'is_active', label: 'Status', sortable: true },
+  { key: 'actions', label: 'Actions', align: 'right' as const },
+]
 
 const openCreate = () => {
   editingTerritory.value = null
@@ -65,13 +80,13 @@ const submit = () => {
 
 const { confirm } = useConfirm()
 
-const deleteTerritory = (id: number) => {
+const deleteTerritory = (t: TerritoryItem) => {
   confirm({
-    title: 'Delete Territory?',
-    description: 'Are you sure you want to delete this territory?',
+    title: `Delete Territory "${t.name}"?`,
+    description: 'Are you sure you want to delete this sales territory?',
     variant: 'destructive',
     confirmText: 'Delete',
-    onConfirm: () => router.delete(route('sales.master.territories.destroy', id)),
+    onConfirm: () => router.delete(route('sales.master.territories.destroy', t.id)),
   })
 }
 </script>
@@ -95,47 +110,56 @@ const deleteTerritory = (id: number) => {
       <SalesMasterSubNav active="territories" />
     </div>
 
-    <div class="mt-6 rounded-lg border border-border bg-surface-0 overflow-x-auto">
-      <table class="w-full text-left text-sm">
-        <thead class="bg-surface-50 text-xs text-ink-500 uppercase border-b border-border">
-          <tr>
-            <th class="py-3 px-4">Code</th>
-            <th class="py-3 px-4">Territory Name</th>
-            <th class="py-3 px-4">Sales Teams</th>
-            <th class="py-3 px-4">Status</th>
-            <th class="py-3 px-4 text-right">Action</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-border">
-          <tr v-for="t in props.territories" :key="t.id" class="hover:bg-surface-50">
-            <td class="py-3 px-4 font-mono font-medium text-accent">{{ t.code }}</td>
-            <td class="py-3 px-4 font-semibold text-ink-900">{{ t.name }}</td>
-            <td class="py-3 px-4 text-xs font-mono text-ink-600">{{ t.teams_count ?? 0 }} team(s)</td>
-            <td class="py-3 px-4 text-xs font-semibold" :class="t.is_active ? 'text-emerald-600' : 'text-ink-400'">
-              {{ t.is_active ? 'Active' : 'Inactive' }}
-            </td>
-            <td class="py-3 px-4 text-right space-x-2">
-              <button
-                type="button"
-                @click="openEdit(t)"
-                class="text-xs font-medium text-accent hover:underline"
-              >
-                Edit
-              </button>
-              <button
-                type="button"
-                @click="deleteTerritory(t.id)"
-                class="text-xs font-medium text-rose-600 hover:underline"
-              >
-                Delete
-              </button>
-            </td>
-          </tr>
-          <tr v-if="props.territories.length === 0">
-            <td colspan="5" class="py-8 text-center text-ink-500">No territories configured.</td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="mt-6">
+      <DataTable
+        :columns="columns"
+        :items="props.territories"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        v-model:search="search"
+        sticky-header
+        storage-key="sales.master.territories"
+        search-placeholder="Search territories…"
+        export-filename="sales-territories"
+        status-rail-key="is_active"
+        empty-title="No territories found"
+        empty-description="Create your first regional sales territory."
+      >
+        <template #cell-code="{ item }">
+          <span class="font-mono font-medium text-accent">{{ (item as TerritoryItem).code }}</span>
+        </template>
+
+        <template #cell-name="{ item }">
+          <span class="font-semibold text-ink-900">{{ (item as TerritoryItem).name }}</span>
+        </template>
+
+        <template #cell-teams_count="{ item }">
+          <span class="font-mono text-xs text-ink-600">{{ (item as TerritoryItem).teams_count ?? 0 }} team(s)</span>
+        </template>
+
+        <template #cell-is_active="{ item }">
+          <StatusBadge :status="(item as TerritoryItem).is_active ? 'active' : 'inactive'" />
+        </template>
+
+        <template #cell-actions="{ item }">
+          <div class="flex items-center justify-end gap-3">
+            <button
+              type="button"
+              @click="openEdit(item as TerritoryItem)"
+              class="text-xs font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              @click="deleteTerritory(item as TerritoryItem)"
+              class="text-xs font-medium text-signal-danger hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              Delete
+            </button>
+          </div>
+        </template>
+      </DataTable>
     </div>
 
     <!-- Territory Modal -->
@@ -145,7 +169,8 @@ const deleteTerritory = (id: number) => {
 
         <form @submit.prevent="submit" class="mt-4 space-y-4">
           <FormInput
-            label="Territory Code *"
+            label="Territory Code"
+            name="code"
             v-model="form.code"
             :error="form.errors.code"
             placeholder="e.g. ID-JKT"
@@ -153,17 +178,20 @@ const deleteTerritory = (id: number) => {
           />
 
           <FormInput
-            label="Territory Name *"
+            label="Territory Name"
+            name="name"
             v-model="form.name"
             :error="form.errors.name"
-            placeholder="e.g. DKI Jakarta & Greater Area"
+            placeholder="e.g. Greater Jakarta Region"
             required
           />
 
-          <label class="flex items-center gap-2 text-sm text-ink-900 cursor-pointer pt-2">
-            <input type="checkbox" v-model="form.is_active" class="rounded border-border text-accent focus:ring-accent" />
-            <span>Active</span>
-          </label>
+          <FormSwitch
+            v-model="form.is_active"
+            name="is_active"
+            label="Active Status"
+            description="Enable this territory for pricing and team assignments."
+          />
 
           <div class="flex items-center justify-end gap-2 pt-2">
             <SecondaryButton @click="showModal = false">Cancel</SecondaryButton>

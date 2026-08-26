@@ -62,7 +62,9 @@ Every UI view in `resources/js/Pages/` **must strictly compose from shared compo
   **NEVER** use browser-native `window.confirm()` or alert popups.
 
 ### B. Form Controls & Inputs (`@/Components/forms/`)
-- **Text, Email, Number, Date:** `FormInput.vue` (includes label, required asterisk, and error message).
+- **Text, Email, Date:** `FormInput.vue` (includes label, required asterisk, and error message).
+- **Currency & Monetary Amounts:** `FormCurrencyInput.vue` (supports thousand separator, optional decimal precision, prefix `Rp`/`$`, live terbilang preview, and cursor preservation).
+- **Numeric & Quantity Amounts:** `FormNumberInput.vue` (supports thousand separator, decimals, customizable suffix e.g. `pcs`, `unit`).
 - **Multi-line Text:** `FormTextarea.vue`.
 - **Standard Select:** `FormSelect.vue`.
 - **Single Searchable Select (In-memory):** `FormSearchableSelect.vue`.
@@ -107,6 +109,10 @@ Every UI view in `resources/js/Pages/` **must strictly compose from shared compo
 - **Sub-navigation Tabs:** `Tabs.vue` (`@/Components/navigation/Tabs.vue`).
 - **Module Sub-navigation:** Reusable module subnavs (e.g. `HcmSubNav.vue`, `CrmSubNav.vue`, `InventorySubNav.vue`).
 
+### H. Empty States & Formatters
+- **Empty States:** MUST use `@/Components/feedback/EmptyState.vue` (includes icon, title, description, and primary CTA). Never leave blank tables/lists or write plain text "no data".
+- **Formatters:** MUST use `@/Utils/formatters` (`formatCurrency`, `formatDate`, `formatDateTime`, `formatNumber`). Never write ad-hoc formatting logic in components.
+
 ---
 
 ## 4. Backend Conventions
@@ -115,10 +121,18 @@ Every UI view in `resources/js/Pages/` **must strictly compose from shared compo
   - `app/Modules/<ModuleName>/`: `Controllers/`, `Models/`, `Requests/`, `Services/`, `Data/`, `Enums/`, `Routes/web.php`.
   - `app/Shared/`: `Actions/`, `DTOs/`, `Enums/`, `Services/`, `Traits/`, `Helpers/`.
 - **Controllers:** Keep controllers thin. Validate with Form Requests, execute via Services, and return `Inertia::render(...)`.
-- **Database Tables:**
+- **Database Transactions:** Every multi-table or header-line write (e.g. Orders + Lines, Invoices, Journals, Inventory Movements) **MUST** be wrapped in `DB::transaction(fn () => ...)`.
+- **Database Tables & Models:**
   - Master tables: single noun, e.g. `materials`, `partners`.
   - Transaction tables: 2-part `<SCHEMA>.<prefix>_<level>`, e.g. `SALES.so_hdrs`, `SALES.so_lines`, `PURCHASE.pur_order_hdrs`.
+  - **Schema Prefix:** Every Eloquent Model in tenant modules **MUST** explicitly define its schema: `protected $table = 'SCHEMA.table_name';`.
   - Use `bigint` for PK/FK. Add `uuid` for external facing references.
+  - **No `tenant_id` Column:** Mode B multi-tenancy means 1 database per tenant. Never create a `tenant_id` column in tenant tables.
+- **Sorting & Pagination Sanitization:**
+  - Use `TableQuery::applySort()` and `TableQuery::perPage()` from `App\Shared\Helpers\TableQuery` to whitelist sortable columns and prevent SQL injection or unbounded page sizes.
+- **Module Boundaries:**
+  - Core modules have zero knowledge of Vertical modules (e.g., Inventory never imports Legal).
+  - Cross-module operations must go through Services, Events/Listeners, or shared DTOs.
 
 ---
 

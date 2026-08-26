@@ -1,11 +1,15 @@
 <!-- Customer Sales & Credit Profiles Index (§3B / §3K) -->
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
+import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import SalesSubNav from '@/Components/sales/SalesSubNav.vue'
 import SalesMasterSubNav from '@/Components/sales/SalesMasterSubNav.vue'
+import DataTable, { type SortState } from '@/Components/tables/DataTable.vue'
+import { debounce } from '@/Composables/debounce'
+import { formatCurrency } from '@/Utils/formatters'
 
 interface PartnerItem {
   id: number
@@ -22,26 +26,46 @@ interface PartnerItem {
   }
 }
 
+interface PaginatedData<T> {
+  data: T[]
+  links: Array<{ url: string | null; label: string; active: boolean }>
+  total: number
+  from: number | null
+  to: number | null
+  per_page: number
+}
+
 const props = defineProps<{
-  customers: {
-    data: PartnerItem[]
-    links: Array<{ url: string | null; label: string; active: boolean }>
-  }
-  filters: { search?: string }
+  customers: PaginatedData<PartnerItem>
+  filters: { search?: string; sort?: string; direction?: string; per_page?: string }
 }>()
 
 const search = ref(props.filters.search ?? '')
+const sort = ref<SortState>(
+  props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
+)
+const selected = ref<Array<string | number>>([])
+const perPage = ref(Number(props.filters.per_page) || props.customers.per_page)
 
-const formatCurrency = (val: number | null | undefined, curr = 'IDR') => {
-  if (!val) return 'IDR 0'
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: curr, maximumFractionDigits: 0 }).format(val)
-}
+const columns = [
+  { key: 'name', label: 'Customer Name', sortable: true },
+  { key: 'assignment', label: 'Assigned Team / Rep' },
+  { key: 'price_list', label: 'Price List' },
+  { key: 'payment_terms', label: 'Payment Terms' },
+  { key: 'credit_limit', label: 'Credit Limit', align: 'right' as const },
+  { key: 'credit_standing', label: 'Credit Standing', align: 'center' as const },
+  { key: 'actions', label: 'Actions', align: 'right' as const },
+]
 
-const applyFilters = () => {
+watch([search, sort, perPage], debounce(() => {
+  selected.value = []
   router.get(route('sales.master.customers.index'), {
     search: search.value || undefined,
-  }, { preserveState: true })
-}
+    sort: sort.value?.key,
+    direction: sort.value?.direction,
+    per_page: perPage.value,
+  }, { preserveState: true, replace: true })
+}, 400))
 </script>
 
 <template>
@@ -59,71 +83,87 @@ const applyFilters = () => {
       <SalesMasterSubNav active="customers" />
     </div>
 
-    <!-- Filter -->
     <div class="mt-6">
-      <input
-        v-model="search"
-        @keydown.enter="applyFilters"
-        type="text"
-        placeholder="Search customer name…"
-        class="w-72 rounded-md border border-border bg-surface-0 px-3 py-1.5 text-sm text-ink-900 focus:border-accent focus:outline-none"
-      />
-    </div>
+      <DataTable
+        :columns="columns"
+        :items="customers.data"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        v-model:search="search"
+        v-model:per-page="perPage"
+        sticky-header
+        storage-key="sales.master.customers"
+        search-placeholder="Search customer name…"
+        export-filename="sales-customer-profiles"
+        :total="customers.total"
+        :from="customers.from"
+        :to="customers.to"
+        :links="customers.links"
+        empty-title="No customer profiles found"
+        empty-description="Active customer partners in CRM automatically appear here for sales configuration."
+      >
+        <template #cell-name="{ item }">
+          <Link
+            :href="route('sales.master.customers.edit', item.id)"
+            class="font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            {{ (item as PartnerItem).name }}
+          </Link>
+        </template>
 
-    <!-- Table -->
-    <div class="mt-6 rounded-lg border border-border bg-surface-0 overflow-x-auto">
-      <table class="w-full text-left text-sm">
-        <thead class="bg-surface-50 text-xs text-ink-500 uppercase border-b border-border">
-          <tr>
-            <th class="py-3 px-4">Customer Name</th>
-            <th class="py-3 px-4">Assigned Team / Rep</th>
-            <th class="py-3 px-4">Price List</th>
-            <th class="py-3 px-4">Payment Terms</th>
-            <th class="py-3 px-4">Credit Limit</th>
-            <th class="py-3 px-4">Credit Standing</th>
-            <th class="py-3 px-4 text-right">Action</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-border">
-          <tr v-for="c in props.customers.data" :key="c.id" class="hover:bg-surface-50">
-            <td class="py-3 px-4 font-semibold text-ink-900">
-              <Link :href="route('sales.master.customers.edit', c.id)" class="hover:underline text-accent">
-                {{ c.name }}
-              </Link>
-            </td>
-            <td class="py-3 px-4 text-xs text-ink-700">
-              <p v-if="c.sales_profile?.sales_team">Team: <strong>{{ c.sales_profile.sales_team.name }}</strong></p>
-              <p v-if="c.sales_profile?.assigned_rep">Rep: {{ c.sales_profile.assigned_rep.name }}</p>
-              <span v-if="!c.sales_profile?.sales_team && !c.sales_profile?.assigned_rep" class="text-ink-400">Unassigned</span>
-            </td>
-            <td class="py-3 px-4 text-xs text-ink-700">
-              {{ c.sales_profile?.price_list?.name ?? 'Tenant Default' }}
-            </td>
-            <td class="py-3 px-4 text-xs font-mono">
-              {{ c.credit_profile?.payment_terms_days ?? 30 }} Days
-            </td>
-            <td class="py-3 px-4 font-mono font-medium text-ink-900">
-              {{ formatCurrency(c.credit_profile?.credit_limit) }}
-            </td>
-            <td class="py-3 px-4 text-xs font-bold">
-              <span v-if="c.credit_profile?.on_hold" class="text-rose-600 bg-rose-50 px-2 py-0.5 rounded">
-                ON HOLD
-              </span>
-              <span v-else class="text-emerald-600">
-                Active
-              </span>
-            </td>
-            <td class="py-3 px-4 text-right">
-              <Link :href="route('sales.master.customers.edit', c.id)" class="text-xs font-medium text-accent hover:underline">
-                Edit Profile &rarr;
-              </Link>
-            </td>
-          </tr>
-          <tr v-if="props.customers.data.length === 0">
-            <td colspan="7" class="py-8 text-center text-ink-500">No customers found.</td>
-          </tr>
-        </tbody>
-      </table>
+        <template #cell-assignment="{ item }">
+          <div class="text-xs text-ink-700">
+            <p v-if="(item as PartnerItem).sales_profile?.sales_team">
+              Team: <strong>{{ (item as PartnerItem).sales_profile?.sales_team?.name }}</strong>
+            </p>
+            <p v-if="(item as PartnerItem).sales_profile?.assigned_rep">
+              Rep: {{ (item as PartnerItem).sales_profile?.assigned_rep?.name }}
+            </p>
+            <span v-if="!(item as PartnerItem).sales_profile?.sales_team && !(item as PartnerItem).sales_profile?.assigned_rep" class="text-ink-400">
+              Unassigned
+            </span>
+          </div>
+        </template>
+
+        <template #cell-price_list="{ item }">
+          <span class="text-xs text-ink-700">
+            {{ (item as PartnerItem).sales_profile?.price_list?.name ?? 'Tenant Default' }}
+          </span>
+        </template>
+
+        <template #cell-payment_terms="{ item }">
+          <span class="text-xs font-mono">
+            {{ (item as PartnerItem).credit_profile?.payment_terms_days ?? 30 }} Days
+          </span>
+        </template>
+
+        <template #cell-credit_limit="{ item }">
+          <span class="font-mono font-medium text-ink-900">
+            {{ formatCurrency((item as PartnerItem).credit_profile?.credit_limit ?? 0) }}
+          </span>
+        </template>
+
+        <template #cell-credit_standing="{ item }">
+          <span
+            v-if="(item as PartnerItem).credit_profile?.on_hold"
+            class="text-xs font-bold text-signal-danger bg-rose-50 px-2 py-0.5 rounded"
+          >
+            ON HOLD
+          </span>
+          <span v-else class="text-xs font-semibold text-signal-success">
+            Normal
+          </span>
+        </template>
+
+        <template #cell-actions="{ item }">
+          <Link
+            :href="route('sales.master.customers.edit', item.id)"
+            class="text-sm font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            Configure &rarr;
+          </Link>
+        </template>
+      </DataTable>
     </div>
   </AppLayout>
 </template>

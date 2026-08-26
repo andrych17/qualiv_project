@@ -12,6 +12,7 @@ use App\Modules\Sales\Requests\StoreSalesOrderRequest;
 use App\Modules\Sales\Services\BillingService;
 use App\Modules\Sales\Services\CreditService;
 use App\Modules\Sales\Services\SalesOrderService;
+use App\Shared\Helpers\TableQuery;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -28,21 +29,23 @@ class SalesOrderController extends Controller
 
     public function index(Request $request): Response
     {
-        $orders = SalesOrder::with(['customer', 'lines', 'quote'])
+        $perPage = TableQuery::perPage($request->integer('per_page') ?: null, 20);
+        $query = SalesOrder::with(['customer', 'lines', 'quote'])
             ->when($request->search, function ($q, $s) {
                 $q->where('so_number', 'ilike', "%{$s}%")
                     ->orWhereHas('customer', fn ($c) => $c->where('name', 'ilike', "%{$s}%"));
             })
             ->when($request->status, fn ($q, $st) => $q->where('status', $st))
-            ->when($request->customer_id, fn ($q, $c) => $q->where('customer_id', $c))
-            ->orderByDesc('created_at')
-            ->paginate(20)
-            ->withQueryString();
+            ->when($request->customer_id, fn ($q, $c) => $q->where('customer_id', $c));
+
+        TableQuery::applySort($query, $request->sort, $request->direction, ['so_number', 'created_at', 'status'], 'created_at', 'desc');
+
+        $orders = $query->paginate($perPage)->withQueryString();
 
         return Inertia::render('Sales/Orders/Index', [
             'orders' => $orders,
             'statuses' => SalesOrder::STATUSES,
-            'filters' => $request->only(['search', 'status', 'customer_id']),
+            'filters' => $request->only(['search', 'status', 'customer_id', 'sort', 'direction', 'per_page']),
             'customers' => Partner::query()->where('is_active', true)->select(['id', 'name'])->orderBy('name')->get(),
         ]);
     }

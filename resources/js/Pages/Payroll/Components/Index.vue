@@ -1,14 +1,18 @@
 <!-- ponytail: Payroll Components Master — earnings, deductions, and tax/BPJS flags. -->
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { router, useForm } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
-import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
+import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import PayrollSubNav from '@/Components/payroll/PayrollSubNav.vue'
 import Modal from '@/Components/Modal.vue'
+import FormInput from '@/Components/forms/FormInput.vue'
+import FormSelect from '@/Components/forms/FormSelect.vue'
+import FormSwitch from '@/Components/forms/FormSwitch.vue'
+import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
 
 interface Component {
   id: number
@@ -27,6 +31,66 @@ interface Component {
 const props = defineProps<{
   components: Component[]
 }>()
+
+const search = ref('')
+const filters = ref({
+  type: '',
+  category: '',
+})
+const sort = ref<SortState>(null)
+const selected = ref<Array<string | number>>([])
+
+const filterFields: FilterFieldDef[] = [
+  {
+    key: 'type',
+    label: 'Type',
+    type: 'select',
+    options: [
+      { label: 'Earning', value: 'earning' },
+      { label: 'Deduction', value: 'deduction' },
+    ],
+  },
+  {
+    key: 'category',
+    label: 'Category',
+    type: 'select',
+    options: [
+      { label: 'Fixed', value: 'fixed' },
+      { label: 'Variable Input', value: 'variable_input' },
+      { label: 'Formula', value: 'formula' },
+      { label: 'Statutory', value: 'statutory' },
+    ],
+  },
+]
+
+const columns = [
+  { key: 'code', label: 'Code', sortable: true },
+  { key: 'name', label: 'Component Name', sortable: true },
+  { key: 'type', label: 'Type', sortable: true },
+  { key: 'category', label: 'Category' },
+  { key: 'is_taxable', label: 'Taxable?' },
+  { key: 'is_bpjs_basis', label: 'BPJS Basis?' },
+  { key: 'status', label: 'Status' },
+  { key: 'actions', label: 'Actions', align: 'right' as const },
+]
+
+const filteredComponents = computed(() => {
+  return props.components.filter((c) => {
+    if (search.value) {
+      const q = search.value.toLowerCase()
+      if (!c.name.toLowerCase().includes(q) && !c.code.toLowerCase().includes(q)) {
+        return false
+      }
+    }
+    if (filters.value.type && c.type !== filters.value.type) {
+      return false
+    }
+    if (filters.value.category && c.category !== filters.value.category) {
+      return false
+    }
+    return true
+  })
+})
 
 const form = useForm({
   id: null as number | null,
@@ -58,10 +122,10 @@ const openEdit = (comp: Component) => {
   form.type = comp.type
   form.category = comp.category
   form.calculation_basis = comp.calculation_basis
-  form.is_taxable = comp.is_taxable
-  form.is_bpjs_basis = comp.is_bpjs_basis
+  form.is_taxable = Boolean(comp.is_taxable)
+  form.is_bpjs_basis = Boolean(comp.is_bpjs_basis)
   form.gl_account_code = comp.gl_account_code || ''
-  form.is_active = comp.is_active
+  form.is_active = Boolean(comp.is_active)
   isEditing.value = true
   showModal.value = true
 }
@@ -87,65 +151,82 @@ const submit = () => {
   <AppLayout title="Payroll Components">
     <PageHeader title="Payroll Components" subtitle="Master catalog of earnings, allowances, statutory deductions, and tax flags.">
       <template #actions>
-        <PrimaryButton @click="openCreate">+ Add Component</PrimaryButton>
+        <PrimaryButton type="button" @click="openCreate">+ Add Component</PrimaryButton>
       </template>
     </PageHeader>
 
-    <div class="space-y-6">
+    <div class="mt-4">
       <PayrollSubNav active="components" />
+    </div>
 
-      <Panel>
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-border text-left text-sm">
-            <thead class="bg-surface-sunken text-xs font-medium text-ink-500 uppercase">
-              <tr>
-                <th class="px-4 py-3">Code & Name</th>
-                <th class="px-4 py-3">Type</th>
-                <th class="px-4 py-3">Category</th>
-                <th class="px-4 py-3">Taxable?</th>
-                <th class="px-4 py-3">BPJS Basis?</th>
-                <th class="px-4 py-3">Status</th>
-                <th class="px-4 py-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-border">
-              <tr v-for="c in components" :key="c.id" class="hover:bg-surface-raised transition">
-                <td class="px-4 py-3">
-                  <div class="font-medium text-ink-900">{{ c.name }}</div>
-                  <div class="text-xs text-ink-500">{{ c.code }}</div>
-                </td>
-                <td class="px-4 py-3 capitalize">
-                  <span
-                    class="rounded px-2 py-0.5 text-xs font-medium"
-                    :class="c.type === 'earning' ? 'bg-success/15 text-success' : 'bg-danger/15 text-danger'"
-                  >
-                    {{ c.type }}
-                  </span>
-                </td>
-                <td class="px-4 py-3 capitalize text-xs text-ink-700">{{ c.category.replace('_', ' ') }}</td>
-                <td class="px-4 py-3 text-xs">{{ c.is_taxable ? 'Yes' : 'No' }}</td>
-                <td class="px-4 py-3 text-xs">{{ c.is_bpjs_basis ? 'Yes' : 'No' }}</td>
-                <td class="px-4 py-3 text-xs">
-                  <span :class="c.is_active ? 'text-success' : 'text-neutral'">
-                    {{ c.is_active ? 'Active' : 'Inactive' }}
-                  </span>
-                </td>
-                <td class="px-4 py-3 text-right">
-                  <button
-                    v-if="!c.is_system_defined"
-                    type="button"
-                    class="text-xs font-medium text-accent hover:underline"
-                    @click="openEdit(c)"
-                  >
-                    Edit
-                  </button>
-                  <span v-else class="text-xs text-ink-400">System</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </Panel>
+    <div class="mt-6">
+      <DataTable
+        :columns="columns"
+        :items="filteredComponents"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        v-model:search="search"
+        v-model:filters="filters"
+        sticky-header
+        storage-key="payroll.components"
+        search-placeholder="Search components…"
+        :filter-fields="filterFields"
+        export-filename="payroll-components"
+        status-rail-key="is_active"
+        empty-title="No payroll components found"
+        empty-description="Create salary components, allowances, or deductions."
+      >
+        <template #cell-code="{ item }">
+          <span class="font-mono font-medium text-ink-900">{{ (item as Component).code }}</span>
+        </template>
+
+        <template #cell-name="{ item }">
+          <span class="font-semibold text-ink-900">{{ (item as Component).name }}</span>
+        </template>
+
+        <template #cell-type="{ item }">
+          <span
+            class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium capitalize"
+            :class="(item as Component).type === 'earning' ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'"
+          >
+            {{ (item as Component).type }}
+          </span>
+        </template>
+
+        <template #cell-category="{ item }">
+          <span class="text-xs capitalize text-ink-700">{{ (item as Component).category.replace('_', ' ') }}</span>
+        </template>
+
+        <template #cell-is_taxable="{ item }">
+          <span class="text-xs font-mono" :class="(item as Component).is_taxable ? 'text-emerald-700 font-semibold' : 'text-ink-400'">
+            {{ (item as Component).is_taxable ? 'Yes' : 'No' }}
+          </span>
+        </template>
+
+        <template #cell-is_bpjs_basis="{ item }">
+          <span class="text-xs font-mono" :class="(item as Component).is_bpjs_basis ? 'text-emerald-700 font-semibold' : 'text-ink-400'">
+            {{ (item as Component).is_bpjs_basis ? 'Yes' : 'No' }}
+          </span>
+        </template>
+
+        <template #cell-status="{ item }">
+          <StatusBadge :status="(item as Component).is_active ? 'active' : 'inactive'" />
+        </template>
+
+        <template #cell-actions="{ item }">
+          <div class="flex items-center justify-end">
+            <button
+              v-if="!(item as Component).is_system_defined"
+              type="button"
+              class="text-xs font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              @click="openEdit(item as Component)"
+            >
+              Edit
+            </button>
+            <span v-else class="text-xs text-ink-400 font-mono">System</span>
+          </div>
+        </template>
+      </DataTable>
     </div>
 
     <!-- Create/Edit Modal -->
@@ -154,61 +235,75 @@ const submit = () => {
         <h3 class="text-lg font-bold text-ink-900">{{ isEditing ? 'Edit Component' : 'New Component' }}</h3>
         <form @submit.prevent="submit" class="mt-4 space-y-4">
           <div>
-            <label class="block text-xs font-medium text-ink-700">Code *</label>
-            <input
+            <FormInput
+              label="Component Code"
+              name="code"
               v-model="form.code"
-              type="text"
+              :error="form.errors.code"
               :disabled="isEditing"
+              placeholder="e.g. BASIC_SALARY, MEAL_ALLOWANCE"
               required
-              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent disabled:bg-surface-50"
             />
           </div>
+
           <div>
-            <label class="block text-xs font-medium text-ink-700">Name *</label>
-            <input
+            <FormInput
+              label="Component Name"
+              name="name"
               v-model="form.name"
-              type="text"
+              :error="form.errors.name"
+              placeholder="e.g. Gaji Pokok, Tunjangan Makan"
               required
-              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             />
           </div>
+
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-medium text-ink-700">Type *</label>
-              <select
+              <FormSelect
+                label="Type"
+                name="type"
                 v-model="form.type"
-                class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
-              >
-                <option value="earning">Earning</option>
-                <option value="deduction">Deduction</option>
-              </select>
+                :options="[
+                  { label: 'Earning', value: 'earning' },
+                  { label: 'Deduction', value: 'deduction' },
+                ]"
+                required
+              />
             </div>
             <div>
-              <label class="block text-xs font-medium text-ink-700">Category *</label>
-              <select
+              <FormSelect
+                label="Category"
+                name="category"
                 v-model="form.category"
-                class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
-              >
-                <option value="fixed">Fixed</option>
-                <option value="variable_input">Variable Input</option>
-                <option value="formula">Formula</option>
-                <option value="statutory">Statutory</option>
-              </select>
+                :options="[
+                  { label: 'Fixed', value: 'fixed' },
+                  { label: 'Variable Input', value: 'variable_input' },
+                  { label: 'Formula', value: 'formula' },
+                  { label: 'Statutory', value: 'statutory' },
+                ]"
+                required
+              />
             </div>
           </div>
-          <div class="flex items-center space-x-4 pt-2">
-            <label class="flex items-center space-x-2">
-              <input v-model="form.is_taxable" type="checkbox" class="rounded border-border text-accent focus:ring-accent" />
-              <span class="text-xs text-ink-700">Taxable (PPh 21)</span>
-            </label>
-            <label class="flex items-center space-x-2">
-              <input v-model="form.is_bpjs_basis" type="checkbox" class="rounded border-border text-accent focus:ring-accent" />
-              <span class="text-xs text-ink-700">BPJS Basis</span>
-            </label>
+
+          <div class="space-y-2 pt-2">
+            <FormSwitch
+              v-model="form.is_taxable"
+              name="is_taxable"
+              label="Taxable (PPh 21)"
+              description="Include in monthly taxable gross calculation."
+            />
+            <FormSwitch
+              v-model="form.is_bpjs_basis"
+              name="is_bpjs_basis"
+              label="BPJS Calculation Basis"
+              description="Subject to BPJS Kesehatan & Ketenagakerjaan wage base."
+            />
           </div>
-          <div class="flex justify-end space-x-3 pt-2">
+
+          <div class="flex justify-end gap-3 pt-2">
             <SecondaryButton type="button" @click="showModal = false">Cancel</SecondaryButton>
-            <PrimaryButton :disabled="form.processing">Save Component</PrimaryButton>
+            <PrimaryButton type="submit" :disabled="form.processing">Save Component</PrimaryButton>
           </div>
         </form>
       </div>

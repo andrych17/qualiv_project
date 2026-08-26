@@ -66,11 +66,9 @@ const props = defineProps<{
   invoices: InvoiceItem[]
 }>()
 
-const activeTab = ref<'orders' | 'quotes' | 'deliveries' | 'invoices'>('orders')
+import { formatCurrency, formatDate } from '@/Utils/formatters'
 
-const formatCurrency = (val: number, curr = 'IDR') => {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: curr, maximumFractionDigits: 0 }).format(val)
-}
+const activeTab = ref<'orders' | 'quotes' | 'deliveries' | 'invoices'>('orders')
 </script>
 
 <template>

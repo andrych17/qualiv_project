@@ -47,6 +47,8 @@ interface QuotationDetail {
   revisions: QuotationRevision[]
 }
 
+import { formatCurrency, formatDate } from '@/Utils/formatters'
+
 const props = defineProps<{
   quotation: QuotationDetail
   subtotal: number
@@ -54,10 +56,6 @@ const props = defineProps<{
   totalTax: number
   totalAmount: number
 }>()
-
-const formatCurrency = (val: number, curr = 'IDR') => {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: curr, maximumFractionDigits: 0 }).format(val)
-}
 
 const { confirm } = useConfirm()
 

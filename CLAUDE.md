@@ -297,6 +297,9 @@ One-off artisan (examples):
 - **TypeScript**: Use strict TypeScript in Vue files. Explicitly define types and interfaces for backend-passed props.
 - **Tailwind CSS**: Use utility classes directly for layouts and UI styling. Maintain clean structure and consistent spacing.
 - **Lucide Icons**: Render Lucide icons dynamically in layouts and sidebars using the `<component :is="..." />` helper.
+- **Database Transactions**: Every multi-table or header-line write (e.g. Orders + Lines, Invoices, Journals, Inventory Movements) **MUST** be wrapped in `DB::transaction(fn () => ...)`.
+- **Schema Prefix**: Every Eloquent Model in tenant modules **MUST** explicitly define its schema: `protected $table = 'SCHEMA.table_name';`.
+- **Sorting & Pagination Sanitization**: Use `TableQuery::applySort()` and `TableQuery::perPage()` from `App\Shared\Helpers\TableQuery` to whitelist sortable columns and prevent SQL injection or unbounded page sizes.
 
 ### D. Strict Frontend Component Standards (MANDATORY)
 Every UI view must strictly compose from shared components in `resources/js/Components/`. **NEVER create ad-hoc UI primitives or raw HTML replacements.**
@@ -341,6 +344,12 @@ Every UI view must strictly compose from shared components in `resources/js/Comp
    - Standard page header: `PageHeader.vue` (title, description, and action button slots).
    - Sub-tabs: `Tabs.vue`.
    - Module sub-navs: reuse module subnavs (e.g. `HcmSubNav.vue`, `CrmSubNav.vue`, `InventorySubNav.vue`).
+
+8. **Empty States (`@/Components/feedback/EmptyState.vue`)**:
+   - **MUST** use `EmptyState.vue` for all zero-data states in tables, lists, and search views (includes icon, title, description, and primary CTA). Never leave blank spaces or plain "no data" text.
+
+9. **Formatters (`@/Utils/formatters`)**:
+   - **MUST** use `@/Utils/formatters` (`formatCurrency`, `formatDate`, `formatDateTime`, `formatNumber`) for currency, numbers, and dates. Never write ad-hoc `Intl.NumberFormat` or manual string concat.
 
 ## 10. Working with Claude Code
 

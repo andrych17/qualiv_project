@@ -6,6 +6,7 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
+import FormSwitch from '@/Components/forms/FormSwitch.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 
@@ -74,7 +75,7 @@ const submit = () => {
 <template>
   <AppLayout>
     <PageHeader
-      :title="`Edit Contract Agreement`"
+      title="Edit Contract Agreement"
       :description="props.contract.name"
     />
 
@@ -84,7 +85,8 @@ const submit = () => {
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div class="sm:col-span-3">
               <FormInput
-                label="Contract Agreement Title *"
+                label="Contract Agreement Title"
+                name="name"
                 v-model="form.name"
                 :error="form.errors.name"
                 required
@@ -93,7 +95,8 @@ const submit = () => {
 
             <div>
               <FormSelect
-                label="Customer / Client *"
+                label="Customer / Client"
+                name="customer_id"
                 v-model="form.customer_id"
                 :error="form.errors.customer_id"
                 :options="props.customers.map(c => ({ value: c.id, label: c.name }))"
@@ -103,7 +106,8 @@ const submit = () => {
 
             <div>
               <FormInput
-                label="Term Start Date *"
+                label="Term Start Date"
+                name="term_start"
                 type="date"
                 v-model="form.term_start"
                 :error="form.errors.term_start"
@@ -113,7 +117,8 @@ const submit = () => {
 
             <div>
               <FormInput
-                label="Term End Date *"
+                label="Term End Date"
+                name="term_end"
                 type="date"
                 v-model="form.term_end"
                 :error="form.errors.term_end"
@@ -123,22 +128,22 @@ const submit = () => {
 
             <div>
               <FormSelect
-                label="Price List"
+                label="Price List (Optional)"
+                name="price_list_id"
                 v-model="form.price_list_id"
                 :error="form.errors.price_list_id"
                 :options="props.priceLists.map(p => ({ value: p.id, label: p.name }))"
+                placeholder="Default price list…"
               />
             </div>
 
-            <div class="flex items-center pt-6">
-              <label class="flex items-center gap-2 text-sm text-ink-900 cursor-pointer">
-                <input
-                  type="checkbox"
-                  v-model="form.auto_renew"
-                  class="rounded border-border text-accent focus:ring-accent"
-                />
-                <span>Auto-renew upon term completion</span>
-              </label>
+            <div class="sm:col-span-2 pt-6">
+              <FormSwitch
+                v-model="form.auto_renew"
+                name="auto_renew"
+                label="Auto-renew Contract"
+                description="Automatically extend terms upon period completion."
+              />
             </div>
           </div>
         </Panel>
@@ -156,6 +161,7 @@ const submit = () => {
                 <input
                   v-model="sub.description"
                   type="text"
+                  placeholder="e.g. Monthly Maintenance & Hosting"
                   class="w-full rounded border border-border bg-surface-0 py-1.5 px-2 text-sm text-ink-900 focus:outline-none"
                   required
                 />
@@ -165,10 +171,10 @@ const submit = () => {
                 <label class="block text-xs font-medium text-ink-700 mb-1">Billing Interval *</label>
                 <select
                   v-model="sub.billing_interval"
-                  class="w-full rounded border border-border bg-surface-0 py-1.5 px-2 text-sm text-ink-900 focus:outline-none"
+                  class="w-full rounded border border-border bg-surface-0 py-1.5 px-2 text-sm text-ink-900 focus:outline-none capitalize"
                 >
                   <option v-for="interval in props.intervals" :key="interval" :value="interval">
-                    {{ interval.toUpperCase() }}
+                    {{ interval }}
                   </option>
                 </select>
               </div>
@@ -187,7 +193,7 @@ const submit = () => {
                   <button
                     type="button"
                     @click="removeSubscription(idx)"
-                    class="text-rose-500 hover:text-rose-700 text-lg font-bold px-1"
+                    class="text-signal-danger hover:underline text-base font-bold px-1"
                     title="Remove subscription line"
                   >
                     &times;
@@ -196,19 +202,15 @@ const submit = () => {
               </div>
             </div>
 
-            <button
-              type="button"
-              @click="addSubscription"
-              class="rounded-md border border-border px-3 py-1.5 text-xs font-semibold text-ink-700 hover:bg-surface-100"
-            >
+            <SecondaryButton type="button" @click="addSubscription">
               + Add Subscription Line
-            </button>
+            </SecondaryButton>
           </div>
         </Panel>
 
         <div class="flex items-center justify-end gap-3">
           <SecondaryButton :href="route('sales.contracts.show', props.contract.id)">Cancel</SecondaryButton>
-          <PrimaryButton type="submit" :disabled="form.processing">Save Changes</PrimaryButton>
+          <PrimaryButton type="submit" :disabled="form.processing">Update Contract Draft</PrimaryButton>
         </div>
       </form>
     </div>

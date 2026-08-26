@@ -7,6 +7,7 @@ import Panel from '@/Components/cards/Panel.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
+import { formatCurrency, formatNumber } from '@/Utils/formatters'
 
 interface PriceList {
   id: number
@@ -55,10 +56,6 @@ const removeLine = (index: number) => {
   }
 }
 
-const formatNumber = (n: number) => {
-  return new Intl.NumberFormat('id-ID').format(n)
-}
-
 const calculateSubtotal = () => {
   return form.lines.reduce((sum, l) => sum + (Number(l.qty_ordered) * Number(l.unit_price)), 0)
 }
@@ -93,7 +90,8 @@ const submit = () => {
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <FormSelect
-                label="Customer / Client *"
+                label="Customer / Client"
+                name="customer_id"
                 v-model="form.customer_id"
                 :error="form.errors.customer_id"
                 :options="props.customers.map(c => ({ value: c.id, label: c.name }))"
@@ -105,6 +103,7 @@ const submit = () => {
             <div>
               <FormSelect
                 label="Price List (Optional)"
+                name="price_list_id"
                 v-model="form.price_list_id"
                 :error="form.errors.price_list_id"
                 :options="props.priceLists.map(p => ({ value: p.id, label: p.name }))"
@@ -189,13 +188,13 @@ const submit = () => {
                     />
                   </td>
                   <td class="py-2 text-right font-mono font-medium text-ink-900">
-                    IDR {{ formatNumber((line.qty_ordered * line.unit_price) - (line.discount_amount || 0) + (line.tax_amount || 0)) }}
+                    {{ formatCurrency((line.qty_ordered * line.unit_price) - (line.discount_amount || 0) + (line.tax_amount || 0)) }}
                   </td>
                   <td class="py-2 text-center">
                     <button
                       type="button"
                       @click="removeLine(idx)"
-                      class="text-rose-500 hover:text-rose-700 text-lg font-bold"
+                      class="text-signal-danger hover:underline text-base font-bold"
                       title="Remove line"
                     >
                       &times;
@@ -207,30 +206,26 @@ const submit = () => {
           </div>
 
           <div class="mt-4 flex items-center justify-between border-t border-border pt-4">
-            <button
-              type="button"
-              @click="addLine"
-              class="rounded-md border border-border px-3 py-1.5 text-xs font-semibold text-ink-700 hover:bg-surface-100"
-            >
+            <SecondaryButton type="button" @click="addLine">
               + Add Line Item
-            </button>
+            </SecondaryButton>
 
             <div class="w-64 space-y-1 text-sm">
               <div class="flex justify-between text-ink-600">
                 <span>Subtotal:</span>
-                <span class="font-mono">IDR {{ formatNumber(calculateSubtotal()) }}</span>
+                <span class="font-mono">{{ formatCurrency(calculateSubtotal()) }}</span>
               </div>
               <div class="flex justify-between text-ink-600">
                 <span>Total Discount:</span>
-                <span class="font-mono text-emerald-600">- IDR {{ formatNumber(calculateDiscount()) }}</span>
+                <span class="font-mono text-signal-success">- {{ formatCurrency(calculateDiscount()) }}</span>
               </div>
               <div class="flex justify-between text-ink-600">
                 <span>Total Tax:</span>
-                <span class="font-mono">+ IDR {{ formatNumber(calculateTax()) }}</span>
+                <span class="font-mono">+ {{ formatCurrency(calculateTax()) }}</span>
               </div>
               <div class="flex justify-between font-bold text-ink-900 pt-2 border-t border-border">
                 <span>Total Amount:</span>
-                <span class="font-mono text-base">IDR {{ formatNumber(calculateTotal()) }}</span>
+                <span class="font-mono text-base">{{ formatCurrency(calculateTotal()) }}</span>
               </div>
             </div>
           </div>

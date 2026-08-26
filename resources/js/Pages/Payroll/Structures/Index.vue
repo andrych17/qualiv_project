@@ -9,6 +9,12 @@ import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 import PayrollSubNav from '@/Components/payroll/PayrollSubNav.vue'
 import Modal from '@/Components/Modal.vue'
+import FormInput from '@/Components/forms/FormInput.vue'
+import FormSelect from '@/Components/forms/FormSelect.vue'
+import FormTextarea from '@/Components/forms/FormTextarea.vue'
+import FormCurrencyInput from '@/Components/forms/FormCurrencyInput.vue'
+import EmptyState from '@/Components/feedback/EmptyState.vue'
+import { formatCurrency } from '@/Utils/formatters'
 
 interface Structure {
   id: number
@@ -31,7 +37,7 @@ const props = defineProps<{
 
 const form = useForm({
   name: '',
-  grade_id: '',
+  grade_id: null as number | null,
   description: '',
 })
 
@@ -40,7 +46,7 @@ const showAttachModal = ref(false)
 const selectedStructure = ref<Structure | null>(null)
 
 const attachForm = useForm({
-  payroll_component_id: '',
+  payroll_component_id: null as number | null,
   default_amount: 0,
   formula_expression: '',
 })
@@ -75,17 +81,23 @@ const submitAttach = () => {
   <AppLayout title="Salary Structures">
     <PageHeader title="Salary Structures" subtitle="Define component packages and default salary packages per grade.">
       <template #actions>
-        <PrimaryButton @click="showCreateModal = true">+ Add Salary Structure</PrimaryButton>
+        <PrimaryButton type="button" @click="showCreateModal = true">+ Add Salary Structure</PrimaryButton>
       </template>
     </PageHeader>
 
-    <div class="space-y-6">
+    <div class="mt-4">
       <PayrollSubNav active="structures" />
+    </div>
 
-      <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div v-if="structures.length === 0" class="col-span-2 text-center p-8 text-ink-500">
-          No salary structures defined.
-        </div>
+    <div class="mt-6">
+      <div v-if="structures.length === 0" class="rounded-lg border border-border bg-surface-0 p-8">
+        <EmptyState
+          title="No salary structures defined"
+          description="Create salary structures linked to employment grades."
+        />
+      </div>
+
+      <div v-else class="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Panel
           v-for="s in structures"
           :key="s.id"
@@ -94,7 +106,7 @@ const submitAttach = () => {
           <template #actions>
             <button
               type="button"
-              class="text-xs font-semibold text-accent hover:underline"
+              class="text-xs font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               @click="openAttach(s)"
             >
               + Attach Component
@@ -109,15 +121,15 @@ const submitAttach = () => {
 
             <div class="border-t border-border pt-2">
               <div class="text-xs font-semibold text-ink-700 mb-2">Package Components:</div>
-              <div v-if="s.components.length === 0" class="text-xs text-ink-400">No components attached yet.</div>
+              <div v-if="s.components.length === 0" class="text-xs text-ink-400 py-2">No components attached yet.</div>
               <ul v-else class="divide-y divide-border text-xs">
                 <li
                   v-for="comp in s.components"
                   :key="comp.id"
-                  class="flex items-center justify-between py-1.5"
+                  class="flex items-center justify-between py-2"
                 >
                   <span class="font-medium text-ink-900">{{ comp.payroll_component.name }} ({{ comp.payroll_component.code }})</span>
-                  <span class="text-ink-700 font-semibold">Rp {{ Number(comp.default_amount).toLocaleString('id-ID') }}</span>
+                  <span class="font-mono text-ink-900 font-semibold">{{ formatCurrency(Number(comp.default_amount)) }}</span>
                 </li>
               </ul>
             </div>
@@ -132,35 +144,39 @@ const submitAttach = () => {
         <h3 class="text-lg font-bold text-ink-900">New Salary Structure</h3>
         <form @submit.prevent="submitCreate" class="mt-4 space-y-4">
           <div>
-            <label class="block text-xs font-medium text-ink-700">Structure Name *</label>
-            <input
+            <FormInput
+              label="Structure Name"
+              name="name"
               v-model="form.name"
-              type="text"
+              :error="form.errors.name"
+              placeholder="e.g. Senior Associate Package, Standard Staff"
               required
-              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             />
           </div>
+
           <div>
-            <label class="block text-xs font-medium text-ink-700">Grade</label>
-            <select
+            <FormSelect
+              label="Linked Grade (Optional)"
+              name="grade_id"
               v-model="form.grade_id"
-              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
-            >
-              <option value="">-- No Grade --</option>
-              <option v-for="g in grades" :key="g.id" :value="g.id">{{ g.name }}</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-ink-700">Description</label>
-            <input
-              v-model="form.description"
-              type="text"
-              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              :error="form.errors.grade_id"
+              :options="grades.map(g => ({ label: g.name, value: g.id }))"
+              placeholder="General / No Grade"
             />
           </div>
-          <div class="flex justify-end space-x-3 pt-2">
+
+          <div>
+            <FormTextarea
+              label="Description (Optional)"
+              name="description"
+              v-model="form.description"
+              placeholder="Notes on structure applicability…"
+            />
+          </div>
+
+          <div class="flex justify-end gap-3 pt-2">
             <SecondaryButton type="button" @click="showCreateModal = false">Cancel</SecondaryButton>
-            <PrimaryButton :disabled="form.processing">Save Structure</PrimaryButton>
+            <PrimaryButton type="submit" :disabled="form.processing">Create Structure</PrimaryButton>
           </div>
         </form>
       </div>
@@ -172,28 +188,36 @@ const submitAttach = () => {
         <h3 class="text-lg font-bold text-ink-900">Attach Component to {{ selectedStructure?.name }}</h3>
         <form @submit.prevent="submitAttach" class="mt-4 space-y-4">
           <div>
-            <label class="block text-xs font-medium text-ink-700">Component *</label>
-            <select
+            <FormSelect
+              label="Payroll Component"
+              name="payroll_component_id"
               v-model="attachForm.payroll_component_id"
+              :options="components.map(c => ({ label: `${c.name} (${c.code})`, value: c.id }))"
+              placeholder="Select Component…"
               required
-              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
-            >
-              <option value="" disabled>-- Select Component --</option>
-              <option v-for="c in components" :key="c.id" :value="c.id">{{ c.name }} ({{ c.code }})</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-ink-700">Default Amount (IDR)</label>
-            <input
-              v-model.number="attachForm.default_amount"
-              type="number"
-              min="0"
-              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             />
           </div>
-          <div class="flex justify-end space-x-3 pt-2">
+
+          <div>
+            <FormCurrencyInput
+              label="Default Amount (IDR)"
+              name="default_amount"
+              v-model="attachForm.default_amount"
+            />
+          </div>
+
+          <div>
+            <FormInput
+              label="Formula Expression (Optional)"
+              name="formula_expression"
+              v-model="attachForm.formula_expression"
+              placeholder="e.g. BASIC * 0.1"
+            />
+          </div>
+
+          <div class="flex justify-end gap-3 pt-2">
             <SecondaryButton type="button" @click="showAttachModal = false">Cancel</SecondaryButton>
-            <PrimaryButton :disabled="attachForm.processing">Attach</PrimaryButton>
+            <PrimaryButton type="submit" :disabled="attachForm.processing">Attach Component</PrimaryButton>
           </div>
         </form>
       </div>

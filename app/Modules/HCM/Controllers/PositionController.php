@@ -16,14 +16,17 @@ class PositionController extends Controller
 {
     use BulkDeletable;
 
+    private const SORTABLE = ['headcount_cap', 'is_active', 'id'];
+
     public function __construct(
         protected OrgStructureService $service,
     ) {}
 
     public function index(Request $request): Response
     {
-        $filters = $request->only('search', 'org_unit_id', 'is_active');
-        $positions = $this->service->paginatePositions($filters, 20);
+        $filters = $request->only('search', 'org_unit_id', 'is_active', 'sort', 'direction', 'per_page');
+        $perPage = TableQuery::perPage(isset($filters['per_page']) ? (int) $filters['per_page'] : null, 15);
+        $positions = $this->service->paginatePositions($filters, $perPage);
 
         return Inertia::render('HCM/Positions/Index', [
             'positions' => $positions,

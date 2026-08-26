@@ -63,13 +63,11 @@ interface DashboardProps {
   }>
 }
 
+import { formatCurrency, formatDate } from '@/Utils/formatters'
+
 const props = defineProps<DashboardProps>()
 
 const activeQueueTab = ref<'opportunities' | 'quotes' | 'orders' | 'overdue'>('opportunities')
-
-const formatCurrency = (val: number, curr = 'IDR') => {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: curr, maximumFractionDigits: 0 }).format(val)
-}
 </script>
 
 <template>

@@ -11,7 +11,7 @@ import type { SavedView, SortState } from '@/Composables/useDataTable'
 export type FilterFieldDef = {
   key: string
   label: string
-  type: 'text' | 'select'
+  type: 'text' | 'select' | 'date'
   options?: Array<{ label: string; value: string }>
 }
 
@@ -100,6 +100,12 @@ const submitSaveView = () => {
             <option value="">All</option>
             <option v-for="opt in field.options" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
           </select>
+          <input
+            v-else-if="field.type === 'date'"
+            v-model="filters[field.key]"
+            type="date"
+            class="w-full rounded-md border border-border py-1.5 text-sm"
+          />
           <input
             v-else
             v-model="filters[field.key]"

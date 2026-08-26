@@ -31,8 +31,8 @@ const props = defineProps<{
 }>()
 
 const form = useForm({
-  customer_id: props.selectedOrder?.customer_id ?? null as number | null,
-  so_hdr_id: props.selectedOrder?.id ?? null as number | null,
+  customer_id: props.selectedOrder?.customer_id ?? (null as number | null),
+  so_hdr_id: props.selectedOrder?.id ?? (null as number | null),
   reason_code: '',
   lines: props.selectedOrder ? props.selectedOrder.lines.map(l => ({
     so_line_id: l.id,
@@ -51,8 +51,10 @@ const form = useForm({
   ],
 })
 
-const onOrderChange = (soId: number) => {
-  router.get(route('sales.returns.create'), { so_hdr_id: soId }, { preserveState: false })
+const onOrderChange = (soId: string | number | null) => {
+  if (soId) {
+    router.get(route('sales.returns.create'), { so_hdr_id: Number(soId) }, { preserveState: false })
+  }
 }
 
 const addLine = () => {
@@ -89,7 +91,8 @@ const submit = () => {
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
               <FormSelect
-                label="Customer *"
+                label="Customer"
+                name="customer_id"
                 v-model="form.customer_id"
                 :error="form.errors.customer_id"
                 :options="props.customers.map(c => ({ value: c.id, label: c.name }))"
@@ -99,22 +102,20 @@ const submit = () => {
             </div>
 
             <div>
-              <label class="block text-xs font-medium text-ink-700 mb-1">Original Sales Order (Optional)</label>
-              <select
-                :value="form.so_hdr_id"
-                @change="onOrderChange(Number(($event.target as HTMLSelectElement).value))"
-                class="w-full rounded-md border border-border bg-surface-0 py-2 px-3 text-sm text-ink-900 focus:border-accent focus:outline-none"
-              >
-                <option :value="null">-- Select order if applicable --</option>
-                <option v-for="o in props.orders" :key="o.id" :value="o.id">
-                  {{ o.so_number }}
-                </option>
-              </select>
+              <FormSelect
+                label="Original Sales Order (Optional)"
+                name="so_hdr_id"
+                :model-value="form.so_hdr_id"
+                @update:model-value="onOrderChange"
+                :options="props.orders.map(o => ({ value: o.id, label: o.so_number }))"
+                placeholder="Select order if applicable…"
+              />
             </div>
 
             <div>
               <FormInput
-                label="Reason Code / Category *"
+                label="Reason Code / Category"
+                name="reason_code"
                 v-model="form.reason_code"
                 :error="form.errors.reason_code"
                 placeholder="e.g. DEFECTIVE, WRONG_ITEM, DISSATISFIED"
@@ -169,7 +170,8 @@ const submit = () => {
                     <button
                       type="button"
                       @click="removeLine(idx)"
-                      class="text-rose-500 hover:text-rose-700 text-lg font-bold"
+                      class="text-signal-danger hover:underline text-base font-bold"
+                      title="Remove line"
                     >
                       &times;
                     </button>
@@ -180,13 +182,9 @@ const submit = () => {
           </div>
 
           <div class="mt-4 border-t border-border pt-4">
-            <button
-              type="button"
-              @click="addLine"
-              class="rounded-md border border-border px-3 py-1.5 text-xs font-semibold text-ink-700 hover:bg-surface-100"
-            >
+            <SecondaryButton type="button" @click="addLine">
               + Add Item Line
-            </button>
+            </SecondaryButton>
           </div>
         </Panel>
 

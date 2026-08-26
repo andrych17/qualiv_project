@@ -6,11 +6,16 @@ import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
+import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
+import FormSelect from '@/Components/forms/FormSelect.vue'
+import FormSwitch from '@/Components/forms/FormSwitch.vue'
 import SalesSubNav from '@/Components/sales/SalesSubNav.vue'
 import SalesMasterSubNav from '@/Components/sales/SalesMasterSubNav.vue'
+import DataTable, { type SortState } from '@/Components/tables/DataTable.vue'
 import Modal from '@/Components/Modal.vue'
 import { useConfirm } from '@/Composables/useConfirmDialog'
+import { formatCurrency, formatDate } from '@/Utils/formatters'
 
 interface PromoCode {
   id: number
@@ -28,6 +33,10 @@ const props = defineProps<{
   promoCodes: PromoCode[]
 }>()
 
+const search = ref('')
+const sort = ref<SortState>(null)
+const selected = ref<Array<string | number>>([])
+
 const showModal = ref(false)
 const editingPromo = ref<PromoCode | null>(null)
 
@@ -40,6 +49,15 @@ const form = useForm({
   usage_limit: null as number | null,
   is_active: true,
 })
+
+const columns = [
+  { key: 'code', label: 'Code', sortable: true },
+  { key: 'discount', label: 'Discount' },
+  { key: 'validity', label: 'Validity Range' },
+  { key: 'usage', label: 'Usage', align: 'center' as const },
+  { key: 'is_active', label: 'Status', sortable: true },
+  { key: 'actions', label: 'Actions', align: 'right' as const },
+]
 
 const openCreate = () => {
   editingPromo.value = null
@@ -75,13 +93,13 @@ const submit = () => {
 
 const { confirm } = useConfirm()
 
-const deletePromo = (id: number) => {
+const deletePromo = (p: PromoCode) => {
   confirm({
-    title: 'Delete Promo Code?',
-    description: 'Are you sure you want to delete this promo code?',
+    title: `Delete Promo Code "${p.code}"?`,
+    description: 'Are you sure you want to delete this promotional code?',
     variant: 'destructive',
     confirmText: 'Delete',
-    onConfirm: () => router.delete(route('sales.master.promo-codes.destroy', id)),
+    onConfirm: () => router.delete(route('sales.master.promo-codes.destroy', p.id)),
   })
 }
 </script>
@@ -105,54 +123,69 @@ const deletePromo = (id: number) => {
       <SalesMasterSubNav active="promo-codes" />
     </div>
 
-    <div class="mt-6 rounded-lg border border-border bg-surface-0 overflow-x-auto">
-      <table class="w-full text-left text-sm">
-        <thead class="bg-surface-50 text-xs text-ink-500 uppercase border-b border-border">
-          <tr>
-            <th class="py-3 px-4">Code</th>
-            <th class="py-3 px-4">Discount</th>
-            <th class="py-3 px-4">Validity Range</th>
-            <th class="py-3 px-4">Usage</th>
-            <th class="py-3 px-4">Status</th>
-            <th class="py-3 px-4 text-right">Action</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-border">
-          <tr v-for="p in props.promoCodes" :key="p.id" class="hover:bg-surface-50">
-            <td class="py-3 px-4 font-mono font-bold text-accent">{{ p.code }}</td>
-            <td class="py-3 px-4 font-semibold text-ink-900">
-              <span v-if="p.discount_type === 'percentage'">{{ p.discount_value }}% Off</span>
-              <span v-else>IDR {{ new Intl.NumberFormat('id-ID').format(p.discount_value) }} Off</span>
-            </td>
-            <td class="py-3 px-4 font-mono text-xs text-ink-600">{{ p.valid_from }} &rarr; {{ p.valid_to }}</td>
-            <td class="py-3 px-4 text-xs font-mono">
-              {{ p.usage_count }} / {{ p.usage_limit ?? '&infin;' }}
-            </td>
-            <td class="py-3 px-4 text-xs font-semibold" :class="p.is_active ? 'text-emerald-600' : 'text-ink-400'">
-              {{ p.is_active ? 'Active' : 'Inactive' }}
-            </td>
-            <td class="py-3 px-4 text-right space-x-2">
-              <button
-                type="button"
-                @click="openEdit(p)"
-                class="text-xs font-medium text-accent hover:underline"
-              >
-                Edit
-              </button>
-              <button
-                type="button"
-                @click="deletePromo(p.id)"
-                class="text-xs font-medium text-rose-600 hover:underline"
-              >
-                Delete
-              </button>
-            </td>
-          </tr>
-          <tr v-if="props.promoCodes.length === 0">
-            <td colspan="6" class="py-8 text-center text-ink-500">No promo codes found.</td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="mt-6">
+      <DataTable
+        :columns="columns"
+        :items="props.promoCodes"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        v-model:search="search"
+        sticky-header
+        storage-key="sales.master.promo-codes"
+        search-placeholder="Search promo codes…"
+        export-filename="sales-promo-codes"
+        status-rail-key="is_active"
+        empty-title="No promo codes found"
+        empty-description="Create promotional codes for campaigns or order incentives."
+      >
+        <template #cell-code="{ item }">
+          <span class="font-mono font-bold text-accent">{{ (item as PromoCode).code }}</span>
+        </template>
+
+        <template #cell-discount="{ item }">
+          <span v-if="(item as PromoCode).discount_type === 'percentage'" class="font-semibold text-ink-900">
+            {{ (item as PromoCode).discount_value }}% Off
+          </span>
+          <span v-else class="font-semibold font-mono text-ink-900">
+            {{ formatCurrency((item as PromoCode).discount_value) }} Off
+          </span>
+        </template>
+
+        <template #cell-validity="{ item }">
+          <span class="font-mono text-xs text-ink-600">
+            {{ formatDate((item as PromoCode).valid_from) }} &rarr; {{ formatDate((item as PromoCode).valid_to) }}
+          </span>
+        </template>
+
+        <template #cell-usage="{ item }">
+          <span class="text-xs font-mono text-ink-700">
+            {{ (item as PromoCode).usage_count }} / {{ (item as PromoCode).usage_limit ?? 'Unlimited' }}
+          </span>
+        </template>
+
+        <template #cell-is_active="{ item }">
+          <StatusBadge :status="(item as PromoCode).is_active ? 'active' : 'inactive'" />
+        </template>
+
+        <template #cell-actions="{ item }">
+          <div class="flex items-center justify-end gap-3">
+            <button
+              type="button"
+              @click="openEdit(item as PromoCode)"
+              class="text-xs font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              @click="deletePromo(item as PromoCode)"
+              class="text-xs font-medium text-signal-danger hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              Delete
+            </button>
+          </div>
+        </template>
+      </DataTable>
     </div>
 
     <!-- Promo Modal -->
@@ -162,71 +195,72 @@ const deletePromo = (id: number) => {
 
         <form @submit.prevent="submit" class="mt-4 space-y-4">
           <FormInput
-            label="Promo Code *"
+            label="Promo Code"
+            name="code"
             v-model="form.code"
             :error="form.errors.code"
-            placeholder="e.g. FLASH20"
+            placeholder="e.g. SUMMER2026"
             required
           />
 
           <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-medium text-ink-700 mb-1">Discount Type *</label>
-              <select
-                v-model="form.discount_type"
-                class="w-full rounded border border-border bg-white py-2 px-3 text-sm text-ink-900 focus:outline-none"
-              >
-                <option value="percentage">Percentage (%)</option>
-                <option value="fixed">Fixed Amount (IDR)</option>
-              </select>
-            </div>
-            <div>
-              <FormInput
-                label="Discount Value *"
-                type="number"
-                step="any"
-                min="0"
-                v-model="form.discount_value"
-                :error="form.errors.discount_value"
-                required
-              />
-            </div>
+            <FormSelect
+              label="Discount Type"
+              name="discount_type"
+              v-model="form.discount_type"
+              :options="[
+                { label: 'Percentage (%)', value: 'percentage' },
+                { label: 'Fixed Amount (IDR)', value: 'fixed' }
+              ]"
+              required
+            />
+
+            <FormInput
+              :label="form.discount_type === 'percentage' ? 'Value (%)' : 'Amount (IDR)'"
+              name="discount_value"
+              type="number"
+              step="any"
+              min="0"
+              v-model="form.discount_value"
+              :error="form.errors.discount_value"
+              required
+            />
           </div>
 
           <div class="grid grid-cols-2 gap-3">
-            <div>
-              <FormInput
-                label="Valid From *"
-                type="date"
-                v-model="form.valid_from"
-                :error="form.errors.valid_from"
-                required
-              />
-            </div>
-            <div>
-              <FormInput
-                label="Valid To *"
-                type="date"
-                v-model="form.valid_to"
-                :error="form.errors.valid_to"
-                required
-              />
-            </div>
+            <FormInput
+              type="date"
+              label="Valid From"
+              name="valid_from"
+              v-model="form.valid_from"
+              :error="form.errors.valid_from"
+              required
+            />
+            <FormInput
+              type="date"
+              label="Valid To"
+              name="valid_to"
+              v-model="form.valid_to"
+              :error="form.errors.valid_to"
+              required
+            />
           </div>
 
           <FormInput
-            label="Usage Limit (Optional)"
             type="number"
-            min="1"
+            label="Usage Limit (Optional)"
+            name="usage_limit"
             v-model="form.usage_limit"
             :error="form.errors.usage_limit"
-            placeholder="Unlimited if empty"
+            placeholder="Leave blank for unlimited"
           />
 
-          <label class="flex items-center gap-2 text-sm text-ink-900 cursor-pointer pt-2">
-            <input type="checkbox" v-model="form.is_active" class="rounded border-border text-accent focus:ring-accent" />
-            <span>Active</span>
-          </label>
+          <FormSwitch
+            v-model="form.is_active"
+            name="is_active"
+            label="Active Status"
+            description="Enable customers and quotes to redeem this promo code."
+          />
 
           <div class="flex items-center justify-end gap-2 pt-2">
             <SecondaryButton @click="showModal = false">Cancel</SecondaryButton>

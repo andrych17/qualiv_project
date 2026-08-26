@@ -14,29 +14,43 @@ use Inertia\Response;
 
 class PayrollRunController extends Controller
 {
+    private const SORTABLE = ['run_number', 'period_start', 'period_end', 'pay_date', 'total_gross', 'total_net', 'status', 'run_type'];
+
     public function __construct(
         protected PayrollRunService $payrollRunService
     ) {}
 
     public function index(Request $request): Response
     {
+        $filters = $request->only('search', 'status', 'run_type', 'sort', 'direction', 'per_page');
+
         $query = PayrollRun::query()
-            ->with('payrollGroup')
-            ->orderBy('period_end', 'desc');
+            ->with('payrollGroup');
 
-        if ($request->filled('status')) {
-            $query->where('status', $request->input('status'));
+        if (!empty($filters['search'])) {
+            $s = '%' . $filters['search'] . '%';
+            $query->where(function ($q) use ($s) {
+                $q->where('run_number', 'ilike', $s)
+                    ->orWhereHas('payrollGroup', fn ($g) => $g->where('name', 'ilike', $s));
+            });
         }
 
-        if ($request->filled('run_type')) {
-            $query->where('run_type', $request->input('run_type'));
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
         }
 
-        $runs = $query->paginate(15)->withQueryString();
+        if (!empty($filters['run_type'])) {
+            $query->where('run_type', $filters['run_type']);
+        }
+
+        \App\Shared\Helpers\TableQuery::applySort($query, $filters['sort'] ?? null, $filters['direction'] ?? null, self::SORTABLE, 'period_end', 'desc');
+
+        $runs = $query->paginate(\App\Shared\Helpers\TableQuery::perPage(isset($filters['per_page']) ? (int) $filters['per_page'] : null, 15))
+            ->withQueryString();
 
         return Inertia::render('Payroll/Runs/Index', [
             'runs' => $runs,
-            'filters' => $request->only(['status', 'run_type']),
+            'filters' => $filters,
         ]);
     }
 

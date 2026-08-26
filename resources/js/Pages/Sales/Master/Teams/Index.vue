@@ -6,10 +6,14 @@ import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
+import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
+import FormMultiSelect from '@/Components/forms/FormMultiSelect.vue'
+import FormSwitch from '@/Components/forms/FormSwitch.vue'
 import SalesSubNav from '@/Components/sales/SalesSubNav.vue'
 import SalesMasterSubNav from '@/Components/sales/SalesMasterSubNav.vue'
+import DataTable, { type SortState } from '@/Components/tables/DataTable.vue'
 import Modal from '@/Components/Modal.vue'
 import { useConfirm } from '@/Composables/useConfirmDialog'
 
@@ -34,6 +38,10 @@ const props = defineProps<{
   users: Array<{ id: number; name: string }>
 }>()
 
+const search = ref('')
+const sort = ref<SortState>(null)
+const selected = ref<Array<string | number>>([])
+
 const showModal = ref(false)
 const editingTeam = ref<TeamItem | null>(null)
 
@@ -43,6 +51,14 @@ const form = useForm({
   is_active: true,
   member_user_ids: [] as number[],
 })
+
+const columns = [
+  { key: 'name', label: 'Team Name', sortable: true },
+  { key: 'territory', label: 'Territory' },
+  { key: 'members', label: 'Members' },
+  { key: 'is_active', label: 'Status', sortable: true },
+  { key: 'actions', label: 'Actions', align: 'right' as const },
+]
 
 const openCreate = () => {
   editingTeam.value = null
@@ -56,7 +72,7 @@ const openEdit = (team: TeamItem) => {
   form.name = team.name
   form.territory_id = team.territory_id
   form.is_active = team.is_active
-  form.member_user_ids = team.members.map(m => m.user?.id).filter(Boolean) as number[]
+  form.member_user_ids = team.members.map((m) => m.user?.id).filter(Boolean) as number[]
   showModal.value = true
 }
 
@@ -74,13 +90,13 @@ const submit = () => {
 
 const { confirm } = useConfirm()
 
-const deleteTeam = (id: number) => {
+const deleteTeam = (team: TeamItem) => {
   confirm({
-    title: 'Delete Sales Team?',
+    title: `Delete Sales Team "${team.name}"?`,
     description: 'Are you sure you want to delete this sales team?',
     variant: 'destructive',
     confirmText: 'Delete',
-    onConfirm: () => router.delete(route('sales.master.teams.destroy', id)),
+    onConfirm: () => router.delete(route('sales.master.teams.destroy', team.id)),
   })
 }
 </script>
@@ -104,52 +120,59 @@ const deleteTeam = (id: number) => {
       <SalesMasterSubNav active="teams" />
     </div>
 
-    <div class="mt-6 rounded-lg border border-border bg-surface-0 overflow-x-auto">
-      <table class="w-full text-left text-sm">
-        <thead class="bg-surface-50 text-xs text-ink-500 uppercase border-b border-border">
-          <tr>
-            <th class="py-3 px-4">Team Name</th>
-            <th class="py-3 px-4">Territory</th>
-            <th class="py-3 px-4">Members</th>
-            <th class="py-3 px-4">Status</th>
-            <th class="py-3 px-4 text-right">Action</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-border">
-          <tr v-for="team in props.teams" :key="team.id" class="hover:bg-surface-50">
-            <td class="py-3 px-4 font-semibold text-ink-900">{{ team.name }}</td>
-            <td class="py-3 px-4 text-ink-600">{{ team.territory?.name ?? 'All Territories' }}</td>
-            <td class="py-3 px-4 text-xs text-ink-700">
-              <span v-if="team.members.length > 0">
-                {{ team.members.map(m => m.user?.name).filter(Boolean).join(', ') }}
-              </span>
-              <span v-else class="text-ink-400">No members assigned</span>
-            </td>
-            <td class="py-3 px-4 text-xs font-semibold" :class="team.is_active ? 'text-emerald-600' : 'text-ink-400'">
-              {{ team.is_active ? 'Active' : 'Inactive' }}
-            </td>
-            <td class="py-3 px-4 text-right space-x-2">
-              <button
-                type="button"
-                @click="openEdit(team)"
-                class="text-xs font-medium text-accent hover:underline"
-              >
-                Edit
-              </button>
-              <button
-                type="button"
-                @click="deleteTeam(team.id)"
-                class="text-xs font-medium text-rose-600 hover:underline"
-              >
-                Delete
-              </button>
-            </td>
-          </tr>
-          <tr v-if="props.teams.length === 0">
-            <td colspan="5" class="py-8 text-center text-ink-500">No sales teams found.</td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="mt-6">
+      <DataTable
+        :columns="columns"
+        :items="props.teams"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        v-model:search="search"
+        sticky-header
+        storage-key="sales.master.teams"
+        search-placeholder="Search sales teams…"
+        export-filename="sales-teams"
+        status-rail-key="is_active"
+        empty-title="No sales teams found"
+        empty-description="Create your first sales team to assign sales representatives and territories."
+      >
+        <template #cell-name="{ item }">
+          <span class="font-semibold text-ink-900">{{ (item as TeamItem).name }}</span>
+        </template>
+
+        <template #cell-territory="{ item }">
+          <span class="text-ink-600">{{ (item as TeamItem).territory?.name ?? 'All Territories' }}</span>
+        </template>
+
+        <template #cell-members="{ item }">
+          <span v-if="(item as TeamItem).members.length > 0" class="text-xs text-ink-700">
+            {{ (item as TeamItem).members.map((m) => m.user?.name).filter(Boolean).join(', ') }}
+          </span>
+          <span v-else class="text-ink-400 text-xs">No members assigned</span>
+        </template>
+
+        <template #cell-is_active="{ item }">
+          <StatusBadge :status="(item as TeamItem).is_active ? 'active' : 'inactive'" />
+        </template>
+
+        <template #cell-actions="{ item }">
+          <div class="flex items-center justify-end gap-3">
+            <button
+              type="button"
+              @click="openEdit(item as TeamItem)"
+              class="text-xs font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              @click="deleteTeam(item as TeamItem)"
+              class="text-xs font-medium text-signal-danger hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              Delete
+            </button>
+          </div>
+        </template>
+      </DataTable>
     </div>
 
     <!-- Team Modal -->
@@ -159,7 +182,8 @@ const deleteTeam = (id: number) => {
 
         <form @submit.prevent="submit" class="mt-4 space-y-4">
           <FormInput
-            label="Team Name *"
+            label="Team Name"
+            name="name"
             v-model="form.name"
             :error="form.errors.name"
             placeholder="e.g. Enterprise Sales Indonesia"
@@ -168,28 +192,28 @@ const deleteTeam = (id: number) => {
 
           <FormSelect
             label="Assigned Territory"
+            name="territory_id"
             v-model="form.territory_id"
             :error="form.errors.territory_id"
             :options="props.territories.map(t => ({ value: t.id, label: t.name }))"
             placeholder="Select territory (optional)…"
           />
 
-          <div>
-            <label class="block text-xs font-medium text-ink-700 mb-1">Select Member Users</label>
-            <select
-              multiple
-              v-model="form.member_user_ids"
-              class="w-full rounded border border-border bg-white py-2 px-3 text-xs text-ink-900 focus:outline-none h-32"
-            >
-              <option v-for="u in props.users" :key="u.id" :value="u.id">{{ u.name }}</option>
-            </select>
-            <p class="text-[11px] text-ink-500 mt-1">Hold Ctrl/Cmd to select multiple members.</p>
-          </div>
+          <FormMultiSelect
+            v-model="form.member_user_ids"
+            name="member_user_ids"
+            label="Select Member Users"
+            placeholder="Select members…"
+            :options="props.users.map(u => ({ value: u.id, label: u.name }))"
+            :error="form.errors.member_user_ids"
+          />
 
-          <label class="flex items-center gap-2 text-sm text-ink-900 cursor-pointer pt-2">
-            <input type="checkbox" v-model="form.is_active" class="rounded border-border text-accent focus:ring-accent" />
-            <span>Active</span>
-          </label>
+          <FormSwitch
+            v-model="form.is_active"
+            name="is_active"
+            label="Active Status"
+            description="Allow this team to receive deal assignments and quotas."
+          />
 
           <div class="flex items-center justify-end gap-2 pt-2">
             <SecondaryButton @click="showModal = false">Cancel</SecondaryButton>

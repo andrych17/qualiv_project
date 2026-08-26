@@ -47,12 +47,10 @@ const props = defineProps<{
   contract: ContractDetail
 }>()
 
+import { formatCurrency, formatDate } from '@/Utils/formatters'
+
 const newTermEnd = ref('')
 const showRenewModal = ref(false)
-
-const formatCurrency = (val: number, curr = 'IDR') => {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: curr, maximumFractionDigits: 0 }).format(val)
-}
 
 const { confirm } = useConfirm()
 

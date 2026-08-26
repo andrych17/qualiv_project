@@ -3,7 +3,11 @@
 namespace App\Modules\Central\Services;
 
 use App\Models\Tenant;
+use App\Models\TenantUserLookup;
+use App\Models\User;
 use App\Modules\Central\Models\CentralTenantAddon;
+use App\Modules\SysConfig\Models\ConfigGroup;
+use App\Modules\SysConfig\Models\ConfigGroupUser;
 use Illuminate\Support\Facades\DB;
 
 class CentralTenantService
@@ -15,7 +19,7 @@ class CentralTenantService
 
     /**
      * Creating the Tenant row is what actually triggers stancl's provisioning pipeline
-     * (TenantCreated -> CreateDatabase -> CreateModuleSchemas -> MigrateDatabase, wired
+     * (TenantCreated -> CreateDatabase -> CreateModuleSchemas -> MigrateDatabase -> SeedTenantSysConfig, wired
      * synchronously in TenancyServiceProvider) — this service doesn't duplicate any of
      * that, it's just the admin-facing entry point onto the existing mechanism.
      */
@@ -38,6 +42,37 @@ class CentralTenantService
             'tenant_db_name' => 'tenant_'.$tenant->getKey(),
             'provisioned_at' => now(),
         ]);
+
+        if (! empty($data['contact_email'])) {
+            $email = strtolower(trim($data['contact_email']));
+            $name = $data['contact_name'] ?? 'Admin User';
+            $password = $data['password'] ?? 'password';
+
+            TenantUserLookup::query()->updateOrCreate(
+                ['email' => $email, 'tenant_id' => (string) $tenant->getKey()],
+                [],
+            );
+
+            $tenant->run(function () use ($email, $name, $password) {
+                $user = User::query()->updateOrCreate(
+                    ['email' => $email],
+                    [
+                        'name' => $name,
+                        'password' => $password,
+                        'email_verified_at' => now(),
+                        'is_active' => true,
+                    ]
+                );
+
+                $adminGroup = ConfigGroup::query()->where('code', 'ADMIN')->first();
+                if ($adminGroup) {
+                    ConfigGroupUser::query()->updateOrCreate(
+                        ['group_id' => $adminGroup->id, 'user_id' => $user->id],
+                        ['group_code' => $adminGroup->code],
+                    );
+                }
+            });
+        }
 
         $this->auditLogger->log(
             action: 'tenant_registered',

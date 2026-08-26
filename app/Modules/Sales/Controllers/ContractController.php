@@ -10,6 +10,7 @@ use App\Modules\Sales\Models\PriceList;
 use App\Modules\Sales\Requests\StoreContractRequest;
 use App\Modules\Sales\Services\BillingService;
 use App\Modules\Sales\Services\ContractService;
+use App\Shared\Helpers\TableQuery;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -24,20 +25,23 @@ class ContractController extends Controller
 
     public function index(Request $request): Response
     {
-        $contracts = Contract::with(['customer', 'subscriptions', 'priceList'])
+        $perPage = TableQuery::perPage($request->integer('per_page') ?: null, 20);
+        $query = Contract::with(['customer', 'subscriptions', 'priceList'])
             ->when($request->search, function ($q, $s) {
                 $q->where('name', 'ilike', "%{$s}%")
+                    ->orWhere('contract_number', 'ilike', "%{$s}%")
                     ->orWhereHas('customer', fn ($c) => $c->where('name', 'ilike', "%{$s}%"));
             })
-            ->when($request->status, fn ($q, $st) => $q->where('status', $st))
-            ->orderByDesc('created_at')
-            ->paginate(20)
-            ->withQueryString();
+            ->when($request->status, fn ($q, $st) => $q->where('status', $st));
+
+        TableQuery::applySort($query, $request->sort, $request->direction, ['name', 'start_date', 'end_date', 'created_at', 'status'], 'created_at', 'desc');
+
+        $contracts = $query->paginate($perPage)->withQueryString();
 
         return Inertia::render('Sales/Contracts/Index', [
             'contracts' => $contracts,
             'statuses' => Contract::STATUSES,
-            'filters' => $request->only(['search', 'status']),
+            'filters' => $request->only(['search', 'status', 'sort', 'direction', 'per_page']),
         ]);
     }
 

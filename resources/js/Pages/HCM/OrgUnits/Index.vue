@@ -1,14 +1,19 @@
 <!-- ponytail: OrgUnits management — hierarchical org tree and department list. -->
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { router, useForm } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
-import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
+import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import HcmSubNav from '@/Components/hcm/HcmSubNav.vue'
 import Modal from '@/Components/Modal.vue'
+import FormInput from '@/Components/forms/FormInput.vue'
+import FormSelect from '@/Components/forms/FormSelect.vue'
+import FormSwitch from '@/Components/forms/FormSwitch.vue'
+import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
+import { debounce } from '@/Composables/debounce'
 import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface OrgUnit {
@@ -19,19 +24,60 @@ interface OrgUnit {
   is_active: boolean
 }
 
+interface PaginatedData<T> {
+  data: T[]
+  links: Array<{ url: string | null; label: string; active: boolean }>
+  total: number
+  from: number | null
+  to: number | null
+  per_page: number
+}
+
 const props = defineProps<{
-  orgUnits: {
-    data: OrgUnit[]
-    total: number
-  }
+  orgUnits: PaginatedData<OrgUnit>
   allOrgUnits: OrgUnit[]
-  filters: { search?: string }
+  filters: {
+    search?: string
+    is_active?: string
+    sort?: string
+    direction?: string
+    per_page?: string
+  }
 }>()
+
+const search = ref(props.filters.search ?? '')
+const filters = ref({
+  is_active: props.filters.is_active ?? '',
+})
+const sort = ref<SortState>(
+  props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
+)
+const selected = ref<Array<string | number>>([])
+const perPage = ref(Number(props.filters.per_page) || props.orgUnits.per_page)
+
+const filterFields: FilterFieldDef[] = [
+  {
+    key: 'is_active',
+    label: 'Status',
+    type: 'select',
+    options: [
+      { label: 'Active', value: '1' },
+      { label: 'Inactive', value: '0' },
+    ],
+  },
+]
+
+const columns = [
+  { key: 'name', label: 'Unit Name' },
+  { key: 'parent', label: 'Parent Unit' },
+  { key: 'status', label: 'Status' },
+  { key: 'actions', label: 'Actions', align: 'right' as const },
+]
 
 const form = useForm({
   id: null as number | null,
   name: '',
-  parent_org_unit_id: '' as string | number,
+  parent_org_unit_id: null as number | null,
   is_active: true,
 })
 
@@ -48,8 +94,8 @@ const openCreate = () => {
 const openEdit = (unit: OrgUnit) => {
   form.id = unit.id
   form.name = unit.name
-  form.parent_org_unit_id = unit.parent_org_unit_id || ''
-  form.is_active = unit.is_active
+  form.parent_org_unit_id = unit.parent_org_unit_id || null
+  form.is_active = Boolean(unit.is_active)
   isEditing.value = true
   showModal.value = true
 }
@@ -79,93 +125,132 @@ const deleteUnit = (unit: OrgUnit) => {
     onConfirm: () => router.delete(route('hcm.orgUnits.destroy', unit.id)),
   })
 }
+
+watch([search, filters, sort, perPage], debounce(() => {
+  selected.value = []
+  router.get(
+    route('hcm.orgUnits.index'),
+    {
+      search: search.value || undefined,
+      is_active: filters.value.is_active || undefined,
+      sort: sort.value?.key,
+      direction: sort.value?.direction,
+      per_page: perPage.value,
+    },
+    { preserveState: true, replace: true }
+  )
+}, 400))
 </script>
 
 <template>
   <AppLayout title="Organizational Units">
     <PageHeader title="Org Units" subtitle="Manage departments, divisions, and reporting structure.">
       <template #actions>
-        <PrimaryButton @click="openCreate">+ Add Org Unit</PrimaryButton>
+        <PrimaryButton type="button" @click="openCreate">+ Add Org Unit</PrimaryButton>
       </template>
     </PageHeader>
 
-    <div class="space-y-6">
+    <div class="mt-4">
       <HcmSubNav active="org" />
+    </div>
 
-      <Panel>
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-border text-left text-sm">
-            <thead class="bg-surface-sunken text-xs font-medium text-ink-500 uppercase">
-              <tr>
-                <th class="px-4 py-3">Unit Name</th>
-                <th class="px-4 py-3">Parent Unit</th>
-                <th class="px-4 py-3">Status</th>
-                <th class="px-4 py-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-border">
-              <tr v-if="orgUnits.data.length === 0">
-                <td colspan="4" class="p-4 text-center text-ink-500">No Org Units found.</td>
-              </tr>
-              <tr v-for="unit in orgUnits.data" :key="unit.id" class="hover:bg-surface-raised transition">
-                <td class="px-4 py-3 font-medium text-ink-900">{{ unit.name }}</td>
-                <td class="px-4 py-3 text-ink-600">{{ unit.parent?.name ?? '—' }}</td>
-                <td class="px-4 py-3">
-                  <span
-                    class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
-                    :class="unit.is_active ? 'bg-success/15 text-success' : 'bg-neutral/15 text-neutral'"
-                  >
-                    {{ unit.is_active ? 'Active' : 'Inactive' }}
-                  </span>
-                </td>
-                <td class="px-4 py-3 text-right space-x-2">
-                  <button type="button" class="text-xs font-medium text-accent hover:underline" @click="openEdit(unit)">
-                    Edit
-                  </button>
-                  <button type="button" class="text-xs font-medium text-danger hover:underline" @click="deleteUnit(unit)">
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </Panel>
+    <div class="mt-6">
+      <DataTable
+        :columns="columns"
+        :items="orgUnits.data"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        v-model:search="search"
+        v-model:filters="filters"
+        v-model:per-page="perPage"
+        sticky-header
+        storage-key="hcm.org-units"
+        search-placeholder="Search org units…"
+        :filter-fields="filterFields"
+        export-filename="hcm-org-units"
+        status-rail-key="is_active"
+        :total="orgUnits.total"
+        :from="orgUnits.from"
+        :to="orgUnits.to"
+        :links="orgUnits.links"
+        empty-title="No Org Units found"
+        empty-description="Create an organizational unit, division, or department."
+      >
+        <template #cell-name="{ item }">
+          <span class="font-semibold text-ink-900">{{ (item as OrgUnit).name }}</span>
+        </template>
+
+        <template #cell-parent="{ item }">
+          <span class="text-xs text-ink-600">{{ (item as OrgUnit).parent?.name ?? '—' }}</span>
+        </template>
+
+        <template #cell-status="{ item }">
+          <StatusBadge :status="(item as OrgUnit).is_active ? 'active' : 'inactive'" />
+        </template>
+
+        <template #cell-actions="{ item }">
+          <div class="flex items-center justify-end gap-3">
+            <button
+              type="button"
+              class="text-xs font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              @click="openEdit(item as OrgUnit)"
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              class="text-xs font-medium text-signal-danger hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              @click="deleteUnit(item as OrgUnit)"
+            >
+              Delete
+            </button>
+          </div>
+        </template>
+      </DataTable>
     </div>
 
     <!-- Create/Edit Modal -->
     <Modal :show="showModal" max-width="md" @close="showModal = false">
       <div class="p-6 bg-white rounded-lg">
         <h3 class="text-lg font-bold text-ink-900">{{ isEditing ? 'Edit Org Unit' : 'New Org Unit' }}</h3>
+
         <form @submit.prevent="submit" class="mt-4 space-y-4">
           <div>
-            <label class="block text-xs font-medium text-ink-700">Unit Name *</label>
-            <input
+            <FormInput
+              label="Unit Name"
+              name="name"
               v-model="form.name"
-              type="text"
+              :error="form.errors.name"
+              placeholder="e.g. Legal Operations, Human Resources"
               required
-              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             />
           </div>
+
           <div>
-            <label class="block text-xs font-medium text-ink-700">Parent Unit</label>
-            <select
+            <FormSelect
+              label="Parent Org Unit (Optional)"
+              name="parent_org_unit_id"
               v-model="form.parent_org_unit_id"
-              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
-            >
-              <option value="">-- None (Top Level) --</option>
-              <option v-for="u in allOrgUnits" :key="u.id" :value="u.id" :disabled="form.id === u.id">
-                {{ u.name }}
-              </option>
-            </select>
+              :error="form.errors.parent_org_unit_id"
+              :options="allOrgUnits.filter(u => !form.id || u.id !== form.id).map(u => ({ label: u.name, value: u.id }))"
+              placeholder="None (Top Level)"
+            />
           </div>
-          <div class="flex items-center space-x-2">
-            <input v-model="form.is_active" type="checkbox" id="unit_active" class="rounded border-border text-accent focus:ring-accent" />
-            <label for="unit_active" class="text-xs text-ink-700">Active</label>
+
+          <div>
+            <FormSwitch
+              v-model="form.is_active"
+              name="is_active"
+              label="Unit is Active"
+              description="Allow positions and teams to belong to this org unit."
+            />
           </div>
-          <div class="flex justify-end space-x-3 pt-2">
+
+          <div class="flex justify-end gap-3 pt-2">
             <SecondaryButton type="button" @click="showModal = false">Cancel</SecondaryButton>
-            <PrimaryButton :disabled="form.processing">Save</PrimaryButton>
+            <PrimaryButton type="submit" :disabled="form.processing">
+              {{ isEditing ? 'Save Changes' : 'Create Unit' }}
+            </PrimaryButton>
           </div>
         </form>
       </div>

@@ -22,8 +22,9 @@ class ShiftController extends Controller
 
     public function index(Request $request): Response
     {
-        $filters = $request->only('search', 'is_active');
-        $shifts = $this->service->paginateShifts($filters, 20);
+        $filters = $request->only('search', 'is_active', 'sort', 'direction', 'per_page');
+        $perPage = \App\Shared\Helpers\TableQuery::perPage(isset($filters['per_page']) ? (int) $filters['per_page'] : null, 15);
+        $shifts = $this->service->paginateShifts($filters, $perPage);
 
         return Inertia::render('HCM/Shifts/Index', [
             'shifts' => $shifts,

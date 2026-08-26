@@ -9,6 +9,8 @@ import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 import DangerButton from '@/Components/DangerButton.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
+import FormCurrencyInput from '@/Components/forms/FormCurrencyInput.vue'
+import FormNumberInput from '@/Components/forms/FormNumberInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
 import FormSearchableSelect from '@/Components/forms/FormSearchableSelect.vue'
 import FormAsyncSearchableSelect from '@/Components/forms/FormAsyncSearchableSelect.vue'
@@ -35,6 +37,8 @@ const { confirm } = useConfirm()
 const searchDemo = ref('')
 const inputDemo = ref('PT NusaEvo Indonesia')
 const inputErrorDemo = ref('Format email tidak valid')
+const currencyDemo = ref<number | null>(15750000)
+const numberDemo = ref<number | null>(2500)
 const selectDemo = ref('legal')
 const searchableSelectDemo = ref<string | number | null>('id-001')
 const asyncSelectDemo = ref<string | number | null>(1)
@@ -363,6 +367,32 @@ const triggerConfirmDemo = (variant: 'default' | 'destructive') => {
                 placeholder="Masukkan nama firma..."
                 required
               />
+
+              <!-- Currency Input with Thousand Separator & Terbilang -->
+              <FormCurrencyInput
+                v-model="currencyDemo"
+                name="claim_amount"
+                label="Nilai Klaim / Transaksi (Thousand Separator + Terbilang)"
+                placeholder="0"
+                show-terbilang
+                clearable
+                required
+              />
+              <p class="text-[11px] text-ink-600 font-mono -mt-2">
+                Raw modelValue (number): <span class="font-bold text-accent">{{ currencyDemo ?? 'null' }}</span>
+              </p>
+
+              <!-- Number / Quantity Input with Thousand Separator & Suffix -->
+              <FormNumberInput
+                v-model="numberDemo"
+                name="stock_qty"
+                label="Kuantitas Stok / Unit (FormNumberInput)"
+                suffix="unit"
+                clearable
+              />
+              <p class="text-[11px] text-ink-600 font-mono -mt-2">
+                Raw modelValue (number): <span class="font-bold text-accent">{{ numberDemo ?? 'null' }}</span>
+              </p>
 
               <FormInput
                 v-model="inputErrorDemo"

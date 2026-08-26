@@ -1,6 +1,6 @@
 <!-- Commissions Settlement & Plans (§3M) -->
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { Link, useForm, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
@@ -10,6 +10,11 @@ import SecondaryButton from '@/Components/SecondaryButton.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import SalesSubNav from '@/Components/sales/SalesSubNav.vue'
 import Modal from '@/Components/Modal.vue'
+import FormSelect from '@/Components/forms/FormSelect.vue'
+import FormInput from '@/Components/forms/FormInput.vue'
+import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
+import { debounce } from '@/Composables/debounce'
+import { formatCurrency, formatDate } from '@/Utils/formatters'
 
 interface SettlementItem {
   id: number
@@ -32,16 +37,58 @@ interface CommissionPlanItem {
   is_active: boolean
 }
 
+interface PaginatedData<T> {
+  data: T[]
+  links: Array<{ url: string | null; label: string; active: boolean }>
+  total: number
+  from: number | null
+  to: number | null
+  per_page: number
+}
+
 const props = defineProps<{
-  settlements: {
-    data: SettlementItem[]
-    links: Array<{ url: string | null; label: string; active: boolean }>
-  }
+  settlements: PaginatedData<SettlementItem>
   plans: CommissionPlanItem[]
   statuses: string[]
   reps: Array<{ id: number; name: string }>
-  filters: { rep_id?: string; status?: string }
+  filters: { rep_id?: string; status?: string; sort?: string; direction?: string; per_page?: string }
 }>()
+
+const search = ref('')
+const filters = ref({
+  status: props.filters.status ?? '',
+  rep_id: props.filters.rep_id ?? '',
+})
+const sort = ref<SortState>(
+  props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
+)
+const selected = ref<Array<string | number>>([])
+const perPage = ref(Number(props.filters.per_page) || props.settlements.per_page)
+
+const filterFields: FilterFieldDef[] = [
+  {
+    key: 'status',
+    label: 'Status',
+    type: 'select',
+    options: props.statuses.map((st) => ({ label: st.toUpperCase(), value: st })),
+  },
+  {
+    key: 'rep_id',
+    label: 'Sales Rep',
+    type: 'select',
+    options: props.reps.map((r) => ({ label: r.name, value: String(r.id) })),
+  },
+]
+
+const columns = [
+  { key: 'batch_no', label: 'Settlement Batch #' },
+  { key: 'rep', label: 'Sales Rep' },
+  { key: 'period', label: 'Period' },
+  { key: 'total_commission', label: 'Commission Amount', align: 'right' as const, sortable: true },
+  { key: 'approver', label: 'Approver' },
+  { key: 'status', label: 'Status', sortable: true },
+  { key: 'actions', label: 'Actions', align: 'right' as const },
+]
 
 const showBatchModal = ref(false)
 
@@ -51,17 +98,25 @@ const batchForm = useForm({
   period_end: '',
 })
 
-const formatCurrency = (val: number, curr = 'IDR') => {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: curr, maximumFractionDigits: 0 }).format(val)
-}
-
 const submitBatch = () => {
   batchForm.post(route('sales.commissions.store'), {
     onSuccess: () => {
       showBatchModal.value = false
+      batchForm.reset()
     },
   })
 }
+
+watch([search, filters, sort, perPage], debounce(() => {
+  selected.value = []
+  router.get(route('sales.commissions.index'), {
+    rep_id: filters.value.rep_id || undefined,
+    status: filters.value.status || undefined,
+    sort: sort.value?.key,
+    direction: sort.value?.direction,
+    per_page: perPage.value,
+  }, { preserveState: true, replace: true })
+}, 400))
 </script>
 
 <template>
@@ -79,64 +134,90 @@ const submitBatch = () => {
       <SalesSubNav active="commissions" />
     </div>
 
-    <!-- Settlements Table -->
-    <div class="mt-6 rounded-lg border border-border bg-surface-0 overflow-x-auto">
-      <table class="w-full text-left text-sm">
-        <thead class="bg-surface-50 text-xs text-ink-500 uppercase border-b border-border">
-          <tr>
-            <th class="py-3 px-4">Settlement Batch #</th>
-            <th class="py-3 px-4">Sales Rep</th>
-            <th class="py-3 px-4">Period</th>
-            <th class="py-3 px-4">Commission Amount</th>
-            <th class="py-3 px-4">Approver</th>
-            <th class="py-3 px-4">Status</th>
-            <th class="py-3 px-4 text-right">Action</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-border">
-          <tr v-for="st in props.settlements.data" :key="st.id" class="hover:bg-surface-50">
-            <td class="py-3 px-4 font-mono font-medium text-accent">
-              <Link :href="route('sales.commissions.show', st.id)" class="hover:underline">
-                COMM-{{ st.id.toString().padStart(5, '0') }}
-              </Link>
-            </td>
-            <td class="py-3 px-4 font-medium text-ink-900">{{ st.rep?.name ?? 'Rep' }}</td>
-            <td class="py-3 px-4 font-mono text-xs text-ink-600">{{ st.period_start }} &rarr; {{ st.period_end }}</td>
-            <td class="py-3 px-4 font-mono font-bold text-ink-900">{{ formatCurrency(Number(st.total_commission)) }}</td>
-            <td class="py-3 px-4 text-ink-600">{{ st.approver?.name ?? 'Pending Approval' }}</td>
-            <td class="py-3 px-4"><StatusBadge :status="st.status" /></td>
-            <td class="py-3 px-4 text-right">
-              <Link :href="route('sales.commissions.show', st.id)" class="text-xs font-semibold text-accent hover:underline">
-                View &rarr;
-              </Link>
-            </td>
-          </tr>
-          <tr v-if="props.settlements.data.length === 0">
-            <td colspan="7" class="py-8 text-center text-ink-500">No commission settlements recorded yet.</td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="mt-6">
+      <DataTable
+        :columns="columns"
+        :items="settlements.data"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        v-model:search="search"
+        v-model:filters="filters"
+        v-model:per-page="perPage"
+        sticky-header
+        storage-key="sales.commissions"
+        :filter-fields="filterFields"
+        export-filename="sales-commissions"
+        status-rail-key="status"
+        :total="settlements.total"
+        :from="settlements.from"
+        :to="settlements.to"
+        :links="settlements.links"
+        empty-title="No commission settlements found"
+        empty-description="Generate a settlement batch for your sales team across closed/paid sales."
+      >
+        <template #cell-batch_no="{ item }">
+          <Link
+            :href="route('sales.commissions.show', item.id)"
+            class="font-mono font-medium text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            COMM-{{ (item as SettlementItem).id.toString().padStart(5, '0') }}
+          </Link>
+        </template>
+
+        <template #cell-rep="{ item }">
+          <span class="font-medium text-ink-900">{{ (item as SettlementItem).rep?.name ?? 'Rep' }}</span>
+        </template>
+
+        <template #cell-period="{ item }">
+          <span class="font-mono text-xs text-ink-600">
+            {{ formatDate((item as SettlementItem).period_start) }} &rarr; {{ formatDate((item as SettlementItem).period_end) }}
+          </span>
+        </template>
+
+        <template #cell-total_commission="{ item }">
+          <span class="font-mono font-bold text-ink-900">
+            {{ formatCurrency(Number((item as SettlementItem).total_commission)) }}
+          </span>
+        </template>
+
+        <template #cell-approver="{ item }">
+          <span class="text-xs text-ink-600">{{ (item as SettlementItem).approver?.name ?? 'Pending Approval' }}</span>
+        </template>
+
+        <template #cell-status="{ item }">
+          <StatusBadge :status="(item as SettlementItem).status" />
+        </template>
+
+        <template #cell-actions="{ item }">
+          <Link
+            :href="route('sales.commissions.show', item.id)"
+            class="text-sm font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            View &rarr;
+          </Link>
+        </template>
+      </DataTable>
     </div>
 
     <!-- Active Plans Summary -->
     <div class="mt-8">
       <h3 class="text-base font-semibold text-ink-900 mb-3">Configured Commission Plans</h3>
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <div v-for="p in props.plans" :key="p.id" class="border border-border rounded-lg p-4 bg-surface-0 shadow-xs">
-          <div class="flex items-center justify-between">
-            <h4 class="font-semibold text-ink-900">{{ p.name }}</h4>
-            <span class="text-xs font-bold uppercase rounded px-2 py-0.5" :class="p.is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-600'">
-              {{ p.is_active ? 'Active' : 'Inactive' }}
-            </span>
-          </div>
-          <div class="mt-2 text-xs text-ink-600 space-y-1">
+        <Panel v-for="p in props.plans" :key="p.id">
+          <template #header>
+            <div class="flex items-center justify-between w-full">
+              <h4 class="font-semibold text-ink-900">{{ p.name }}</h4>
+              <StatusBadge :status="p.is_active ? 'active' : 'inactive'" />
+            </div>
+          </template>
+          <div class="text-xs text-ink-600 space-y-1">
             <p>Type: <strong class="capitalize">{{ p.calc_type }}</strong></p>
             <p v-if="p.calc_type === 'flat'">Rate: <strong>{{ p.flat_rate }}%</strong></p>
             <p v-else-if="p.calc_type === 'tiered'">
               Base: <strong>{{ p.tier_base_rate }}%</strong>, Above {{ formatCurrency(p.tier_threshold || 0) }}: <strong>{{ p.tier_excess_rate }}%</strong>
             </p>
           </div>
-        </div>
+        </Panel>
       </div>
     </div>
 
@@ -147,37 +228,33 @@ const submitBatch = () => {
         <p class="mt-1 text-sm text-ink-600">Calculates earned commissions for a sales rep based on settled payments.</p>
 
         <form @submit.prevent="submitBatch" class="mt-4 space-y-4">
-          <div>
-            <label class="block text-xs font-medium text-ink-700 mb-1">Sales Representative *</label>
-            <select
-              v-model="batchForm.rep_id"
-              class="w-full rounded border border-border bg-white py-2 px-3 text-sm text-ink-900 focus:outline-none"
-              required
-            >
-              <option :value="null">-- Select sales rep --</option>
-              <option v-for="r in props.reps" :key="r.id" :value="r.id">{{ r.name }}</option>
-            </select>
-          </div>
+          <FormSelect
+            label="Sales Representative"
+            name="rep_id"
+            v-model="batchForm.rep_id"
+            :options="props.reps.map(r => ({ label: r.name, value: r.id }))"
+            placeholder="Select sales rep…"
+            :error="batchForm.errors.rep_id"
+            required
+          />
 
-          <div>
-            <label class="block text-xs font-medium text-ink-700 mb-1">Period Start Date *</label>
-            <input
-              v-model="batchForm.period_start"
-              type="date"
-              class="w-full rounded border border-border bg-white py-2 px-3 text-sm text-ink-900 focus:outline-none"
-              required
-            />
-          </div>
+          <FormInput
+            type="date"
+            label="Period Start Date"
+            name="period_start"
+            v-model="batchForm.period_start"
+            :error="batchForm.errors.period_start"
+            required
+          />
 
-          <div>
-            <label class="block text-xs font-medium text-ink-700 mb-1">Period End Date *</label>
-            <input
-              v-model="batchForm.period_end"
-              type="date"
-              class="w-full rounded border border-border bg-white py-2 px-3 text-sm text-ink-900 focus:outline-none"
-              required
-            />
-          </div>
+          <FormInput
+            type="date"
+            label="Period End Date"
+            name="period_end"
+            v-model="batchForm.period_end"
+            :error="batchForm.errors.period_end"
+            required
+          />
 
           <div class="flex items-center justify-end gap-2 pt-2">
             <SecondaryButton @click="showBatchModal = false">Cancel</SecondaryButton>

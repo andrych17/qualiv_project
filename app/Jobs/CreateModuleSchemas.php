@@ -23,6 +23,12 @@ class CreateModuleSchemas
         'PROJECTS',
         'DMS',
         'ACCOUNTING',
+        'SALES',
+        'PURCHASE',
+        'HCM',
+        'PAYROLL',
+        'PERF',
+        'AIINSIGHT',
     ];
 
     public function __construct(

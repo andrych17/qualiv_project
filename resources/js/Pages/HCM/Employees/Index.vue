@@ -1,14 +1,16 @@
 <!-- ponytail: Employee Master Index — table listing with filters and bulk deletion. -->
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
-import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import HcmSubNav from '@/Components/hcm/HcmSubNav.vue'
+import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
+import { debounce } from '@/Composables/debounce'
 import { useConfirm } from '@/Composables/useConfirmDialog'
+import { formatDate } from '@/Utils/formatters'
 
 interface EmployeeRow {
   id: number
@@ -27,37 +29,70 @@ interface EmployeeRow {
   }
 }
 
+interface PaginatedData<T> {
+  data: T[]
+  links: Array<{ url: string | null; label: string; active: boolean }>
+  total: number
+  from: number | null
+  to: number | null
+  per_page: number
+}
+
 const props = defineProps<{
-  employees: {
-    data: EmployeeRow[]
-    links: Array<{ url: string | null; label: string; active: boolean }>
-    total: number
-  }
+  employees: PaginatedData<EmployeeRow>
   filters: {
     search?: string
     employment_status?: string
     position_id?: string
     org_unit_id?: string
+    sort?: string
+    direction?: string
+    per_page?: string
   }
   positions: Array<{ id: number; job?: { title: string }; org_unit?: { name: string } }>
   orgUnits: Array<{ id: number; name: string }>
 }>()
 
-const search = ref(props.filters.search || '')
-const status = ref(props.filters.employment_status || '')
-const selectedOrgUnit = ref(props.filters.org_unit_id || '')
+const search = ref(props.filters.search ?? '')
+const filters = ref({
+  employment_status: props.filters.employment_status ?? '',
+  org_unit_id: props.filters.org_unit_id ?? '',
+})
+const sort = ref<SortState>(
+  props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
+)
+const selected = ref<Array<string | number>>([])
+const perPage = ref(Number(props.filters.per_page) || props.employees.per_page)
 
-const applyFilters = () => {
-  router.get(
-    route('hcm.employees.index'),
-    {
-      search: search.value || undefined,
-      employment_status: status.value || undefined,
-      org_unit_id: selectedOrgUnit.value || undefined,
-    },
-    { preserveState: true }
-  )
-}
+const filterFields: FilterFieldDef[] = [
+  {
+    key: 'employment_status',
+    label: 'Status',
+    type: 'select',
+    options: [
+      { label: 'Active', value: 'active' },
+      { label: 'On Leave', value: 'on_leave' },
+      { label: 'Suspended', value: 'suspended' },
+      { label: 'Terminated', value: 'terminated' },
+    ],
+  },
+  {
+    key: 'org_unit_id',
+    label: 'Org Unit',
+    type: 'select',
+    options: props.orgUnits.map((u) => ({ label: u.name, value: String(u.id) })),
+  },
+]
+
+const columns = [
+  { key: 'employee_no', label: 'Employee #', sortable: true },
+  { key: 'full_name', label: 'Full Name', sortable: true },
+  { key: 'position', label: 'Role & Org Unit' },
+  { key: 'contract', label: 'Contract' },
+  { key: 'hire_date', label: 'Hire Date', sortable: true },
+  { key: 'employment_status', label: 'Status', sortable: true },
+  { key: 'actions', label: 'Actions', align: 'right' as const },
+]
 
 const { confirm } = useConfirm()
 
@@ -71,143 +106,122 @@ const deleteEmployee = (emp: EmployeeRow) => {
   })
 }
 
-const statusVariant = (st: string) => {
-  switch (st) {
-    case 'active':
-      return 'success'
-    case 'on_leave':
-      return 'info'
-    case 'suspended':
-      return 'warning'
-    case 'terminated':
-      return 'neutral'
-    default:
-      return 'neutral'
-  }
-}
+watch([search, filters, sort, perPage], debounce(() => {
+  selected.value = []
+  router.get(
+    route('hcm.employees.index'),
+    {
+      search: search.value || undefined,
+      employment_status: filters.value.employment_status || undefined,
+      org_unit_id: filters.value.org_unit_id || undefined,
+      sort: sort.value?.key,
+      direction: sort.value?.direction,
+      per_page: perPage.value,
+    },
+    { preserveState: true, replace: true }
+  )
+}, 400))
 </script>
 
 <template>
   <AppLayout title="Employee Directory">
     <PageHeader title="Employees" subtitle="Manage internal workforce records and assignments.">
       <template #actions>
-        <Link :href="route('hcm.employees.create')">
-          <PrimaryButton>+ New Hire</PrimaryButton>
-        </Link>
+        <PrimaryButton :href="route('hcm.employees.create')">+ New Hire</PrimaryButton>
       </template>
     </PageHeader>
 
-    <div class="space-y-6">
+    <div class="mt-4">
       <HcmSubNav active="employees" />
+    </div>
 
-      <!-- Filters -->
-      <Panel>
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div>
-            <label class="block text-xs font-medium text-ink-700">Search</label>
-            <input
-              v-model="search"
-              type="text"
-              placeholder="Name, Emp No, NIK..."
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
-              @keyup.enter="applyFilters"
-            />
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-ink-700">Employment Status</label>
-            <select
-              v-model="status"
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
-              @change="applyFilters"
-            >
-              <option value="">All Statuses</option>
-              <option value="active">Active</option>
-              <option value="on_leave">On Leave</option>
-              <option value="suspended">Suspended</option>
-              <option value="terminated">Terminated</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-ink-700">Department / Org Unit</label>
-            <select
-              v-model="selectedOrgUnit"
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
-              @change="applyFilters"
-            >
-              <option value="">All Org Units</option>
-              <option v-for="unit in orgUnits" :key="unit.id" :value="unit.id">{{ unit.name }}</option>
-            </select>
-          </div>
-        </div>
-      </Panel>
+    <div class="mt-6">
+      <DataTable
+        :columns="columns"
+        :items="employees.data"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        v-model:search="search"
+        v-model:filters="filters"
+        v-model:per-page="perPage"
+        sticky-header
+        storage-key="hcm.employees"
+        search-placeholder="Search name, employee #, NIK…"
+        :filter-fields="filterFields"
+        export-filename="hcm-employees"
+        status-rail-key="employment_status"
+        :total="employees.total"
+        :from="employees.from"
+        :to="employees.to"
+        :links="employees.links"
+        empty-title="No employees found"
+        empty-description="Register your first employee record or onboard a new hire."
+      >
+        <template #cell-employee_no="{ item }">
+          <Link
+            :href="route('hcm.employees.show', item.id)"
+            class="font-mono font-medium text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            {{ (item as EmployeeRow).employee_no }}
+          </Link>
+        </template>
 
-      <!-- Table List -->
-      <Panel>
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-border text-left text-sm">
-            <thead class="bg-surface-sunken text-xs font-medium text-ink-500 uppercase">
-              <tr>
-                <th class="px-4 py-3">Employee</th>
-                <th class="px-4 py-3">Position / Dept</th>
-                <th class="px-4 py-3">Contract</th>
-                <th class="px-4 py-3">Hire Date</th>
-                <th class="px-4 py-3">Status</th>
-                <th class="px-4 py-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-border bg-surface">
-              <tr v-if="employees.data.length === 0">
-                <td colspan="6" class="p-4 text-center text-sm text-ink-500">
-                  No employees found.
-                </td>
-              </tr>
-              <tr
-                v-for="emp in employees.data"
-                :key="emp.id"
-                class="hover:bg-surface-raised transition"
-              >
-                <td class="px-4 py-3">
-                  <Link :href="route('hcm.employees.show', emp.id)" class="font-medium text-ink-900 hover:text-accent">
-                    {{ emp.full_name }}
-                  </Link>
-                  <div class="text-xs text-ink-500">{{ emp.employee_no }}</div>
-                </td>
-                <td class="px-4 py-3">
-                  <div class="text-ink-900">{{ emp.position?.job?.title ?? '-' }}</div>
-                  <div class="text-xs text-ink-500">{{ emp.position?.org_unit?.name ?? '-' }}</div>
-                </td>
-                <td class="px-4 py-3">
-                  <span v-if="emp.current_contract" class="text-xs font-medium text-ink-700">
-                    {{ emp.current_contract.contract_type }}
-                  </span>
-                  <span v-else class="text-xs text-ink-400">None</span>
-                </td>
-                <td class="px-4 py-3 text-ink-700">{{ emp.hire_date }}</td>
-                <td class="px-4 py-3">
-                  <StatusBadge :status="emp.employment_status" :variant="statusVariant(emp.employment_status)">
-                    {{ emp.employment_status.replace('_', ' ') }}
-                  </StatusBadge>
-                </td>
-                <td class="px-4 py-3 text-right space-x-2">
-                  <Link :href="route('hcm.employees.show', emp.id)" class="text-xs font-medium text-ink-600 hover:text-ink-900">
-                    View
-                  </Link>
-                  <Link :href="route('hcm.employees.edit', emp.id)" class="text-xs font-medium text-accent hover:underline">
-                    Edit
-                  </Link>
-                  <button
-                    type="button"
-                    class="text-xs font-medium text-danger hover:underline"
-                    @click="deleteEmployee(emp)"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </Panel>
+        <template #cell-full_name="{ item }">
+          <div>
+            <Link
+              :href="route('hcm.employees.show', item.id)"
+              class="font-semibold text-ink-900 hover:text-accent"
+            >
+              {{ (item as EmployeeRow).full_name }}
+            </Link>
+            <span v-if="(item as EmployeeRow).nik" class="block font-mono text-[11px] text-ink-400">
+              NIK: {{ (item as EmployeeRow).nik }}
+            </span>
+          </div>
+        </template>
+
+        <template #cell-position="{ item }">
+          <div class="text-xs text-ink-700">
+            <span class="font-medium text-ink-900">{{ (item as EmployeeRow).position?.job?.title ?? '-' }}</span>
+            <span class="block text-ink-500">{{ (item as EmployeeRow).position?.org_unit?.name ?? '' }}</span>
+          </div>
+        </template>
+
+        <template #cell-contract="{ item }">
+          <span v-if="(item as EmployeeRow).current_contract" class="text-xs capitalize text-ink-700">
+            {{ (item as EmployeeRow).current_contract?.contract_type }}
+          </span>
+          <span v-else class="text-xs text-ink-400">No active contract</span>
+        </template>
+
+        <template #cell-hire_date="{ item }">
+          <span class="font-mono text-xs text-ink-600">
+            {{ formatDate((item as EmployeeRow).hire_date) }}
+          </span>
+        </template>
+
+        <template #cell-employment_status="{ item }">
+          <StatusBadge :status="(item as EmployeeRow).employment_status" />
+        </template>
+
+        <template #cell-actions="{ item }">
+          <div class="flex items-center justify-end gap-3">
+            <Link
+              :href="route('hcm.employees.edit', item.id)"
+              class="text-xs font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              Edit
+            </Link>
+            <button
+              type="button"
+              @click="deleteEmployee(item as EmployeeRow)"
+              class="text-xs font-medium text-signal-danger hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              Delete
+            </button>
+          </div>
+        </template>
+      </DataTable>
     </div>
   </AppLayout>
 </template>

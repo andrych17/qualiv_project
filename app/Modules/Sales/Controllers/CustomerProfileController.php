@@ -12,6 +12,7 @@ use App\Modules\Sales\Models\SalesTeam;
 use App\Modules\Sales\Requests\StoreCustomerProfileRequest;
 use App\Modules\Sales\Services\CreditService;
 use App\Modules\Sales\Services\PortalService;
+use App\Shared\Helpers\TableQuery;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -27,17 +28,19 @@ class CustomerProfileController extends Controller
 
     public function index(Request $request): Response
     {
-        $customers = Partner::query()
+        $perPage = TableQuery::perPage($request->integer('per_page') ?: null, 20);
+        $query = Partner::query()
             ->where('is_active', true)
             ->with(['salesProfile.salesTeam', 'salesProfile.priceList', 'salesProfile.assignedRep', 'creditProfile'])
-            ->when($request->search, fn ($q, $s) => $q->where('name', 'ilike', "%{$s}%"))
-            ->orderBy('name')
-            ->paginate(20)
-            ->withQueryString();
+            ->when($request->search, fn ($q, $s) => $q->where('name', 'ilike', "%{$s}%"));
+
+        TableQuery::applySort($query, $request->sort, $request->direction, ['name', 'created_at'], 'name', 'asc');
+
+        $customers = $query->paginate($perPage)->withQueryString();
 
         return Inertia::render('Sales/Master/CustomerProfiles/Index', [
             'customers' => $customers,
-            'filters' => $request->only('search'),
+            'filters' => $request->only('search', 'sort', 'direction', 'per_page'),
         ]);
     }
 

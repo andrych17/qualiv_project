@@ -1,11 +1,14 @@
 <!-- ponytail: Edit Employee Master record. -->
 <script setup lang="ts">
-import { useForm, Link } from '@inertiajs/vue3'
+import { useForm } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
+import FormInput from '@/Components/forms/FormInput.vue'
+import FormSelect from '@/Components/forms/FormSelect.vue'
+import FormNumberInput from '@/Components/forms/FormNumberInput.vue'
 
 interface Employee {
   id: number
@@ -50,7 +53,7 @@ const form = useForm({
   religion: props.employee.religion || 'Islam',
   hire_date: props.employee.hire_date,
   employment_status: props.employee.employment_status,
-  position_id: props.employee.position_id || '',
+  position_id: props.employee.position_id ?? (null as number | null),
   bank_name: props.employee.bank_name || '',
   bank_account_no: props.employee.bank_account_no || '',
   bank_account_holder_name: props.employee.bank_account_holder_name || '',
@@ -65,95 +68,153 @@ const submit = () => {
   <AppLayout :title="`Edit ${employee.full_name}`">
     <PageHeader :title="`Edit ${employee.full_name}`" :subtitle="`Employee No: ${employee.employee_no}`" />
 
-    <form @submit.prevent="submit" class="max-w-4xl space-y-6">
+    <form @submit.prevent="submit" class="mt-6 max-w-4xl space-y-6">
       <Panel title="Personal & Identity">
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label class="block text-xs font-medium text-ink-700">Full Name *</label>
-            <input
+            <FormInput
+              label="Full Name"
+              name="full_name"
               v-model="form.full_name"
-              type="text"
+              :error="form.errors.full_name"
               required
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             />
           </div>
           <div>
-            <label class="block text-xs font-medium text-ink-700">Employee Number *</label>
-            <input
+            <FormInput
+              label="Employee Number"
+              name="employee_no"
               v-model="form.employee_no"
-              type="text"
+              :error="form.errors.employee_no"
               required
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-ink-700">NIK (16 Digits)</label>
-            <input
+            <FormInput
+              label="NIK (16 Digits)"
+              name="nik"
               v-model="form.nik"
-              type="text"
+              :error="form.errors.nik"
               maxlength="16"
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             />
           </div>
           <div>
-            <label class="block text-xs font-medium text-ink-700">NPWP</label>
-            <input
+            <FormInput
+              label="NPWP"
+              name="npwp"
               v-model="form.npwp"
-              type="text"
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              :error="form.errors.npwp"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-ink-700">Employment Status *</label>
-            <select
+            <FormSelect
+              label="Employment Status"
+              name="employment_status"
               v-model="form.employment_status"
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
-            >
-              <option value="active">Active</option>
-              <option value="on_leave">On Leave</option>
-              <option value="suspended">Suspended</option>
-              <option value="terminated">Terminated</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-ink-700">Position Assignment</label>
-            <select
-              v-model="form.position_id"
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
-            >
-              <option value="">-- No Position --</option>
-              <option v-for="pos in positions" :key="pos.id" :value="pos.id">
-                {{ pos.job?.title }} &bull; {{ pos.org_unit?.name }}
-              </option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-xs font-medium text-ink-700">BPJS Kesehatan No</label>
-            <input
-              v-model="form.bpjs_kesehatan_no"
-              type="text"
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              :error="form.errors.employment_status"
+              :options="[
+                { label: 'Active', value: 'active' },
+                { label: 'On Leave', value: 'on_leave' },
+                { label: 'Suspended', value: 'suspended' },
+                { label: 'Terminated', value: 'terminated' },
+              ]"
+              required
             />
           </div>
           <div>
-            <label class="block text-xs font-medium text-ink-700">BPJS Ketenagakerjaan No</label>
-            <input
-              v-model="form.bpjs_ketenagakerjaan_no"
-              type="text"
-              class="mt-1 block w-full rounded-md border-border bg-surface text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+            <FormSelect
+              label="Position"
+              name="position_id"
+              v-model="form.position_id"
+              :error="form.errors.position_id"
+              :options="positions.map(pos => ({ label: `${pos.job?.title ?? 'Role'} • ${pos.org_unit?.name ?? 'Unit'}`, value: pos.id }))"
+              placeholder="Unassigned"
+            />
+          </div>
+
+          <div>
+            <FormSelect
+              label="Gender"
+              name="gender"
+              v-model="form.gender"
+              :options="[
+                { label: 'Male', value: 'male' },
+                { label: 'Female', value: 'female' },
+                { label: 'Other', value: 'other' },
+              ]"
+            />
+          </div>
+          <div>
+            <FormSelect
+              label="Marital Status"
+              name="marital_status"
+              v-model="form.marital_status"
+              :options="[
+                { label: 'Single', value: 'single' },
+                { label: 'Married', value: 'married' },
+                { label: 'Divorced', value: 'divorced' },
+                { label: 'Widowed', value: 'widowed' },
+              ]"
+            />
+          </div>
+
+          <div>
+            <FormNumberInput
+              label="Dependents Count"
+              name="dependents_count"
+              v-model="form.dependents_count"
+              :min="0"
+              :max="10"
+            />
+          </div>
+          <div>
+            <FormInput
+              label="Hire Date"
+              name="hire_date"
+              type="date"
+              v-model="form.hire_date"
+              :error="form.errors.hire_date"
+              required
             />
           </div>
         </div>
       </Panel>
 
-      <div class="flex items-center justify-end space-x-3">
-        <Link :href="route('hcm.employees.show', employee.id)">
-          <SecondaryButton>Cancel</SecondaryButton>
-        </Link>
-        <PrimaryButton :disabled="form.processing">Save Changes</PrimaryButton>
+      <!-- Bank Details -->
+      <Panel title="Bank Account for Payroll">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div>
+            <FormInput
+              label="Bank Name"
+              name="bank_name"
+              v-model="form.bank_name"
+              :error="form.errors.bank_name"
+            />
+          </div>
+          <div>
+            <FormInput
+              label="Bank Account Number"
+              name="bank_account_no"
+              v-model="form.bank_account_no"
+              :error="form.errors.bank_account_no"
+            />
+          </div>
+          <div>
+            <FormInput
+              label="Account Holder Name"
+              name="bank_account_holder_name"
+              v-model="form.bank_account_holder_name"
+              :error="form.errors.bank_account_holder_name"
+            />
+          </div>
+        </div>
+      </Panel>
+
+      <div class="flex items-center justify-end gap-3">
+        <SecondaryButton :href="route('hcm.employees.show', employee.id)">Cancel</SecondaryButton>
+        <PrimaryButton type="submit" :disabled="form.processing">Save Changes</PrimaryButton>
       </div>
     </form>
   </AppLayout>

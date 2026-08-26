@@ -322,6 +322,9 @@ Artisan sekali-pakai (contoh):
   bersih dan spacing konsisten.
 - **Lucide Icons**: Render icon Lucide secara dinamis di layout dan sidebar memakai helper
   `<component :is="..." />`.
+- **Transaksi Database**: Setiap operasi tulis multi-tabel atau header–line (mis. Order + Lines, Faktur, Jurnal, Mutasi Stok) **WAJIB** dibungkus dalam `DB::transaction(fn () => ...)`.
+- **Prefix Schema Model**: Setiap Model Eloquent di modul tenant **WAJIB** mendefinisikan schema PostgreSQL secara eksplisit: `protected $table = 'SCHEMA.table_name';`.
+- **Sanitasi Sorting & Pagination**: Gunakan `TableQuery::applySort()` dan `TableQuery::perPage()` dari `App\Shared\Helpers\TableQuery` untuk whitelist kolom sort dan mencegah SQL injection.
 
 ### D. Standar Komponen Frontend yang Baku (WAJIB / STRICT)
 Setiap halaman atau fitur UI **wajib** disusun dari komponen bersama di `resources/js/Components/`. **DILARANG KERAS membuat primitif UI ad-hoc atau elemen HTML mentah tanpa styling standar.**
@@ -366,6 +369,12 @@ Setiap halaman atau fitur UI **wajib** disusun dari komponen bersama di `resourc
    - Header halaman standar: `PageHeader.vue` (judul, deskripsi, dan slot tombol aksi).
    - Sub-tab navigasi: `Tabs.vue`.
    - Sub-navigasi modul: pakai kembali subnav modul terkait (mis. `HcmSubNav.vue`, `CrmSubNav.vue`, `InventorySubNav.vue`).
+
+8. **Empty States (`@/Components/feedback/EmptyState.vue`)**:
+   - **WAJIB** memakai `EmptyState.vue` untuk tampilan saat data kosong di tabel/list (memuat icon, judul, deskripsi, dan tombol CTA utama). Dilarang membiarkan area kosong tanpa panduan aksi atau sekadar tulisan polos "no data".
+
+9. **Formatters (`@/Utils/formatters`)**:
+   - **WAJIB** memakai `@/Utils/formatters` (`formatCurrency`, `formatDate`, `formatDateTime`, `formatNumber`) untuk memformat nominal uang, angka, dan tanggal. Dilarang menulis logika format ad-hoc di komponen.
 
 ## 10. Bekerja dengan Claude Code
 

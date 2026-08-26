@@ -16,12 +16,28 @@ use Inertia\Response;
 
 class EmployeePayrollProfileController extends Controller
 {
+    private const SORTABLE = ['employee_no', 'full_name', 'hire_date'];
+
     public function index(Request $request): Response
     {
-        $employees = Employee::query()
+        $filters = $request->only('search', 'sort', 'direction', 'per_page');
+
+        $query = Employee::query()
             ->with(['payrollProfile.payrollGroup', 'payrollProfile.salaryStructure', 'currentContract', 'position.job', 'position.orgUnit'])
-            ->where('employment_status', Employee::STATUS_ACTIVE)
-            ->paginate(15);
+            ->where('employment_status', Employee::STATUS_ACTIVE);
+
+        if (!empty($filters['search'])) {
+            $s = '%' . $filters['search'] . '%';
+            $query->where(function ($q) use ($s) {
+                $q->where('full_name', 'ilike', $s)
+                    ->orWhere('employee_no', 'ilike', $s);
+            });
+        }
+
+        \App\Shared\Helpers\TableQuery::applySort($query, $filters['sort'] ?? null, $filters['direction'] ?? null, self::SORTABLE, 'employee_no', 'asc');
+
+        $employees = $query->paginate(\App\Shared\Helpers\TableQuery::perPage(isset($filters['per_page']) ? (int) $filters['per_page'] : null, 15))
+            ->withQueryString();
 
         return Inertia::render('Payroll/Profiles/Index', [
             'employees' => $employees,
@@ -29,6 +45,7 @@ class EmployeePayrollProfileController extends Controller
             'salaryStructures' => SalaryStructure::all(),
             'ptkpStatuses' => PtkpStatus::all(),
             'jkkCategories' => JkkRiskCategory::all(),
+            'filters' => $filters,
         ]);
     }
 

@@ -6,10 +6,13 @@ import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
+import FormCurrencyInput from '@/Components/forms/FormCurrencyInput.vue'
+import FormNumberInput from '@/Components/forms/FormNumberInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
 import FormSearchableSelect from '@/Components/forms/FormSearchableSelect.vue'
 import FormAsyncSearchableSelect from '@/Components/forms/FormAsyncSearchableSelect.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
+import { formatCurrency } from '@/Utils/formatters'
 import { Plus, Trash2 } from 'lucide-vue-next'
 
 type Option = { value: number; label: string }
@@ -31,8 +34,8 @@ const props = defineProps<{
   currencies: Array<{ code: string; name: string }>
 }>()
 
-const blankLine = () => ({ description: '', qty: '1', unit_price: '', discount_amount: '0', tax_code_id: null as number | null, revenue_account_id: (props.revenueAccounts[0]?.value ?? null) as number | null })
-const toFormLine = (l: LineRow) => ({ description: l.description, qty: String(l.qty), unit_price: String(l.unit_price), discount_amount: String(l.discount_amount), tax_code_id: l.tax_code_id, revenue_account_id: l.revenue_account_id as number | null })
+const blankLine = () => ({ description: '', qty: 1 as number | null, unit_price: 0 as number | null, discount_amount: 0 as number | null, tax_code_id: null as number | null, revenue_account_id: (props.revenueAccounts[0]?.value ?? null) as number | null })
+const toFormLine = (l: LineRow) => ({ description: l.description, qty: Number(l.qty) as number | null, unit_price: Number(l.unit_price) as number | null, discount_amount: Number(l.discount_amount) as number | null, tax_code_id: l.tax_code_id, revenue_account_id: l.revenue_account_id as number | null })
 
 const form = useForm({
   partner_id: props.invoice.partner_id as number | null,
@@ -116,20 +119,20 @@ const submit = () => form.transform((data) => ({
                     <FormSearchableSelect v-model="line.revenue_account_id" :name="`lines.${i}.revenue_account_id`" :options="revenueAccounts" />
                   </td>
                   <td class="px-3 py-2">
-                    <input v-model="line.qty" type="number" step="0.0001" min="0" class="w-20 rounded-sm border border-border bg-surface-0 px-2 py-1.5 text-right text-sm" />
+                    <FormNumberInput v-model="line.qty" :name="`lines.${i}.qty`" :decimals="2" class="w-24" />
                   </td>
                   <td class="px-3 py-2">
-                    <input v-model="line.unit_price" type="number" step="0.01" min="0" class="w-28 rounded-sm border border-border bg-surface-0 px-2 py-1.5 text-right text-sm" />
+                    <FormCurrencyInput v-model="line.unit_price" :name="`lines.${i}.unit_price`" prefix="" :decimals="2" class="w-32" />
                   </td>
                   <td class="px-3 py-2">
-                    <input v-model="line.discount_amount" type="number" step="0.01" min="0" class="w-24 rounded-sm border border-border bg-surface-0 px-2 py-1.5 text-right text-sm" />
+                    <FormCurrencyInput v-model="line.discount_amount" :name="`lines.${i}.discount_amount`" prefix="" :decimals="2" class="w-28" />
                   </td>
                   <td class="px-3 py-2">
                     <FormSearchableSelect v-model="line.tax_code_id" :name="`lines.${i}.tax_code_id`" placeholder="None" :options="taxCodes" />
                   </td>
-                  <td class="px-3 py-2 text-right text-ink-900">{{ (lineAmount(line) + lineTax(line)).toFixed(2) }}</td>
+                  <td class="px-3 py-2 text-right font-medium text-ink-900">{{ formatCurrency(lineAmount(line) + lineTax(line), form.currency_code) }}</td>
                   <td class="px-3 py-2 text-right">
-                    <button type="button" class="text-ink-600 hover:text-signal-danger" :disabled="form.lines.length <= 1" @click="removeLine(i)">
+                    <button type="button" class="text-ink-600 hover:text-signal-danger pt-2" :disabled="form.lines.length <= 1" @click="removeLine(i)">
                       <Trash2 class="h-4 w-4" />
                     </button>
                   </td>
@@ -138,7 +141,7 @@ const submit = () => form.transform((data) => ({
               <tfoot>
                 <tr class="border-t border-border bg-surface-50 font-semibold">
                   <td class="px-3 py-2" colspan="6">Total</td>
-                  <td class="px-3 py-2 text-right" colspan="2">{{ grandTotal.toFixed(2) }}</td>
+                  <td class="px-3 py-2 text-right" colspan="2">{{ formatCurrency(grandTotal, form.currency_code) }}</td>
                 </tr>
               </tfoot>
             </table>

@@ -4,7 +4,9 @@ import { Link } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
+import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
+import { formatCurrency, formatDate } from '@/Utils/formatters'
 
 interface Detail {
   id: number
@@ -64,34 +66,33 @@ const print = () => {
 
 <template>
   <AppLayout :title="`Slip Gaji - ${payslip.employee.full_name}`">
-    <PageHeader :title="`Slip Gaji / Payslip`" :subtitle="`Run: ${payslip.payroll_run.run_number} • Period: ${payslip.payroll_run.period_start} to ${payslip.payroll_run.period_end}`">
+    <PageHeader
+      title="Slip Gaji / Payslip"
+      :subtitle="`Run: ${payslip.payroll_run.run_number} • Period: ${formatDate(payslip.payroll_run.period_start)} to ${formatDate(payslip.payroll_run.period_end)}`"
+    >
       <template #actions>
-        <div class="flex items-center space-x-2">
-          <Link :href="route('payroll.runs.show', payslip.payroll_run.id)">
-            <SecondaryButton>Back to Run</SecondaryButton>
-          </Link>
-          <button
-            type="button"
-            class="rounded-md bg-accent px-3 py-1.5 text-xs font-semibold text-white hover:bg-accent/90 transition shadow-sm"
-            @click="print"
-          >
-            🖨️ Print Payslip
-          </button>
+        <div class="flex items-center gap-2">
+          <SecondaryButton :href="route('payroll.runs.show', payslip.payroll_run.id)">
+            &larr; Back to Run
+          </SecondaryButton>
+          <PrimaryButton type="button" @click="print">
+            Print Payslip
+          </PrimaryButton>
         </div>
       </template>
     </PageHeader>
 
-    <div class="max-w-4xl space-y-6">
-      <div class="rounded-lg border border-border bg-surface p-6 shadow-sm">
+    <div class="mt-6 max-w-4xl space-y-6">
+      <div class="rounded-lg border border-border bg-surface-0 p-6 shadow-xs">
         <!-- Header Info -->
         <div class="border-b border-border pb-4">
           <div class="flex items-center justify-between">
             <div>
-              <h2 class="text-xl font-bold text-ink-900">SLIP PEMBAYARAN GAJI</h2>
-              <div class="text-xs text-ink-500">Period: {{ payslip.payroll_run.period_start }} s/d {{ payslip.payroll_run.period_end }}</div>
+              <h2 class="text-xl font-bold text-ink-900 font-serif">SLIP PEMBAYARAN GAJI</h2>
+              <div class="text-xs text-ink-500">Period: {{ formatDate(payslip.payroll_run.period_start) }} s/d {{ formatDate(payslip.payroll_run.period_end) }}</div>
             </div>
             <div class="text-right">
-              <div class="text-xs font-semibold text-ink-700">Tanggal Bayar: {{ payslip.payroll_run.pay_date }}</div>
+              <div class="text-xs font-semibold text-ink-700">Tanggal Bayar: {{ formatDate(payslip.payroll_run.pay_date) }}</div>
               <div class="text-xs text-ink-500">Tipe: {{ payslip.payroll_run.run_type.toUpperCase() }}</div>
             </div>
           </div>
@@ -132,11 +133,11 @@ const print = () => {
                 class="flex justify-between py-2"
               >
                 <span class="text-ink-700">{{ d.component_name }}</span>
-                <span class="font-medium text-ink-900">Rp {{ Number(d.amount).toLocaleString('id-ID') }}</span>
+                <span class="font-mono font-medium text-ink-900">{{ formatCurrency(Number(d.amount)) }}</span>
               </div>
-              <div class="flex justify-between py-2 font-bold text-ink-900 bg-surface-raised px-2 rounded">
+              <div class="flex justify-between py-2 font-bold text-ink-900 bg-surface-50 px-2 rounded">
                 <span>TOTAL PENGHASILAN BRUTO</span>
-                <span>Rp {{ Number(payslip.gross_total).toLocaleString('id-ID') }}</span>
+                <span class="font-mono">{{ formatCurrency(Number(payslip.gross_total)) }}</span>
               </div>
             </div>
           </div>
@@ -151,12 +152,12 @@ const print = () => {
                 class="flex justify-between py-2"
               >
                 <span class="text-ink-700">{{ d.component_name }}</span>
-                <span class="font-medium text-danger">Rp {{ Number(d.amount).toLocaleString('id-ID') }}</span>
+                <span class="font-mono font-medium text-signal-danger">{{ formatCurrency(Number(d.amount)) }}</span>
               </div>
-              <div class="flex justify-between py-2 font-bold text-ink-900 bg-surface-raised px-2 rounded">
+              <div class="flex justify-between py-2 font-bold text-ink-900 bg-surface-50 px-2 rounded">
                 <span>TOTAL POTONGAN</span>
-                <span class="text-danger">
-                  Rp {{ (Number(payslip.pph21_amount) + Number(payslip.bpjs_kesehatan_employee) + Number(payslip.bpjs_tk_employee) + Number(payslip.other_deductions)).toLocaleString('id-ID') }}
+                <span class="font-mono text-signal-danger">
+                  {{ formatCurrency(Number(payslip.pph21_amount) + Number(payslip.bpjs_kesehatan_employee) + Number(payslip.bpjs_tk_employee) + Number(payslip.other_deductions)) }}
                 </span>
               </div>
             </div>
@@ -169,8 +170,8 @@ const print = () => {
             <div class="text-xs font-semibold text-accent uppercase tracking-wider">GAJI BERSIH (TAKE HOME PAY)</div>
             <div class="text-xs text-ink-500">Ditransfer ke rekening terdaftar karyawan</div>
           </div>
-          <div class="text-2xl font-black text-ink-900">
-            Rp {{ Number(payslip.take_home_pay).toLocaleString('id-ID') }}
+          <div class="text-2xl font-black font-mono text-ink-900">
+            {{ formatCurrency(Number(payslip.take_home_pay)) }}
           </div>
         </div>
       </div>

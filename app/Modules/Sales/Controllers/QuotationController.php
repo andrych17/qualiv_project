@@ -9,6 +9,7 @@ use App\Modules\Sales\Models\PriceList;
 use App\Modules\Sales\Models\Quotation;
 use App\Modules\Sales\Requests\StoreQuotationRequest;
 use App\Modules\Sales\Services\QuotationService;
+use App\Shared\Helpers\TableQuery;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -20,21 +21,24 @@ class QuotationController extends Controller
 
     public function index(Request $request): Response
     {
-        $quotations = Quotation::with(['customer', 'opportunity', 'creator', 'lines'])
+        $perPage = TableQuery::perPage($request->integer('per_page') ?: null, 20);
+        $query = Quotation::with(['customer', 'opportunity', 'creator', 'lines'])
             ->when($request->search, function ($q, $s) {
                 $q->whereHas('customer', fn ($c) => $c->where('name', 'ilike', "%{$s}%"))
+                    ->orWhere('quote_number', 'ilike', "%{$s}%")
                     ->orWhere('uuid', 'ilike', "%{$s}%");
             })
             ->when($request->status, fn ($q, $st) => $q->where('status', $st))
-            ->when($request->customer_id, fn ($q, $c) => $q->where('customer_id', $c))
-            ->orderByDesc('created_at')
-            ->paginate(20)
-            ->withQueryString();
+            ->when($request->customer_id, fn ($q, $c) => $q->where('customer_id', $c));
+
+        TableQuery::applySort($query, $request->sort, $request->direction, ['quote_number', 'created_at', 'status', 'valid_until'], 'created_at', 'desc');
+
+        $quotations = $query->paginate($perPage)->withQueryString();
 
         return Inertia::render('Sales/Quotations/Index', [
             'quotations' => $quotations,
             'statuses' => Quotation::STATUSES,
-            'filters' => $request->only(['search', 'status', 'customer_id']),
+            'filters' => $request->only(['search', 'status', 'customer_id', 'sort', 'direction', 'per_page']),
             'customers' => Partner::query()->where('is_active', true)->select(['id', 'name'])->orderBy('name')->get(),
         ]);
     }

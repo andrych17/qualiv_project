@@ -6,12 +6,16 @@ import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
+import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
+import FormSwitch from '@/Components/forms/FormSwitch.vue'
 import SalesSubNav from '@/Components/sales/SalesSubNav.vue'
 import SalesMasterSubNav from '@/Components/sales/SalesMasterSubNav.vue'
+import DataTable, { type SortState } from '@/Components/tables/DataTable.vue'
 import Modal from '@/Components/Modal.vue'
 import { useConfirm } from '@/Composables/useConfirmDialog'
+import { formatCurrency } from '@/Utils/formatters'
 
 interface PlanItem {
   id: number
@@ -34,6 +38,10 @@ const props = defineProps<{
   users: Array<{ id: number; name: string }>
 }>()
 
+const search = ref('')
+const sort = ref<SortState>(null)
+const selected = ref<Array<string | number>>([])
+
 const showModal = ref(false)
 const editingPlan = ref<PlanItem | null>(null)
 
@@ -48,6 +56,15 @@ const form = useForm({
   tier_excess_rate: null as number | null,
   is_active: true,
 })
+
+const columns = [
+  { key: 'name', label: 'Plan Name', sortable: true },
+  { key: 'scope', label: 'Scope' },
+  { key: 'calc_type', label: 'Calculation Type' },
+  { key: 'rate_structure', label: 'Rate Structure' },
+  { key: 'is_active', label: 'Status', sortable: true },
+  { key: 'actions', label: 'Actions', align: 'right' as const },
+]
 
 const openCreate = () => {
   editingPlan.value = null
@@ -86,13 +103,13 @@ const submit = () => {
 
 const { confirm } = useConfirm()
 
-const deletePlan = (id: number) => {
+const deletePlan = (p: PlanItem) => {
   confirm({
-    title: 'Delete Commission Plan?',
+    title: `Delete Commission Plan "${p.name}"?`,
     description: 'Are you sure you want to delete this commission plan?',
     variant: 'destructive',
     confirmText: 'Delete',
-    onConfirm: () => router.delete(route('sales.master.commission-plans.destroy', id)),
+    onConfirm: () => router.delete(route('sales.master.commission-plans.destroy', p.id)),
   })
 }
 </script>
@@ -116,56 +133,71 @@ const deletePlan = (id: number) => {
       <SalesMasterSubNav active="commission-plans" />
     </div>
 
-    <div class="mt-6 rounded-lg border border-border bg-surface-0 overflow-x-auto">
-      <table class="w-full text-left text-sm">
-        <thead class="bg-surface-50 text-xs text-ink-500 uppercase border-b border-border">
-          <tr>
-            <th class="py-3 px-4">Plan Name</th>
-            <th class="py-3 px-4">Scope</th>
-            <th class="py-3 px-4">Calculation Type</th>
-            <th class="py-3 px-4">Rate Structure</th>
-            <th class="py-3 px-4">Status</th>
-            <th class="py-3 px-4 text-right">Action</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-border">
-          <tr v-for="p in props.plans" :key="p.id" class="hover:bg-surface-50">
-            <td class="py-3 px-4 font-semibold text-ink-900">{{ p.name }}</td>
-            <td class="py-3 px-4 text-xs text-ink-700">
-              <span v-if="p.user">Rep: <strong>{{ p.user.name }}</strong></span>
-              <span v-else-if="p.sales_team">Team: <strong>{{ p.sales_team.name }}</strong></span>
-              <span v-else class="text-ink-400">Tenant-wide Default</span>
-            </td>
-            <td class="py-3 px-4 capitalize text-ink-900">{{ p.calc_type }}</td>
-            <td class="py-3 px-4 text-xs font-mono">
-              <span v-if="p.calc_type === 'flat'">{{ p.flat_rate }}% Flat</span>
-              <span v-else>Base {{ p.tier_base_rate }}% / Excess {{ p.tier_excess_rate }}%</span>
-            </td>
-            <td class="py-3 px-4 text-xs font-semibold" :class="p.is_active ? 'text-emerald-600' : 'text-ink-400'">
-              {{ p.is_active ? 'Active' : 'Inactive' }}
-            </td>
-            <td class="py-3 px-4 text-right space-x-2">
-              <button
-                type="button"
-                @click="openEdit(p)"
-                class="text-xs font-medium text-accent hover:underline"
-              >
-                Edit
-              </button>
-              <button
-                type="button"
-                @click="deletePlan(p.id)"
-                class="text-xs font-medium text-rose-600 hover:underline"
-              >
-                Delete
-              </button>
-            </td>
-          </tr>
-          <tr v-if="props.plans.length === 0">
-            <td colspan="6" class="py-8 text-center text-ink-500">No commission plans configured.</td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="mt-6">
+      <DataTable
+        :columns="columns"
+        :items="props.plans"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        v-model:search="search"
+        sticky-header
+        storage-key="sales.master.commission-plans"
+        search-placeholder="Search commission plans…"
+        export-filename="sales-commission-plans"
+        status-rail-key="is_active"
+        empty-title="No commission plans found"
+        empty-description="Create your first commission plan to configure rep and team incentives."
+      >
+        <template #cell-name="{ item }">
+          <span class="font-semibold text-ink-900">{{ (item as PlanItem).name }}</span>
+        </template>
+
+        <template #cell-scope="{ item }">
+          <span v-if="(item as PlanItem).user" class="text-xs text-ink-700">
+            Rep: <strong>{{ (item as PlanItem).user?.name }}</strong>
+          </span>
+          <span v-else-if="(item as PlanItem).sales_team" class="text-xs text-ink-700">
+            Team: <strong>{{ (item as PlanItem).sales_team?.name }}</strong>
+          </span>
+          <span v-else class="text-xs text-ink-400">Tenant-wide Default</span>
+        </template>
+
+        <template #cell-calc_type="{ item }">
+          <span class="capitalize text-ink-900">{{ (item as PlanItem).calc_type }}</span>
+        </template>
+
+        <template #cell-rate_structure="{ item }">
+          <span v-if="(item as PlanItem).calc_type === 'flat'" class="text-xs font-mono">
+            {{ (item as PlanItem).flat_rate }}% Flat
+          </span>
+          <span v-else class="text-xs font-mono">
+            Base {{ (item as PlanItem).tier_base_rate }}% / Excess {{ (item as PlanItem).tier_excess_rate }}% (Above {{ formatCurrency((item as PlanItem).tier_threshold || 0) }})
+          </span>
+        </template>
+
+        <template #cell-is_active="{ item }">
+          <StatusBadge :status="(item as PlanItem).is_active ? 'active' : 'inactive'" />
+        </template>
+
+        <template #cell-actions="{ item }">
+          <div class="flex items-center justify-end gap-3">
+            <button
+              type="button"
+              @click="openEdit(item as PlanItem)"
+              class="text-xs font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              @click="deletePlan(item as PlanItem)"
+              class="text-xs font-medium text-signal-danger hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              Delete
+            </button>
+          </div>
+        </template>
+      </DataTable>
     </div>
 
     <!-- Plan Modal -->
@@ -175,7 +207,8 @@ const deletePlan = (id: number) => {
 
         <form @submit.prevent="submit" class="mt-4 space-y-4">
           <FormInput
-            label="Plan Name *"
+            label="Plan Name"
+            name="name"
             v-model="form.name"
             :error="form.errors.name"
             placeholder="e.g. Standard 5% Rep Plan"
@@ -184,33 +217,36 @@ const deletePlan = (id: number) => {
 
           <div class="grid grid-cols-2 gap-3">
             <FormSelect
-              label="Assign to Sales Team"
+              label="Sales Team"
+              name="sales_team_id"
               v-model="form.sales_team_id"
               :options="props.teams.map(t => ({ value: t.id, label: t.name }))"
               placeholder="All teams"
             />
             <FormSelect
-              label="Assign to Specific Rep"
+              label="Specific Rep"
+              name="user_id"
               v-model="form.user_id"
               :options="props.users.map(u => ({ value: u.id, label: u.name }))"
               placeholder="All reps"
             />
           </div>
 
-          <div>
-            <label class="block text-xs font-medium text-ink-700 mb-1">Calculation Type *</label>
-            <select
-              v-model="form.calc_type"
-              class="w-full rounded border border-border bg-white py-2 px-3 text-sm text-ink-900 focus:outline-none"
-            >
-              <option value="flat">Flat Percentage Rate</option>
-              <option value="tiered">Tiered (Base + Excess)</option>
-            </select>
-          </div>
+          <FormSelect
+            label="Calculation Type"
+            name="calc_type"
+            v-model="form.calc_type"
+            :options="[
+              { label: 'Flat Percentage Rate', value: 'flat' },
+              { label: 'Tiered (Base + Excess)', value: 'tiered' }
+            ]"
+            required
+          />
 
           <div v-if="form.calc_type === 'flat'">
             <FormInput
-              label="Flat Commission Rate (%) *"
+              label="Flat Commission Rate (%)"
+              name="flat_rate"
               type="number"
               step="any"
               min="0"
@@ -222,7 +258,8 @@ const deletePlan = (id: number) => {
 
           <div v-else class="space-y-3">
             <FormInput
-              label="Tier Threshold (IDR) *"
+              label="Tier Threshold (IDR)"
+              name="tier_threshold"
               type="number"
               step="any"
               min="0"
@@ -232,7 +269,8 @@ const deletePlan = (id: number) => {
             />
             <div class="grid grid-cols-2 gap-3">
               <FormInput
-                label="Base Rate (%) *"
+                label="Base Rate (%)"
+                name="tier_base_rate"
                 type="number"
                 step="any"
                 min="0"
@@ -240,7 +278,8 @@ const deletePlan = (id: number) => {
                 required
               />
               <FormInput
-                label="Excess Rate (%) *"
+                label="Excess Rate (%)"
+                name="tier_excess_rate"
                 type="number"
                 step="any"
                 min="0"
@@ -250,10 +289,12 @@ const deletePlan = (id: number) => {
             </div>
           </div>
 
-          <label class="flex items-center gap-2 text-sm text-ink-900 cursor-pointer pt-2">
-            <input type="checkbox" v-model="form.is_active" class="rounded border-border text-accent focus:ring-accent" />
-            <span>Active</span>
-          </label>
+          <FormSwitch
+            v-model="form.is_active"
+            name="is_active"
+            label="Active Status"
+            description="Enable this commission plan for rep payouts."
+          />
 
           <div class="flex items-center justify-end gap-2 pt-2">
             <SecondaryButton @click="showModal = false">Cancel</SecondaryButton>

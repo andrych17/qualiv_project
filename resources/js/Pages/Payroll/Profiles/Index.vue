@@ -1,14 +1,17 @@
 <!-- ponytail: Employee Payroll Profiles Index — PTKP, BPJS, NPWP, and Salary Structure assignment. -->
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { router, useForm } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
-import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 import PayrollSubNav from '@/Components/payroll/PayrollSubNav.vue'
 import Modal from '@/Components/Modal.vue'
+import FormSelect from '@/Components/forms/FormSelect.vue'
+import FormInput from '@/Components/forms/FormInput.vue'
+import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
+import { debounce } from '@/Composables/debounce'
 
 interface Employee {
   id: number
@@ -33,13 +36,44 @@ interface Employee {
   }
 }
 
+interface PaginatedData<T> {
+  data: T[]
+  links: Array<{ url: string | null; label: string; active: boolean }>
+  total: number
+  from: number | null
+  to: number | null
+  per_page: number
+}
+
 const props = defineProps<{
-  employees: { data: Employee[]; total: number }
+  employees: PaginatedData<Employee>
   payrollGroups: Array<{ id: number; name: string }>
   salaryStructures: Array<{ id: number; name: string }>
   ptkpStatuses: Array<{ code: string; description: string; ter_category: string }>
   jkkCategories: Array<{ id: number; name: string }>
+  filters?: {
+    search?: string
+    sort?: string
+    direction?: string
+    per_page?: string
+  }
 }>()
+
+const search = ref(props.filters?.search ?? '')
+const sort = ref<SortState>(
+  props.filters?.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
+)
+const selected = ref<Array<string | number>>([])
+const perPage = ref(Number(props.filters?.per_page) || props.employees.per_page)
+
+const columns = [
+  { key: 'employee', label: 'Employee' },
+  { key: 'ptkp_code', label: 'PTKP Code' },
+  { key: 'npwp', label: 'NPWP' },
+  { key: 'payroll_group', label: 'Payroll Group' },
+  { key: 'structure', label: 'Structure' },
+  { key: 'actions', label: 'Actions', align: 'right' as const },
+]
 
 const form = useForm({
   employee_id: null as number | null,
@@ -48,9 +82,9 @@ const form = useForm({
   has_npwp: true,
   bpjs_kesehatan_no: '',
   bpjs_ketenagakerjaan_no: '',
-  payroll_group_id: '' as string | number,
-  salary_structure_id: '' as string | number,
-  jkk_risk_category_id: '' as string | number,
+  payroll_group_id: null as number | null,
+  salary_structure_id: null as number | null,
+  jkk_risk_category_id: null as number | null,
   is_tax_borne_by_company: false,
   proration_rule: 'work_days',
 })
@@ -66,9 +100,9 @@ const openEdit = (emp: Employee) => {
   form.has_npwp = emp.payroll_profile?.has_npwp ?? true
   form.bpjs_kesehatan_no = emp.payroll_profile?.bpjs_kesehatan_no || ''
   form.bpjs_ketenagakerjaan_no = emp.payroll_profile?.bpjs_ketenagakerjaan_no || ''
-  form.payroll_group_id = emp.payroll_profile?.payroll_group_id || ''
-  form.salary_structure_id = emp.payroll_profile?.salary_structure_id || ''
-  form.jkk_risk_category_id = emp.payroll_profile?.jkk_risk_category_id || ''
+  form.payroll_group_id = emp.payroll_profile?.payroll_group_id ?? null
+  form.salary_structure_id = emp.payroll_profile?.salary_structure_id ?? null
+  form.jkk_risk_category_id = emp.payroll_profile?.jkk_risk_category_id ?? null
   form.is_tax_borne_by_company = emp.payroll_profile?.is_tax_borne_by_company || false
   form.proration_rule = emp.payroll_profile?.proration_rule || 'work_days'
   showModal.value = true
@@ -82,63 +116,92 @@ const submit = () => {
     },
   })
 }
+
+watch([search, sort, perPage], debounce(() => {
+  selected.value = []
+  router.get(
+    route('payroll.profiles.index'),
+    {
+      search: search.value || undefined,
+      sort: sort.value?.key,
+      direction: sort.value?.direction,
+      per_page: perPage.value,
+    },
+    { preserveState: true, replace: true }
+  )
+}, 400))
 </script>
 
 <template>
   <AppLayout title="Employee Payroll Profiles">
     <PageHeader title="Employee Profiles" subtitle="Configure PTKP tax codes, NPWP, BPJS numbers, and payroll groups." />
 
-    <div class="space-y-6">
+    <div class="mt-4">
       <PayrollSubNav active="profiles" />
+    </div>
 
-      <Panel>
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-border text-left text-sm">
-            <thead class="bg-surface-sunken text-xs font-medium text-ink-500 uppercase">
-              <tr>
-                <th class="px-4 py-3">Employee</th>
-                <th class="px-4 py-3">PTKP Code</th>
-                <th class="px-4 py-3">NPWP</th>
-                <th class="px-4 py-3">Payroll Group</th>
-                <th class="px-4 py-3">Structure</th>
-                <th class="px-4 py-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-border">
-              <tr v-if="employees.data.length === 0">
-                <td colspan="6" class="p-4 text-center text-ink-500">No active employees found.</td>
-              </tr>
-              <tr v-for="emp in employees.data" :key="emp.id" class="hover:bg-surface-raised transition">
-                <td class="px-4 py-3">
-                  <div class="font-medium text-ink-900">{{ emp.full_name }}</div>
-                  <div class="text-xs text-ink-500">{{ emp.employee_no }} &bull; {{ emp.position?.job?.title ?? '-' }}</div>
-                </td>
-                <td class="px-4 py-3 font-semibold text-ink-800">
-                  {{ emp.payroll_profile?.ptkp_status_code ?? 'TK/0' }}
-                </td>
-                <td class="px-4 py-3 text-xs text-ink-700">
-                  {{ emp.payroll_profile?.npwp_number || emp.npwp || 'No NPWP (120% Tax)' }}
-                </td>
-                <td class="px-4 py-3 text-ink-600">
-                  {{ emp.payroll_profile?.payroll_group?.name ?? '—' }}
-                </td>
-                <td class="px-4 py-3 text-ink-600">
-                  {{ emp.payroll_profile?.salary_structure?.name ?? '—' }}
-                </td>
-                <td class="px-4 py-3 text-right">
-                  <button
-                    type="button"
-                    class="text-xs font-medium text-accent hover:underline"
-                    @click="openEdit(emp)"
-                  >
-                    Edit Profile
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </Panel>
+    <div class="mt-6">
+      <DataTable
+        :columns="columns"
+        :items="employees.data"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        v-model:search="search"
+        v-model:per-page="perPage"
+        sticky-header
+        storage-key="payroll.profiles"
+        search-placeholder="Search employee…"
+        export-filename="payroll-employee-profiles"
+        :total="employees.total"
+        :from="employees.from"
+        :to="employees.to"
+        :links="employees.links"
+        empty-title="No active employees found"
+        empty-description="Onboard employees to configure their statutory payroll profiles."
+      >
+        <template #cell-employee="{ item }">
+          <span class="font-semibold text-ink-900">{{ (item as Employee).full_name }}</span>
+          <span class="block font-mono text-[11px] text-ink-400">
+            {{ (item as Employee).employee_no }} &bull; <span class="font-sans">{{ (item as Employee).position?.job?.title ?? '-' }}</span>
+          </span>
+        </template>
+
+        <template #cell-ptkp_code="{ item }">
+          <span class="font-semibold text-xs text-ink-800">
+            {{ (item as Employee).payroll_profile?.ptkp_status_code ?? 'TK/0' }}
+          </span>
+        </template>
+
+        <template #cell-npwp="{ item }">
+          <span class="font-mono text-xs text-ink-700">
+            {{ (item as Employee).payroll_profile?.npwp_number || (item as Employee).npwp || 'No NPWP (120% Tax)' }}
+          </span>
+        </template>
+
+        <template #cell-payroll_group="{ item }">
+          <span class="text-xs text-ink-700">
+            {{ (item as Employee).payroll_profile?.payroll_group?.name ?? '—' }}
+          </span>
+        </template>
+
+        <template #cell-structure="{ item }">
+          <span class="text-xs text-ink-700">
+            {{ (item as Employee).payroll_profile?.salary_structure?.name ?? '—' }}
+          </span>
+        </template>
+
+        <template #cell-actions="{ item }">
+          <div class="flex items-center justify-end">
+            <button
+              type="button"
+              class="text-xs font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              @click="openEdit(item as Employee)"
+            >
+              Edit Profile
+            </button>
+          </div>
+        </template>
+      </DataTable>
     </div>
 
     <!-- Edit Profile Modal -->
@@ -148,71 +211,64 @@ const submit = () => {
         <form @submit.prevent="submit" class="mt-4 space-y-4">
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-medium text-ink-700">PTKP Status Code *</label>
-              <select
+              <FormSelect
+                label="PTKP Status Code"
+                name="ptkp_status_code"
                 v-model="form.ptkp_status_code"
+                :options="ptkpStatuses.map(p => ({ label: `${p.code} (TER ${p.ter_category})`, value: p.code }))"
                 required
-                class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
-              >
-                <option v-for="p in ptkpStatuses" :key="p.code" :value="p.code">
-                  {{ p.code }} (TER {{ p.ter_category }})
-                </option>
-              </select>
+              />
             </div>
             <div>
-              <label class="block text-xs font-medium text-ink-700">Payroll Group</label>
-              <select
+              <FormSelect
+                label="Payroll Group"
+                name="payroll_group_id"
                 v-model="form.payroll_group_id"
-                class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
-              >
-                <option value="">-- None --</option>
-                <option v-for="g in payrollGroups" :key="g.id" :value="g.id">{{ g.name }}</option>
-              </select>
+                :options="payrollGroups.map(g => ({ label: g.name, value: g.id }))"
+                placeholder="None"
+              />
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-ink-700">NPWP Number</label>
-            <input
+            <FormInput
+              label="NPWP Number"
+              name="npwp_number"
               v-model="form.npwp_number"
-              type="text"
-              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+              placeholder="e.g. 01.234.567.8-901.000"
             />
           </div>
 
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-medium text-ink-700">BPJS Kesehatan No</label>
-              <input
+              <FormInput
+                label="BPJS Kesehatan No"
+                name="bpjs_kesehatan_no"
                 v-model="form.bpjs_kesehatan_no"
-                type="text"
-                class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
               />
             </div>
             <div>
-              <label class="block text-xs font-medium text-ink-700">BPJS Ketenagakerjaan No</label>
-              <input
+              <FormInput
+                label="BPJS Ketenagakerjaan No"
+                name="bpjs_ketenagakerjaan_no"
                 v-model="form.bpjs_ketenagakerjaan_no"
-                type="text"
-                class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
               />
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-ink-700">Salary Structure</label>
-            <select
+            <FormSelect
+              label="Salary Structure"
+              name="salary_structure_id"
               v-model="form.salary_structure_id"
-              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
-            >
-              <option value="">-- None --</option>
-              <option v-for="s in salaryStructures" :key="s.id" :value="s.id">{{ s.name }}</option>
-            </select>
+              :options="salaryStructures.map(s => ({ label: s.name, value: s.id }))"
+              placeholder="None"
+            />
           </div>
 
-          <div class="flex justify-end space-x-3 pt-2">
+          <div class="flex justify-end gap-3 pt-2">
             <SecondaryButton type="button" @click="showModal = false">Cancel</SecondaryButton>
-            <PrimaryButton :disabled="form.processing">Save Profile</PrimaryButton>
+            <PrimaryButton type="submit" :disabled="form.processing">Save Profile</PrimaryButton>
           </div>
         </form>
       </div>

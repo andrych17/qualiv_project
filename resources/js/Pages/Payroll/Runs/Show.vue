@@ -6,8 +6,10 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
+import DangerButton from '@/Components/DangerButton.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import { useConfirm } from '@/Composables/useConfirmDialog'
+import { formatCurrency, formatDate } from '@/Utils/formatters'
 
 interface RunLine {
   id: number
@@ -91,104 +93,85 @@ const lock = () => {
     onConfirm: () => router.post(route('payroll.runs.lock', props.run.id)),
   })
 }
-
-const statusVariant = (st: string) => {
-  switch (st) {
-    case 'paid':
-    case 'locked':
-      return 'success'
-    case 'approved':
-      return 'info'
-    case 'calculated':
-      return 'warning'
-    case 'draft':
-      return 'neutral'
-    default:
-      return 'neutral'
-  }
-}
 </script>
 
 <template>
   <AppLayout :title="`Payroll Run ${run.run_number}`">
-    <PageHeader :title="`Payroll Run: ${run.run_number}`" :subtitle="`${run.run_type.toUpperCase()} • Period ${run.period_start} to ${run.period_end}`">
+    <PageHeader
+      :title="`Payroll Run: ${run.run_number}`"
+      :subtitle="`${run.run_type.toUpperCase().replace('_', ' ')} • Period ${formatDate(run.period_start)} to ${formatDate(run.period_end)}`"
+    >
       <template #actions>
-        <div class="flex items-center space-x-2">
-          <Link :href="route('payroll.runs.index')">
-            <SecondaryButton>Back</SecondaryButton>
-          </Link>
+        <div class="flex items-center gap-2">
+          <SecondaryButton :href="route('payroll.runs.index')">&larr; Back</SecondaryButton>
 
           <!-- Calculate button -->
-          <button
+          <PrimaryButton
             v-if="!run.is_locked && (run.status === 'draft' || run.status === 'calculated')"
             type="button"
-            class="rounded-md bg-accent px-3 py-1.5 text-xs font-semibold text-white hover:bg-accent/90 transition shadow-sm"
             @click="calculate"
           >
             {{ run.status === 'draft' ? 'Calculate Run' : 'Recalculate' }}
-          </button>
+          </PrimaryButton>
 
           <!-- Approve button -->
-          <button
+          <SecondaryButton
             v-if="run.status === 'calculated'"
             type="button"
-            class="rounded-md bg-success px-3 py-1.5 text-xs font-semibold text-white hover:bg-success/90 transition shadow-sm"
+            class="!text-emerald-700 !border-emerald-300 hover:!bg-emerald-50"
             @click="approve"
           >
-            Approve
-          </button>
+            Approve Run
+          </SecondaryButton>
 
           <!-- Mark Paid button -->
-          <button
+          <SecondaryButton
             v-if="run.status === 'approved'"
             type="button"
-            class="rounded-md bg-success px-3 py-1.5 text-xs font-semibold text-white hover:bg-success/90 transition shadow-sm"
+            class="!text-emerald-700 !border-emerald-300 hover:!bg-emerald-50"
             @click="markPaid"
           >
             Mark as Paid
-          </button>
+          </SecondaryButton>
 
           <!-- Lock button -->
-          <button
+          <DangerButton
             v-if="!run.is_locked && (run.status === 'approved' || run.status === 'paid')"
             type="button"
-            class="rounded-md border border-neutral/40 bg-neutral/10 px-3 py-1.5 text-xs font-semibold text-ink-700 hover:bg-neutral/20 transition"
             @click="lock"
           >
             Lock
-          </button>
+          </DangerButton>
         </div>
       </template>
     </PageHeader>
 
-    <div class="space-y-6">
+    <div class="mt-6 space-y-6">
       <!-- Summary Bar -->
-      <div class="grid grid-cols-2 gap-4 rounded-lg border border-border bg-surface p-4 sm:grid-cols-5">
+      <div class="grid grid-cols-2 gap-4 rounded-lg border border-border bg-surface-0 p-4 sm:grid-cols-5">
         <div>
           <div class="text-xs text-ink-500">Status</div>
           <div class="mt-1">
-            <StatusBadge :status="run.status" :variant="statusVariant(run.status)">
-              {{ run.status }}
-            </StatusBadge>
+            <StatusBadge :status="run.status" />
           </div>
         </div>
         <div>
           <div class="text-xs text-ink-500">Total Gross</div>
-          <div class="mt-1 font-bold text-ink-900">Rp {{ Number(run.total_gross).toLocaleString('id-ID') }}</div>
+          <div class="mt-1 font-mono font-bold text-ink-900">{{ formatCurrency(Number(run.total_gross)) }}</div>
         </div>
         <div>
           <div class="text-xs text-ink-500">Total PPh 21</div>
-          <div class="mt-1 font-bold text-ink-900">Rp {{ Number(run.total_tax_pph21).toLocaleString('id-ID') }}</div>
+          <div class="mt-1 font-mono font-bold text-ink-900">{{ formatCurrency(Number(run.total_tax_pph21)) }}</div>
         </div>
         <div>
           <div class="text-xs text-ink-500">BPJS (Employer+EE)</div>
-          <div class="mt-1 font-bold text-ink-900">
-            Rp {{ (Number(run.total_bpjs_employer) + Number(run.total_bpjs_employee)).toLocaleString('id-ID') }}
+          <div class="mt-1 font-mono font-bold text-ink-900">
+            {{ formatCurrency(Number(run.total_bpjs_employer) + Number(run.total_bpjs_employee)) }}
           </div>
         </div>
         <div>
           <div class="text-xs text-ink-500">Total Net Pay</div>
-          <div class="mt-1 font-bold text-success">Rp {{ Number(run.total_net).toLocaleString('id-ID') }}</div>
+          <div class="mt-1 font-mono font-bold text-emerald-600">{{ formatCurrency(Number(run.total_net)) }}</div>
         </div>
       </div>
 
@@ -196,14 +179,14 @@ const statusVariant = (st: string) => {
       <Panel :title="`Employee Payslips (${run.lines.length} Employees)`">
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-border text-left text-sm">
-            <thead class="bg-surface-sunken text-xs font-medium text-ink-500 uppercase">
+            <thead class="bg-surface-50 text-xs font-medium text-ink-500 uppercase">
               <tr>
                 <th class="px-4 py-3">Employee</th>
                 <th class="px-4 py-3">PTKP / TER</th>
-                <th class="px-4 py-3">Basic Salary</th>
-                <th class="px-4 py-3">PPh 21</th>
-                <th class="px-4 py-3">BPJS (EE)</th>
-                <th class="px-4 py-3">Net Take-Home</th>
+                <th class="px-4 py-3 text-right">Basic Salary</th>
+                <th class="px-4 py-3 text-right">PPh 21</th>
+                <th class="px-4 py-3 text-right">BPJS (EE)</th>
+                <th class="px-4 py-3 text-right">Net Take-Home</th>
                 <th class="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
@@ -213,31 +196,31 @@ const statusVariant = (st: string) => {
                   No calculated payslips yet. Click <strong>Calculate Run</strong> above to generate payslips.
                 </td>
               </tr>
-              <tr v-for="line in run.lines" :key="line.id" class="hover:bg-surface-raised transition">
+              <tr v-for="line in run.lines" :key="line.id" class="hover:bg-surface-50">
                 <td class="px-4 py-3">
                   <div class="font-medium text-ink-900">{{ line.employee.full_name }}</div>
-                  <div class="text-xs text-ink-500">
-                    {{ line.employee.employee_no }} &bull; {{ line.employee.position?.job?.title ?? '-' }}
+                  <div class="text-xs font-mono text-ink-500">
+                    {{ line.employee.employee_no }} &bull; <span class="font-sans">{{ line.employee.position?.job?.title ?? '-' }}</span>
                   </div>
                 </td>
                 <td class="px-4 py-3 text-xs">
-                  <span class="font-medium text-ink-800">{{ line.ptkp_status_code }}</span>
+                  <span class="font-semibold text-ink-800">{{ line.ptkp_status_code }}</span>
                   <div class="text-ink-500" v-if="line.ter_category">
                     TER {{ line.ter_category }} ({{ (Number(line.ter_rate_percentage) * 100).toFixed(2) }}%)
                   </div>
                 </td>
-                <td class="px-4 py-3">Rp {{ Number(line.basic_salary).toLocaleString('id-ID') }}</td>
-                <td class="px-4 py-3 text-ink-700">Rp {{ Number(line.pph21_amount).toLocaleString('id-ID') }}</td>
-                <td class="px-4 py-3 text-ink-700">
-                  Rp {{ (Number(line.bpjs_kesehatan_employee) + Number(line.bpjs_tk_employee)).toLocaleString('id-ID') }}
+                <td class="px-4 py-3 text-right font-mono text-ink-900">{{ formatCurrency(Number(line.basic_salary)) }}</td>
+                <td class="px-4 py-3 text-right font-mono text-ink-700">{{ formatCurrency(Number(line.pph21_amount)) }}</td>
+                <td class="px-4 py-3 text-right font-mono text-ink-700">
+                  {{ formatCurrency(Number(line.bpjs_kesehatan_employee) + Number(line.bpjs_tk_employee)) }}
                 </td>
-                <td class="px-4 py-3 font-bold text-ink-900">
-                  Rp {{ Number(line.take_home_pay).toLocaleString('id-ID') }}
+                <td class="px-4 py-3 text-right font-mono font-bold text-ink-900">
+                  {{ formatCurrency(Number(line.take_home_pay)) }}
                 </td>
                 <td class="px-4 py-3 text-right">
                   <Link
                     :href="route('payroll.payslips.show', line.id)"
-                    class="text-xs font-semibold text-accent hover:underline"
+                    class="text-xs font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                   >
                     View Slip &rarr;
                   </Link>

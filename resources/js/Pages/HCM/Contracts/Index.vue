@@ -1,16 +1,21 @@
 <!-- ponytail: Employment Contracts Index — list contracts, renewal workflows, and compliance expiry monitoring. -->
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { router, useForm, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
-import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import HcmSubNav from '@/Components/hcm/HcmSubNav.vue'
 import Modal from '@/Components/Modal.vue'
+import FormSelect from '@/Components/forms/FormSelect.vue'
+import FormInput from '@/Components/forms/FormInput.vue'
+import FormCurrencyInput from '@/Components/forms/FormCurrencyInput.vue'
+import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
+import { debounce } from '@/Composables/debounce'
 import { useConfirm } from '@/Composables/useConfirmDialog'
+import { formatCurrency, formatDate } from '@/Utils/formatters'
 
 interface Contract {
   id: number
@@ -30,11 +35,70 @@ interface Contract {
   }
 }
 
+interface PaginatedData<T> {
+  data: T[]
+  links: Array<{ url: string | null; label: string; active: boolean }>
+  total: number
+  from: number | null
+  to: number | null
+  per_page: number
+}
+
 const props = defineProps<{
-  contracts: { data: Contract[]; total: number }
+  contracts: PaginatedData<Contract>
   expiringContracts: Contract[]
-  filters: { search?: string; contract_type?: string; status?: string }
+  filters: {
+    search?: string
+    contract_type?: string
+    status?: string
+    sort?: string
+    direction?: string
+    per_page?: string
+  }
 }>()
+
+const search = ref(props.filters.search ?? '')
+const filters = ref({
+  contract_type: props.filters.contract_type ?? '',
+  status: props.filters.status ?? '',
+})
+const sort = ref<SortState>(
+  props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
+)
+const selected = ref<Array<string | number>>([])
+const perPage = ref(Number(props.filters.per_page) || props.contracts.per_page)
+
+const filterFields: FilterFieldDef[] = [
+  {
+    key: 'contract_type',
+    label: 'Contract Type',
+    type: 'select',
+    options: [
+      { label: 'PKWT (Fixed Term)', value: 'PKWT' },
+      { label: 'PKWTT (Permanent)', value: 'PKWTT' },
+    ],
+  },
+  {
+    key: 'status',
+    label: 'Status',
+    type: 'select',
+    options: [
+      { label: 'Active', value: 'active' },
+      { label: 'Expired', value: 'expired' },
+      { label: 'Terminated', value: 'terminated' },
+    ],
+  },
+]
+
+const columns = [
+  { key: 'employee', label: 'Employee' },
+  { key: 'contract_type', label: 'Contract Type', sortable: true },
+  { key: 'start_date', label: 'Start Date', sortable: true },
+  { key: 'end_date', label: 'End Date', sortable: true },
+  { key: 'base_salary', label: 'Base Salary', sortable: true, align: 'right' as const },
+  { key: 'status', label: 'Status', sortable: true },
+  { key: 'actions', label: 'Actions', align: 'right' as const },
+]
 
 const renewForm = useForm({
   contract_type: 'PKWT',
@@ -79,88 +143,130 @@ const terminateContract = (c: Contract) => {
     onConfirm: () => router.post(route('hcm.contracts.terminate', c.id)),
   })
 }
+
+watch([search, filters, sort, perPage], debounce(() => {
+  selected.value = []
+  router.get(
+    route('hcm.contracts.index'),
+    {
+      search: search.value || undefined,
+      contract_type: filters.value.contract_type || undefined,
+      status: filters.value.status || undefined,
+      sort: sort.value?.key,
+      direction: sort.value?.direction,
+      per_page: perPage.value,
+    },
+    { preserveState: true, replace: true }
+  )
+}, 400))
 </script>
 
 <template>
   <AppLayout title="Employment Contracts">
     <PageHeader title="Employment Contracts" subtitle="Track PKWT/PKWTT contracts, compliance durations, and renewals." />
 
-    <div class="space-y-6">
+    <div class="mt-4">
       <HcmSubNav active="contracts" />
+    </div>
 
-      <!-- Expiring warning alert -->
-      <div v-if="expiringContracts.length > 0" class="rounded-lg border border-warning/40 bg-warning/10 p-4 text-sm text-ink-900">
-        <div class="font-bold flex items-center gap-2">
-          <span>⚠️</span> {{ expiringContracts.length }} Contract(s) Expiring Soon (Next 60 Days)
-        </div>
-        <div class="mt-2 flex flex-wrap gap-2">
-          <span
-            v-for="c in expiringContracts"
-            :key="c.id"
-            class="rounded bg-surface px-2 py-1 text-xs border border-border"
-          >
-            {{ c.employee.full_name }} (Ends {{ c.end_date }})
-          </span>
-        </div>
+    <!-- Expiring warning alert -->
+    <div v-if="expiringContracts.length > 0" class="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-ink-900">
+      <div class="font-bold flex items-center gap-2 text-amber-900">
+        <span>⚠️</span> {{ expiringContracts.length }} Contract(s) Expiring Soon (Next 60 Days)
       </div>
+      <div class="mt-2 flex flex-wrap gap-2">
+        <span
+          v-for="c in expiringContracts"
+          :key="c.id"
+          class="rounded bg-surface-0 px-2 py-1 text-xs border border-amber-200 text-ink-800"
+        >
+          {{ c.employee.full_name }} (Ends {{ c.end_date }})
+        </span>
+      </div>
+    </div>
 
-      <Panel>
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-border text-left text-sm">
-            <thead class="bg-surface-sunken text-xs font-medium text-ink-500 uppercase">
-              <tr>
-                <th class="px-4 py-3">Employee</th>
-                <th class="px-4 py-3">Contract Type</th>
-                <th class="px-4 py-3">Start Date</th>
-                <th class="px-4 py-3">End Date</th>
-                <th class="px-4 py-3">Base Salary</th>
-                <th class="px-4 py-3">Status</th>
-                <th class="px-4 py-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-border">
-              <tr v-if="contracts.data.length === 0">
-                <td colspan="7" class="p-4 text-center text-ink-500">No contracts found.</td>
-              </tr>
-              <tr v-for="c in contracts.data" :key="c.id" class="hover:bg-surface-raised transition">
-                <td class="px-4 py-3">
-                  <Link :href="route('hcm.employees.show', c.employee.id)" class="font-medium text-ink-900 hover:text-accent">
-                    {{ c.employee.full_name }}
-                  </Link>
-                  <div class="text-xs text-ink-500">{{ c.employee.employee_no }}</div>
-                </td>
-                <td class="px-4 py-3 font-medium">{{ c.contract_type }}</td>
-                <td class="px-4 py-3">{{ c.start_date }}</td>
-                <td class="px-4 py-3">{{ c.end_date || 'Permanent (PKWTT)' }}</td>
-                <td class="px-4 py-3">Rp {{ Number(c.base_salary).toLocaleString('id-ID') }}</td>
-                <td class="px-4 py-3">
-                  <StatusBadge :status="c.status" :variant="c.status === 'active' ? 'success' : (c.status === 'expired' ? 'warning' : 'neutral')">
-                    {{ c.status }}
-                  </StatusBadge>
-                </td>
-                <td class="px-4 py-3 text-right space-x-2">
-                  <button
-                    v-if="c.status === 'active'"
-                    type="button"
-                    class="text-xs font-medium text-accent hover:underline"
-                    @click="openRenew(c)"
-                  >
-                    Renew
-                  </button>
-                  <button
-                    v-if="c.status === 'active'"
-                    type="button"
-                    class="text-xs font-medium text-danger hover:underline"
-                    @click="terminateContract(c)"
-                  >
-                    Terminate
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </Panel>
+    <div class="mt-6">
+      <DataTable
+        :columns="columns"
+        :items="contracts.data"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        v-model:search="search"
+        v-model:filters="filters"
+        v-model:per-page="perPage"
+        sticky-header
+        storage-key="hcm.contracts"
+        search-placeholder="Search employee name, number…"
+        :filter-fields="filterFields"
+        export-filename="hcm-contracts"
+        status-rail-key="status"
+        :total="contracts.total"
+        :from="contracts.from"
+        :to="contracts.to"
+        :links="contracts.links"
+        empty-title="No contracts found"
+        empty-description="Create an employment contract for onboarding employees."
+      >
+        <template #cell-employee="{ item }">
+          <div>
+            <Link
+              :href="route('hcm.employees.show', (item as Contract).employee.id)"
+              class="font-semibold text-ink-900 hover:text-accent"
+            >
+              {{ (item as Contract).employee.full_name }}
+            </Link>
+            <span class="block font-mono text-[11px] text-ink-400">
+              {{ (item as Contract).employee.employee_no }}
+            </span>
+          </div>
+        </template>
+
+        <template #cell-contract_type="{ item }">
+          <span class="font-medium text-xs text-ink-800">{{ (item as Contract).contract_type }}</span>
+        </template>
+
+        <template #cell-start_date="{ item }">
+          <span class="font-mono text-xs text-ink-600">{{ formatDate((item as Contract).start_date) }}</span>
+        </template>
+
+        <template #cell-end_date="{ item }">
+          <span v-if="(item as Contract).end_date" class="font-mono text-xs text-ink-600">
+            {{ formatDate((item as Contract).end_date!) }}
+          </span>
+          <span v-else class="text-xs text-emerald-700 font-medium">Permanent (PKWTT)</span>
+        </template>
+
+        <template #cell-base_salary="{ item }">
+          <span class="font-mono text-xs font-semibold text-ink-900">
+            {{ formatCurrency(Number((item as Contract).base_salary)) }}
+          </span>
+        </template>
+
+        <template #cell-status="{ item }">
+          <StatusBadge :status="(item as Contract).status" />
+        </template>
+
+        <template #cell-actions="{ item }">
+          <div class="flex items-center justify-end gap-3">
+            <button
+              v-if="(item as Contract).status === 'active'"
+              type="button"
+              class="text-xs font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              @click="openRenew(item as Contract)"
+            >
+              Renew
+            </button>
+            <button
+              v-if="(item as Contract).status === 'active'"
+              type="button"
+              class="text-xs font-medium text-signal-danger hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              @click="terminateContract(item as Contract)"
+            >
+              Terminate
+            </button>
+          </div>
+        </template>
+      </DataTable>
     </div>
 
     <!-- Renew Modal -->
@@ -171,47 +277,50 @@ const terminateContract = (c: Contract) => {
 
         <form @submit.prevent="submitRenew" class="mt-4 space-y-4">
           <div>
-            <label class="block text-xs font-medium text-ink-700">Contract Type *</label>
-            <select
+            <FormSelect
+              label="Contract Type"
+              name="contract_type"
               v-model="renewForm.contract_type"
-              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
-            >
-              <option value="PKWT">PKWT (Fixed Term)</option>
-              <option value="PKWTT">PKWTT (Permanent Conversion)</option>
-            </select>
+              :options="[
+                { label: 'PKWT (Fixed Term)', value: 'PKWT' },
+                { label: 'PKWTT (Permanent Conversion)', value: 'PKWTT' },
+              ]"
+              required
+            />
           </div>
           <div>
-            <label class="block text-xs font-medium text-ink-700">Start Date *</label>
-            <input
-              v-model="renewForm.start_date"
+            <FormInput
+              label="Start Date"
+              name="start_date"
               type="date"
+              v-model="renewForm.start_date"
+              :error="renewForm.errors.start_date"
               required
-              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             />
           </div>
           <div v-if="renewForm.contract_type === 'PKWT'">
-            <label class="block text-xs font-medium text-ink-700">End Date *</label>
-            <input
-              v-model="renewForm.end_date"
+            <FormInput
+              label="End Date"
+              name="end_date"
               type="date"
+              v-model="renewForm.end_date"
+              :error="renewForm.errors.end_date"
               required
-              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             />
           </div>
           <div>
-            <label class="block text-xs font-medium text-ink-700">Base Salary (IDR) *</label>
-            <input
-              v-model.number="renewForm.base_salary"
-              type="number"
-              min="0"
+            <FormCurrencyInput
+              label="Base Salary"
+              name="base_salary"
+              v-model="renewForm.base_salary"
+              :error="renewForm.errors.base_salary"
               required
-              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             />
           </div>
 
-          <div class="flex justify-end space-x-3 pt-2">
+          <div class="flex justify-end gap-3 pt-2">
             <SecondaryButton type="button" @click="showRenewModal = false">Cancel</SecondaryButton>
-            <PrimaryButton :disabled="renewForm.processing">Renew Contract</PrimaryButton>
+            <PrimaryButton type="submit" :disabled="renewForm.processing">Renew Contract</PrimaryButton>
           </div>
         </form>
       </div>

@@ -1,12 +1,21 @@
 <!-- Quotations List (§3E) -->
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import SalesSubNav from '@/Components/sales/SalesSubNav.vue'
+import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
+import { debounce } from '@/Composables/debounce'
+import { formatCurrency, formatDate } from '@/Utils/formatters'
+
+interface QuotationLine {
+  line_total: number
+  discount_amount: number
+  tax_amount: number
+}
 
 interface QuotationItem {
   id: number
@@ -18,36 +27,80 @@ interface QuotationItem {
   customer: { id: number; name: string } | null
   opportunity: { id: number; name: string } | null
   creator: { id: number; name: string } | null
-  lines: Array<{ line_total: number; discount_amount: number; tax_amount: number }>
+  lines: QuotationLine[]
+}
+
+interface PaginatedData<T> {
+  data: T[]
+  links: Array<{ url: string | null; label: string; active: boolean }>
+  total: number
+  from: number | null
+  to: number | null
+  per_page: number
 }
 
 const props = defineProps<{
-  quotations: {
-    data: QuotationItem[]
-    links: Array<{ url: string | null; label: string; active: boolean }>
-  }
+  quotations: PaginatedData<QuotationItem>
   statuses: string[]
-  filters: { search?: string; status?: string; customer_id?: string }
+  filters: { search?: string; status?: string; customer_id?: string; sort?: string; direction?: string; per_page?: string }
   customers: Array<{ id: number; name: string }>
 }>()
 
 const search = ref(props.filters.search ?? '')
-const status = ref(props.filters.status ?? '')
+const filters = ref({
+  status: props.filters.status ?? '',
+  customer_id: props.filters.customer_id ?? '',
+})
+const sort = ref<SortState>(
+  props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
+)
+const selected = ref<Array<string | number>>([])
+const perPage = ref(Number(props.filters.per_page) || props.quotations.per_page)
 
-const formatCurrency = (lines: Array<{ line_total: number; discount_amount: number; tax_amount: number }>, curr = 'IDR') => {
+const filterFields: FilterFieldDef[] = [
+  {
+    key: 'status',
+    label: 'Status',
+    type: 'select',
+    options: props.statuses.map((st) => ({ label: st.toUpperCase(), value: st })),
+  },
+  {
+    key: 'customer_id',
+    label: 'Customer',
+    type: 'select',
+    options: props.customers.map((c) => ({ label: c.name, value: String(c.id) })),
+  },
+]
+
+const columns = [
+  { key: 'quotation', label: 'Quotation' },
+  { key: 'customer', label: 'Customer' },
+  { key: 'opportunity', label: 'Opportunity' },
+  { key: 'revision_no', label: 'Revision', align: 'center' as const },
+  { key: 'validity_date', label: 'Validity Date', sortable: true },
+  { key: 'total_amount', label: 'Total Amount', align: 'right' as const },
+  { key: 'status', label: 'Status', sortable: true },
+  { key: 'actions', label: 'Actions', align: 'right' as const },
+]
+
+const calculateQuoteTotal = (lines: QuotationLine[]) => {
   const subtotal = lines.reduce((acc, l) => acc + Number(l.line_total), 0)
   const discount = lines.reduce((acc, l) => acc + Number(l.discount_amount), 0)
   const tax = lines.reduce((acc, l) => acc + Number(l.tax_amount), 0)
-  const total = subtotal - discount + tax
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: curr, maximumFractionDigits: 0 }).format(total)
+  return subtotal - discount + tax
 }
 
-const applyFilters = () => {
+watch([search, filters, sort, perPage], debounce(() => {
+  selected.value = []
   router.get(route('sales.quotations.index'), {
     search: search.value || undefined,
-    status: status.value || undefined,
-  }, { preserveState: true })
-}
+    status: filters.value.status || undefined,
+    customer_id: filters.value.customer_id || undefined,
+    sort: sort.value?.key,
+    direction: sort.value?.direction,
+    per_page: perPage.value,
+  }, { preserveState: true, replace: true })
+}, 400))
 </script>
 
 <template>
@@ -65,66 +118,72 @@ const applyFilters = () => {
       <SalesSubNav active="quotations" />
     </div>
 
-    <!-- Filters -->
-    <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <input
-          v-model="search"
-          @keydown.enter="applyFilters"
-          type="text"
-          placeholder="Search by customer name or UUID…"
-          class="rounded-md border border-border bg-surface-0 px-3 py-1.5 text-sm text-ink-900 focus:border-accent focus:outline-none"
-        />
-        <select
-          v-model="status"
-          @change="applyFilters"
-          class="rounded-md border border-border bg-surface-0 px-3 py-1.5 text-sm text-ink-900 focus:border-accent focus:outline-none"
-        >
-          <option value="">All Statuses</option>
-          <option v-for="st in props.statuses" :key="st" :value="st">{{ st.toUpperCase() }}</option>
-        </select>
-      </div>
-    </div>
+    <div class="mt-6">
+      <DataTable
+        :columns="columns"
+        :items="quotations.data"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        v-model:search="search"
+        v-model:filters="filters"
+        v-model:per-page="perPage"
+        sticky-header
+        storage-key="sales.quotations"
+        search-placeholder="Search by customer name or UUID…"
+        :filter-fields="filterFields"
+        export-filename="sales-quotations"
+        status-rail-key="status"
+        :total="quotations.total"
+        :from="quotations.from"
+        :to="quotations.to"
+        :links="quotations.links"
+        empty-title="No quotations found"
+        empty-description="Create an estimate or convert a customer lead into a quotation."
+      >
+        <template #cell-quotation="{ item }">
+          <Link
+            :href="route('sales.quotations.show', item.id)"
+            class="font-mono font-medium text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            {{ (item as QuotationItem).uuid.slice(0, 8) }}…
+          </Link>
+        </template>
 
-    <!-- Quotations Table -->
-    <div class="mt-6 rounded-lg border border-border bg-surface-0 overflow-x-auto">
-      <table class="w-full text-left text-sm">
-        <thead class="bg-surface-50 text-xs text-ink-500 uppercase border-b border-border">
-          <tr>
-            <th class="py-3 px-4">Quotation</th>
-            <th class="py-3 px-4">Customer</th>
-            <th class="py-3 px-4">Opportunity</th>
-            <th class="py-3 px-4">Revision</th>
-            <th class="py-3 px-4">Validity Date</th>
-            <th class="py-3 px-4">Total Amount</th>
-            <th class="py-3 px-4">Status</th>
-            <th class="py-3 px-4 text-right">Action</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-border">
-          <tr v-for="quote in props.quotations.data" :key="quote.id" class="hover:bg-surface-50">
-            <td class="py-3 px-4 font-mono font-medium text-accent">
-              <Link :href="route('sales.quotations.show', quote.id)" class="hover:underline">
-                {{ quote.uuid.slice(0, 8) }}…
-              </Link>
-            </td>
-            <td class="py-3 px-4 font-medium text-ink-900">{{ quote.customer?.name ?? '-' }}</td>
-            <td class="py-3 px-4 text-ink-600">{{ quote.opportunity?.name ?? '-' }}</td>
-            <td class="py-3 px-4 font-medium text-ink-700">Rev. {{ quote.revision_no }}</td>
-            <td class="py-3 px-4 text-ink-600">{{ quote.validity_date ?? 'No expiry' }}</td>
-            <td class="py-3 px-4 font-mono font-semibold text-ink-900">{{ formatCurrency(quote.lines) }}</td>
-            <td class="py-3 px-4"><StatusBadge :status="quote.status" /></td>
-            <td class="py-3 px-4 text-right">
-              <Link :href="route('sales.quotations.show', quote.id)" class="text-xs font-semibold text-accent hover:underline">
-                View &rarr;
-              </Link>
-            </td>
-          </tr>
-          <tr v-if="props.quotations.data.length === 0">
-            <td colspan="8" class="py-8 text-center text-ink-500">No quotations found.</td>
-          </tr>
-        </tbody>
-      </table>
+        <template #cell-customer="{ item }">
+          <span class="font-medium text-ink-900">{{ (item as QuotationItem).customer?.name ?? '-' }}</span>
+        </template>
+
+        <template #cell-opportunity="{ item }">
+          <span class="text-ink-600">{{ (item as QuotationItem).opportunity?.name ?? '-' }}</span>
+        </template>
+
+        <template #cell-revision_no="{ item }">
+          <span class="font-medium text-ink-700">Rev. {{ (item as QuotationItem).revision_no }}</span>
+        </template>
+
+        <template #cell-validity_date="{ item }">
+          <span class="text-ink-600">{{ (item as QuotationItem).validity_date ? formatDate((item as QuotationItem).validity_date) : 'No expiry' }}</span>
+        </template>
+
+        <template #cell-total_amount="{ item }">
+          <span class="font-mono font-semibold text-ink-900">
+            {{ formatCurrency(calculateQuoteTotal((item as QuotationItem).lines)) }}
+          </span>
+        </template>
+
+        <template #cell-status="{ item }">
+          <StatusBadge :status="(item as QuotationItem).status" />
+        </template>
+
+        <template #cell-actions="{ item }">
+          <Link
+            :href="route('sales.quotations.show', item.id)"
+            class="text-sm font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            View &rarr;
+          </Link>
+        </template>
+      </DataTable>
     </div>
   </AppLayout>
 </template>

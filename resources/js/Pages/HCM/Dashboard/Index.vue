@@ -7,6 +7,7 @@ import Panel from '@/Components/cards/Panel.vue'
 import StatCard from '@/Components/cards/StatCard.vue'
 import HcmSubNav from '@/Components/hcm/HcmSubNav.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
+import { formatDate } from '@/Utils/formatters'
 
 interface Metrics {
   active_employees: number
@@ -51,9 +52,11 @@ defineProps<{
   <AppLayout title="HCM Dashboard">
     <PageHeader title="Human Capital Management" subtitle="Employee directory, contracts, time attendance, and leave management." />
 
-    <div class="space-y-6">
+    <div class="mt-4">
       <HcmSubNav active="dashboard" />
+    </div>
 
+    <div class="mt-6 space-y-6">
       <!-- Metric Headline Cards -->
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
@@ -86,24 +89,24 @@ defineProps<{
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <!-- Pending Leave Approvals -->
         <Panel title="Pending Leave Approvals">
-          <div v-if="queues.pending_approvals.length === 0" class="p-4 text-center text-sm text-ink-500">
+          <div v-if="queues.pending_approvals.length === 0" class="p-6 text-center text-sm text-ink-500">
             No pending leave approvals.
           </div>
           <div v-else class="divide-y divide-border">
             <div
               v-for="req in queues.pending_approvals"
               :key="req.id"
-              class="flex items-center justify-between p-3 hover:bg-surface-raised transition"
+              class="flex items-center justify-between p-3.5 hover:bg-surface-50 transition"
             >
               <div>
-                <div class="font-medium text-ink-900">{{ req.employee.full_name }} ({{ req.employee.employee_no }})</div>
-                <div class="text-xs text-ink-500">
-                  {{ req.leave_type.name }} &bull; {{ req.start_date }} to {{ req.end_date }} ({{ req.days_count }} days)
+                <div class="font-medium text-ink-900">{{ req.employee.full_name }} <span class="font-mono text-xs text-ink-500">({{ req.employee.employee_no }})</span></div>
+                <div class="text-xs text-ink-500 font-mono mt-0.5">
+                  {{ req.leave_type.name }} &bull; {{ formatDate(req.start_date) }} to {{ formatDate(req.end_date) }} ({{ req.days_count }} days)
                 </div>
               </div>
               <Link
                 :href="route('hcm.leave.index')"
-                class="text-xs font-medium text-accent hover:underline"
+                class="text-xs font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               >
                 Review &rarr;
               </Link>
@@ -113,24 +116,24 @@ defineProps<{
 
         <!-- Expiring Contracts (Next 60 Days) -->
         <Panel title="Expiring Contracts (Next 60 Days)">
-          <div v-if="queues.expiring_contracts.length === 0" class="p-4 text-center text-sm text-ink-500">
+          <div v-if="queues.expiring_contracts.length === 0" class="p-6 text-center text-sm text-ink-500">
             No contracts expiring within 60 days.
           </div>
           <div v-else class="divide-y divide-border">
             <div
               v-for="contract in queues.expiring_contracts"
               :key="contract.id"
-              class="flex items-center justify-between p-3 hover:bg-surface-raised transition"
+              class="flex items-center justify-between p-3.5 hover:bg-surface-50 transition"
             >
               <div>
                 <div class="font-medium text-ink-900">{{ contract.employee.full_name }}</div>
-                <div class="text-xs text-ink-500">
-                  {{ contract.contract_type }} &bull; Ends on {{ contract.end_date }}
+                <div class="text-xs text-ink-500 font-mono mt-0.5">
+                  {{ contract.contract_type }} &bull; Ends on {{ formatDate(contract.end_date) }}
                 </div>
               </div>
               <Link
                 :href="route('hcm.contracts.index')"
-                class="text-xs font-medium text-accent hover:underline"
+                class="text-xs font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               >
                 Manage &rarr;
               </Link>
@@ -141,27 +144,27 @@ defineProps<{
 
       <!-- Recent Hires -->
       <Panel title="Recent Hires">
-        <div v-if="queues.recent_hires.length === 0" class="p-4 text-center text-sm text-ink-500">
+        <div v-if="queues.recent_hires.length === 0" class="p-6 text-center text-sm text-ink-500">
           No recent hires recorded.
         </div>
         <div v-else class="divide-y divide-border">
           <div
             v-for="hire in queues.recent_hires"
             :key="hire.id"
-            class="flex items-center justify-between p-3 hover:bg-surface-raised transition"
+            class="flex items-center justify-between p-3.5 hover:bg-surface-50 transition"
           >
             <div>
-              <div class="font-medium text-ink-900">{{ hire.full_name }} ({{ hire.employee_no }})</div>
-              <div class="text-xs text-ink-500">
+              <div class="font-medium text-ink-900">{{ hire.full_name }} <span class="font-mono text-xs text-ink-500">({{ hire.employee_no }})</span></div>
+              <div class="text-xs text-ink-500 mt-0.5">
                 {{ hire.position?.job?.title ?? 'No Position' }} &bull; {{ hire.position?.org_unit?.name ?? '-' }}
               </div>
             </div>
             <div class="text-right">
-              <span class="text-xs text-ink-500">Hired on {{ hire.hire_date }}</span>
+              <span class="text-xs font-mono text-ink-500">Hired {{ formatDate(hire.hire_date) }}</span>
               <div>
                 <Link
                   :href="route('hcm.employees.show', hire.id)"
-                  class="text-xs font-medium text-accent hover:underline"
+                  class="text-xs font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                 >
                   View Profile
                 </Link>

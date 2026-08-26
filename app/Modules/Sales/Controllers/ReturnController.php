@@ -8,6 +8,7 @@ use App\Modules\Sales\Models\SalesOrder;
 use App\Modules\Sales\Models\SalesReturn;
 use App\Modules\Sales\Requests\StoreReturnRequest;
 use App\Modules\Sales\Services\ReturnService;
+use App\Shared\Helpers\TableQuery;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -19,20 +20,23 @@ class ReturnController extends Controller
 
     public function index(Request $request): Response
     {
-        $returns = SalesReturn::with(['customer', 'order', 'replacementOrder', 'lines'])
+        $perPage = TableQuery::perPage($request->integer('per_page') ?: null, 20);
+        $query = SalesReturn::with(['customer', 'order', 'replacementOrder', 'lines'])
             ->when($request->search, function ($q, $s) {
                 $q->where('reason_code', 'ilike', "%{$s}%")
+                    ->orWhere('return_number', 'ilike', "%{$s}%")
                     ->orWhereHas('customer', fn ($c) => $c->where('name', 'ilike', "%{$s}%"));
             })
-            ->when($request->status, fn ($q, $st) => $q->where('status', $st))
-            ->orderByDesc('created_at')
-            ->paginate(20)
-            ->withQueryString();
+            ->when($request->status, fn ($q, $st) => $q->where('status', $st));
+
+        TableQuery::applySort($query, $request->sort, $request->direction, ['return_number', 'reason_code', 'created_at', 'status'], 'created_at', 'desc');
+
+        $returns = $query->paginate($perPage)->withQueryString();
 
         return Inertia::render('Sales/Returns/Index', [
             'returns' => $returns,
             'statuses' => SalesReturn::STATUSES,
-            'filters' => $request->only(['search', 'status']),
+            'filters' => $request->only(['search', 'status', 'sort', 'direction', 'per_page']),
         ]);
     }
 

@@ -1,14 +1,19 @@
 <!-- ponytail: Shift Schedule Master — shift hours, break times, and active configuration. -->
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { router, useForm } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
-import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
+import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import HcmSubNav from '@/Components/hcm/HcmSubNav.vue'
 import Modal from '@/Components/Modal.vue'
+import FormInput from '@/Components/forms/FormInput.vue'
+import FormNumberInput from '@/Components/forms/FormNumberInput.vue'
+import FormSwitch from '@/Components/forms/FormSwitch.vue'
+import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
+import { debounce } from '@/Composables/debounce'
 import { useConfirm } from '@/Composables/useConfirmDialog'
 
 interface Shift {
@@ -20,9 +25,56 @@ interface Shift {
   is_active: boolean
 }
 
+interface PaginatedData<T> {
+  data: T[]
+  links: Array<{ url: string | null; label: string; active: boolean }>
+  total: number
+  from: number | null
+  to: number | null
+  per_page: number
+}
+
 const props = defineProps<{
-  shifts: { data: Shift[]; total: number }
+  shifts: PaginatedData<Shift>
+  filters?: {
+    search?: string
+    is_active?: string
+    sort?: string
+    direction?: string
+    per_page?: string
+  }
 }>()
+
+const search = ref(props.filters?.search ?? '')
+const filters = ref({
+  is_active: props.filters?.is_active ?? '',
+})
+const sort = ref<SortState>(
+  props.filters?.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
+)
+const selected = ref<Array<string | number>>([])
+const perPage = ref(Number(props.filters?.per_page) || props.shifts.per_page)
+
+const filterFields: FilterFieldDef[] = [
+  {
+    key: 'is_active',
+    label: 'Status',
+    type: 'select',
+    options: [
+      { label: 'Active', value: '1' },
+      { label: 'Inactive', value: '0' },
+    ],
+  },
+]
+
+const columns = [
+  { key: 'name', label: 'Shift Name' },
+  { key: 'start_time', label: 'Start Time' },
+  { key: 'end_time', label: 'End Time' },
+  { key: 'break_minutes', label: 'Break (Mins)' },
+  { key: 'status', label: 'Status' },
+  { key: 'actions', label: 'Actions', align: 'right' as const },
+]
 
 const form = useForm({
   id: null as number | null,
@@ -49,7 +101,7 @@ const openEdit = (shift: Shift) => {
   form.start_time = shift.start_time.substring(0, 5)
   form.end_time = shift.end_time.substring(0, 5)
   form.break_minutes = shift.break_minutes
-  form.is_active = shift.is_active
+  form.is_active = Boolean(shift.is_active)
   isEditing.value = true
   showModal.value = true
 }
@@ -79,112 +131,164 @@ const deleteShift = (shift: Shift) => {
     onConfirm: () => router.delete(route('hcm.shifts.destroy', shift.id)),
   })
 }
+
+watch([search, filters, sort, perPage], debounce(() => {
+  selected.value = []
+  router.get(
+    route('hcm.shifts.index'),
+    {
+      search: search.value || undefined,
+      is_active: filters.value.is_active || undefined,
+      sort: sort.value?.key,
+      direction: sort.value?.direction,
+      per_page: perPage.value,
+    },
+    { preserveState: true, replace: true }
+  )
+}, 400))
 </script>
 
 <template>
   <AppLayout title="Shifts Master">
     <PageHeader title="Shifts" subtitle="Configure work schedules, start/end hours, and break rules.">
       <template #actions>
-        <PrimaryButton @click="openCreate">+ Add Shift</PrimaryButton>
+        <PrimaryButton type="button" @click="openCreate">+ Add Shift</PrimaryButton>
       </template>
     </PageHeader>
 
-    <div class="space-y-6">
+    <div class="mt-4">
       <HcmSubNav active="shifts" />
+    </div>
 
-      <Panel>
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-border text-left text-sm">
-            <thead class="bg-surface-sunken text-xs font-medium text-ink-500 uppercase">
-              <tr>
-                <th class="px-4 py-3">Shift Name</th>
-                <th class="px-4 py-3">Start Time</th>
-                <th class="px-4 py-3">End Time</th>
-                <th class="px-4 py-3">Break (Mins)</th>
-                <th class="px-4 py-3">Status</th>
-                <th class="px-4 py-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-border">
-              <tr v-if="shifts.data.length === 0">
-                <td colspan="6" class="p-4 text-center text-ink-500">No shifts configured.</td>
-              </tr>
-              <tr v-for="s in shifts.data" :key="s.id" class="hover:bg-surface-raised transition">
-                <td class="px-4 py-3 font-medium text-ink-900">{{ s.name }}</td>
-                <td class="px-4 py-3">{{ s.start_time }}</td>
-                <td class="px-4 py-3">{{ s.end_time }}</td>
-                <td class="px-4 py-3">{{ s.break_minutes }}m</td>
-                <td class="px-4 py-3">
-                  <span
-                    class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
-                    :class="s.is_active ? 'bg-success/15 text-success' : 'bg-neutral/15 text-neutral'"
-                  >
-                    {{ s.is_active ? 'Active' : 'Inactive' }}
-                  </span>
-                </td>
-                <td class="px-4 py-3 text-right space-x-2">
-                  <button type="button" class="text-xs font-medium text-accent hover:underline" @click="openEdit(s)">
-                    Edit
-                  </button>
-                  <button type="button" class="text-xs font-medium text-danger hover:underline" @click="deleteShift(s)">
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </Panel>
+    <div class="mt-6">
+      <DataTable
+        :columns="columns"
+        :items="shifts.data"
+        v-model:sort="sort"
+        v-model:selected="selected"
+        v-model:search="search"
+        v-model:filters="filters"
+        v-model:per-page="perPage"
+        sticky-header
+        storage-key="hcm.shifts"
+        search-placeholder="Search shifts…"
+        :filter-fields="filterFields"
+        export-filename="hcm-shifts"
+        status-rail-key="is_active"
+        :total="shifts.total"
+        :from="shifts.from"
+        :to="shifts.to"
+        :links="shifts.links"
+        empty-title="No shifts configured"
+        empty-description="Define shift work schedules and break durations."
+      >
+        <template #cell-name="{ item }">
+          <span class="font-semibold text-ink-900">{{ (item as Shift).name }}</span>
+        </template>
+
+        <template #cell-start_time="{ item }">
+          <span class="font-mono text-xs text-ink-700">{{ (item as Shift).start_time }}</span>
+        </template>
+
+        <template #cell-end_time="{ item }">
+          <span class="font-mono text-xs text-ink-700">{{ (item as Shift).end_time }}</span>
+        </template>
+
+        <template #cell-break_minutes="{ item }">
+          <span class="font-mono text-xs text-ink-600">{{ (item as Shift).break_minutes }} min</span>
+        </template>
+
+        <template #cell-status="{ item }">
+          <StatusBadge :status="(item as Shift).is_active ? 'active' : 'inactive'" />
+        </template>
+
+        <template #cell-actions="{ item }">
+          <div class="flex items-center justify-end gap-3">
+            <button
+              type="button"
+              class="text-xs font-semibold text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              @click="openEdit(item as Shift)"
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              class="text-xs font-medium text-signal-danger hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              @click="deleteShift(item as Shift)"
+            >
+              Delete
+            </button>
+          </div>
+        </template>
+      </DataTable>
     </div>
 
     <!-- Create/Edit Modal -->
     <Modal :show="showModal" max-width="md" @close="showModal = false">
       <div class="p-6 bg-white rounded-lg">
-        <h3 class="text-lg font-bold text-ink-900">{{ isEditing ? 'Edit Shift' : 'New Shift' }}</h3>
+        <h3 class="text-lg font-bold text-ink-900">{{ isEditing ? 'Edit Shift' : 'New Shift Schedule' }}</h3>
+
         <form @submit.prevent="submit" class="mt-4 space-y-4">
           <div>
-            <label class="block text-xs font-medium text-ink-700">Shift Name *</label>
-            <input
+            <FormInput
+              label="Shift Name"
+              name="name"
               v-model="form.name"
-              type="text"
+              :error="form.errors.name"
+              placeholder="e.g. Regular Day Shift, Evening Shift"
               required
-              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
             />
           </div>
+
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-medium text-ink-700">Start Time (HH:MM) *</label>
-              <input
+              <FormInput
+                label="Start Time"
+                name="start_time"
+                type="time"
                 v-model="form.start_time"
-                type="text"
+                :error="form.errors.start_time"
                 required
-                placeholder="09:00"
-                class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
               />
             </div>
             <div>
-              <label class="block text-xs font-medium text-ink-700">End Time (HH:MM) *</label>
-              <input
+              <FormInput
+                label="End Time"
+                name="end_time"
+                type="time"
                 v-model="form.end_time"
-                type="text"
+                :error="form.errors.end_time"
                 required
-                placeholder="17:00"
-                class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
               />
             </div>
           </div>
+
           <div>
-            <label class="block text-xs font-medium text-ink-700">Break Duration (Minutes)</label>
-            <input
-              v-model.number="form.break_minutes"
-              type="number"
-              min="0"
-              class="mt-1 block w-full rounded-md border-border bg-white text-sm text-ink-900 shadow-sm focus:border-accent focus:ring-accent"
+            <FormNumberInput
+              label="Break Duration (Minutes)"
+              name="break_minutes"
+              v-model="form.break_minutes"
+              :error="form.errors.break_minutes"
+              :min="0"
+              suffix="mins"
+              required
             />
           </div>
-          <div class="flex justify-end space-x-3 pt-2">
+
+          <div>
+            <FormSwitch
+              v-model="form.is_active"
+              name="is_active"
+              label="Shift is Active"
+              description="Allow employees to be scheduled in this shift."
+            />
+          </div>
+
+          <div class="flex justify-end gap-3 pt-2">
             <SecondaryButton type="button" @click="showModal = false">Cancel</SecondaryButton>
-            <PrimaryButton :disabled="form.processing">Save Shift</PrimaryButton>
+            <PrimaryButton type="submit" :disabled="form.processing">
+              {{ isEditing ? 'Save Changes' : 'Create Shift' }}
+            </PrimaryButton>
           </div>
         </form>
       </div>
