@@ -53,7 +53,10 @@ trait SetsUpTenant
         $dbName = 'tenant_'.$tenantId;
 
         // Use a dedicated connection so we are not inside a test transaction.
+        DB::purge('tenant');
         DB::purge('pgsql');
+        DB::disconnect('tenant');
+        DB::disconnect('pgsql');
         $pdo = DB::connection('pgsql')->getPdo();
         // ponytail: WITH (FORCE) (PG13+) terminates stray connections server-side.
         // The shared dev instance has GUI/backup clients that auto-connect to every

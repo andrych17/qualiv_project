@@ -37,7 +37,7 @@ class SalesModuleLifecycleTest extends TestCase
 
     public function test_full_sales_quote_to_order_to_delivery_lifecycle(): void
     {
-        $tenant = $this->provisionTenant();
+        $tenant = $this->provisionTenant('sales_01');
         $tenant->update(['plan' => 'full']);
 
         $this->post('/login', [
@@ -195,7 +195,7 @@ class SalesModuleLifecycleTest extends TestCase
 
     public function test_credit_check_blocks_confirmation_when_limit_exceeded(): void
     {
-        $tenant = $this->provisionTenant();
+        $tenant = $this->provisionTenant('sales_02');
         $tenant->update(['plan' => 'full']);
 
         $this->post('/login', [
@@ -242,7 +242,7 @@ class SalesModuleLifecycleTest extends TestCase
 
     public function test_recurring_contracts_and_schedules_lifecycle(): void
     {
-        $tenant = $this->provisionTenant();
+        $tenant = $this->provisionTenant('sales_03');
         $tenant->update(['plan' => 'full']);
 
         $this->post('/login', [
@@ -289,7 +289,7 @@ class SalesModuleLifecycleTest extends TestCase
 
     public function test_sales_return_replacement_and_refund_lifecycle(): void
     {
-        $tenant = $this->provisionTenant();
+        $tenant = $this->provisionTenant('sales_04');
         $tenant->update(['plan' => 'full']);
 
         $this->post('/login', [
@@ -351,7 +351,7 @@ class SalesModuleLifecycleTest extends TestCase
 
     public function test_customer_portal_token_verification(): void
     {
-        $tenant = $this->provisionTenant();
+        $tenant = $this->provisionTenant('sales_05');
         $tenant->update(['plan' => 'full']);
 
         $tokenStr = null;
