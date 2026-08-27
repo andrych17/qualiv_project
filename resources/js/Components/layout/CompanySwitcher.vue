@@ -26,13 +26,13 @@ const switchCompany = (e: Event) => {
 
 <template>
   <div v-if="context && context.companies.length" class="flex items-center gap-2">
-    <Building2 class="h-4 w-4 shrink-0 text-gray-500" />
+    <Building2 class="h-4 w-4 shrink-0 text-ink-600" />
     <select
       :value="context.currentCompanyId"
-      class="rounded-md border border-gray-200 bg-white px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-50"
+      class="rounded-md border border-border bg-surface-0 px-2 py-1.5 text-sm text-ink-900 shadow-xs outline-none transition hover:bg-surface-50 focus:border-accent focus:ring-2 focus:ring-accent/20"
       @change="switchCompany"
     >
-      <option v-for="c in context.companies" :key="c.id" :value="c.id">{{ c.legal_name }}</option>
+      <option v-for="c in context.companies" :key="c.id" :value="c.id" class="bg-surface-0 text-ink-900">{{ c.legal_name }}</option>
     </select>
   </div>
 </template>

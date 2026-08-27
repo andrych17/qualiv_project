@@ -75,6 +75,9 @@ class HandleInertiaRequests extends Middleware
             'canMergePartners' => fn () => ($user && tenancy()->initialized)
                 ? (bool) (app(ConfigService::class)->permissionsForUserMenu((int) $user->id, 'CRM_MERGE')['read'] ?? false)
                 : false,
+            'canManageTheme' => fn () => ($user && tenancy()->initialized)
+                ? (bool) (app(ConfigService::class)->permissionsForUserMenu((int) $user->id, 'CONFIG_THEME')['read'] ?? false)
+                : false,
             // §3K — only computed on an Accounting page (the routeIs guard keeps this a
             // no-op query everywhere else); AppHeader's switcher reads this to render
             // itself, and its own navigation is what keeps every Accounting screen's

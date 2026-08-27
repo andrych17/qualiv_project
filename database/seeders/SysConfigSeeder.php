@@ -172,7 +172,6 @@ class SysConfigSeeder extends Seeder
                 'PURCHASE' => 'CRUD',
                 'SALES' => 'CRUD',
                 'DESIGN_SYSTEM' => 'R',
-                'CONFIG_THEME' => 'CRUD',
             ],
             'VIEWER' => [
                 'DASHBOARD' => 'R',
@@ -189,7 +188,6 @@ class SysConfigSeeder extends Seeder
                 'PURCHASE' => 'R',
                 'SALES' => 'R',
                 'DESIGN_SYSTEM' => 'R',
-                'CONFIG_THEME' => 'CRUD',
             ],
         ];
 

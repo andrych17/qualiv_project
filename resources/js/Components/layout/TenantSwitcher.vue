@@ -26,32 +26,32 @@ const switchTo = (tenantId: string) => {
   <div class="relative">
     <button
       type="button"
-      class="flex w-full items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-left text-sm hover:bg-gray-50"
+      class="flex w-full items-center gap-2 rounded-md border border-border bg-surface-0 px-3 py-2 text-left text-sm text-ink-900 shadow-xs transition hover:bg-surface-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       :disabled="!canSwitch"
       @click="canSwitch && (open = !open)"
     >
-      <Building2 class="h-4 w-4 shrink-0 text-gray-500" />
-      <span class="min-w-0 flex-1 truncate font-medium text-gray-900">
+      <Building2 class="h-4 w-4 shrink-0 text-ink-600" />
+      <span class="min-w-0 flex-1 truncate font-medium text-ink-900">
         {{ current?.name ?? 'No tenant' }}
       </span>
-      <ChevronDown v-if="canSwitch" class="h-4 w-4 shrink-0 text-gray-400" />
+      <ChevronDown v-if="canSwitch" class="h-4 w-4 shrink-0 text-ink-600" />
     </button>
 
     <div
       v-if="open && canSwitch"
-      class="absolute left-0 right-0 z-20 mt-1 overflow-hidden rounded-md border border-gray-200 bg-white shadow-lg"
+      class="absolute left-0 right-0 z-20 mt-1 overflow-hidden rounded-md border border-border bg-surface-0 shadow-lg ring-1 ring-black/5"
     >
       <button
         v-for="t in tenants"
         :key="t.id"
         type="button"
-        class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-gray-50"
+        class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition hover:bg-surface-50"
         @click="switchTo(t.id)"
       >
-        <span class="min-w-0 flex-1 truncate" :class="t.id === current?.id ? 'font-semibold text-gray-900' : 'text-gray-700'">
+        <span class="min-w-0 flex-1 truncate" :class="t.id === current?.id ? 'font-semibold text-accent' : 'text-ink-900'">
           {{ t.name }}
         </span>
-        <Check v-if="t.id === current?.id" class="h-4 w-4 text-gray-900" />
+        <Check v-if="t.id === current?.id" class="h-4 w-4 text-accent" />
       </button>
     </div>
   </div>

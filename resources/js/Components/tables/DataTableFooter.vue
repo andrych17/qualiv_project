@@ -24,8 +24,8 @@ const perPage = defineModel<number>('perPage')
       </span>
       <label v-if="perPage !== undefined" class="flex items-center gap-1.5">
         <span>Rows:</span>
-        <select v-model.number="perPage" class="rounded-md border border-border py-1 text-sm">
-          <option v-for="n in perPageOptions" :key="n" :value="n">{{ n }}</option>
+        <select v-model.number="perPage" class="rounded-md border border-border bg-surface-0 px-2 py-1 text-sm text-ink-900 outline-none focus:border-accent focus:ring-1 focus:ring-accent/20">
+          <option v-for="n in perPageOptions" :key="n" :value="n" class="bg-surface-0 text-ink-900">{{ n }}</option>
         </select>
       </label>
     </div>

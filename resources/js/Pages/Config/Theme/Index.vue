@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
@@ -8,7 +8,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
-import { Palette, Check, Sparkles, Layers, ShieldCheck, Sun, Moon, ArrowRightLeft } from 'lucide-vue-next'
+import { Palette, Check, Sparkles, Layers, ShieldCheck } from 'lucide-vue-next'
 import { useTheme, type ThemeDef } from '@/Composables/useTheme'
 
 const props = defineProps<{
@@ -17,14 +17,7 @@ const props = defineProps<{
   defaultTheme: string
 }>()
 
-const { activeTheme, isDark, setTheme, toggleLightDark } = useTheme()
-
-const modeFilter = ref<'all' | 'light' | 'dark'>('all')
-
-const filteredThemes = computed(() => {
-  if (modeFilter.value === 'all') return props.themes
-  return props.themes.filter((t) => t.mode === modeFilter.value)
-})
+const { activeTheme, setTheme } = useTheme()
 
 const currentThemeObj = computed(() => {
   return props.themes.find((t) => t.id === activeTheme.value) ?? props.themes[0]
@@ -32,10 +25,6 @@ const currentThemeObj = computed(() => {
 
 const handleApplyTheme = (themeId: string) => {
   setTheme(themeId, true)
-}
-
-const handleToggleMode = () => {
-  toggleLightDark(true)
 }
 </script>
 
@@ -46,70 +35,27 @@ const handleToggleMode = () => {
     <div class="space-y-6 pb-16">
       <!-- Page Header -->
       <PageHeader
-        title="Pengaturan Tema & Mode Tampilan"
-        subtitle="Kelola tema warna dan mode tampilan (Light / Dark Mode) untuk tenant ini. Seluruh tombol, formulir, tabel, kartu, dialog, dan navigasi akan otomatis menyesuaikan secara konsisten."
+        title="Pengaturan Tema & Identitas Visual Tenant"
+        subtitle="Kelola skema palet warna resmi perusahaan untuk seluruh modul ERP. Seluruh tombol, formulir, tabel, kartu, dialog, dan navigasi akan otomatis menyesuaikan secara konsisten."
       >
         <template #actions>
           <div class="flex items-center gap-3">
-            <!-- Fast Mode Switcher Button -->
-            <button
-              type="button"
-              @click="handleToggleMode"
-              class="inline-flex items-center gap-2 rounded-md border border-border bg-surface-0 px-3.5 py-2 text-xs font-semibold text-ink-900 shadow-xs transition hover:bg-surface-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
-            >
-              <Sun v-if="isDark" class="h-4 w-4 text-amber-400" />
-              <Moon v-else class="h-4 w-4 text-sky-500" />
-              <span>Beralih ke {{ isDark ? 'Mode Terang (Light)' : 'Mode Gelap (Dark)' }}</span>
-            </button>
-
             <!-- Active Theme Pill -->
-            <span class="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-0 px-3.5 py-1.5 text-xs font-semibold text-ink-900 shadow-xs">
+            <span class="inline-flex items-center gap-2 rounded-full border border-border bg-surface-0 px-4 py-2 text-xs font-semibold text-ink-900 shadow-xs">
               <span
-                class="h-2.5 w-2.5 rounded-full ring-2 ring-white shadow-xs"
+                class="h-3 w-3 rounded-full ring-2 ring-white shadow-xs"
                 :style="{ backgroundColor: currentThemeObj.primary_color }"
               />
-              <span>Aktif: {{ currentThemeObj.name }} ({{ currentThemeObj.mode === 'dark' ? 'Dark' : 'Light' }})</span>
+              <span>Tema Aktif: <strong class="font-bold text-accent">{{ currentThemeObj.name }}</strong> ({{ currentThemeObj.caption }})</span>
             </span>
           </div>
         </template>
       </PageHeader>
 
-      <!-- Filter Mode Tabs -->
-      <div class="flex items-center justify-between border-b border-border pb-3">
-        <div class="flex items-center gap-2">
-          <button
-            type="button"
-            @click="modeFilter = 'all'"
-            class="rounded-md px-3 py-1.5 text-xs font-semibold transition-colors"
-            :class="modeFilter === 'all' ? 'bg-accent text-white shadow-xs' : 'bg-surface-0 text-ink-600 border border-border hover:bg-surface-50 hover:text-ink-900'"
-          >
-            Semua Tema ({{ themes.length }})
-          </button>
-          <button
-            type="button"
-            @click="modeFilter = 'light'"
-            class="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors"
-            :class="modeFilter === 'light' ? 'bg-accent text-white shadow-xs' : 'bg-surface-0 text-ink-600 border border-border hover:bg-surface-50 hover:text-ink-900'"
-          >
-            <Sun class="h-3.5 w-3.5" />
-            <span>Mode Terang / Light ({{ themes.filter(t => t.mode === 'light').length }})</span>
-          </button>
-          <button
-            type="button"
-            @click="modeFilter = 'dark'"
-            class="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors"
-            :class="modeFilter === 'dark' ? 'bg-accent text-white shadow-xs' : 'bg-surface-0 text-ink-600 border border-border hover:bg-surface-50 hover:text-ink-900'"
-          >
-            <Moon class="h-3.5 w-3.5" />
-            <span>Mode Gelap / Dark ({{ themes.filter(t => t.mode === 'dark').length }})</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Theme Cards Grid -->
+      <!-- Theme Cards Grid (Unified Corporate Palettes) -->
       <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         <div
-          v-for="theme in filteredThemes"
+          v-for="theme in themes"
           :key="theme.id"
           class="relative flex flex-col justify-between overflow-hidden rounded-lg border bg-surface-0 p-5 shadow-xs transition-all hover:shadow-md"
           :class="activeTheme === theme.id ? 'border-accent ring-2 ring-accent/30' : 'border-border'"
@@ -130,12 +76,6 @@ const handleToggleMode = () => {
                 <div>
                   <h3 class="font-semibold text-ink-900 flex items-center gap-1.5">
                     <span>{{ theme.name }}</span>
-                    <span
-                      class="rounded px-1.5 py-0.2 text-[9px] font-bold uppercase tracking-wider"
-                      :class="theme.mode === 'dark' ? 'bg-slate-800 text-sky-300 border border-slate-700' : 'bg-amber-100 text-amber-900 border border-amber-200'"
-                    >
-                      {{ theme.mode === 'dark' ? 'Dark' : 'Light' }}
-                    </span>
                   </h3>
                   <p class="text-xs text-ink-600">{{ theme.caption }}</p>
                 </div>

@@ -83,4 +83,34 @@ class TenantThemeTest extends TestCase
             $this->assertSame('midnight-dark', $service->getCurrentTheme());
         });
     }
+
+    public function test_non_admin_cannot_access_or_update_theme_via_http(): void
+    {
+        $tenant = $this->provisionTenant('th5');
+
+        $tenant->run(function () {
+            $staffGroup = \App\Modules\SysConfig\Models\ConfigGroup::query()->where('code', 'STAFF')->firstOrFail();
+            $staff = User::factory()->create([
+                'name' => 'Staff User',
+                'email' => 'staff@nusaevo.com',
+                'email_verified_at' => now(),
+            ]);
+
+            \App\Modules\SysConfig\Models\ConfigGroupUser::create([
+                'group_id' => $staffGroup->id,
+                'group_code' => $staffGroup->code,
+                'user_id' => $staff->id,
+            ]);
+
+            // Staff attempt to access theme index
+            $response = $this->actingAs($staff)->get(route('config.theme.index'));
+            $response->assertForbidden();
+
+            // Staff attempt to update theme
+            $updateResponse = $this->actingAs($staff)->post(route('config.theme.update'), [
+                'theme' => 'emerald-horizon',
+            ]);
+            $updateResponse->assertForbidden();
+        });
+    }
 }

@@ -50,7 +50,7 @@ const select = (value: string | number) => {
         v-for="opt in options"
         :key="opt.value"
         @click="select(opt.value)"
-        class="flex items-start gap-3 rounded-md border border-border bg-white p-3 cursor-pointer transition-colors hover:bg-surface-50"
+        class="flex items-start gap-3 rounded-md border border-border bg-surface-0 p-3 cursor-pointer transition-colors hover:bg-surface-50"
         :class="[
           opt.value === modelValue ? 'border-accent ring-1 ring-accent bg-accent/5' : '',
           disabled ? 'opacity-50 cursor-not-allowed' : ''

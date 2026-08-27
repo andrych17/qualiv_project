@@ -45,11 +45,12 @@ const selectId = computed(() => props.name ? `select-${props.name}` : undefined)
       ]"
       @change="emit('update:modelValue', ($event.target as HTMLSelectElement).value)"
     >
-      <option value="" disabled selected>{{ placeholder }}</option>
+      <option value="" disabled selected class="bg-surface-0 text-ink-600">{{ placeholder }}</option>
       <option
         v-for="opt in options"
         :key="opt.value"
         :value="opt.value"
+        class="bg-surface-0 text-ink-900"
       >
         {{ opt.label }}
       </option>
