@@ -13,12 +13,12 @@ use Illuminate\Support\Facades\Route;
 // Bare /config → first SysConfig screen (avoids 404 when link/bookmark drops the child path)
 Route::redirect('/config', '/config/menus');
 
-// SysConfig admin screens — ADMIN trustee on CONFIG_* menus
+// SysConfig admin screens
 Route::middleware(['auth', 'verified'])->prefix('config')->name('config.')->group(function () {
-    Route::middleware('menu.perm:CONFIG_THEME')->group(function () {
-        Route::get('theme', [ConfigThemeController::class, 'index'])->name('theme.index');
-        Route::post('theme', [ConfigThemeController::class, 'update'])->name('theme.update');
-    });
+    // Theme configuration & quick switch is accessible to all authenticated tenant users
+    Route::get('theme', [ConfigThemeController::class, 'index'])->name('theme.index');
+    Route::post('theme', [ConfigThemeController::class, 'update'])->name('theme.update');
+
     Route::middleware('menu.perm:CONFIG_MENUS')->group(function () {
         Route::delete('menus/bulk-destroy', [ConfigMenuController::class, 'bulkDestroy'])->name('menus.bulkDestroy');
         Route::resource('menus', ConfigMenuController::class)->except(['show']);
