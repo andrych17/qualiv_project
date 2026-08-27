@@ -221,9 +221,9 @@ onUnmounted(() => {
         @click="toggleDropdown"
         @keydown.enter.prevent="toggleDropdown"
         @keydown.space.prevent="toggleDropdown"
-        class="w-full min-h-[42px] flex items-center justify-between rounded-md border border-border bg-white px-3 py-1.5 text-sm shadow-sm outline-none transition focus-within:border-ink-900 focus-within:ring-2 focus-within:ring-ink-900/10 cursor-pointer"
+        class="w-full min-h-[42px] flex items-center justify-between rounded-md border border-border bg-surface-0 px-3 py-1.5 text-sm shadow-xs outline-none transition focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 cursor-pointer"
         :class="[
-          error ? 'border-signal-danger focus-within:border-signal-danger focus-within:ring-signal-danger/10' : '',
+          error ? 'border-signal-danger focus-within:border-signal-danger focus-within:ring-signal-danger/20' : '',
           disabled ? 'bg-surface-50 cursor-not-allowed text-ink-600' : 'hover:border-ink-600/50'
         ]"
       >
@@ -282,7 +282,7 @@ onUnmounted(() => {
       <div
         v-if="isOpen"
         @click.stop
-        class="absolute left-0 right-0 z-40 mt-1 max-h-72 overflow-hidden rounded-md border border-border bg-white shadow-lg ring-1 ring-black/5 flex flex-col"
+        class="absolute left-0 right-0 z-40 mt-1 max-h-72 overflow-hidden rounded-md border border-border bg-surface-0 shadow-lg ring-1 ring-black/5 flex flex-col"
       >
         <!-- Search Input -->
         <div class="p-2 border-b border-border bg-surface-50 flex items-center gap-2">

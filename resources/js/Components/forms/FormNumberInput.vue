@@ -232,9 +232,9 @@ function handleClear(event: MouseEvent) {
     </div>
 
     <div
-      class="group relative flex w-full items-stretch overflow-hidden rounded-md border border-border bg-white shadow-sm transition focus-within:border-ink-900 focus-within:ring-2 focus-within:ring-ink-900/10"
+      class="group relative flex w-full items-stretch overflow-hidden rounded-md border border-border bg-surface-0 shadow-xs transition focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20"
       :class="[
-        error ? 'border-signal-danger focus-within:border-signal-danger focus-within:ring-signal-danger/10' : '',
+        error ? 'border-signal-danger focus-within:border-signal-danger focus-within:ring-signal-danger/20' : '',
         disabled ? 'bg-surface-50 cursor-not-allowed text-ink-600' : '',
       ]"
     >

@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* DESIGN.md — Ink, Surface, Border, Accent & Signal tokens for Multi-Tenant Themes (Light & Dark) */
+/* DESIGN.md — High-End Ink, Surface, Border, Accent & Signal tokens for Multi-Tenant Themes (Light & Dark) */
 
 /* 1. Classic Navy (Light Enterprise Default) */
 :root,
@@ -21,14 +21,14 @@
   color-scheme: light;
 }
 
-/* 2. Midnight Dark (Enterprise Dark Mode) */
+/* 2. Midnight Dark (Enterprise Obsidian Dark Mode — Deep Void & Luminous Blue) */
 [data-theme="midnight-dark"],
 [data-theme="dark"] {
   --color-ink-900: #f8fafc;
   --color-ink-600: #94a3b8;
-  --color-surface-0: #1e293b;
-  --color-surface-50: #0f172a;
-  --color-border: #334155;
+  --color-surface-0: #131924;
+  --color-surface-50: #0a0e17;
+  --color-border: #222d3d;
   --color-accent: #38bdf8;
   --color-signal-success: #34d399;
   --color-signal-warning: #fbbf24;
@@ -52,13 +52,13 @@
   color-scheme: light;
 }
 
-/* 4. Forest Night (Deep Forest Dark) */
+/* 4. Forest Night (Deep Forest Dark — Radiant Mint) */
 [data-theme="forest-dark"] {
-  --color-ink-900: #f0fdf4;
+  --color-ink-900: #ecfdf5;
   --color-ink-600: #86efac;
-  --color-surface-0: #142820;
-  --color-surface-50: #0a1712;
-  --color-border: #1e3d31;
+  --color-surface-0: #0f1f18;
+  --color-surface-50: #07120e;
+  --color-border: #19382b;
   --color-accent: #10b981;
   --color-signal-success: #34d399;
   --color-signal-warning: #fbbf24;
@@ -82,13 +82,13 @@
   color-scheme: light;
 }
 
-/* 6. Amethyst Night (Executive Dark) */
+/* 6. Amethyst Night (Executive Dark — Cyberpunk Violet) */
 [data-theme="amethyst-dark"] {
   --color-ink-900: #faf5ff;
   --color-ink-600: #c084fc;
-  --color-surface-0: #1f1938;
-  --color-surface-50: #110d22;
-  --color-border: #352a5c;
+  --color-surface-0: #161327;
+  --color-surface-50: #0c0919;
+  --color-border: #2a2147;
   --color-accent: #a855f7;
   --color-signal-success: #34d399;
   --color-signal-warning: #fbbf24;

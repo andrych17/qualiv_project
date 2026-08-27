@@ -1,4 +1,4 @@
-<!-- ponytail: Reusable Textarea component -->
+<!-- ponytail: Reusable Textarea component with theme tokens -->
 <script setup lang="ts">
 import { computed } from 'vue'
 
@@ -50,9 +50,9 @@ const textareaId = computed(() => `textarea-${props.name}`)
       :placeholder="placeholder"
       :disabled="disabled"
       :maxlength="maxLength"
-      class="w-full rounded-md border border-border bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-ink-900 focus:ring-2 focus:ring-ink-900/10"
+      class="w-full rounded-md border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 placeholder:text-ink-600/60 shadow-xs outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
       :class="[
-        error ? 'border-signal-danger focus:border-signal-danger focus:ring-signal-danger/10' : '',
+        error ? 'border-signal-danger focus:border-signal-danger focus:ring-signal-danger/20' : '',
         disabled ? 'bg-surface-50 cursor-not-allowed text-ink-600' : ''
       ]"
       @input="emit('update:modelValue', ($event.target as HTMLTextAreaElement).value)"
