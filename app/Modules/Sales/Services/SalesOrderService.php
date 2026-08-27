@@ -4,7 +4,6 @@ namespace App\Modules\Sales\Services;
 
 use App\Modules\Sales\Events\SalesOrderConfirmed;
 use App\Modules\Sales\Models\SalesOrder;
-use App\Modules\Sales\Models\SalesOrderLine;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 

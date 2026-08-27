@@ -184,7 +184,7 @@ class RequisitionService
             ]);
         }
 
-        return DB::transaction(function () use ($pr, $data, $userId) {
+        return DB::transaction(function () use ($pr, $data) {
             $lines = $data['lines'] ?? [];
 
             $estimatedTotal = 0;

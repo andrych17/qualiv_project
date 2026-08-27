@@ -30,10 +30,12 @@ import DropdownLink from '@/Components/DropdownLink.vue'
 import { showToast } from '@/Composables/useFlashToast'
 import { useConfirm } from '@/Composables/useConfirmDialog'
 import { useAlert } from '@/Composables/useAlertDialog'
-import { Palette, Layers, MousePointerClick, FormInput as FormIcon, Activity, Table, Layout, Sparkles } from 'lucide-vue-next'
+import { useTheme } from '@/Composables/useTheme'
+import { Palette, Layers, MousePointerClick, FormInput as FormIcon, Activity, Table, Layout, Sparkles, Check } from 'lucide-vue-next'
 
 const { confirm } = useConfirm()
 const { showAlert } = useAlert()
+const { activeTheme, availableThemes, setTheme } = useTheme()
 
 // Interactive state demo models
 const searchDemo = ref('')
@@ -322,6 +324,40 @@ const triggerConfirmDemo = (variant: 'default' | 'destructive') => {
                 <div class="border-l-[3px] border-l-signal-warning bg-white px-2 py-1 rounded-r">Pending Rail</div>
                 <div class="border-l-[3px] border-l-signal-danger bg-white px-2 py-1 rounded-r">Overdue Rail</div>
               </div>
+            </div>
+          </div>
+
+          <!-- Multi-Tenant Themes Quick Switcher -->
+          <div class="mt-4 border-t border-border pt-4">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <h3 class="text-sm font-semibold text-ink-900">Tema Tenant Global (5 Preset Tema)</h3>
+                <p class="text-xs text-ink-600">Klik salah satu tema di bawah untuk menguji perubahan warna CSS variables secara live di seluruh halaman:</p>
+              </div>
+              <span class="text-xs font-mono font-semibold text-accent uppercase">Active: {{ activeTheme }}</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+              <button
+                v-for="t in availableThemes"
+                :key="t.id"
+                type="button"
+                @click="setTheme(t.id, false)"
+                class="flex items-center justify-between rounded-md border p-2.5 text-left text-xs transition-all"
+                :class="activeTheme === t.id ? 'border-accent bg-accent/5 ring-1 ring-accent font-semibold' : 'border-border bg-white hover:bg-surface-50'"
+              >
+                <div class="flex items-center gap-2">
+                  <span
+                    class="h-4 w-4 rounded-full ring-1 ring-white shadow-xs"
+                    :style="{ backgroundColor: t.primary_color }"
+                  />
+                  <div>
+                    <p class="text-ink-900 leading-tight">{{ t.name }}</p>
+                    <p class="text-[10px] text-ink-600">{{ t.badge ?? t.caption }}</p>
+                  </div>
+                </div>
+                <Check v-if="activeTheme === t.id" class="h-3.5 w-3.5 text-accent" />
+              </button>
             </div>
           </div>
         </Panel>

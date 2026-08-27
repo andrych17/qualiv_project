@@ -5,7 +5,6 @@ namespace App\Modules\Sales\Services;
 use App\Modules\Inventory\Services\InventoryService;
 use App\Modules\Sales\Events\DeliveryShipped;
 use App\Modules\Sales\Models\Delivery;
-use App\Modules\Sales\Models\DeliveryLine;
 use App\Modules\Sales\Models\SalesOrder;
 use App\Modules\Sales\Models\SalesOrderLine;
 use Illuminate\Support\Facades\DB;

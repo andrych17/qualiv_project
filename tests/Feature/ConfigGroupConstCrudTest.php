@@ -52,6 +52,7 @@ class ConfigGroupConstCrudTest extends TestCase
             'rights' => [
                 [
                     'menu_id' => $menuId,
+                    'seq' => 15,
                     'create' => true,
                     'read' => true,
                     'update' => false,
@@ -65,6 +66,14 @@ class ConfigGroupConstCrudTest extends TestCase
             $this->assertSame(
                 'CR',
                 ConfigRight::query()->where('group_id', $groupId)->where('menu_id', $menuId)->value('trustee')
+            );
+            $this->assertSame(
+                15,
+                ConfigRight::query()->where('group_id', $groupId)->where('menu_id', $menuId)->value('menu_seq')
+            );
+            $this->assertSame(
+                15,
+                ConfigMenu::query()->where('id', $menuId)->value('seq')
             );
             $this->assertTrue(
                 ConfigGroupUser::query()->where('group_id', $groupId)->where('user_id', $adminId)->exists()

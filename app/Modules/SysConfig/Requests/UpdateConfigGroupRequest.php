@@ -23,6 +23,7 @@ class UpdateConfigGroupRequest extends FormRequest
             'status_code' => 'required|in:A,I',
             'rights' => 'nullable|array',
             'rights.*.menu_id' => 'required|integer',
+            'rights.*.seq' => 'nullable|integer|min:0',
             'rights.*.create' => 'boolean',
             'rights.*.read' => 'boolean',
             'rights.*.update' => 'boolean',

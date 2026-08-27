@@ -65,9 +65,9 @@ const isActive = (href: string) => {
 </script>
 
 <template>
-  <aside class="w-64 border-r border-gray-200 bg-white flex flex-col h-screen sticky top-0">
-    <div class="border-b border-gray-100 px-4 py-3 space-y-2">
-      <div class="px-1 text-xs font-semibold uppercase tracking-wide text-gray-400">
+  <aside class="w-64 border-r border-border bg-surface-0 flex flex-col h-screen sticky top-0">
+    <div class="border-b border-border px-4 py-3 space-y-2">
+      <div class="px-1 text-xs font-semibold uppercase tracking-wide text-ink-600">
         NusaEvo ERP
       </div>
       <TenantSwitcher />
@@ -75,7 +75,7 @@ const isActive = (href: string) => {
 
     <nav class="flex-1 overflow-y-auto p-4 space-y-4">
       <div v-for="section in menuSections" :key="section.header" class="space-y-1">
-        <p class="px-3 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+        <p class="px-3 text-[11px] font-semibold uppercase tracking-wide text-ink-600">
           {{ section.header }}
         </p>
         <Link
@@ -84,14 +84,14 @@ const isActive = (href: string) => {
           :href="item.href"
           class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors"
           :class="isActive(item.href)
-            ? 'bg-gray-100 text-gray-900'
-            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'"
+            ? 'bg-surface-50 text-accent font-semibold shadow-2xs'
+            : 'text-ink-600 hover:bg-surface-50 hover:text-ink-900'"
         >
           <component :is="getIcon(item.icon)" class="h-4 w-4 shrink-0" />
           <span>{{ item.label }}</span>
         </Link>
       </div>
-      <p v-if="menuSections.length === 0" class="px-3 py-2 text-xs text-gray-400">
+      <p v-if="menuSections.length === 0" class="px-3 py-2 text-xs text-ink-600">
         No menus assigned
       </p>
     </nav>

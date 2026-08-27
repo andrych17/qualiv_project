@@ -11,13 +11,19 @@ class PurRfxHdr extends Model
     protected $table = 'PURCHASE.pur_rfx_hdrs';
 
     public const TYPE_RFQ = 'rfq';
+
     public const TYPE_RFI = 'rfi';
+
     public const TYPE_RFP = 'rfp';
 
     public const STATUS_DRAFT = 'draft';
+
     public const STATUS_SENT = 'sent';
+
     public const STATUS_RESPONSES_OPEN = 'responses_open';
+
     public const STATUS_AWARDED = 'awarded';
+
     public const STATUS_CANCELLED = 'cancelled';
 
     protected $fillable = [

@@ -12,17 +12,27 @@ class PurOrderHdr extends Model
     protected $table = 'PURCHASE.pur_order_hdrs';
 
     public const STATUS_DRAFT = 'draft';
+
     public const STATUS_PENDING_APPROVAL = 'pending_approval';
+
     public const STATUS_APPROVED = 'approved';
+
     public const STATUS_SENT = 'sent';
+
     public const STATUS_ACKNOWLEDGED = 'acknowledged';
+
     public const STATUS_PARTIALLY_RECEIVED = 'partially_received';
+
     public const STATUS_RECEIVED = 'received';
+
     public const STATUS_CLOSED = 'closed';
+
     public const STATUS_CANCELLED = 'cancelled';
 
     public const ACK_ACCEPTED = 'accepted';
+
     public const ACK_ACCEPTED_WITH_CHANGES = 'accepted_with_changes';
+
     public const ACK_REJECTED = 'rejected';
 
     protected $fillable = [

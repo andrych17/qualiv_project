@@ -8,6 +8,7 @@ use App\Modules\DMS\Services\DocumentService;
 use App\Modules\Purchase\Models\PurVendorDocument;
 use App\Modules\Purchase\Models\VendorProfile;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class VendorProfileService
@@ -15,7 +16,7 @@ class VendorProfileService
     public function __construct(protected DocumentService $documents) {}
 
     /** Partners eligible/extended as vendors — active CRM.partners with role VENDOR (§3G). */
-    public function eligiblePartners(): \Illuminate\Support\Collection
+    public function eligiblePartners(): Collection
     {
         return Partner::query()
             ->where('is_active', true)

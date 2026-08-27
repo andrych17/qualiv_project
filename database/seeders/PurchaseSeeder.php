@@ -13,18 +13,10 @@ use App\Modules\Purchase\Models\PurCatalogItem;
 use App\Modules\Purchase\Models\PurContractHdr;
 use App\Modules\Purchase\Models\PurException;
 use App\Modules\Purchase\Models\PurInvoiceHdr;
-use App\Modules\Purchase\Models\PurInvoiceLine;
-use App\Modules\Purchase\Models\PurInvoiceMatch;
 use App\Modules\Purchase\Models\PurOrderHdr;
-use App\Modules\Purchase\Models\PurOrderLine;
-use App\Modules\Purchase\Models\PurOrderRevision;
 use App\Modules\Purchase\Models\PurReceiptHdr;
-use App\Modules\Purchase\Models\PurReceiptLine;
 use App\Modules\Purchase\Models\PurRequisitionHdr;
-use App\Modules\Purchase\Models\PurRequisitionLine;
 use App\Modules\Purchase\Models\PurRfxHdr;
-use App\Modules\Purchase\Models\PurRfxInvitation;
-use App\Modules\Purchase\Models\PurRfxLine;
 use App\Modules\Purchase\Models\VendorProfile;
 use Illuminate\Database\Seeder;
 

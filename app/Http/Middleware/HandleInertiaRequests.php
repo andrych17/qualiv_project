@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Modules\Accounting\Services\CompanyContextService;
 use App\Modules\SysConfig\Services\ConfigService;
+use App\Modules\SysConfig\Services\ThemeService;
 use App\Services\TenantFeatureService;
 use App\Services\TenantMembershipService;
 use Illuminate\Http\Request;
@@ -81,6 +82,10 @@ class HandleInertiaRequests extends Middleware
             'accountingCompanyContext' => fn () => ($user && tenancy()->initialized && $request->routeIs('accounting.*'))
                 ? app(CompanyContextService::class)->contextFor($request)
                 : null,
+            'theme' => fn () => ($user && tenancy()->initialized)
+                ? app(ThemeService::class)->getCurrentTheme((int) $user->id)
+                : ThemeService::DEFAULT_THEME,
+            'availableThemes' => fn () => app(ThemeService::class)->getAvailableThemes(),
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),

@@ -3,8 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-use App\Modules\CRM\Models\Partner;
-use App\Modules\CRM\Models\PartnerRoleType;
 use App\Modules\Purchase\Models\Category;
 use App\Modules\Purchase\Models\CostCenter;
 use App\Modules\Purchase\Models\PurBudget;

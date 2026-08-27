@@ -13,7 +13,9 @@ class CommissionSettlement extends Model
     public $timestamps = false;
 
     public const STATUS_DRAFT = 'draft';
+
     public const STATUS_APPROVED = 'approved';
+
     public const STATUS_PAID = 'paid';
 
     public const STATUSES = [

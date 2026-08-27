@@ -10,8 +10,10 @@ use App\Modules\Accounting\Events\ApPaymentRequested;
 use App\Modules\Accounting\Events\InventoryGoodsIssued;
 use App\Modules\Accounting\Events\InventoryGoodsReceived;
 use App\Modules\Accounting\Events\InventoryStockAdjusted;
+use App\Modules\Accounting\Events\InvoicePosted;
 use App\Modules\Accounting\Events\InvoiceRequested;
 use App\Modules\Accounting\Events\JournalPostingRequested;
+use App\Modules\Accounting\Events\PaymentRecorded;
 use App\Modules\Accounting\Events\PaymentRequested;
 use App\Modules\Accounting\Events\PayrollRunPaid;
 use App\Modules\Accounting\Listeners\CreateBillFromRequest;
@@ -32,6 +34,10 @@ use App\Modules\Inventory\Models\StockBatch;
 use App\Modules\Legal\Contracts\MatterCodeGenerator;
 use App\Modules\Legal\Models\Matter;
 use App\Modules\Legal\Services\PrefixedMatterCodeGenerator;
+use App\Modules\Sales\Events\SalesOrderRequested;
+use App\Modules\Sales\Listeners\CreateSalesOrderFromRequested;
+use App\Modules\Sales\Listeners\ProcessCommissionOnPaymentRecorded;
+use App\Modules\Sales\Listeners\UpdateSalesOrderOnInvoicePosted;
 use App\Modules\WNE\Events\NotificationRequested;
 use App\Modules\WNE\Listeners\DeliverRequestedNotification;
 use App\Services\AsyncSearchRegistry;
@@ -87,9 +93,9 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(PayrollRunPaid::class, PostPayrollRunToGl::class);
 
         // Sales module listeners (§3I/§3M/§5)
-        Event::listen(\App\Modules\Accounting\Events\InvoicePosted::class, \App\Modules\Sales\Listeners\UpdateSalesOrderOnInvoicePosted::class);
-        Event::listen(\App\Modules\Accounting\Events\PaymentRecorded::class, \App\Modules\Sales\Listeners\ProcessCommissionOnPaymentRecorded::class);
-        Event::listen(\App\Modules\Sales\Events\SalesOrderRequested::class, \App\Modules\Sales\Listeners\CreateSalesOrderFromRequested::class);
+        Event::listen(InvoicePosted::class, UpdateSalesOrderOnInvoicePosted::class);
+        Event::listen(PaymentRecorded::class, ProcessCommissionOnPaymentRecorded::class);
+        Event::listen(SalesOrderRequested::class, CreateSalesOrderFromRequested::class);
 
         Auth::provider('eloquent', function ($app, array $config) {
             return new TenantAwareUserProvider($app['hash'], $config['model']);

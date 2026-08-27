@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\HCM\Models\Shift;
 use App\Modules\HCM\Requests\StoreShiftRequest;
 use App\Modules\HCM\Services\AttendanceService;
+use App\Shared\Helpers\TableQuery;
 use App\Shared\Traits\BulkDeletable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,7 +24,7 @@ class ShiftController extends Controller
     public function index(Request $request): Response
     {
         $filters = $request->only('search', 'is_active', 'sort', 'direction', 'per_page');
-        $perPage = \App\Shared\Helpers\TableQuery::perPage(isset($filters['per_page']) ? (int) $filters['per_page'] : null, 15);
+        $perPage = TableQuery::perPage(isset($filters['per_page']) ? (int) $filters['per_page'] : null, 15);
         $shifts = $this->service->paginateShifts($filters, $perPage);
 
         return Inertia::render('HCM/Shifts/Index', [

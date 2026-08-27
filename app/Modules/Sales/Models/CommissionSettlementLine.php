@@ -9,6 +9,7 @@ class CommissionSettlementLine extends Model
     protected $table = 'SALES.comm_settlement_lines';
 
     public const TYPE_EARNED = 'earned';
+
     public const TYPE_REVERSAL = 'reversal';
 
     protected $fillable = [

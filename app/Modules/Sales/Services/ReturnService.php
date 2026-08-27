@@ -6,9 +6,7 @@ use App\Modules\Accounting\Services\ArCreditNoteService;
 use App\Modules\Sales\Models\CommissionPlan;
 use App\Modules\Sales\Models\CommissionSettlement;
 use App\Modules\Sales\Models\SalesOrder;
-use App\Modules\Sales\Models\SalesOrderLine;
 use App\Modules\Sales\Models\SalesReturn;
-use App\Modules\Sales\Models\SalesReturnLine;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -91,7 +89,7 @@ class ReturnService
             ]);
         }
 
-        return DB::transaction(function () use ($return, $userId) {
+        return DB::transaction(function () use ($return) {
             $return->load(['lines.salesOrderLine.order', 'order']);
 
             // If Accounting ArCreditNoteService is available, issue credit note

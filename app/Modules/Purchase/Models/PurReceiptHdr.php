@@ -11,6 +11,7 @@ class PurReceiptHdr extends Model
     protected $table = 'PURCHASE.pur_receipt_hdrs';
 
     public const STATUS_POSTED = 'posted';
+
     public const STATUS_CANCELLED = 'cancelled';
 
     protected $fillable = [

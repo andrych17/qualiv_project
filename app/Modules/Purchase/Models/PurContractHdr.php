@@ -13,14 +13,21 @@ class PurContractHdr extends Model
     protected $table = 'PURCHASE.pur_contract_hdrs';
 
     public const TYPE_FRAMEWORK = 'framework';
+
     public const TYPE_BLANKET = 'blanket';
+
     public const TYPE_PROJECT = 'project';
 
     public const STATUS_DRAFT = 'draft';
+
     public const STATUS_ACTIVE = 'active';
+
     public const STATUS_EXPIRING_SOON = 'expiring_soon';
+
     public const STATUS_EXPIRED = 'expired';
+
     public const STATUS_RENEWED = 'renewed';
+
     public const STATUS_TERMINATED = 'terminated';
 
     protected $fillable = [

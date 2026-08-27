@@ -2,6 +2,7 @@
 
 namespace App\Modules\Sales\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class PromoCode extends Model
@@ -9,6 +10,7 @@ class PromoCode extends Model
     protected $table = 'SALES.promo_codes';
 
     public const TYPE_PERCENTAGE = 'percentage';
+
     public const TYPE_FIXED = 'fixed';
 
     protected $fillable = [
@@ -33,7 +35,7 @@ class PromoCode extends Model
 
     public function isValid(?string $date = null): bool
     {
-        $checkDate = $date ? \Carbon\Carbon::parse($date) : now();
+        $checkDate = $date ? Carbon::parse($date) : now();
 
         if (! $this->is_active) {
             return false;

@@ -12,6 +12,7 @@ interface RightRow {
   code: string
   label: string
   header: string | null
+  seq: number
   create: boolean
   read: boolean
   update: boolean
@@ -42,6 +43,7 @@ const form = useForm({
   status_code: props.group.status_code,
   rights: props.accessMenus.map((m) => ({
     menu_id: m.menu_id,
+    seq: m.seq,
     create: m.create,
     read: m.read,
     update: m.update,
@@ -112,7 +114,10 @@ const submit = () => form.put(route('config.groups.update', props.group.id))
 
       <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-2">
-          <h2 class="text-sm font-semibold text-gray-900">Menu access (CRUD)</h2>
+          <div>
+            <h2 class="text-sm font-semibold text-gray-900">Menu access (CRUD)</h2>
+            <p class="text-xs text-gray-500">Updating sequence here will update global menu order.</p>
+          </div>
           <div class="flex flex-wrap gap-2 text-xs">
             <button type="button" class="rounded border px-2 py-1 hover:bg-gray-50" @click="setAll('read', true)">All R</button>
             <button type="button" class="rounded border px-2 py-1 hover:bg-gray-50" @click="setAll('create', true)">All C</button>
@@ -127,6 +132,7 @@ const submit = () => form.put(route('config.groups.update', props.group.id))
             <thead>
               <tr class="border-b text-left text-xs uppercase tracking-wide text-gray-500">
                 <th class="py-2 pr-4 font-semibold">Menu</th>
+                <th class="py-2 px-2 font-semibold text-center w-24">Seq</th>
                 <th class="py-2 px-2 font-semibold text-center">C</th>
                 <th class="py-2 px-2 font-semibold text-center">R</th>
                 <th class="py-2 px-2 font-semibold text-center">U</th>
@@ -144,6 +150,15 @@ const submit = () => form.put(route('config.groups.update', props.group.id))
                   <div class="text-xs text-gray-500">
                     {{ menuMeta[right.menu_id]?.header }} · {{ menuMeta[right.menu_id]?.code }}
                   </div>
+                </td>
+                <td class="py-2 px-2 text-center">
+                  <input
+                    v-model.number="right.seq"
+                    type="number"
+                    min="0"
+                    step="1"
+                    class="w-20 rounded-md border-gray-300 text-center text-xs py-1 px-2 focus:border-gray-900 focus:ring-gray-900"
+                  />
                 </td>
                 <td class="py-2 px-2 text-center">
                   <input v-model="right.create" type="checkbox" class="rounded border-gray-300" />

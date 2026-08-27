@@ -5,7 +5,6 @@ namespace App\Modules\Purchase\Services;
 use App\Modules\Purchase\Models\PurOrderHdr;
 use App\Modules\Purchase\Models\PurOrderLine;
 use App\Modules\Purchase\Models\PurReceiptHdr;
-use App\Modules\Purchase\Models\PurReceiptLine;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 

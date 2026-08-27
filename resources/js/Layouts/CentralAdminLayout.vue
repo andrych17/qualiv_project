@@ -16,6 +16,7 @@ import {
 import Toast from '@/Components/feedback/Toast.vue'
 import AlertDialog from '@/Components/modals/AlertDialog.vue'
 import ConfirmDialog from '@/Components/modals/ConfirmDialog.vue'
+import ThemeSwitcher from '@/Components/layout/ThemeSwitcher.vue'
 import { useFlashToast } from '@/Composables/useFlashToast'
 
 useFlashToast()
@@ -138,8 +139,11 @@ const logout = () => {
           </nav>
         </div>
 
-        <!-- User Dropdown (Central Admin Guard) -->
-        <div class="relative">
+        <div class="flex items-center gap-3">
+          <ThemeSwitcher />
+
+          <!-- User Dropdown (Central Admin Guard) -->
+          <div class="relative">
           <button
             type="button"
             class="flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-600"
@@ -187,7 +191,8 @@ const logout = () => {
             </div>
           </div>
         </div>
-      </header>
+      </div>
+    </header>
 
       <!-- Content Area (Aligned with AppContent) -->
       <main class="flex-1 overflow-y-auto p-6 bg-gray-50">

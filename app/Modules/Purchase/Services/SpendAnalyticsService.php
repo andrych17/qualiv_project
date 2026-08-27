@@ -7,17 +7,14 @@ use App\Modules\Purchase\Models\CostCenter;
 use App\Modules\Purchase\Models\PurBudget;
 use App\Modules\Purchase\Models\PurContractHdr;
 use App\Modules\Purchase\Models\PurOrderHdr;
-use App\Modules\Purchase\Models\PurOrderLine;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
 
 class SpendAnalyticsService
 {
     /**
      * Aggregates spend analytics across suppliers, categories, cost centers, contracts, and time periods (§3J).
      *
-     * @param array<string, mixed> $filters
+     * @param  array<string, mixed>  $filters
      * @return array<string, mixed>
      */
     public function getSpendAnalytics(array $filters = []): array
@@ -285,7 +282,7 @@ class SpendAnalyticsService
     /**
      * Resolves start and end Carbon dates based on standard filter presets.
      *
-     * @param array<string, mixed> $filters
+     * @param  array<string, mixed>  $filters
      * @return array{0: ?Carbon, 1: ?Carbon}
      */
     private function resolveDateRange(array $filters): array

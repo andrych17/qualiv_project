@@ -2,13 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Modules\CRM\Models\Partner;
 use App\Modules\CRM\Models\PartnerRoleType;
 use App\Modules\Purchase\Models\PurOrderHdr;
 use App\Modules\Purchase\Models\PurRfxHdr;
-use App\Modules\Purchase\Models\PurRfxInvitation;
-use App\Modules\Purchase\Services\SourcingService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\SetsUpTenant;
 use Tests\TestCase;

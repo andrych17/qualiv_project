@@ -61,7 +61,7 @@ class ConfigGroupService
     }
 
     /**
-     * @param  list<array{menu_id: int, create?: bool, read?: bool, update?: bool, delete?: bool}>  $rights
+     * @param  list<array{menu_id: int, seq?: int|string|null, create?: bool, read?: bool, update?: bool, delete?: bool}>  $rights
      */
     private function syncRights(ConfigGroup $group, array $rights): void
     {
@@ -76,6 +76,16 @@ class ConfigGroupService
             $menu = ConfigMenu::query()->find($menuId);
             if (! $menu) {
                 continue;
+            }
+
+            if (array_key_exists('seq', $row) && $row['seq'] !== null && $row['seq'] !== '') {
+                $seqVal = (int) $row['seq'];
+                if ($menu->seq !== $seqVal) {
+                    $menu->update(['seq' => $seqVal]);
+                    ConfigRight::query()
+                        ->where('menu_id', $menu->id)
+                        ->update(['menu_seq' => $seqVal]);
+                }
             }
 
             $trustee = ConfigRight::prepareTrusteeString([

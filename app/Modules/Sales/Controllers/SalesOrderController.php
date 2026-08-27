@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Modules\Accounting\Models\ArInvoice;
 use App\Modules\CRM\Models\Partner;
 use App\Modules\Sales\Models\PriceList;
-use App\Modules\Sales\Models\Quotation;
 use App\Modules\Sales\Models\SalesOrder;
 use App\Modules\Sales\Requests\StoreSalesOrderRequest;
 use App\Modules\Sales\Services\BillingService;

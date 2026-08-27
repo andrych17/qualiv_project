@@ -5,6 +5,7 @@ use App\Modules\SysConfig\Controllers\ConfigConstController;
 use App\Modules\SysConfig\Controllers\ConfigGroupController;
 use App\Modules\SysConfig\Controllers\ConfigMenuController;
 use App\Modules\SysConfig\Controllers\ConfigSnumController;
+use App\Modules\SysConfig\Controllers\ConfigThemeController;
 use App\Modules\SysConfig\Controllers\ConfigUserController;
 use App\Modules\SysConfig\Controllers\TenantModuleController;
 use Illuminate\Support\Facades\Route;
@@ -14,6 +15,10 @@ Route::redirect('/config', '/config/menus');
 
 // SysConfig admin screens — ADMIN trustee on CONFIG_* menus
 Route::middleware(['auth', 'verified'])->prefix('config')->name('config.')->group(function () {
+    Route::middleware('menu.perm:CONFIG_THEME')->group(function () {
+        Route::get('theme', [ConfigThemeController::class, 'index'])->name('theme.index');
+        Route::post('theme', [ConfigThemeController::class, 'update'])->name('theme.update');
+    });
     Route::middleware('menu.perm:CONFIG_MENUS')->group(function () {
         Route::delete('menus/bulk-destroy', [ConfigMenuController::class, 'bulkDestroy'])->name('menus.bulkDestroy');
         Route::resource('menus', ConfigMenuController::class)->except(['show']);

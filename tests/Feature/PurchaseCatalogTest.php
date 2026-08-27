@@ -2,12 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Modules\CRM\Models\Partner;
 use App\Modules\CRM\Models\PartnerRoleType;
 use App\Modules\Purchase\Models\Category;
 use App\Modules\Purchase\Models\PurCatalogItem;
-use App\Modules\Purchase\Services\CatalogService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\SetsUpTenant;
 use Tests\TestCase;

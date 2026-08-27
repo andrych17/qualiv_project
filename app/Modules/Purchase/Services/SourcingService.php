@@ -22,20 +22,20 @@ class SourcingService
 
     public function generateRfxNo(): string
     {
-        $prefix = 'RFQ-' . date('Ym') . '-';
+        $prefix = 'RFQ-'.date('Ym').'-';
 
         $lastRfx = PurRfxHdr::query()
-            ->where('rfx_no', 'like', $prefix . '%')
+            ->where('rfx_no', 'like', $prefix.'%')
             ->orderByDesc('id')
             ->lockForUpdate()
             ->first();
 
         $seq = 1;
-        if ($lastRfx && preg_match('/' . preg_quote($prefix, '/') . '(\d+)/', $lastRfx->rfx_no, $matches)) {
+        if ($lastRfx && preg_match('/'.preg_quote($prefix, '/').'(\d+)/', $lastRfx->rfx_no, $matches)) {
             $seq = ((int) $matches[1]) + 1;
         }
 
-        return $prefix . str_pad((string) $seq, 4, '0', STR_PAD_LEFT);
+        return $prefix.str_pad((string) $seq, 4, '0', STR_PAD_LEFT);
     }
 
     /** @param array<string, mixed> $data */
@@ -118,7 +118,7 @@ class SourcingService
     /**
      * Records a quote from an invited supplier (§3C).
      *
-     * @param array<int, array{price: float, lead_time_days?: int, notes?: string}> $lineQuotes
+     * @param  array<int, array{price: float, lead_time_days?: int, notes?: string}>  $lineQuotes
      */
     public function recordResponse(PurRfxInvitation $invitation, array $lineQuotes, ?string $notes = null): PurRfxResponse
     {
@@ -155,7 +155,7 @@ class SourcingService
     /**
      * Awards winning suppliers per line and generates Purchase Orders (§3C).
      *
-     * @param array<int, int> $lineAwards Key: rfx_line_id, Value: awarded_supplier_id
+     * @param  array<int, int>  $lineAwards  Key: rfx_line_id, Value: awarded_supplier_id
      * @return array<PurOrderHdr>
      */
     public function awardAndGenerateOrders(PurRfxHdr $rfx, array $lineAwards, int $userId): array

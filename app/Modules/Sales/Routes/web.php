@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\InitializeTenancyByRouteParameter;
 use App\Modules\Sales\Controllers\CommissionPlanController;
 use App\Modules\Sales\Controllers\CommissionSettlementController;
 use App\Modules\Sales\Controllers\ContractController;
@@ -10,12 +11,11 @@ use App\Modules\Sales\Controllers\OpportunityController;
 use App\Modules\Sales\Controllers\PriceListController;
 use App\Modules\Sales\Controllers\PromoCodeController;
 use App\Modules\Sales\Controllers\QuotationController;
+use App\Modules\Sales\Controllers\ReturnController;
 use App\Modules\Sales\Controllers\SalesDashboardController;
 use App\Modules\Sales\Controllers\SalesOrderController;
-use App\Http\Middleware\InitializeTenancyByRouteParameter;
 use App\Modules\Sales\Controllers\SalesTeamController;
 use App\Modules\Sales\Controllers\TerritoryController;
-use App\Modules\Sales\Controllers\ReturnController;
 use Illuminate\Support\Facades\Route;
 
 // Public signed token Customer Portal route (§3D)

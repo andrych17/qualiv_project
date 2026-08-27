@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class PurRfxLine extends Model
 {
     protected $table = 'PURCHASE.pur_rfx_lines';
+
     public $timestamps = false;
 
     protected $fillable = [

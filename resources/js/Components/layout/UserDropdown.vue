@@ -35,7 +35,7 @@ const isOpen = ref(false)
 
     <div 
       v-if="isOpen"
-      class="absolute right-0 z-20 mt-2 w-56 rounded-md border border-border bg-white py-1 shadow-lg ring-1 ring-black/5"
+      class="absolute right-0 z-20 mt-2 w-56 rounded-md border border-border bg-surface-0 py-1 shadow-lg ring-1 ring-black/5"
     >
       <div class="border-b border-border px-4 py-3">
         <p class="text-[11px] font-semibold uppercase tracking-wider text-ink-600">Terhubung sebagai</p>
@@ -59,7 +59,7 @@ const isOpen = ref(false)
           :href="route('logout')" 
           method="post" 
           as="button" 
-          class="flex w-full items-center gap-2.5 px-4 py-2 text-left text-sm text-signal-danger transition-colors hover:bg-red-50"
+          class="flex w-full items-center gap-2.5 px-4 py-2 text-left text-sm text-signal-danger transition-colors hover:bg-signal-danger/10"
         >
           <LogOut class="h-4 w-4" />
           <span>Keluar (Log Out)</span>

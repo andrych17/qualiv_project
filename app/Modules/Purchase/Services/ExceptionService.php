@@ -8,7 +8,6 @@ use App\Modules\Purchase\Models\PurOrderHdr;
 use App\Modules\Purchase\Models\PurRequisitionHdr;
 use App\Modules\WorkflowEngine\Exceptions\WorkflowEngineException;
 use App\Modules\WorkflowEngine\Services\WorkflowService;
-use Illuminate\Support\Facades\DB;
 
 class ExceptionService
 {
