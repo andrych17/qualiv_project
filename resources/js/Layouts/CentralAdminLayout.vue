@@ -14,6 +14,8 @@ import {
   Home,
 } from 'lucide-vue-next'
 import Toast from '@/Components/feedback/Toast.vue'
+import AlertDialog from '@/Components/modals/AlertDialog.vue'
+import ConfirmDialog from '@/Components/modals/ConfirmDialog.vue'
 import { useFlashToast } from '@/Composables/useFlashToast'
 
 useFlashToast()
@@ -194,5 +196,7 @@ const logout = () => {
     </div>
 
     <Toast />
+    <AlertDialog />
+    <ConfirmDialog />
   </div>
 </template>

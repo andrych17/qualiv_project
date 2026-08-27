@@ -29,9 +29,11 @@ import Dropdown from '@/Components/Dropdown.vue'
 import DropdownLink from '@/Components/DropdownLink.vue'
 import { showToast } from '@/Composables/useFlashToast'
 import { useConfirm } from '@/Composables/useConfirmDialog'
+import { useAlert } from '@/Composables/useAlertDialog'
 import { Palette, Layers, MousePointerClick, FormInput as FormIcon, Activity, Table, Layout, Sparkles } from 'lucide-vue-next'
 
 const { confirm } = useConfirm()
+const { showAlert } = useAlert()
 
 // Interactive state demo models
 const searchDemo = ref('')
@@ -159,6 +161,32 @@ const triggerToastDemo = (type: 'success' | 'error') => {
   }
 }
 
+const triggerAlertDemo = (type: 'success' | 'error' | 'warning' | 'info') => {
+  const samples = {
+    success: {
+      title: 'Aksi Berhasil',
+      message: 'Data dokumen dan transaksi berhasil disimpan ke sistem.',
+      type: 'success' as const,
+    },
+    error: {
+      title: 'Gagal Memproses Data',
+      message: 'Terjadi kegagalan validasi atau koneksi server. Silakan periksa kembali data Anda.',
+      type: 'error' as const,
+    },
+    warning: {
+      title: 'Peringatan Sistem',
+      message: 'Kapasitas penyimpanan hampir penuh. Beberapa fitur lampiran mungkin dibatasi.',
+      type: 'warning' as const,
+    },
+    info: {
+      title: 'Informasi Pembaruan',
+      message: 'Sistem telah diperbarui ke versi terbaru. Nikmati performa yang lebih optimal.',
+      type: 'info' as const,
+    },
+  }
+  showAlert(samples[type])
+}
+
 const triggerConfirmDemo = (variant: 'default' | 'destructive') => {
   confirm({
     title: variant === 'destructive' ? 'Hapus Berkas Perkara?' : 'Konfirmasi Penyimpanan',
@@ -169,7 +197,11 @@ const triggerConfirmDemo = (variant: 'default' | 'destructive') => {
     cancelText: 'Batal',
     variant,
     onConfirm: () => {
-      showToast(variant === 'destructive' ? 'Data berhasil dihapus' : 'Perubahan berhasil disimpan', 'success')
+      showAlert({
+        title: 'Berhasil',
+        message: variant === 'destructive' ? 'Data berhasil dihapus dari sistem.' : 'Perubahan berhasil disimpan.',
+        type: 'success',
+      })
     },
   })
 }
@@ -523,16 +555,18 @@ const triggerConfirmDemo = (variant: 'default' | 'destructive') => {
               </div>
             </div>
 
-            <!-- Interactive Toast & Confirm Dialog triggers -->
+            <!-- Interactive Alert & Confirm Dialog triggers -->
             <div class="space-y-3 rounded-md border border-border p-4">
               <div class="flex items-center justify-between">
-                <h3 class="text-sm font-semibold">Toast & ConfirmDialog Actions</h3>
-                <span class="font-mono text-[10px] text-ink-600">Composables / Modals</span>
+                <h3 class="text-sm font-semibold">Centered Alert & Confirm Dialog Actions</h3>
+                <span class="font-mono text-[10px] text-ink-600">useAlert / useConfirm</span>
               </div>
-              <p class="text-xs text-ink-600">Uji langsung pemanggilan dialog global tanpa props overhead:</p>
+              <p class="text-xs text-ink-600">Uji pemanggilan dialog modal global di tengah layar (Success, Error, Warning, Info, Confirm):</p>
               <div class="flex flex-wrap gap-3 pt-2">
-                <SecondaryButton @click="triggerToastDemo('success')">Toast Success</SecondaryButton>
-                <SecondaryButton @click="triggerToastDemo('error')">Toast Error</SecondaryButton>
+                <SecondaryButton @click="triggerAlertDemo('success')">Alert Success</SecondaryButton>
+                <SecondaryButton @click="triggerAlertDemo('error')">Alert Error</SecondaryButton>
+                <SecondaryButton @click="triggerAlertDemo('warning')">Alert Warning</SecondaryButton>
+                <SecondaryButton @click="triggerAlertDemo('info')">Alert Info</SecondaryButton>
                 <SecondaryButton @click="triggerConfirmDemo('default')">Confirm Modal</SecondaryButton>
                 <DangerButton @click="triggerConfirmDemo('destructive')">Destructive Confirm</DangerButton>
               </div>
