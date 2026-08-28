@@ -20,12 +20,17 @@ const mobileSidebar = inject<{
       <!-- Mobile hamburger toggle -->
       <button
         type="button"
-        class="md:hidden inline-flex items-center justify-center p-2 rounded-md text-ink-600 hover:text-ink-900 hover:bg-surface-50 focus:outline-none"
+        class="md:hidden inline-flex items-center justify-center p-2 rounded-md text-ink-600 hover:text-ink-900 hover:bg-surface-50 focus:outline-none cursor-pointer"
         aria-label="Open navigation menu"
         @click="mobileSidebar?.toggle()"
       >
         <Menu class="h-5 w-5" />
       </button>
+
+      <!-- Mobile brand indicator -->
+      <div class="block sm:hidden text-xs font-bold uppercase tracking-wider text-ink-900 truncate">
+        NusaEvo
+      </div>
 
       <div class="hidden sm:block truncate">
         <AppBreadcrumb />

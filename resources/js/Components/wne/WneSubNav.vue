@@ -10,11 +10,11 @@ defineProps<{
 </script>
 
 <template>
-  <div class="flex items-center gap-1 border-b border-border" role="tablist">
+  <div class="flex items-center gap-1 border-b border-border overflow-x-auto scrollbar-none" role="tablist">
     <Link
       :href="route('wne.dashboard')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'dashboard' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Dashboard
@@ -22,7 +22,7 @@ defineProps<{
     <Link
       :href="route('wne.workflows.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'workflows' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Workflows
@@ -30,7 +30,7 @@ defineProps<{
     <Link
       :href="route('wne.my-tasks.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'my-tasks' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       My Approvals
@@ -38,7 +38,7 @@ defineProps<{
     <Link
       :href="route('wne.templates.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'templates' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Templates
@@ -46,7 +46,7 @@ defineProps<{
     <Link
       :href="route('wne.preferences.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'preferences' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Preferences
@@ -54,7 +54,7 @@ defineProps<{
     <Link
       :href="route('wne.dead-letters.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'dead-letters' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Dead Letters
