@@ -15,7 +15,7 @@ const mobileSidebar = inject<{
 </script>
 
 <template>
-  <header class="h-16 border-b border-border bg-surface-0 flex items-center justify-between px-3 sm:px-6 shrink-0 relative z-30">
+  <header class="h-16 border-b border-border bg-surface-0 flex items-center justify-between px-3 sm:px-6 shrink-0 relative z-50">
     <div class="flex items-center gap-2 sm:gap-4 min-w-0">
       <!-- Mobile hamburger toggle -->
       <button

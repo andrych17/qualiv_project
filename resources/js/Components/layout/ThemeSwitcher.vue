@@ -20,12 +20,12 @@ const handleSelect = (themeId: string) => {
 
 <template>
   <!-- Only render for administrators/users with theme management permission -->
-  <div v-if="canManageTheme" class="relative">
+  <div v-if="canManageTheme" class="relative z-50">
     <!-- Single Palette Button -->
     <button
       type="button"
       @click="isOpen = !isOpen"
-      class="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-surface-0 text-ink-600 shadow-xs transition-colors hover:bg-surface-50 hover:text-ink-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      class="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-surface-0 text-ink-600 shadow-xs transition-colors hover:bg-surface-50 hover:text-ink-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
       title="Palet Warna & Tema Tenant (Admin)"
       :aria-expanded="isOpen"
     >
@@ -37,13 +37,13 @@ const handleSelect = (themeId: string) => {
     <div
       v-if="isOpen"
       @click="isOpen = false"
-      class="fixed inset-0 z-40"
+      class="fixed inset-0 z-50"
     />
 
     <!-- Dropdown Menu -->
     <div
       v-if="isOpen"
-      class="absolute right-0 z-50 mt-2 w-80 max-w-[calc(100vw-1.5rem)] rounded-lg border border-border bg-surface-0 p-2 shadow-xl ring-1 ring-black/5"
+      class="absolute right-0 z-50 mt-2 w-80 max-w-[calc(100vw-1.5rem)] rounded-lg border border-border bg-surface-0 p-2 shadow-2xl ring-1 ring-black/10"
     >
       <div class="border-b border-border px-3 py-2">
         <p class="text-xs font-semibold uppercase tracking-wider text-ink-600">Palet Warna Tenant</p>

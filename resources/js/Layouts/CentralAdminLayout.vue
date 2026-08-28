@@ -176,7 +176,7 @@ const logout = () => {
     <!-- Main Shell (Header + Content Slot) -->
     <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
       <!-- Top Header (Aligned with AppHeader) -->
-      <header class="h-16 border-b border-border bg-surface-0 flex items-center justify-between px-3 sm:px-6 shrink-0 relative z-30">
+      <header class="h-16 border-b border-border bg-surface-0 flex items-center justify-between px-3 sm:px-6 shrink-0 relative z-50">
         <!-- Breadcrumbs & Badge -->
         <div class="flex items-center gap-3">
           <button
@@ -214,7 +214,7 @@ const logout = () => {
           <ThemeSwitcher />
 
           <!-- User Dropdown (Central Admin Guard) -->
-          <div class="relative">
+          <div class="relative z-50">
             <button
               type="button"
               class="flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm font-medium text-ink-900 transition-colors hover:bg-surface-50 focus:outline-none cursor-pointer"
@@ -236,13 +236,13 @@ const logout = () => {
 
             <div
               v-if="isUserMenuOpen"
-              class="fixed inset-0 z-40"
+              class="fixed inset-0 z-50"
               @click="isUserMenuOpen = false"
             />
 
             <div
               v-if="isUserMenuOpen"
-              class="absolute right-0 z-50 mt-2 w-56 max-w-[calc(100vw-1.5rem)] rounded-md border border-border bg-surface-0 py-1 shadow-lg ring-1 ring-black/5"
+              class="absolute right-0 z-50 mt-2 w-56 max-w-[calc(100vw-1.5rem)] rounded-md border border-border bg-surface-0 py-1 shadow-2xl ring-1 ring-black/10"
             >
               <div class="border-b border-border px-4 py-3 bg-surface-50">
                 <p class="text-[11px] font-semibold uppercase tracking-wider text-accent">Central Platform Admin</p>
@@ -266,7 +266,7 @@ const logout = () => {
       </header>
 
       <!-- Content Area (Aligned with AppContent) -->
-      <main class="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 bg-surface-50 text-ink-900">
+      <main class="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 bg-surface-50 text-ink-900 min-w-0 max-w-full relative z-0 isolate">
         <slot />
       </main>
     </div>
