@@ -63,8 +63,6 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
-        Vite::prefetch(concurrency: 3);
-
         // WNE_SPECS.md §3I — no EventServiceProvider/auto-discovery exists in this app yet;
         // explicit registration is the first (and only, for now) listener wiring in the codebase.
         Event::listen(NotificationRequested::class, DeliverRequestedNotification::class);
