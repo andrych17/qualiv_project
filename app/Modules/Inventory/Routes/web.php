@@ -4,16 +4,20 @@ use App\Modules\Inventory\Controllers\AdjustmentController;
 use App\Modules\Inventory\Controllers\AdjustmentReasonController;
 use App\Modules\Inventory\Controllers\BarcodeScanController;
 use App\Modules\Inventory\Controllers\BatchController;
+use App\Modules\Inventory\Controllers\CycleCountController;
 use App\Modules\Inventory\Controllers\GoodsIssueController;
 use App\Modules\Inventory\Controllers\GoodsReceiptController;
 use App\Modules\Inventory\Controllers\InventoryItemController;
 use App\Modules\Inventory\Controllers\InventoryValuationController;
 use App\Modules\Inventory\Controllers\LocationController;
+use App\Modules\Inventory\Controllers\PackListController;
 use App\Modules\Inventory\Controllers\PickListController;
 use App\Modules\Inventory\Controllers\ProductCategoryController;
 use App\Modules\Inventory\Controllers\ProductController;
+use App\Modules\Inventory\Controllers\PutawayRuleController;
 use App\Modules\Inventory\Controllers\ReservationController;
 use App\Modules\Inventory\Controllers\SerialController;
+use App\Modules\Inventory\Controllers\ShipmentController;
 use App\Modules\Inventory\Controllers\StockCardController;
 use App\Modules\Inventory\Controllers\TransferController;
 use App\Modules\Inventory\Controllers\UomController;
@@ -95,6 +99,34 @@ Route::middleware(['auth', 'verified', 'module:INVENTORY', 'menu.perm:INVENTORY'
         Route::patch('pick-lists/{pickList}/assign', [PickListController::class, 'assign'])->name('pickLists.assign');
         Route::patch('pick-lists/{pickList}/lines/{line}/pick', [PickListController::class, 'pickLine'])->name('pickLists.pickLine');
         Route::delete('pick-lists/{pickList}', [PickListController::class, 'destroy'])->name('pickLists.destroy');
+
+        // §3P Packing — a package is always started from a pick list's Show page ("Create
+        // package"); no bare create route without ?pick_list_id=.
+        Route::resource('pack-lists', PackListController::class)->except(['show'])->names('packLists');
+
+        // §3P Shipping — links one or more packed packages; ship-confirm is the one action
+        // that triggers the actual Goods Issue (§3E), same "dedicated irreversible action"
+        // posture as Goods Receipt/Issue posting above.
+        Route::resource('shipments', ShipmentController::class)->except(['show']);
+        Route::patch('shipments/{shipment}/ship-confirm', [ShipmentController::class, 'shipConfirm'])->name('shipments.shipConfirm');
+        Route::patch('shipments/{shipment}/deliver', [ShipmentController::class, 'markDelivered'])->name('shipments.deliver');
+
+        // §3Q Cycle Counting — scoped scan-to-count workflow; completing with variances drafts
+        // one Adjustment (§3G) per counted location for review/approval, never posts
+        // automatically ("counting itself never silently changes stock").
+        Route::get('cycle-counts', [CycleCountController::class, 'index'])->name('cycleCounts.index');
+        Route::get('cycle-counts/create', [CycleCountController::class, 'create'])->name('cycleCounts.create');
+        Route::post('cycle-counts', [CycleCountController::class, 'store'])->name('cycleCounts.store');
+        Route::get('cycle-counts/{cycleCount}', [CycleCountController::class, 'show'])->name('cycleCounts.show');
+        Route::patch('cycle-counts/{cycleCount}/assign', [CycleCountController::class, 'assign'])->name('cycleCounts.assign');
+        Route::patch('cycle-counts/{cycleCount}/lines/{line}/count', [CycleCountController::class, 'countLine'])->name('cycleCounts.countLine');
+        Route::patch('cycle-counts/{cycleCount}/complete', [CycleCountController::class, 'complete'])->name('cycleCounts.complete');
+        Route::delete('cycle-counts/{cycleCount}', [CycleCountController::class, 'destroy'])->name('cycleCounts.destroy');
+
+        // §3R Put-away Rules — tenant-editable lookup; auto-applied as Goods Receipt's line
+        // default destination (GoodsReceiptService::syncLines()), always overridable there.
+        Route::delete('putaway-rules/bulk-destroy', [PutawayRuleController::class, 'bulkDestroy'])->name('putawayRules.bulkDestroy');
+        Route::resource('putaway-rules', PutawayRuleController::class)->except(['show'])->names('putawayRules');
 
         // Legacy demo tables (public schema) — CLAUDE.md §7A. Not wired to the new
         // INVENTORY.* schema; kept reachable during the transition, not linked from the

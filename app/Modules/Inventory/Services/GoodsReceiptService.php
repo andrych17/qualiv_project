@@ -24,6 +24,7 @@ class GoodsReceiptService
         protected AccountingCompanyResolver $companyResolver,
         protected BatchService $batches,
         protected SerialService $serials,
+        protected PutawayRuleService $putaway,
     ) {}
 
     /** @param  array<string, mixed>  $data */
@@ -244,7 +245,10 @@ class GoodsReceiptService
                 'qty' => $line['qty'],
                 'uom_id' => $line['uom_id'],
                 'unit_cost' => $line['unit_cost'] ?? 0,
-                'destination_location_id' => $line['destination_location_id'] ?? null,
+                // §3R: falls back to a matching Put-away Rule when the line was saved without
+                // an explicit destination — never overrides a value the user actually picked.
+                'destination_location_id' => $line['destination_location_id']
+                    ?? $this->putaway->resolve($line['product_id'], $receipt->warehouse_id),
                 'serial_numbers' => ! empty($line['serial_numbers']) ? array_values(array_filter($line['serial_numbers'])) : null,
             ]);
         }

@@ -27,6 +27,7 @@ class StoreProductRequest extends FormRequest
             'reorder_point' => 'nullable|numeric|min:0',
             'reorder_quantity' => 'nullable|numeric|min:0',
             'tracking_mode' => 'nullable|in:none,batch,serial',
+            'abc_class' => 'nullable|in:A,B,C',
             'barcodes' => 'nullable|array',
             'barcodes.*.barcode' => 'nullable|string|max:64',
             'barcodes.*.type' => 'required_with:barcodes.*.barcode|in:primary,case_pack,alternate',

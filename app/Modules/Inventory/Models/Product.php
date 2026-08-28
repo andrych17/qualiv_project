@@ -20,9 +20,15 @@ class Product extends Model
 
     public const TRACKING_SERIAL = 'serial';
 
+    public const ABC_A = 'A';
+
+    public const ABC_B = 'B';
+
+    public const ABC_C = 'C';
+
     protected $fillable = [
         'uuid', 'sku', 'name', 'description', 'category_id', 'base_uom_id',
-        'costing_method', 'reorder_point', 'reorder_quantity', 'tracking_mode', 'is_active',
+        'costing_method', 'reorder_point', 'reorder_quantity', 'tracking_mode', 'abc_class', 'is_active',
     ];
 
     protected $casts = [

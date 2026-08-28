@@ -113,6 +113,7 @@ class ProductService
             'reorder_point' => $data['reorder_point'] ?? 0,
             'reorder_quantity' => $data['reorder_quantity'] ?? 0,
             'tracking_mode' => $data['tracking_mode'] ?? Product::TRACKING_NONE,
+            'abc_class' => $data['abc_class'] ?? null,
             'is_active' => array_key_exists('is_active', $data) ? (bool) $data['is_active'] : ($existing?->is_active ?? true),
         ];
     }

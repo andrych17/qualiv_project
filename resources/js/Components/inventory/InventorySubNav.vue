@@ -5,7 +5,7 @@
 import { Link } from '@inertiajs/vue3'
 
 defineProps<{
-  active: 'products' | 'categories' | 'uoms' | 'warehouses' | 'goodsReceipts' | 'goodsIssues' | 'transfers' | 'adjustments' | 'adjustmentReasons' | 'stockCard' | 'valuation' | 'batches' | 'serials' | 'reservations' | 'pickLists'
+  active: 'products' | 'categories' | 'uoms' | 'warehouses' | 'goodsReceipts' | 'goodsIssues' | 'transfers' | 'adjustments' | 'adjustmentReasons' | 'stockCard' | 'valuation' | 'batches' | 'serials' | 'reservations' | 'pickLists' | 'packLists' | 'shipments' | 'cycleCounts' | 'putawayRules'
 }>()
 </script>
 
@@ -114,6 +114,38 @@ defineProps<{
       :class="active === 'pickLists' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Pick Lists
+    </Link>
+    <Link
+      :href="route('inventory.packLists.index')"
+      role="tab"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      :class="active === 'packLists' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
+    >
+      Pack Lists
+    </Link>
+    <Link
+      :href="route('inventory.shipments.index')"
+      role="tab"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      :class="active === 'shipments' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
+    >
+      Shipments
+    </Link>
+    <Link
+      :href="route('inventory.cycleCounts.index')"
+      role="tab"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      :class="active === 'cycleCounts' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
+    >
+      Cycle Counts
+    </Link>
+    <Link
+      :href="route('inventory.putawayRules.index')"
+      role="tab"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      :class="active === 'putawayRules' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
+    >
+      Put-away Rules
     </Link>
     <Link
       :href="route('inventory.stockCard.index')"

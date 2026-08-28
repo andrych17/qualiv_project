@@ -128,6 +128,7 @@ class ProductController extends Controller
             'reorder_point' => (float) $product->reorder_point,
             'reorder_quantity' => (float) $product->reorder_quantity,
             'tracking_mode' => $product->tracking_mode,
+            'abc_class' => $product->abc_class,
             'is_active' => $product->is_active,
             'barcodes' => $product->barcodes()->get(['barcode', 'type', 'unit_multiplier'])->map(fn ($b) => [
                 'barcode' => $b->barcode,

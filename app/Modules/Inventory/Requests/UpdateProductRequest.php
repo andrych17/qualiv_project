@@ -27,6 +27,7 @@ class UpdateProductRequest extends FormRequest
             'reorder_point' => 'nullable|numeric|min:0',
             'reorder_quantity' => 'nullable|numeric|min:0',
             'tracking_mode' => 'nullable|in:none,batch,serial',
+            'abc_class' => 'nullable|in:A,B,C',
             'is_active' => 'nullable|boolean',
             'barcodes' => 'nullable|array',
             'barcodes.*.barcode' => 'nullable|string|max:64',

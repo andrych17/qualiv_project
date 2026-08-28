@@ -36,6 +36,13 @@ const updateAssignee = (value: string | number) => {
   <AppLayout>
     <PageHeader :title="`Pick List #${pickList.id}`" :description="`${pickList.warehouse_name} — created ${pickList.created_at_formatted}`">
       <template #actions>
+        <Link
+          v-if="lines.some((l) => l.status === 'picked')"
+          :href="route('inventory.packLists.create', { pick_list_id: pickList.id })"
+          class="text-sm font-medium text-accent hover:underline"
+        >
+          Create package
+        </Link>
         <Link :href="route('inventory.pickLists.index')" class="text-sm font-medium text-accent hover:underline">Back</Link>
       </template>
     </PageHeader>

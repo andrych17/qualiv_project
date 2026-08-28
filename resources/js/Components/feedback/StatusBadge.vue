@@ -76,6 +76,10 @@ const badgeClass = computed(() => {
     // Inventory §3O pick list / line status ('pending'/'in_progress' reuse the keys above)
     ready_for_packing: 'bg-signal-success/10 text-signal-success border-signal-success/25',
     picked: 'bg-signal-success/10 text-signal-success border-signal-success/25',
+    // Inventory §3P pack list / shipment status ('pending' reuses the key above)
+    packed: 'bg-signal-success/10 text-signal-success border-signal-success/25',
+    shipped: 'bg-signal-info/10 text-signal-info border-signal-info/25',
+    delivered: 'bg-signal-success/10 text-signal-success border-signal-success/25',
   }
 
   return map[normalizedStatus.value] ?? 'bg-surface-50 text-ink-600 border-border'

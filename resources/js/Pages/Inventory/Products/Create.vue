@@ -36,6 +36,7 @@ const form = useForm({
   reorder_point: 0,
   reorder_quantity: 0,
   tracking_mode: 'none',
+  abc_class: '' as string,
   barcodes: [] as BarcodeRow[],
   uom_conversions: [] as UomConversionRow[],
   custom_fields: customBag,
@@ -89,6 +90,14 @@ const submit = () => form.post(route('inventory.products.store'))
           <FormNumberInput v-model="form.reorder_point" name="reorder_point" label="Reorder point" :error="form.errors.reorder_point" />
           <FormNumberInput v-model="form.reorder_quantity" name="reorder_quantity" label="Reorder quantity" :error="form.errors.reorder_quantity" />
         </div>
+        <FormSelect
+          v-model="form.abc_class"
+          name="abc_class"
+          label="ABC class"
+          placeholder="Unclassified"
+          :options="[{ label: 'A', value: 'A' }, { label: 'B', value: 'B' }, { label: 'C', value: 'C' }]"
+          :error="form.errors.abc_class"
+        />
 
         <BarcodeListInput v-model="form.barcodes" />
         <UomConversionListInput v-model="form.uom_conversions" :uoms="uoms" :base-uom-code="baseUomCode" />

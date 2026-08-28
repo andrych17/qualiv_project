@@ -31,6 +31,7 @@ const props = defineProps<{
     reorder_point: number
     reorder_quantity: number
     tracking_mode: string
+    abc_class: string | null
     is_active: boolean
     barcodes: BarcodeRow[]
     uom_conversions: UomConversionRow[]
@@ -55,6 +56,7 @@ const form = useForm({
   reorder_point: props.product.reorder_point,
   reorder_quantity: props.product.reorder_quantity,
   tracking_mode: props.product.tracking_mode,
+  abc_class: props.product.abc_class ?? '',
   is_active: props.product.is_active,
   barcodes: props.product.barcodes.map((b) => ({ ...b })),
   uom_conversions: props.product.uom_conversions.map((c) => ({ ...c })),
@@ -143,6 +145,14 @@ const submit = () => form.put(route('inventory.products.update', props.product.i
             serial number (§3M). Adjustments aren't supported for serial-tracked products yet —
             correct via a Receipt or Issue instead.
           </p>
+          <FormSelect
+            v-model="form.abc_class"
+            name="abc_class"
+            label="ABC class"
+            placeholder="Unclassified"
+            :options="[{ label: 'A', value: 'A' }, { label: 'B', value: 'B' }, { label: 'C', value: 'C' }]"
+            :error="form.errors.abc_class"
+          />
 
           <UomConversionListInput v-model="form.uom_conversions" :uoms="uoms" :base-uom-code="baseUomCode" />
 
