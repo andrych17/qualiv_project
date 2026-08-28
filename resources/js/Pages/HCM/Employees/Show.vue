@@ -287,7 +287,7 @@ const submitTerminate = () => {
 
     <!-- Terminate Modal -->
     <Modal :show="showTerminateModal" max-width="md" @close="showTerminateModal = false">
-      <div class="p-6 bg-white rounded-lg">
+      <div class="p-6 bg-surface-0 border border-border text-ink-900 rounded-lg">
         <h3 class="text-lg font-bold text-ink-900">Terminate Employment</h3>
         <p class="mt-1 text-sm text-ink-600">Mark employee as terminated and close active contract.</p>
 

@@ -3,6 +3,7 @@
 import { Link, router, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
+import PrimaryButton from '@/Components/PrimaryButton.vue'
 import DataTable, { type SortState } from '@/Components/tables/DataTable.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import Panel from '@/Components/cards/Panel.vue'
@@ -133,12 +134,9 @@ const copyPassword = () => {
       description="Manage users in this tenant and their access groups."
     >
       <template #actions>
-        <Link
-          :href="route('config.users.create')"
-          class="inline-flex items-center rounded-md bg-gray-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800"
-        >
+        <PrimaryButton :href="route('config.users.create')">
           Create User
-        </Link>
+        </PrimaryButton>
       </template>
     </PageHeader>
 
@@ -147,17 +145,17 @@ const copyPassword = () => {
         Share this with <strong>{{ credentials.email }}</strong> securely (email/text) — it will not be shown again.
       </p>
       <div class="mt-3 flex items-center gap-3">
-        <code class="rounded-md border border-border bg-surface-0 px-3 py-2 font-mono text-sm">{{ credentials.password }}</code>
+        <code class="rounded-md border border-border bg-surface-50 px-3 py-2 font-mono text-sm text-ink-900">{{ credentials.password }}</code>
         <button
           type="button"
-          class="rounded-md border border-border px-3 py-2 text-sm font-medium text-ink-900 hover:bg-surface-50"
+          class="rounded-md border border-border bg-surface-0 px-3 py-2 text-sm font-medium text-ink-900 hover:bg-surface-50 cursor-pointer"
           @click="copyPassword"
         >
           {{ copied ? 'Copied' : 'Copy' }}
         </button>
         <button
           type="button"
-          class="text-sm font-medium text-ink-600 hover:text-ink-900"
+          class="text-sm font-medium text-ink-600 hover:text-ink-900 cursor-pointer"
           @click="credentials = null"
         >
           Dismiss
@@ -186,12 +184,12 @@ const copyPassword = () => {
         empty-description="Create a user for this tenant."
       >
         <template #bulk-actions>
-          <button type="button" class="text-sm font-medium text-red-600 hover:text-red-950" @click="confirmBulkDeactivate">
+          <button type="button" class="text-sm font-medium text-signal-danger hover:underline" @click="confirmBulkDeactivate">
             Deactivate selected
           </button>
         </template>
         <template #cell-groups="{ item }">
-          <span class="text-sm text-gray-600">
+          <span class="text-sm text-ink-600">
             {{ (item.groups as string[]).join(', ') || '—' }}
           </span>
         </template>
@@ -199,16 +197,16 @@ const copyPassword = () => {
           <StatusBadge :status="item.is_active ? 'active' : 'inactive'" />
         </template>
         <template #cell-actions="{ item }">
-          <div class="flex items-center justify-end gap-2">
+          <div class="flex items-center justify-end gap-3">
             <Link
               :href="route('config.users.edit', item.id)"
-              class="text-sm font-medium text-gray-700 hover:text-gray-900"
+              class="text-sm font-medium text-accent hover:underline"
             >
               Edit
             </Link>
             <button
               type="button"
-              class="text-sm font-medium text-gray-700 hover:text-gray-900"
+              class="text-sm font-medium text-ink-600 hover:text-ink-900 hover:underline cursor-pointer"
               @click="confirmResetPassword(item)"
             >
               Reset Password
@@ -216,7 +214,7 @@ const copyPassword = () => {
             <button
               v-if="item.is_active"
               type="button"
-              class="text-sm font-medium text-red-600 hover:text-red-950"
+              class="text-sm font-medium text-signal-danger hover:underline cursor-pointer"
               @click="confirmDeactivate(item)"
             >
               Deactivate
@@ -224,7 +222,7 @@ const copyPassword = () => {
             <button
               v-else
               type="button"
-              class="text-sm font-medium text-signal-success hover:opacity-80"
+              class="text-sm font-medium text-signal-success hover:underline cursor-pointer"
               @click="activate(item)"
             >
               Activate

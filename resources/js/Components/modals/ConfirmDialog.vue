@@ -20,7 +20,7 @@ const handleConfirm = () => {
       role="alertdialog"
       aria-modal="true"
       aria-labelledby="confirm-dialog-title"
-      class="text-left"
+      class="text-left bg-surface-0 text-ink-900 rounded-lg overflow-hidden"
     >
       <div class="p-6">
         <h3 id="confirm-dialog-title" class="text-base font-semibold text-ink-900">
@@ -33,7 +33,7 @@ const handleConfirm = () => {
       <div class="flex flex-row-reverse gap-2 border-t border-border bg-surface-50 px-6 py-3">
         <button
           type="button"
-          class="inline-flex items-center justify-center rounded-sm px-3 py-2 text-sm font-semibold text-white shadow-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          class="inline-flex items-center justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent cursor-pointer"
           :class="
             confirmState?.variant === 'destructive'
               ? 'bg-signal-danger hover:bg-signal-danger/90'
@@ -45,7 +45,7 @@ const handleConfirm = () => {
         </button>
         <button
           type="button"
-          class="inline-flex items-center justify-center rounded-sm border border-border bg-white px-3 py-2 text-sm font-semibold text-ink-900 shadow-sm transition hover:bg-surface-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          class="inline-flex items-center justify-center rounded-md border border-border bg-surface-0 px-3 py-2 text-sm font-semibold text-ink-900 shadow-sm transition hover:bg-surface-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent cursor-pointer"
           @click="close"
         >
           {{ confirmState?.cancelText }}

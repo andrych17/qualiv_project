@@ -77,7 +77,7 @@ const closeModal = () => {
               ref="passwordInput"
               v-model="form.password"
               :type="showPassword ? 'text' : 'password'"
-              class="w-full rounded-md border border-border bg-white px-3 py-2 pr-10 text-sm shadow-sm outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-500/10"
+              class="w-full rounded-md border border-border bg-surface-0 text-ink-900 px-3 py-2 pr-10 text-sm shadow-sm outline-none transition focus:border-signal-danger focus:ring-2 focus:ring-signal-danger/10"
               :class="form.errors.password ? 'border-red-500' : ''"
               placeholder="Masukkan kata sandi untuk mengonfirmasi"
               @keyup.enter="deleteUser"

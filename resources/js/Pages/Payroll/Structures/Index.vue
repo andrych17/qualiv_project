@@ -140,7 +140,7 @@ const submitAttach = () => {
 
     <!-- Create Structure Modal -->
     <Modal :show="showCreateModal" max-width="md" @close="showCreateModal = false">
-      <div class="p-6 bg-white rounded-lg">
+      <div class="p-6 bg-surface-0 border border-border text-ink-900 rounded-lg">
         <h3 class="text-lg font-bold text-ink-900">New Salary Structure</h3>
         <form @submit.prevent="submitCreate" class="mt-4 space-y-4">
           <div>
@@ -184,7 +184,7 @@ const submitAttach = () => {
 
     <!-- Attach Component Modal -->
     <Modal :show="showAttachModal" max-width="md" @close="showAttachModal = false">
-      <div class="p-6 bg-white rounded-lg">
+      <div class="p-6 bg-surface-0 border border-border text-ink-900 rounded-lg">
         <h3 class="text-lg font-bold text-ink-900">Attach Component to {{ selectedStructure?.name }}</h3>
         <form @submit.prevent="submitAttach" class="mt-4 space-y-4">
           <div>

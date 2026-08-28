@@ -1,8 +1,11 @@
 <!-- ponytail: Edit tenant user + group assign -->
 <script setup lang="ts">
-import { useForm, Link, router } from '@inertiajs/vue3'
+import { useForm, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
+import Panel from '@/Components/cards/Panel.vue'
+import PrimaryButton from '@/Components/PrimaryButton.vue'
+import SecondaryButton from '@/Components/SecondaryButton.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 import FormMultiSelect from '@/Components/forms/FormMultiSelect.vue'
 import { useConfirm } from '@/Composables/useConfirmDialog'
@@ -38,39 +41,40 @@ const resetPassword = () => {
   <AppLayout>
     <PageHeader title="Edit User" :description="user.email" />
 
-    <div class="mt-6 max-w-xl rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-      <form class="space-y-4" @submit.prevent="submit">
-        <FormInput v-model="form.name" name="name" label="Name" :error="form.errors.name" required />
-        <FormInput v-model="form.email" name="email" label="Email" type="email" :error="form.errors.email" required />
+    <div class="mt-6 max-w-xl">
+      <Panel>
+        <form class="space-y-4" @submit.prevent="submit">
+          <FormInput v-model="form.name" name="name" label="Name" :error="form.errors.name" required />
+          <FormInput v-model="form.email" name="email" label="Email" type="email" :error="form.errors.email" required />
 
-        <div class="flex items-center justify-between rounded-md border border-gray-100 bg-gray-50 px-3 py-2">
-          <p class="text-sm text-gray-600">Password is admin-generated, not visible after creation.</p>
-          <button type="button" class="text-sm font-medium text-gray-900 hover:underline" @click="resetPassword">
-            Reset Password
-          </button>
-        </div>
+          <div class="flex items-center justify-between rounded-md border border-border bg-surface-50 px-3 py-2">
+            <p class="text-xs sm:text-sm text-ink-600">Password is admin-generated, not visible after creation.</p>
+            <button type="button" class="text-xs sm:text-sm font-medium text-accent hover:underline shrink-0 ml-2 cursor-pointer" @click="resetPassword">
+              Reset Password
+            </button>
+          </div>
 
-        <FormMultiSelect
-          v-model="form.group_ids"
-          name="group_ids"
-          label="Groups"
-          placeholder="Pilih grup user..."
-          search-placeholder="Cari grup..."
-          :options="groups"
-          :error="form.errors.group_ids"
-        />
+          <FormMultiSelect
+            v-model="form.group_ids"
+            name="group_ids"
+            label="Groups"
+            placeholder="Pilih grup user..."
+            search-placeholder="Cari grup..."
+            :options="groups"
+            :error="form.errors.group_ids"
+          />
 
-        <div class="flex items-center justify-end gap-3 border-t border-gray-100 pt-4">
-          <Link :href="route('config.users.index')" class="text-sm font-semibold text-gray-900">Cancel</Link>
-          <button
-            type="submit"
-            :disabled="form.processing"
-            class="rounded-md bg-gray-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 disabled:opacity-50"
-          >
-            Update User
-          </button>
-        </div>
-      </form>
+          <div class="flex items-center justify-end gap-3 border-t border-border pt-4">
+            <SecondaryButton :href="route('config.users.index')">Cancel</SecondaryButton>
+            <PrimaryButton
+              type="submit"
+              :disabled="form.processing"
+            >
+              Update User
+            </PrimaryButton>
+          </div>
+        </form>
+      </Panel>
     </div>
   </AppLayout>
 </template>

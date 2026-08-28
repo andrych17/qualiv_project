@@ -13,7 +13,7 @@ const typeConfig = computed(() => {
     case 'success':
       return {
         icon: CheckCircle2,
-        iconBgClass: 'bg-emerald-50 text-emerald-600 ring-8 ring-emerald-50/70',
+        iconBgClass: 'bg-emerald-500/10 text-emerald-500 ring-8 ring-emerald-500/10',
         buttonClass: 'bg-accent hover:bg-accent/90 text-white focus-visible:outline-accent',
       }
     case 'error':
@@ -46,7 +46,7 @@ const typeConfig = computed(() => {
       aria-modal="true"
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
-      class="p-6 text-center"
+      class="p-6 text-center bg-surface-0 text-ink-900 rounded-lg overflow-hidden"
     >
       <!-- Centered Icon Circle -->
       <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full" :class="typeConfig.iconBgClass">
@@ -68,7 +68,7 @@ const typeConfig = computed(() => {
         <button
           type="button"
           autofocus
-          class="inline-flex w-full items-center justify-center rounded-md px-4 py-2.5 text-sm font-semibold shadow-xs transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+          class="inline-flex w-full items-center justify-center rounded-md px-4 py-2.5 text-sm font-semibold shadow-xs transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 cursor-pointer"
           :class="typeConfig.buttonClass"
           @click="closeAlert"
         >

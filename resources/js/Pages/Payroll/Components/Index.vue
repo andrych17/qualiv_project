@@ -231,7 +231,7 @@ const submit = () => {
 
     <!-- Create/Edit Modal -->
     <Modal :show="showModal" max-width="md" @close="showModal = false">
-      <div class="p-6 bg-white rounded-lg">
+      <div class="p-6 bg-surface-0 border border-border text-ink-900 rounded-lg">
         <h3 class="text-lg font-bold text-ink-900">{{ isEditing ? 'Edit Component' : 'New Component' }}</h3>
         <form @submit.prevent="submit" class="mt-4 space-y-4">
           <div>

@@ -41,7 +41,7 @@ const currentTenant = page.props.currentTenant as { id: string; name: string; pl
       </div>
 
       <!-- User Summary Card -->
-      <div class="rounded-md border border-border bg-white p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div class="rounded-md border border-border bg-surface-0 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div class="flex items-center gap-4">
           <div class="flex h-16 w-16 items-center justify-center rounded-full bg-gray-900 text-xl font-bold text-white shadow-md border-2 border-border shrink-0">
             {{ user?.name ? user.name.charAt(0).toUpperCase() : 'U' }}

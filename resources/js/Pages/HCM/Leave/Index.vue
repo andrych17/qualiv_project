@@ -279,7 +279,7 @@ watch([search, filters, sort, perPage], debounce(() => {
 
     <!-- Request Modal -->
     <Modal :show="showRequestModal" max-width="md" @close="showRequestModal = false">
-      <div class="p-6 bg-white rounded-lg">
+      <div class="p-6 bg-surface-0 border border-border text-ink-900 rounded-lg">
         <h3 class="text-lg font-bold text-ink-900">Submit Leave Request</h3>
         <form @submit.prevent="submitRequest" class="mt-4 space-y-4">
           <div>

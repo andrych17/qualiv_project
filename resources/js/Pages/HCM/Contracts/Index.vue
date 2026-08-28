@@ -271,7 +271,7 @@ watch([search, filters, sort, perPage], debounce(() => {
 
     <!-- Renew Modal -->
     <Modal :show="showRenewModal" max-width="md" @close="showRenewModal = false">
-      <div class="p-6 bg-white rounded-lg">
+      <div class="p-6 bg-surface-0 border border-border text-ink-900 rounded-lg">
         <h3 class="text-lg font-bold text-ink-900">Renew Employment Contract</h3>
         <p class="mt-1 text-sm text-ink-600">Employee: {{ selectedContract?.employee.full_name }}</p>
 
