@@ -8,7 +8,8 @@ import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
-import { computed } from 'vue'
+import { GripVertical } from 'lucide-vue-next'
+import { computed, ref } from 'vue'
 
 interface RightRow {
   menu_id: number
@@ -58,6 +59,48 @@ const form = useForm({
 const menuMeta = computed(() =>
   Object.fromEntries(props.accessMenus.map((m) => [m.menu_id, m])),
 )
+
+const draggedIndex = ref<number | null>(null)
+const dragOverIndex = ref<number | null>(null)
+
+const onDragStart = (idx: number, event: DragEvent) => {
+  draggedIndex.value = idx
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = 'move'
+    event.dataTransfer.setData('text/plain', String(idx))
+  }
+}
+
+const onDragOver = (idx: number, event: DragEvent) => {
+  event.preventDefault()
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = 'move'
+  }
+  dragOverIndex.value = idx
+}
+
+const onDrop = (idx: number) => {
+  if (draggedIndex.value === null || draggedIndex.value === idx) {
+    draggedIndex.value = null
+    dragOverIndex.value = null
+    return
+  }
+  const [moved] = form.rights.splice(draggedIndex.value, 1)
+  form.rights.splice(idx, 0, moved)
+
+  // ponytail: Auto-renumber sequence in clean increments of 10 after reordering
+  form.rights.forEach((item, index) => {
+    item.seq = (index + 1) * 10
+  })
+
+  draggedIndex.value = null
+  dragOverIndex.value = null
+}
+
+const onDragEnd = () => {
+  draggedIndex.value = null
+  dragOverIndex.value = null
+}
 
 const toggleUser = (userId: number) => {
   const idx = form.user_ids.indexOf(userId)
@@ -118,7 +161,7 @@ const submit = () => form.put(route('config.groups.update', props.group.id))
         </Panel>
       </div>
 
-      <Panel title="Menu access (CRUD)" subtitle="Updating sequence here will update global menu order.">
+      <Panel title="Menu access (CRUD)" subtitle="Updating sequence here will update global menu order. Drag rows to reorder.">
         <template #actions>
           <div class="flex flex-wrap gap-1.5 text-xs">
             <button type="button" class="rounded border border-border bg-surface-0 px-2 py-1 text-ink-900 hover:bg-surface-50 cursor-pointer" @click="setAll('read', true)">All R</button>
@@ -133,6 +176,7 @@ const submit = () => form.put(route('config.groups.update', props.group.id))
           <table class="min-w-full text-sm">
             <thead>
               <tr class="border-b border-border text-left text-xs uppercase tracking-wide text-ink-600">
+                <th class="py-2.5 px-2 w-8 text-center" aria-label="Reorder"></th>
                 <th class="py-2.5 pr-4 font-semibold">Menu</th>
                 <th class="py-2.5 px-2 font-semibold text-center w-24">Seq</th>
                 <th class="py-2.5 px-2 font-semibold text-center">C</th>
@@ -143,10 +187,23 @@ const submit = () => form.put(route('config.groups.update', props.group.id))
             </thead>
             <tbody class="divide-y divide-border">
               <tr
-                v-for="right in form.rights"
+                v-for="(right, idx) in form.rights"
                 :key="right.menu_id"
-                class="hover:bg-surface-50 transition-colors"
+                draggable="true"
+                :class="[
+                  draggedIndex === idx ? 'opacity-40 bg-surface-100' : 'hover:bg-surface-50',
+                  dragOverIndex === idx && draggedIndex !== idx ? 'border-t-2 border-accent' : '',
+                  'transition-colors'
+                ]"
+                @dragstart="onDragStart(idx, $event)"
+                @dragover="onDragOver(idx, $event)"
+                @dragenter.prevent
+                @drop="onDrop(idx)"
+                @dragend="onDragEnd"
               >
+                <td class="py-2.5 px-2 text-center text-ink-400 cursor-grab active:cursor-grabbing select-none" title="Drag to reorder">
+                  <GripVertical class="w-4 h-4 mx-auto" />
+                </td>
                 <td class="py-2.5 pr-4">
                   <div class="font-medium text-ink-900">{{ menuMeta[right.menu_id]?.label }}</div>
                   <div class="text-xs text-ink-600">
