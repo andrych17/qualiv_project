@@ -5,12 +5,20 @@
 import { Link } from '@inertiajs/vue3'
 
 defineProps<{
-  active: 'products' | 'categories' | 'uoms' | 'warehouses' | 'goodsReceipts' | 'goodsIssues' | 'transfers' | 'adjustments' | 'adjustmentReasons' | 'stockCard' | 'valuation' | 'batches' | 'serials' | 'reservations' | 'pickLists' | 'packLists' | 'shipments' | 'cycleCounts' | 'putawayRules'
+  active: 'dashboard' | 'products' | 'categories' | 'uoms' | 'warehouses' | 'goodsReceipts' | 'goodsIssues' | 'transfers' | 'adjustments' | 'adjustmentReasons' | 'stockCard' | 'valuation' | 'batches' | 'serials' | 'reservations' | 'pickLists' | 'packLists' | 'shipments' | 'cycleCounts' | 'putawayRules'
 }>()
 </script>
 
 <template>
   <div class="flex items-center gap-1 border-b border-border overflow-x-auto scrollbar-none" role="tablist">
+    <Link
+      :href="route('inventory.dashboard')"
+      role="tab"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
+      :class="active === 'dashboard' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
+    >
+      Dashboard
+    </Link>
     <Link
       :href="route('inventory.products.index')"
       role="tab"
@@ -118,7 +126,7 @@ defineProps<{
     <Link
       :href="route('inventory.packLists.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'packLists' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Pack Lists
@@ -126,7 +134,7 @@ defineProps<{
     <Link
       :href="route('inventory.shipments.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'shipments' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Shipments
@@ -134,7 +142,7 @@ defineProps<{
     <Link
       :href="route('inventory.cycleCounts.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'cycleCounts' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Cycle Counts
@@ -142,7 +150,7 @@ defineProps<{
     <Link
       :href="route('inventory.putawayRules.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'putawayRules' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Put-away Rules

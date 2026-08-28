@@ -5,6 +5,7 @@ use App\Modules\Inventory\Controllers\AdjustmentReasonController;
 use App\Modules\Inventory\Controllers\BarcodeScanController;
 use App\Modules\Inventory\Controllers\BatchController;
 use App\Modules\Inventory\Controllers\CycleCountController;
+use App\Modules\Inventory\Controllers\DashboardController;
 use App\Modules\Inventory\Controllers\GoodsIssueController;
 use App\Modules\Inventory\Controllers\GoodsReceiptController;
 use App\Modules\Inventory\Controllers\InventoryItemController;
@@ -24,10 +25,15 @@ use App\Modules\Inventory\Controllers\UomController;
 use App\Modules\Inventory\Controllers\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
+Route::redirect('/inventory', '/inventory/dashboard');
+
 Route::middleware(['auth', 'verified', 'module:INVENTORY', 'menu.perm:INVENTORY'])
     ->prefix('inventory')
     ->name('inventory.')
     ->group(function () {
+        // §3A Main Dashboard — read-only aggregate over every other §3 engine, no tables of its own.
+        Route::get('dashboard', DashboardController::class)->name('dashboard');
+
         // §3B Product Master — the real Inventory engine (INVENTORY.* schema).
         Route::delete('products/bulk-destroy', [ProductController::class, 'bulkDestroy'])->name('products.bulkDestroy');
         Route::resource('products', ProductController::class)->except(['show']);
