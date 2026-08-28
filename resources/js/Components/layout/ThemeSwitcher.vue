@@ -37,13 +37,13 @@ const handleSelect = (themeId: string) => {
     <div
       v-if="isOpen"
       @click="isOpen = false"
-      class="fixed inset-0 z-10"
+      class="fixed inset-0 z-40"
     />
 
     <!-- Dropdown Menu -->
     <div
       v-if="isOpen"
-      class="absolute right-0 z-20 mt-2 w-80 max-w-[calc(100vw-1.5rem)] rounded-lg border border-border bg-surface-0 p-2 shadow-xl ring-1 ring-black/5"
+      class="absolute right-0 z-50 mt-2 w-80 max-w-[calc(100vw-1.5rem)] rounded-lg border border-border bg-surface-0 p-2 shadow-xl ring-1 ring-black/5"
     >
       <div class="border-b border-border px-3 py-2">
         <p class="text-xs font-semibold uppercase tracking-wider text-ink-600">Palet Warna Tenant</p>

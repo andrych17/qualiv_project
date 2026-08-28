@@ -176,7 +176,7 @@ const logout = () => {
     <!-- Main Shell (Header + Content Slot) -->
     <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
       <!-- Top Header (Aligned with AppHeader) -->
-      <header class="h-16 border-b border-border bg-surface-0 flex items-center justify-between px-3 sm:px-6 shrink-0">
+      <header class="h-16 border-b border-border bg-surface-0 flex items-center justify-between px-3 sm:px-6 shrink-0 relative z-30">
         <!-- Breadcrumbs & Badge -->
         <div class="flex items-center gap-3">
           <button
@@ -236,13 +236,13 @@ const logout = () => {
 
             <div
               v-if="isUserMenuOpen"
-              class="fixed inset-0 z-10"
+              class="fixed inset-0 z-40"
               @click="isUserMenuOpen = false"
             />
 
             <div
               v-if="isUserMenuOpen"
-              class="absolute right-0 z-20 mt-2 w-56 rounded-md border border-border bg-surface-0 py-1 shadow-lg ring-1 ring-black/5"
+              class="absolute right-0 z-50 mt-2 w-56 max-w-[calc(100vw-1.5rem)] rounded-md border border-border bg-surface-0 py-1 shadow-lg ring-1 ring-black/5"
             >
               <div class="border-b border-border px-4 py-3 bg-surface-50">
                 <p class="text-[11px] font-semibold uppercase tracking-wider text-accent">Central Platform Admin</p>

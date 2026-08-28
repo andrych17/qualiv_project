@@ -39,13 +39,19 @@ const switchTo = (tenantId: string) => {
 
     <div
       v-if="open && canSwitch"
-      class="absolute left-0 right-0 z-20 mt-1 overflow-hidden rounded-md border border-border bg-surface-0 shadow-lg ring-1 ring-black/5"
+      class="fixed inset-0 z-30"
+      @click="open = false"
+    />
+
+    <div
+      v-if="open && canSwitch"
+      class="absolute left-0 right-0 z-40 mt-1 overflow-hidden rounded-md border border-border bg-surface-0 shadow-lg ring-1 ring-black/5"
     >
       <button
         v-for="t in tenants"
         :key="t.id"
         type="button"
-        class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition hover:bg-surface-50"
+        class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition hover:bg-surface-50 cursor-pointer"
         @click="switchTo(t.id)"
       >
         <span class="min-w-0 flex-1 truncate" :class="t.id === current?.id ? 'font-semibold text-accent' : 'text-ink-900'">

@@ -30,12 +30,12 @@ const isOpen = ref(false)
     <div 
       v-if="isOpen" 
       @click="isOpen = false"
-      class="fixed inset-0 z-10"
+      class="fixed inset-0 z-40"
     ></div>
 
     <div 
       v-if="isOpen"
-      class="absolute right-0 z-20 mt-2 w-56 max-w-[calc(100vw-1.5rem)] rounded-md border border-border bg-surface-0 py-1 shadow-lg ring-1 ring-black/5"
+      class="absolute right-0 z-50 mt-2 w-56 max-w-[calc(100vw-1.5rem)] rounded-md border border-border bg-surface-0 py-1 shadow-lg ring-1 ring-black/5"
     >
       <div class="border-b border-border px-4 py-3">
         <p class="text-[11px] font-semibold uppercase tracking-wider text-ink-600">Terhubung sebagai</p>
