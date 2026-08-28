@@ -9,7 +9,9 @@ class ContractSubscription extends Model
     protected $table = 'SALES.contr_subscriptions';
 
     public const INTERVAL_MONTHLY = 'monthly';
+
     public const INTERVAL_QUARTERLY = 'quarterly';
+
     public const INTERVAL_ANNUAL = 'annual';
 
     public const INTERVALS = [

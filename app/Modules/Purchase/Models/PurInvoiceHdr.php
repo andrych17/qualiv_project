@@ -13,15 +13,23 @@ class PurInvoiceHdr extends Model
     protected $table = 'PURCHASE.pur_invoice_hdrs';
 
     public const STATUS_CAPTURED = 'captured';
+
     public const STATUS_PENDING_APPROVAL = 'pending_approval';
+
     public const STATUS_APPROVED = 'approved';
+
     public const STATUS_SENT_TO_ACCOUNTING = 'sent_to_accounting';
+
     public const STATUS_POSTED = 'posted';
+
     public const STATUS_PAID = 'paid';
+
     public const STATUS_REJECTED = 'rejected';
 
     public const MATCH_PENDING = 'pending';
+
     public const MATCH_MATCHED = 'matched';
+
     public const MATCH_MISMATCH = 'mismatch';
 
     protected $fillable = [

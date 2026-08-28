@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class PurRfxResponseLine extends Model
 {
     protected $table = 'PURCHASE.pur_rfx_response_lines';
+
     public $timestamps = false;
 
     protected $fillable = [

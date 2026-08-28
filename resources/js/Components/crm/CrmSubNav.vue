@@ -13,11 +13,11 @@ const canMergePartners = () => !!(usePage().props as { canMergePartners?: boolea
 </script>
 
 <template>
-  <div class="flex items-center gap-1 border-b border-border" role="tablist">
+  <div class="flex items-center gap-1 border-b border-border overflow-x-auto scrollbar-none" role="tablist">
     <Link
       :href="route('crm.dashboard')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'dashboard' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Dashboard
@@ -25,7 +25,7 @@ const canMergePartners = () => !!(usePage().props as { canMergePartners?: boolea
     <Link
       :href="route('crm.contacts.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'contacts' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Contacts
@@ -33,7 +33,7 @@ const canMergePartners = () => !!(usePage().props as { canMergePartners?: boolea
     <Link
       :href="route('crm.companies.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'companies' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Companies
@@ -41,7 +41,7 @@ const canMergePartners = () => !!(usePage().props as { canMergePartners?: boolea
     <Link
       :href="route('crm.leads.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'leads' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Leads
@@ -49,7 +49,7 @@ const canMergePartners = () => !!(usePage().props as { canMergePartners?: boolea
     <Link
       :href="route('crm.serviceCases.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'service-cases' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Service Cases
@@ -57,7 +57,7 @@ const canMergePartners = () => !!(usePage().props as { canMergePartners?: boolea
     <Link
       :href="route('crm.tickets.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'tickets' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Helpdesk
@@ -66,7 +66,7 @@ const canMergePartners = () => !!(usePage().props as { canMergePartners?: boolea
       v-if="canMergePartners()"
       :href="route('crm.merge.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'merge' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Merge

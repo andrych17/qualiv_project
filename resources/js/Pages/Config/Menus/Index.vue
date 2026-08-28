@@ -3,6 +3,7 @@
 import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
+import PrimaryButton from '@/Components/PrimaryButton.vue'
 import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import { ref, watch } from 'vue'
@@ -128,12 +129,9 @@ const confirmBulkDelete = () => {
       description="Sidebar menus and links for this tenant."
     >
       <template #actions>
-        <Link
-          :href="route('config.menus.create')"
-          class="inline-flex items-center rounded-md bg-gray-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800"
-        >
+        <PrimaryButton :href="route('config.menus.create')">
           Create Menu
-        </Link>
+        </PrimaryButton>
       </template>
     </PageHeader>
 
@@ -160,7 +158,7 @@ const confirmBulkDelete = () => {
         empty-description="Create a menu so it can appear in the sidebar."
       >
         <template #bulk-actions>
-          <button type="button" class="text-sm font-medium text-red-600 hover:text-red-950" @click="confirmBulkDelete">
+          <button type="button" class="text-sm font-medium text-signal-danger hover:underline" @click="confirmBulkDelete">
             Delete selected
           </button>
         </template>
@@ -169,20 +167,20 @@ const confirmBulkDelete = () => {
         </template>
 
         <template #cell-menu_link="{ item }">
-          <span class="font-mono text-xs text-gray-600">{{ item.menu_link || '#' }}</span>
+          <span class="font-mono text-xs text-ink-600">{{ item.menu_link || '#' }}</span>
         </template>
 
         <template #cell-actions="{ item }">
-          <div class="flex items-center justify-end gap-2">
+          <div class="flex items-center justify-end gap-3">
             <Link
               :href="route('config.menus.edit', item.id)"
-              class="text-sm font-medium text-gray-700 hover:text-gray-900"
+              class="text-sm font-medium text-accent hover:underline"
             >
               Edit
             </Link>
             <button
               type="button"
-              class="text-sm font-medium text-red-600 hover:text-red-950"
+              class="text-sm font-medium text-signal-danger hover:underline cursor-pointer"
               @click="confirmDelete(item)"
             >
               Delete

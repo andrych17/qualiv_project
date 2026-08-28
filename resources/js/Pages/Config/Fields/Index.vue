@@ -3,6 +3,7 @@
 import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
+import PrimaryButton from '@/Components/PrimaryButton.vue'
 import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
 import { ref, watch } from 'vue'
 import { debounce } from '@/Composables/debounce'
@@ -108,12 +109,9 @@ const confirmBulkDelete = () => {
       description="Tenant-defined extra fields. Inactive defs leave historical values readable."
     >
       <template #actions>
-        <Link
-          :href="route('config.fields.create')"
-          class="inline-flex min-h-11 items-center rounded-md bg-gray-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800"
-        >
+        <PrimaryButton :href="route('config.fields.create')">
           Create Field
-        </Link>
+        </PrimaryButton>
       </template>
     </PageHeader>
 
@@ -140,21 +138,21 @@ const confirmBulkDelete = () => {
         empty-description="Create a field definition for an entity type."
       >
         <template #bulk-actions>
-          <button type="button" class="text-sm font-medium text-red-600 hover:text-red-950" @click="confirmBulkDelete">
+          <button type="button" class="text-sm font-medium text-signal-danger hover:underline" @click="confirmBulkDelete">
             Deactivate selected
           </button>
         </template>
         <template #cell-actions="{ item }">
-          <div class="flex items-center justify-end gap-2">
+          <div class="flex items-center justify-end gap-3">
             <Link
               :href="route('config.fields.edit', item.id)"
-              class="text-sm font-medium text-gray-700 hover:text-gray-900"
+              class="text-sm font-medium text-accent hover:underline"
             >
               Edit
             </Link>
             <button
               type="button"
-              class="text-sm font-medium text-red-600 hover:text-red-950"
+              class="text-sm font-medium text-signal-danger hover:underline cursor-pointer"
               @click="confirmDelete(item)"
             >
               Deactivate

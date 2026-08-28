@@ -12,9 +12,13 @@ class SalesOrder extends Model
     protected $table = 'SALES.so_hdrs';
 
     public const STATUS_DRAFT = 'draft';
+
     public const STATUS_CONFIRMED = 'confirmed';
+
     public const STATUS_PARTIALLY_FULFILLED = 'partially_fulfilled';
+
     public const STATUS_FULFILLED = 'fulfilled';
+
     public const STATUS_CANCELLED = 'cancelled';
 
     public const STATUSES = [

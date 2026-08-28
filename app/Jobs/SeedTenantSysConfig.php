@@ -18,7 +18,7 @@ class SeedTenantSysConfig
     public function handle(): void
     {
         $this->tenant->run(function () {
-            (new SysConfigSeeder())->run();
+            (new SysConfigSeeder)->run();
         });
     }
 }

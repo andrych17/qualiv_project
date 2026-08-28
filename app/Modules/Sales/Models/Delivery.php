@@ -10,10 +10,15 @@ class Delivery extends Model
     protected $table = 'SALES.dlv_hdrs';
 
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_PICKED = 'picked';
+
     public const STATUS_PACKED = 'packed';
+
     public const STATUS_SHIPPED = 'shipped';
+
     public const STATUS_DELIVERED = 'delivered';
+
     public const STATUS_CANCELLED = 'cancelled';
 
     public const STATUSES = [

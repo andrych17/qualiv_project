@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Modules\CRM\Models\Partner;
 use App\Modules\CRM\Models\PartnerRoleType;
-use App\Modules\Purchase\Models\Category;
 use App\Modules\Purchase\Models\PurOrderHdr;
 use App\Modules\Purchase\Models\PurReceiptHdr;
 use App\Modules\Purchase\Services\GoodsReceiptService;

@@ -2,12 +2,10 @@
 
 namespace App\Modules\Sales\Services;
 
-use App\Modules\Sales\Events\ContractExpiring;
 use App\Modules\Sales\Events\ContractRenewed;
 use App\Modules\Sales\Models\Contract;
 use App\Modules\Sales\Models\ContractSubscription;
 use App\Modules\Sales\Models\RecurringBillingSchedule;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 

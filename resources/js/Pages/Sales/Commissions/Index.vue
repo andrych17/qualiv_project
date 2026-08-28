@@ -223,7 +223,7 @@ watch([search, filters, sort, perPage], debounce(() => {
 
     <!-- Batch Generation Modal -->
     <Modal :show="showBatchModal" max-width="md" @close="showBatchModal = false">
-      <div class="p-6 bg-white rounded-lg">
+      <div class="p-6 bg-surface-0 border border-border text-ink-900 rounded-lg">
         <h3 class="text-lg font-semibold text-ink-900">Generate Commission Settlement</h3>
         <p class="mt-1 text-sm text-ink-600">Calculates earned commissions for a sales rep based on settled payments.</p>
 

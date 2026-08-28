@@ -15,18 +15,18 @@ import { X, CheckCircle, AlertTriangle } from 'lucide-vue-next'
   >
     <div 
       v-if="activeToast"
-      class="fixed bottom-5 right-5 z-50 flex w-full max-w-sm rounded-lg bg-white shadow-lg border border-gray-150 p-4"
+      class="fixed bottom-5 right-5 z-50 flex w-full max-w-sm rounded-lg bg-surface-0 shadow-lg border border-border p-4"
     >
       <div class="flex items-start w-full">
         <div class="flex-shrink-0">
-          <CheckCircle v-if="activeToast.type === 'success'" class="h-6 w-6 text-green-500" />
-          <AlertTriangle v-else class="h-6 w-6 text-red-500" />
+          <CheckCircle v-if="activeToast.type === 'success'" class="h-6 w-6 text-signal-success" />
+          <AlertTriangle v-else class="h-6 w-6 text-signal-danger" />
         </div>
         <div class="ml-3 w-0 flex-1 pt-0.5">
-          <p class="text-sm font-medium text-gray-900">
+          <p class="text-sm font-medium text-ink-900">
             {{ activeToast.type === 'success' ? 'Success' : 'Error' }}
           </p>
-          <p class="mt-1 text-sm text-gray-500">
+          <p class="mt-1 text-sm text-ink-600">
             {{ activeToast.message }}
           </p>
         </div>
@@ -34,9 +34,9 @@ import { X, CheckCircle, AlertTriangle } from 'lucide-vue-next'
           <button 
             type="button" 
             @click="activeToast = null"
-            class="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none"
+            class="inline-flex rounded-md p-1 text-ink-600 hover:text-ink-900 hover:bg-surface-50 focus:outline-none"
           >
-            <X class="h-5 w-5" />
+            <X class="h-4 w-4" />
           </button>
         </div>
       </div>

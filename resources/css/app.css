@@ -2,22 +2,193 @@
 @tailwind components;
 @tailwind utilities;
 
-/* DESIGN.md — Ink & Signal tokens */
-:root {
-  --color-ink-900: #12181f;
-  --color-ink-600: #4a5563;
+/* DESIGN.md — High-End Ink, Surface, Border, Accent & Signal tokens for Multi-Tenant Themes (Light & Dark) */
+
+/* 1. Classic Navy (Light Enterprise Default) */
+:root,
+[data-theme="classic-navy"],
+[data-theme="light"] {
+  --color-ink-900: #0f172a;
+  --color-ink-600: #475569;
   --color-surface-0: #ffffff;
-  --color-surface-50: #f4f6f8;
-  --color-border: #dee3e8;
-  --color-accent: #1f5fbf;
-  --color-signal-success: #1e7f5c;
-  --color-signal-warning: #b5760a;
-  --color-signal-danger: #c1332b;
-  --color-signal-info: #5b4fcf;
+  --color-surface-50: #f8fafc;
+  --color-border: #cbd5e1;
+  --color-accent: #1e40af;
+  --color-signal-success: #15803d;
+  --color-signal-warning: #b45309;
+  --color-signal-danger: #dc2626;
+  --color-signal-info: #0284c7;
+  color-scheme: light;
+}
+
+/* 2. Midnight Obsidian (Enterprise Obsidian Dark Mode — Deep Void & Luminous Blue) */
+[data-theme="midnight-dark"],
+[data-theme="dark"] {
+  --color-ink-900: #f8fafc;
+  --color-ink-600: #94a3b8;
+  --color-surface-0: #111827;
+  --color-surface-50: #0b0f17;
+  --color-border: #1f293d;
+  --color-accent: #38bdf8;
+  --color-signal-success: #34d399;
+  --color-signal-warning: #fbbf24;
+  --color-signal-danger: #f87171;
+  --color-signal-info: #818cf8;
+  color-scheme: dark;
+}
+
+/* 3. Emerald Horizon (Legal & Compliance Light) */
+[data-theme="emerald-horizon"] {
+  --color-ink-900: #062b20;
+  --color-ink-600: #2d5547;
+  --color-surface-0: #ffffff;
+  --color-surface-50: #f2f8f5;
+  --color-border: #cfe2d8;
+  --color-accent: #047857;
+  --color-signal-success: #047857;
+  --color-signal-warning: #b45309;
+  --color-signal-danger: #dc2626;
+  --color-signal-info: #0284c7;
+  color-scheme: light;
+}
+
+/* 4. Forest Night (Deep Forest & Legal Dark — Radiant Mint) */
+[data-theme="forest-dark"] {
+  --color-ink-900: #ecfdf5;
+  --color-ink-600: #a7f3d0;
+  --color-surface-0: #0e261f;
+  --color-surface-50: #071712;
+  --color-border: #1b4d3e;
+  --color-accent: #10b981;
+  --color-signal-success: #34d399;
+  --color-signal-warning: #fbbf24;
+  --color-signal-danger: #f87171;
+  --color-signal-info: #38bdf8;
+  color-scheme: dark;
+}
+
+/* 5. Royal Amethyst (Executive & Innovation Light) */
+[data-theme="royal-amethyst"] {
+  --color-ink-900: #19112e;
+  --color-ink-600: #524572;
+  --color-surface-0: #ffffff;
+  --color-surface-50: #f7f6fb;
+  --color-border: #e2dcf0;
+  --color-accent: #6d28d9;
+  --color-signal-success: #15803d;
+  --color-signal-warning: #b45309;
+  --color-signal-danger: #dc2626;
+  --color-signal-info: #7c3aed;
+  color-scheme: light;
+}
+
+/* 6. Amethyst Night (Executive Dark — Cyberpunk Violet) */
+[data-theme="amethyst-dark"] {
+  --color-ink-900: #faf5ff;
+  --color-ink-600: #d8b4fe;
+  --color-surface-0: #17132a;
+  --color-surface-50: #0d0b18;
+  --color-border: #2c234e;
+  --color-accent: #a855f7;
+  --color-signal-success: #34d399;
+  --color-signal-warning: #fbbf24;
+  --color-signal-danger: #f87171;
+  --color-signal-info: #c084fc;
+  color-scheme: dark;
+}
+
+/* 7. Sunset Amber (Warm Terracotta Light) */
+[data-theme="sunset-amber"] {
+  --color-ink-900: #2a1711;
+  --color-ink-600: #6e4f45;
+  --color-surface-0: #ffffff;
+  --color-surface-50: #faf7f5;
+  --color-border: #eadcd5;
+  --color-accent: #c2410c;
+  --color-signal-success: #15803d;
+  --color-signal-warning: #c2410c;
+  --color-signal-danger: #dc2626;
+  --color-signal-info: #4338ca;
+  color-scheme: light;
+}
+
+/* 8. Terracotta Night (Warm Espresso & Amber Dark) */
+[data-theme="terracotta-dark"] {
+  --color-ink-900: #fff7ed;
+  --color-ink-600: #fdba74;
+  --color-surface-0: #221916;
+  --color-surface-50: #140f0d;
+  --color-border: #3d2c26;
+  --color-accent: #f97316;
+  --color-signal-success: #4ade80;
+  --color-signal-warning: #fbbf24;
+  --color-signal-danger: #f87171;
+  --color-signal-info: #818cf8;
+  color-scheme: dark;
+}
+
+/* 9. Swiss Titanium (Monochrome Minimalist Light) */
+[data-theme="swiss-titanium"] {
+  --color-ink-900: #0f172a;
+  --color-ink-600: #475569;
+  --color-surface-0: #ffffff;
+  --color-surface-50: #f1f5f9;
+  --color-border: #cbd5e1;
+  --color-accent: #1e293b;
+  --color-signal-success: #16a34a;
+  --color-signal-warning: #d97706;
+  --color-signal-danger: #dc2626;
+  --color-signal-info: #2563eb;
+  color-scheme: light;
+}
+
+/* 10. Titanium Dark (Graphite Monolith Dark) */
+[data-theme="titanium-dark"] {
+  --color-ink-900: #ffffff;
+  --color-ink-600: #a3a3a3;
+  --color-surface-0: #1c1c1c;
+  --color-surface-50: #121212;
+  --color-border: #2e2e2e;
+  --color-accent: #f8fafc;
+  --color-signal-success: #22c55e;
+  --color-signal-warning: #eab308;
+  --color-signal-danger: #ef4444;
+  --color-signal-info: #60a5fa;
+  color-scheme: dark;
+}
+
+/* 11. Oceanic Cobalt (Logistics & Fintech Light) */
+[data-theme="oceanic-cobalt"] {
+  --color-ink-900: #081d38;
+  --color-ink-600: #32527b;
+  --color-surface-0: #ffffff;
+  --color-surface-50: #f0f7ff;
+  --color-border: #cce3fd;
+  --color-accent: #0284c7;
+  --color-signal-success: #059669;
+  --color-signal-warning: #d97706;
+  --color-signal-danger: #dc2626;
+  --color-signal-info: #0284c7;
+  color-scheme: light;
+}
+
+/* 12. Abyss Night (Deep Oceanic Abyss Dark) */
+[data-theme="abyss-dark"] {
+  --color-ink-900: #f0f9ff;
+  --color-ink-600: #7dd3fc;
+  --color-surface-0: #0d1e34;
+  --color-surface-50: #07111e;
+  --color-border: #17345b;
+  --color-accent: #38bdf8;
+  --color-signal-success: #34d399;
+  --color-signal-warning: #fbbf24;
+  --color-signal-danger: #f87171;
+  --color-signal-info: #60a5fa;
+  color-scheme: dark;
 }
 
 @layer base {
   body {
-    @apply bg-surface-50 text-ink-900 antialiased;
+    @apply bg-surface-50 text-ink-900 antialiased transition-colors duration-150;
   }
 }

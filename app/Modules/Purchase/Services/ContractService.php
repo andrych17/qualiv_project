@@ -3,11 +3,9 @@
 namespace App\Modules\Purchase\Services;
 
 use App\Modules\Purchase\Models\PurContractHdr;
-use App\Modules\Purchase\Models\PurException;
 use App\Modules\Purchase\Models\PurOrderHdr;
 use App\Modules\WorkflowEngine\Exceptions\WorkflowEngineException;
 use App\Modules\WorkflowEngine\Services\WorkflowService;
-use Illuminate\Support\Facades\DB;
 
 class ContractService
 {

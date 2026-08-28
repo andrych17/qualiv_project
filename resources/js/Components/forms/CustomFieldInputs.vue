@@ -32,8 +32,8 @@ const fieldError = (code: string): string | undefined =>
 </script>
 
 <template>
-  <div v-if="fields.length" class="space-y-4 border-t border-gray-100 pt-4">
-    <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Custom fields</p>
+  <div v-if="fields.length" class="space-y-4 border-t border-border pt-4">
+    <p class="text-xs font-semibold uppercase tracking-wide text-ink-600">Custom fields</p>
     <template v-for="field in fields" :key="field.code">
       <FormSelect
         v-if="field.field_type === 'select'"

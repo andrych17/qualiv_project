@@ -10,13 +10,19 @@ class PurException extends Model
     protected $table = 'PURCHASE.pur_exceptions';
 
     public const TYPE_OVERDUE_APPROVAL = 'overdue_approval';
+
     public const TYPE_LATE_DELIVERY = 'late_delivery';
+
     public const TYPE_PRICE_VARIANCE = 'price_variance';
+
     public const TYPE_BUDGET_FLAG = 'budget_flag';
+
     public const TYPE_UNMATCHED_INVOICE = 'unmatched_invoice';
 
     public const STATUS_OPEN = 'open';
+
     public const STATUS_RESOLVED = 'resolved';
+
     public const STATUS_DISMISSED = 'dismissed';
 
     protected $fillable = [

@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Modules\CRM\Models\Partner;
 use App\Modules\CRM\Models\PartnerRoleType;
 use App\Modules\Purchase\Models\PurException;
-use App\Modules\Purchase\Models\PurOrderHdr;
 use App\Modules\Purchase\Services\ExceptionService;
 use App\Modules\Purchase\Services\PurchaseOrderService;
 use Illuminate\Foundation\Testing\RefreshDatabase;

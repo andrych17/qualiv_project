@@ -3,7 +3,6 @@
 namespace App\Modules\Sales\Services;
 
 use App\Modules\Accounting\Models\ArInvoice;
-use App\Modules\CRM\Models\Partner;
 use App\Modules\Sales\Models\CustomerCreditProfile;
 use App\Modules\Sales\Models\Opportunity;
 use App\Modules\Sales\Models\Quotation;

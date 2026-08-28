@@ -29,9 +29,13 @@ import Dropdown from '@/Components/Dropdown.vue'
 import DropdownLink from '@/Components/DropdownLink.vue'
 import { showToast } from '@/Composables/useFlashToast'
 import { useConfirm } from '@/Composables/useConfirmDialog'
-import { Palette, Layers, MousePointerClick, FormInput as FormIcon, Activity, Table, Layout, Sparkles } from 'lucide-vue-next'
+import { useAlert } from '@/Composables/useAlertDialog'
+import { useTheme } from '@/Composables/useTheme'
+import { Palette, Layers, MousePointerClick, FormInput as FormIcon, Activity, Table, Layout, Sparkles, Check } from 'lucide-vue-next'
 
 const { confirm } = useConfirm()
+const { showAlert } = useAlert()
+const { activeTheme, availableThemes, setTheme } = useTheme()
 
 // Interactive state demo models
 const searchDemo = ref('')
@@ -159,6 +163,32 @@ const triggerToastDemo = (type: 'success' | 'error') => {
   }
 }
 
+const triggerAlertDemo = (type: 'success' | 'error' | 'warning' | 'info') => {
+  const samples = {
+    success: {
+      title: 'Aksi Berhasil',
+      message: 'Data dokumen dan transaksi berhasil disimpan ke sistem.',
+      type: 'success' as const,
+    },
+    error: {
+      title: 'Gagal Memproses Data',
+      message: 'Terjadi kegagalan validasi atau koneksi server. Silakan periksa kembali data Anda.',
+      type: 'error' as const,
+    },
+    warning: {
+      title: 'Peringatan Sistem',
+      message: 'Kapasitas penyimpanan hampir penuh. Beberapa fitur lampiran mungkin dibatasi.',
+      type: 'warning' as const,
+    },
+    info: {
+      title: 'Informasi Pembaruan',
+      message: 'Sistem telah diperbarui ke versi terbaru. Nikmati performa yang lebih optimal.',
+      type: 'info' as const,
+    },
+  }
+  showAlert(samples[type])
+}
+
 const triggerConfirmDemo = (variant: 'default' | 'destructive') => {
   confirm({
     title: variant === 'destructive' ? 'Hapus Berkas Perkara?' : 'Konfirmasi Penyimpanan',
@@ -169,7 +199,11 @@ const triggerConfirmDemo = (variant: 'default' | 'destructive') => {
     cancelText: 'Batal',
     variant,
     onConfirm: () => {
-      showToast(variant === 'destructive' ? 'Data berhasil dihapus' : 'Perubahan berhasil disimpan', 'success')
+      showAlert({
+        title: 'Berhasil',
+        message: variant === 'destructive' ? 'Data berhasil dihapus dari sistem.' : 'Perubahan berhasil disimpan.',
+        type: 'success',
+      })
     },
   })
 }
@@ -290,6 +324,40 @@ const triggerConfirmDemo = (variant: 'default' | 'destructive') => {
                 <div class="border-l-[3px] border-l-signal-warning bg-white px-2 py-1 rounded-r">Pending Rail</div>
                 <div class="border-l-[3px] border-l-signal-danger bg-white px-2 py-1 rounded-r">Overdue Rail</div>
               </div>
+            </div>
+          </div>
+
+          <!-- Multi-Tenant Themes Quick Switcher -->
+          <div class="mt-4 border-t border-border pt-4">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <h3 class="text-sm font-semibold text-ink-900">Tema Tenant Global (5 Preset Tema)</h3>
+                <p class="text-xs text-ink-600">Klik salah satu tema di bawah untuk menguji perubahan warna CSS variables secara live di seluruh halaman:</p>
+              </div>
+              <span class="text-xs font-mono font-semibold text-accent uppercase">Active: {{ activeTheme }}</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+              <button
+                v-for="t in availableThemes"
+                :key="t.id"
+                type="button"
+                @click="setTheme(t.id, false)"
+                class="flex items-center justify-between rounded-md border p-2.5 text-left text-xs transition-all"
+                :class="activeTheme === t.id ? 'border-accent bg-accent/5 ring-1 ring-accent font-semibold' : 'border-border bg-white hover:bg-surface-50'"
+              >
+                <div class="flex items-center gap-2">
+                  <span
+                    class="h-4 w-4 rounded-full ring-1 ring-white shadow-xs"
+                    :style="{ backgroundColor: t.primary_color }"
+                  />
+                  <div>
+                    <p class="text-ink-900 leading-tight">{{ t.name }}</p>
+                    <p class="text-[10px] text-ink-600">{{ t.badge ?? t.caption }}</p>
+                  </div>
+                </div>
+                <Check v-if="activeTheme === t.id" class="h-3.5 w-3.5 text-accent" />
+              </button>
             </div>
           </div>
         </Panel>
@@ -523,16 +591,18 @@ const triggerConfirmDemo = (variant: 'default' | 'destructive') => {
               </div>
             </div>
 
-            <!-- Interactive Toast & Confirm Dialog triggers -->
+            <!-- Interactive Alert & Confirm Dialog triggers -->
             <div class="space-y-3 rounded-md border border-border p-4">
               <div class="flex items-center justify-between">
-                <h3 class="text-sm font-semibold">Toast & ConfirmDialog Actions</h3>
-                <span class="font-mono text-[10px] text-ink-600">Composables / Modals</span>
+                <h3 class="text-sm font-semibold">Centered Alert & Confirm Dialog Actions</h3>
+                <span class="font-mono text-[10px] text-ink-600">useAlert / useConfirm</span>
               </div>
-              <p class="text-xs text-ink-600">Uji langsung pemanggilan dialog global tanpa props overhead:</p>
+              <p class="text-xs text-ink-600">Uji pemanggilan dialog modal global di tengah layar (Success, Error, Warning, Info, Confirm):</p>
               <div class="flex flex-wrap gap-3 pt-2">
-                <SecondaryButton @click="triggerToastDemo('success')">Toast Success</SecondaryButton>
-                <SecondaryButton @click="triggerToastDemo('error')">Toast Error</SecondaryButton>
+                <SecondaryButton @click="triggerAlertDemo('success')">Alert Success</SecondaryButton>
+                <SecondaryButton @click="triggerAlertDemo('error')">Alert Error</SecondaryButton>
+                <SecondaryButton @click="triggerAlertDemo('warning')">Alert Warning</SecondaryButton>
+                <SecondaryButton @click="triggerAlertDemo('info')">Alert Info</SecondaryButton>
                 <SecondaryButton @click="triggerConfirmDemo('default')">Confirm Modal</SecondaryButton>
                 <DangerButton @click="triggerConfirmDemo('destructive')">Destructive Confirm</DangerButton>
               </div>

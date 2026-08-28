@@ -65,7 +65,7 @@ const updatePassword = () => {
           v-model="form.current_password"
           :type="showCurrentPassword ? 'text' : 'password'"
           placeholder="Masukkan kata sandi saat ini"
-          class="w-full rounded-md border border-border bg-white px-3 py-2 pr-10 text-sm shadow-sm outline-none transition focus:border-ink-900 focus:ring-2 focus:ring-ink-900/10"
+          class="w-full rounded-md border border-border bg-surface-0 text-ink-900 px-3 py-2 pr-10 text-sm shadow-sm outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
           :class="form.errors.current_password ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : ''"
           autocomplete="current-password"
         />
@@ -94,7 +94,7 @@ const updatePassword = () => {
           v-model="form.password"
           :type="showNewPassword ? 'text' : 'password'"
           placeholder="Minimal 8 karakter"
-          class="w-full rounded-md border border-border bg-white px-3 py-2 pr-10 text-sm shadow-sm outline-none transition focus:border-ink-900 focus:ring-2 focus:ring-ink-900/10"
+          class="w-full rounded-md border border-border bg-surface-0 text-ink-900 px-3 py-2 pr-10 text-sm shadow-sm outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
           :class="form.errors.password ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : ''"
           autocomplete="new-password"
         />
@@ -136,7 +136,7 @@ const updatePassword = () => {
           v-model="form.password_confirmation"
           :type="showConfirmPassword ? 'text' : 'password'"
           placeholder="Ulangi kata sandi baru"
-          class="w-full rounded-md border border-border bg-white px-3 py-2 pr-10 text-sm shadow-sm outline-none transition focus:border-ink-900 focus:ring-2 focus:ring-ink-900/10"
+          class="w-full rounded-md border border-border bg-surface-0 text-ink-900 px-3 py-2 pr-10 text-sm shadow-sm outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
           :class="form.errors.password_confirmation ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : ''"
           autocomplete="new-password"
         />

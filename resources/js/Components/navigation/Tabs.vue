@@ -13,14 +13,14 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div class="flex items-center gap-1 border-b border-border" role="tablist">
+  <div class="flex items-center gap-1 border-b border-border overflow-x-auto scrollbar-none" role="tablist">
     <button
       v-for="tab in tabs"
       :key="tab.key"
       type="button"
       role="tab"
       :aria-selected="modelValue === tab.key"
-      class="flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      class="flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent cursor-pointer"
       :class="modelValue === tab.key ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
       @click="emit('update:modelValue', tab.key)"
     >

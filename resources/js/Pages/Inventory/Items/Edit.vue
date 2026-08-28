@@ -3,15 +3,19 @@
 import { useForm, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
+import Panel from '@/Components/cards/Panel.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
+import FormTextarea from '@/Components/forms/FormTextarea.vue'
+import PrimaryButton from '@/Components/PrimaryButton.vue'
+import SecondaryButton from '@/Components/SecondaryButton.vue'
 
 interface InventoryItem {
   id: number
   code: string
   name: string
   description: string | null
-  inventory_category_id: number
+  inventory_category_id: number | null
   stock: number
   minimum_stock: number
   unit: string
@@ -46,7 +50,7 @@ const submit = () => {
       :description="`Update details for ${item.name} (${item.code}).`"
     />
 
-    <div class="mt-6 max-w-2xl rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+    <Panel class="mt-6 max-w-2xl">
       <form @submit.prevent="submit" class="space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormInput
@@ -123,29 +127,29 @@ const submit = () => {
           required
         />
 
-        <div class="space-y-1.5">
-          <label for="description" class="text-sm font-medium text-gray-700">Description</label>
-          <textarea
-            id="description"
-            v-model="form.description"
-            rows="3"
-            class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10"
-          ></textarea>
-        </div>
+        <FormTextarea
+          v-model="form.description"
+          name="description"
+          label="Description"
+          placeholder="Optional item description..."
+          :rows="3"
+          :error="form.errors.description"
+        />
 
-        <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
-          <Link :href="route('inventory.items.index')" class="text-sm font-semibold leading-6 text-gray-900">
-            Cancel
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-border">
+          <Link :href="route('inventory.items.index')">
+            <SecondaryButton type="button">
+              Cancel
+            </SecondaryButton>
           </Link>
-          <button
+          <PrimaryButton
             type="submit"
             :disabled="form.processing"
-            class="rounded-md bg-gray-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900"
           >
             Update Item
-          </button>
+          </PrimaryButton>
         </div>
       </form>
-    </div>
+    </Panel>
   </AppLayout>
 </template>

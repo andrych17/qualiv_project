@@ -12,9 +12,13 @@ class Contract extends Model
     protected $table = 'SALES.contr_hdrs';
 
     public const STATUS_DRAFT = 'draft';
+
     public const STATUS_ACTIVE = 'active';
+
     public const STATUS_RENEWED = 'renewed';
+
     public const STATUS_CANCELLED = 'cancelled';
+
     public const STATUS_EXPIRED = 'expired';
 
     public const STATUSES = [

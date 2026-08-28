@@ -9,7 +9,6 @@ use App\Modules\Purchase\Models\PurCatalogItem;
 use App\Modules\Purchase\Requests\StoreCatalogItemRequest;
 use App\Modules\Purchase\Requests\UpdateCatalogItemRequest;
 use App\Modules\Purchase\Services\CatalogService;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 

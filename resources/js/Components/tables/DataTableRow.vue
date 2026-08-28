@@ -126,7 +126,7 @@ const stickyStyle = (idx: number) => {
         v-model="editingValue"
         type="text"
         autofocus
-        class="w-full rounded border border-accent px-1 py-0.5 text-sm"
+        class="w-full rounded border border-accent bg-surface-0 text-ink-900 px-1 py-0.5 text-sm outline-none"
         @keyup.enter="commitEdit(column)"
         @keyup.escape="cancelEdit"
         @blur="commitEdit(column)"

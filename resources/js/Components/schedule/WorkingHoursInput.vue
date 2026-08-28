@@ -62,14 +62,14 @@ const updateTime = (day: number, field: 'start_time' | 'end_time', value: string
           <input
             type="time"
             :value="rowFor(d.value)?.start_time"
-            class="rounded-md border border-border bg-white px-2 py-1 text-sm shadow-sm outline-none focus:border-ink-900 focus:ring-2 focus:ring-ink-900/10"
+            class="rounded-md border border-border bg-surface-0 text-ink-900 px-2 py-1 text-sm shadow-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
             @input="updateTime(d.value, 'start_time', ($event.target as HTMLInputElement).value)"
           />
           <span class="text-sm text-ink-600">to</span>
           <input
             type="time"
             :value="rowFor(d.value)?.end_time"
-            class="rounded-md border border-border bg-white px-2 py-1 text-sm shadow-sm outline-none focus:border-ink-900 focus:ring-2 focus:ring-ink-900/10"
+            class="rounded-md border border-border bg-surface-0 text-ink-900 px-2 py-1 text-sm shadow-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
             @input="updateTime(d.value, 'end_time', ($event.target as HTMLInputElement).value)"
           />
         </template>

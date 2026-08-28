@@ -119,14 +119,14 @@ const restore = (occ: OccurrenceRow) => {
             <input
               v-model="rescheduleForm.start_at"
               type="datetime-local"
-              class="rounded-md border border-border bg-white px-2 py-1 text-sm shadow-sm outline-none focus:border-ink-900 focus:ring-2 focus:ring-ink-900/10"
+              class="rounded-md border border-border bg-surface-0 text-ink-900 px-2 py-1 text-sm shadow-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
             />
             <template v-if="showEnd">
               <span class="text-ink-600">to</span>
               <input
                 v-model="rescheduleForm.end_at"
                 type="datetime-local"
-                class="rounded-md border border-border bg-white px-2 py-1 text-sm shadow-sm outline-none focus:border-ink-900 focus:ring-2 focus:ring-ink-900/10"
+                class="rounded-md border border-border bg-surface-0 text-ink-900 px-2 py-1 text-sm shadow-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
               />
             </template>
           </div>

@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Modules\CRM\Models\Partner;
 use App\Modules\CRM\Models\PartnerRoleType;
 use App\Modules\Purchase\Models\Category;
-use App\Modules\Purchase\Models\PurCatalogItem;
 use App\Modules\Purchase\Models\PurOrderHdr;
 use App\Modules\Purchase\Models\PurOrderRevision;
 use App\Modules\Purchase\Models\PurRequisitionHdr;

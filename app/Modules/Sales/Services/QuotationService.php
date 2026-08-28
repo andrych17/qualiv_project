@@ -5,9 +5,7 @@ namespace App\Modules\Sales\Services;
 use App\Modules\Sales\Events\QuotationConverted;
 use App\Modules\Sales\Events\QuotationSent;
 use App\Modules\Sales\Models\Quotation;
-use App\Modules\Sales\Models\QuotationLine;
 use App\Modules\Sales\Models\SalesOrder;
-use App\Modules\Sales\Models\SalesOrderLine;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -118,7 +116,7 @@ class QuotationService
     {
         if (! in_array($quote->status, [Quotation::STATUS_DRAFT, Quotation::STATUS_APPROVED], true)) {
             throw ValidationException::withMessages([
-                'status' => ["Only draft or approved quotations can be marked as sent."],
+                'status' => ['Only draft or approved quotations can be marked as sent.'],
             ]);
         }
 

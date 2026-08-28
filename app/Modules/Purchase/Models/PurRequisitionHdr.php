@@ -11,10 +11,15 @@ class PurRequisitionHdr extends Model
     protected $table = 'PURCHASE.pur_requisition_hdrs';
 
     public const STATUS_DRAFT = 'draft';
+
     public const STATUS_PENDING_APPROVAL = 'pending_approval';
+
     public const STATUS_APPROVED = 'approved';
+
     public const STATUS_REJECTED = 'rejected';
+
     public const STATUS_CONVERTED = 'converted';
+
     public const STATUS_CANCELLED = 'cancelled';
 
     protected $fillable = [

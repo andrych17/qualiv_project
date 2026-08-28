@@ -89,6 +89,7 @@ class SysConfigSeeder extends Seeder
             ['code' => 'CONFIG_CONSTS', 'menu_header' => 'System', 'menu_caption' => 'Constants', 'menu_link' => '/config/consts', 'icon' => 'SlidersHorizontal', 'seq' => 220, 'status_code' => 'A'],
             ['code' => 'CONFIG_FIELDS', 'menu_header' => 'System', 'menu_caption' => 'Custom Fields', 'menu_link' => '/config/fields', 'icon' => 'ListPlus', 'seq' => 222, 'status_code' => 'A'],
             ['code' => 'CONFIG_SERIALS', 'menu_header' => 'System', 'menu_caption' => 'Serials', 'menu_link' => '/config/serials', 'icon' => 'Hash', 'seq' => 225, 'status_code' => 'A'],
+            ['code' => 'CONFIG_THEME', 'menu_header' => 'System', 'menu_caption' => 'Theme', 'menu_link' => '/config/theme', 'icon' => 'Palette', 'seq' => 228, 'status_code' => 'A'],
             ['code' => 'DESIGN_SYSTEM', 'menu_header' => 'System', 'menu_caption' => 'Komponen UI', 'menu_link' => '/design-system', 'icon' => 'Layers', 'seq' => 230, 'status_code' => 'A'],
             // CRM §3A-§3G shipped — all reached via the in-page sub-nav on /crm/dashboard,
             // not separate sidebar rows (one menu code covers all of them, see
@@ -246,6 +247,7 @@ class SysConfigSeeder extends Seeder
             // ladder rung 1 (constants), never hardcoded, since regulation can change.
             ['const_group' => 'ACCOUNTING_TAX', 'group_code' => 'PPN_DUE_DAY_OF_MONTH', 'seq' => 1, 'num1' => 0, 'note1' => 'SPT Masa PPN due date: day of the following month (0 = last day)'],
             ['const_group' => 'ACCOUNTING_TAX', 'group_code' => 'PPH_DUE_DAY_OF_MONTH', 'seq' => 2, 'num1' => 10, 'note1' => 'PPh withholding remittance due date: day of the following month'],
+            ['const_group' => 'THEME', 'group_code' => 'ACTIVE_THEME', 'seq' => 1, 'str1' => 'classic-navy', 'note1' => 'Active UI theme key for tenant'],
             ['const_group' => 'STATUS', 'group_code' => 'ACTIVE', 'seq' => 1, 'str1' => 'A', 'str2' => 'Active'],
             ['const_group' => 'STATUS', 'group_code' => 'INACTIVE', 'seq' => 2, 'str1' => 'I', 'str2' => 'Inactive'],
             ['const_group' => 'TRUSTEE', 'group_code' => 'CRUD', 'seq' => 1, 'str1' => 'CRUD', 'note1' => 'Full menu trustee'],

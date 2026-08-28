@@ -12,11 +12,17 @@ class Quotation extends Model
     protected $table = 'SALES.quot_hdrs';
 
     public const STATUS_DRAFT = 'draft';
+
     public const STATUS_SENT = 'sent';
+
     public const STATUS_APPROVED = 'approved';
+
     public const STATUS_ACCEPTED = 'accepted';
+
     public const STATUS_DECLINED = 'declined';
+
     public const STATUS_EXPIRED = 'expired';
+
     public const STATUS_CONVERTED = 'converted';
 
     public const STATUSES = [

@@ -7,9 +7,7 @@ use App\Modules\Accounting\Models\ArInvoice;
 use App\Modules\Sales\Models\CommissionPlan;
 use App\Modules\Sales\Models\CommissionSettlement;
 use App\Modules\Sales\Models\SalesOrder;
-use App\Modules\Sales\Models\SalesOrderLine;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class CommissionService

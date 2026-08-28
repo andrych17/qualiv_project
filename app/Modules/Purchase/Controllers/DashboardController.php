@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Modules\Purchase\Models\PurException;
 use App\Modules\Purchase\Models\PurInvoiceHdr;
 use App\Modules\Purchase\Models\PurOrderHdr;
-use App\Modules\Purchase\Models\PurReceiptHdr;
 use App\Modules\Purchase\Models\PurRequisitionHdr;
 use Inertia\Inertia;
 use Inertia\Response;

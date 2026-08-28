@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 class PurRfxInvitation extends Model
 {
     protected $table = 'PURCHASE.pur_rfx_invitations';
+
     public $timestamps = false;
 
     protected $fillable = [

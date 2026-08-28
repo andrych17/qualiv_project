@@ -83,6 +83,7 @@ class ConfigGroupController extends Controller
                     'code' => $m->code,
                     'label' => $m->menu_caption,
                     'header' => $m->menu_header,
+                    'seq' => $m->seq,
                     'create' => str_contains($trustee, 'C'),
                     'read' => str_contains($trustee, 'R'),
                     'update' => str_contains($trustee, 'U'),

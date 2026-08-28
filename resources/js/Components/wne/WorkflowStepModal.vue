@@ -145,7 +145,7 @@ const submit = () => {
           <textarea
             v-model="form.config"
             rows="6"
-            class="w-full rounded-md border border-border bg-white px-3 py-2 font-mono text-xs shadow-sm outline-none transition focus:border-ink-900 focus:ring-2 focus:ring-ink-900/10"
+            class="w-full rounded-md border border-border bg-surface-0 text-ink-900 px-3 py-2 font-mono text-xs shadow-sm outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
           />
           <p v-if="jsonError" class="text-sm text-signal-danger">{{ jsonError }}</p>
           <p v-else-if="form.errors.config" class="text-sm text-signal-danger">{{ form.errors.config }}</p>
@@ -160,7 +160,7 @@ const submit = () => {
             v-model="form.webhook_auth_headers"
             rows="3"
             :placeholder="step?.has_webhook_auth_headers ? '(unchanged)' : ''"
-            class="w-full rounded-md border border-border bg-white px-3 py-2 font-mono text-xs shadow-sm outline-none transition focus:border-ink-900 focus:ring-2 focus:ring-ink-900/10"
+            class="w-full rounded-md border border-border bg-surface-0 text-ink-900 px-3 py-2 font-mono text-xs shadow-sm outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
           />
           <p v-if="authHeadersJsonError" class="text-sm text-signal-danger">{{ authHeadersJsonError }}</p>
           <p v-else-if="form.errors.webhook_auth_headers" class="text-sm text-signal-danger">{{ form.errors.webhook_auth_headers }}</p>

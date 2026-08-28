@@ -5,18 +5,15 @@ namespace App\Modules\Purchase\Services;
 use App\Modules\CRM\Models\Partner;
 use App\Modules\Purchase\Models\Category;
 use App\Modules\Purchase\Models\PurOrderHdr;
-use App\Modules\Purchase\Models\PurOrderLine;
-use App\Modules\Purchase\Models\PurVendorDocument;
 use App\Modules\Purchase\Models\VendorProfile;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 
 class EsgComplianceService
 {
     /**
      * Computes TKDN local content reporting and vendor compliance document audit (§3M).
      *
-     * @param array<string, mixed> $filters
+     * @param  array<string, mixed>  $filters
      * @return array<string, mixed>
      */
     public function getEsgComplianceReport(array $filters = []): array
@@ -334,7 +331,7 @@ class EsgComplianceService
     /**
      * Resolves date range preset.
      *
-     * @param array<string, mixed> $filters
+     * @param  array<string, mixed>  $filters
      * @return array{0: ?Carbon, 1: ?Carbon}
      */
     private function resolveDateRange(array $filters): array

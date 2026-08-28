@@ -13,9 +13,13 @@ class Opportunity extends Model
     protected $table = 'SALES.opp_hdrs';
 
     public const STAGE_NEW = 'new';
+
     public const STAGE_QUALIFYING = 'qualifying';
+
     public const STAGE_QUOTED = 'quoted';
+
     public const STAGE_WON = 'won';
+
     public const STAGE_LOST = 'lost';
 
     public const STAGES = [

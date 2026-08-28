@@ -116,9 +116,9 @@ onUnmounted(() => {
         @click.prevent.stop="toggleDropdown"
         @mousedown.stop
         :disabled="disabled"
-        class="w-full flex items-center justify-between rounded-md border border-border bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-ink-900 focus:ring-2 focus:ring-ink-900/10 text-left"
+        class="w-full flex items-center justify-between rounded-md border border-border bg-surface-0 px-3 py-2 text-sm shadow-xs outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20 text-left"
         :class="[
-          error ? 'border-signal-danger focus:border-signal-danger focus:ring-signal-danger/10' : '',
+          error ? 'border-signal-danger focus:border-signal-danger focus:ring-signal-danger/20' : '',
           disabled ? 'bg-surface-50 cursor-not-allowed text-ink-600' : 'cursor-pointer'
         ]"
       >
@@ -152,7 +152,7 @@ onUnmounted(() => {
         v-if="isOpen"
         @click.prevent.stop
         @mousedown.stop
-        class="absolute left-0 right-0 z-30 mt-1 max-h-60 overflow-hidden rounded-md border border-border bg-white shadow-lg ring-1 ring-black/5 flex flex-col"
+        class="absolute left-0 right-0 z-30 mt-1 max-h-60 overflow-hidden rounded-md border border-border bg-surface-0 shadow-lg ring-1 ring-black/5 flex flex-col"
       >
         <!-- Search Input -->
         <div class="p-2 border-b border-border bg-surface-50 flex items-center gap-2">

@@ -10,9 +10,11 @@ class CommissionPlan extends Model
     protected $table = 'SALES.commission_plans';
 
     public const BASIS_FLAT_PCT = 'flat_pct';
+
     public const BASIS_TIERED = 'tiered';
 
     public const APPLIES_TO_TEAM = 'team';
+
     public const APPLIES_TO_REP = 'rep';
 
     protected $fillable = [

@@ -10,11 +10,11 @@ defineProps<{
 </script>
 
 <template>
-  <div class="flex items-center gap-1 border-b border-border" role="tablist">
+  <div class="flex items-center gap-1 border-b border-border overflow-x-auto scrollbar-none" role="tablist">
     <Link
       :href="route('inventory.products.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'products' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Products
@@ -22,7 +22,7 @@ defineProps<{
     <Link
       :href="route('inventory.categories.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'categories' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Categories
@@ -30,7 +30,7 @@ defineProps<{
     <Link
       :href="route('inventory.uoms.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'uoms' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Units of Measure
@@ -38,7 +38,7 @@ defineProps<{
     <Link
       :href="route('inventory.warehouses.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'warehouses' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Warehouses
@@ -46,7 +46,7 @@ defineProps<{
     <Link
       :href="route('inventory.goodsReceipts.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'goodsReceipts' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Goods Receipts
@@ -54,7 +54,7 @@ defineProps<{
     <Link
       :href="route('inventory.goodsIssues.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'goodsIssues' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Goods Issues
@@ -62,7 +62,7 @@ defineProps<{
     <Link
       :href="route('inventory.transfers.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'transfers' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Transfers
@@ -70,7 +70,7 @@ defineProps<{
     <Link
       :href="route('inventory.adjustments.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'adjustments' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Adjustments
@@ -78,7 +78,7 @@ defineProps<{
     <Link
       :href="route('inventory.adjustmentReasons.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'adjustmentReasons' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Reasons
@@ -86,7 +86,7 @@ defineProps<{
     <Link
       :href="route('inventory.batches.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'batches' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Batches
@@ -94,7 +94,7 @@ defineProps<{
     <Link
       :href="route('inventory.serials.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'serials' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Serials
@@ -102,7 +102,7 @@ defineProps<{
     <Link
       :href="route('inventory.reservations.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'reservations' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Reservations
@@ -110,7 +110,7 @@ defineProps<{
     <Link
       :href="route('inventory.pickLists.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'pickLists' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Pick Lists
@@ -150,7 +150,7 @@ defineProps<{
     <Link
       :href="route('inventory.stockCard.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'stockCard' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Stock Card
@@ -158,7 +158,7 @@ defineProps<{
     <Link
       :href="route('inventory.valuation.index')"
       role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition"
+      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
       :class="active === 'valuation' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
     >
       Valuation

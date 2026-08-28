@@ -9,6 +9,7 @@ use App\Modules\Payroll\Models\JkkRiskCategory;
 use App\Modules\Payroll\Models\PayrollGroup;
 use App\Modules\Payroll\Models\PtkpStatus;
 use App\Modules\Payroll\Models\SalaryStructure;
+use App\Shared\Helpers\TableQuery;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -26,17 +27,17 @@ class EmployeePayrollProfileController extends Controller
             ->with(['payrollProfile.payrollGroup', 'payrollProfile.salaryStructure', 'currentContract', 'position.job', 'position.orgUnit'])
             ->where('employment_status', Employee::STATUS_ACTIVE);
 
-        if (!empty($filters['search'])) {
-            $s = '%' . $filters['search'] . '%';
+        if (! empty($filters['search'])) {
+            $s = '%'.$filters['search'].'%';
             $query->where(function ($q) use ($s) {
                 $q->where('full_name', 'ilike', $s)
                     ->orWhere('employee_no', 'ilike', $s);
             });
         }
 
-        \App\Shared\Helpers\TableQuery::applySort($query, $filters['sort'] ?? null, $filters['direction'] ?? null, self::SORTABLE, 'employee_no', 'asc');
+        TableQuery::applySort($query, $filters['sort'] ?? null, $filters['direction'] ?? null, self::SORTABLE, 'employee_no', 'asc');
 
-        $employees = $query->paginate(\App\Shared\Helpers\TableQuery::perPage(isset($filters['per_page']) ? (int) $filters['per_page'] : null, 15))
+        $employees = $query->paginate(TableQuery::perPage(isset($filters['per_page']) ? (int) $filters['per_page'] : null, 15))
             ->withQueryString();
 
         return Inertia::render('Payroll/Profiles/Index', [

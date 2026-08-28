@@ -162,7 +162,7 @@ const reactivate = (tenantId: string) => {
 
     <!-- Tenant detail drawer -->
     <div v-if="drawer || drawerLoading" class="fixed inset-0 z-50 flex justify-end bg-black/30" @click.self="drawer = null">
-      <div class="h-full w-full max-w-md overflow-y-auto bg-white p-6 shadow-xl">
+      <div class="h-full w-full max-w-md overflow-y-auto bg-surface-0 border-l border-border p-6 shadow-xl text-ink-900">
         <button type="button" class="text-sm text-ink-600 hover:text-ink-900" @click="drawer = null">Close</button>
 
         <template v-if="drawerLoading">

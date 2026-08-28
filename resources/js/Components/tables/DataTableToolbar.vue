@@ -95,22 +95,22 @@ const submitSaveView = () => {
           <select
             v-if="field.type === 'select'"
             v-model="filters[field.key]"
-            class="w-full rounded-md border border-border py-1.5 text-sm"
+            class="w-full rounded-md border border-border bg-surface-0 py-1.5 px-2 text-sm text-ink-900 outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
           >
-            <option value="">All</option>
-            <option v-for="opt in field.options" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+            <option value="" class="bg-surface-0 text-ink-900">All</option>
+            <option v-for="opt in field.options" :key="opt.value" :value="opt.value" class="bg-surface-0 text-ink-900">{{ opt.label }}</option>
           </select>
           <input
             v-else-if="field.type === 'date'"
             v-model="filters[field.key]"
             type="date"
-            class="w-full rounded-md border border-border py-1.5 text-sm"
+            class="w-full rounded-md border border-border bg-surface-0 py-1.5 px-2 text-sm text-ink-900 outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
           />
           <input
             v-else
             v-model="filters[field.key]"
             type="text"
-            class="w-full rounded-md border border-border py-1.5 text-sm"
+            class="w-full rounded-md border border-border bg-surface-0 py-1.5 px-2 text-sm text-ink-900 outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
           />
         </div>
         <button
@@ -152,7 +152,7 @@ const submitSaveView = () => {
             v-model="newViewName"
             type="text"
             placeholder="Save current as…"
-            class="w-full rounded-md border border-border py-1 text-xs"
+            class="w-full rounded-md border border-border bg-surface-0 py-1 px-2 text-xs text-ink-900 placeholder:text-ink-600/60 outline-none focus:border-accent focus:ring-1 focus:ring-accent/20"
             @keyup.enter="submitSaveView"
           />
           <button type="button" class="text-xs font-medium text-accent" @click="submitSaveView">Save</button>

@@ -12,10 +12,15 @@ class SalesReturn extends Model
     protected $table = 'SALES.ret_hdrs';
 
     public const STATUS_REQUESTED = 'requested';
+
     public const STATUS_APPROVED = 'approved';
+
     public const STATUS_RECEIVED = 'received';
+
     public const STATUS_REFUNDED = 'refunded';
+
     public const STATUS_REPLACED = 'replaced';
+
     public const STATUS_CLOSED = 'closed';
 
     public const STATUSES = [

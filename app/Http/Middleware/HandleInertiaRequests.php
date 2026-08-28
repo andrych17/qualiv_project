@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Modules\Accounting\Services\CompanyContextService;
 use App\Modules\SysConfig\Services\ConfigService;
+use App\Modules\SysConfig\Services\ThemeService;
 use App\Services\TenantFeatureService;
 use App\Services\TenantMembershipService;
 use Illuminate\Http\Request;
@@ -74,6 +75,9 @@ class HandleInertiaRequests extends Middleware
             'canMergePartners' => fn () => ($user && tenancy()->initialized)
                 ? (bool) (app(ConfigService::class)->permissionsForUserMenu((int) $user->id, 'CRM_MERGE')['read'] ?? false)
                 : false,
+            'canManageTheme' => fn () => ($user && tenancy()->initialized)
+                ? (bool) (app(ConfigService::class)->permissionsForUserMenu((int) $user->id, 'CONFIG_THEME')['read'] ?? false)
+                : false,
             // §3K — only computed on an Accounting page (the routeIs guard keeps this a
             // no-op query everywhere else); AppHeader's switcher reads this to render
             // itself, and its own navigation is what keeps every Accounting screen's
@@ -81,9 +85,15 @@ class HandleInertiaRequests extends Middleware
             'accountingCompanyContext' => fn () => ($user && tenancy()->initialized && $request->routeIs('accounting.*'))
                 ? app(CompanyContextService::class)->contextFor($request)
                 : null,
+            'theme' => fn () => ($user && tenancy()->initialized)
+                ? app(ThemeService::class)->getCurrentTheme((int) $user->id)
+                : ThemeService::DEFAULT_THEME,
+            'availableThemes' => fn () => app(ThemeService::class)->getAvailableThemes(),
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
+                'warning' => fn () => $request->session()->get('warning'),
+                'info' => fn () => $request->session()->get('info'),
                 // One-time reveal of an admin-provisioned password (see ConfigUserService::
                 // create/resetPassword) — never persisted, gone after this single request.
                 'credentials' => fn () => $request->session()->get('generated_credentials'),
