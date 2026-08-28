@@ -34,6 +34,11 @@ use App\Modules\Inventory\Models\StockBatch;
 use App\Modules\Legal\Contracts\MatterCodeGenerator;
 use App\Modules\Legal\Models\Matter;
 use App\Modules\Legal\Services\PrefixedMatterCodeGenerator;
+use App\Modules\Performance\Events\KpiValueRecorded;
+use App\Modules\Performance\Events\OkrObjectiveCompleted;
+use App\Modules\Performance\Listeners\AwardKpiAchievements;
+use App\Modules\Performance\Listeners\AwardOkrCompletionAchievements;
+use App\Modules\Performance\Listeners\EvaluateKpiValueVariance;
 use App\Modules\Sales\Events\SalesOrderRequested;
 use App\Modules\Sales\Listeners\CreateSalesOrderFromRequested;
 use App\Modules\Sales\Listeners\ProcessCommissionOnPaymentRecorded;
@@ -96,6 +101,17 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(InvoicePosted::class, UpdateSalesOrderOnInvoicePosted::class);
         Event::listen(PaymentRecorded::class, ProcessCommissionOnPaymentRecorded::class);
         Event::listen(SalesOrderRequested::class, CreateSalesOrderFromRequested::class);
+
+        // §3D/§3G — closes the gap KpiValueService's docblock flagged: the Variance Engine
+        // now re-evaluates status on every recorded actual and routes a WNE notification when
+        // it lands in warning/breach (see EvaluateKpiValueVariance's own docblock for the
+        // "fires on every save, not just the first crossing" MVP simplification).
+        Event::listen(KpiValueRecorded::class, EvaluateKpiValueVariance::class);
+
+        // §3I — auto-award checks (target_hit/streak_on_track off the same KPI event above;
+        // okr_completed off the OKR status-transition event dispatched from OkrObjectiveService).
+        Event::listen(KpiValueRecorded::class, AwardKpiAchievements::class);
+        Event::listen(OkrObjectiveCompleted::class, AwardOkrCompletionAchievements::class);
 
         Auth::provider('eloquent', function ($app, array $config) {
             return new TenantAwareUserProvider($app['hash'], $config['model']);

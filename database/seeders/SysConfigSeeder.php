@@ -125,6 +125,10 @@ class SysConfigSeeder extends Seeder
             ['code' => 'ACCOUNTING', 'menu_header' => 'Operations', 'menu_caption' => 'Accounting', 'menu_link' => '/accounting/accounts', 'icon' => 'Calculator', 'seq' => 120, 'status_code' => 'A'],
             ['code' => 'HCM', 'menu_header' => 'People', 'menu_caption' => 'HCM', 'menu_link' => '/hcm/dashboard', 'icon' => 'UserCog', 'seq' => 130, 'status_code' => 'A'],
             ['code' => 'PAYROLL', 'menu_header' => 'People', 'menu_caption' => 'Payroll', 'menu_link' => '/payroll/dashboard', 'icon' => 'Wallet', 'seq' => 140, 'status_code' => 'A'],
+            // §3C ships (Targets & KPI Setup) — KPI Definitions is the landing page for now
+            // (no §3A dashboard yet), same "point straight at the built page" convention
+            // WNE/DMS/Accounting used before their own dashboards existed.
+            ['code' => 'PERFORMANCE', 'menu_header' => 'People', 'menu_caption' => 'Performance', 'menu_link' => '/performance/kpi-definitions', 'icon' => 'Target', 'seq' => 150, 'status_code' => 'A'],
         ];
 
         $map = [];
@@ -169,6 +173,7 @@ class SysConfigSeeder extends Seeder
                 'ACCOUNTING' => 'CRUD',
                 'HCM' => 'CRUD',
                 'PAYROLL' => 'CRUD',
+                'PERFORMANCE' => 'CRUD',
                 'PURCHASE' => 'CRUD',
                 'SALES' => 'CRUD',
                 'DESIGN_SYSTEM' => 'R',
@@ -185,6 +190,7 @@ class SysConfigSeeder extends Seeder
                 'ACCOUNTING' => 'R',
                 'HCM' => 'R',
                 'PAYROLL' => 'R',
+                'PERFORMANCE' => 'R',
                 'PURCHASE' => 'R',
                 'SALES' => 'R',
                 'DESIGN_SYSTEM' => 'R',
@@ -243,6 +249,11 @@ class SysConfigSeeder extends Seeder
             // §3N: how long an unfulfilled reservation holds stock before the auto-release
             // sweep frees it — a caller can override per-reservation via `expires_at`.
             ['const_group' => 'INVENTORY', 'group_code' => 'RESERVATION_EXPIRY_HOURS', 'seq' => 4, 'num1' => 24, 'note1' => 'Hours an unfulfilled reservation holds stock before auto-release'],
+            // §3G: variance thresholds VarianceService::classify() applies to every KPI (and,
+            // once §3B/§3H ship, Budget/Forecast) evaluation — customization ladder rung 1,
+            // never hardcoded, since a tenant may want tighter or looser bands than the default.
+            ['const_group' => 'PERFORMANCE', 'group_code' => 'VARIANCE_WARNING_THRESHOLD_PCT', 'seq' => 1, 'num1' => 5, 'note1' => 'Shortfall % beyond which a KPI flips from on-track to warning'],
+            ['const_group' => 'PERFORMANCE', 'group_code' => 'VARIANCE_BREACH_THRESHOLD_PCT', 'seq' => 2, 'num1' => 15, 'note1' => 'Shortfall % beyond which a KPI flips from warning to breach'],
             // ACCOUNTING §3M due-date rules — tenant-editable per CLAUDE.md §2 customization
             // ladder rung 1 (constants), never hardcoded, since regulation can change.
             ['const_group' => 'ACCOUNTING_TAX', 'group_code' => 'PPN_DUE_DAY_OF_MONTH', 'seq' => 1, 'num1' => 0, 'note1' => 'SPT Masa PPN due date: day of the following month (0 = last day)'],

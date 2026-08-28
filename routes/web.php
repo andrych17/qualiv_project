@@ -52,3 +52,4 @@ require app_path('Modules/Projects/Routes/web.php');
 require app_path('Modules/Central/Routes/web.php');
 require app_path('Modules/Sales/Routes/web.php');
 require app_path('Modules/Purchase/Routes/web.php');
+require app_path('Modules/Performance/Routes/web.php');
