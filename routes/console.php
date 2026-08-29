@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Tenant;
+use App\Models\TenantUserLookup;
+use App\Models\User;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -7,6 +10,30 @@ use Illuminate\Support\Facades\Schedule;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+Artisan::command('tenants:sync-lookups', function () {
+    $this->info('Scanning all tenant databases to synchronize tenant_user_lookups...');
+    $tenants = Tenant::all();
+    $count = 0;
+
+    foreach ($tenants as $tenant) {
+        $tenant->run(function () use ($tenant, &$count) {
+            $users = User::query()->whereNotNull('email')->get();
+            foreach ($users as $user) {
+                $email = strtolower(trim($user->email));
+                if ($email !== '') {
+                    TenantUserLookup::query()->updateOrCreate(
+                        ['email' => $email, 'tenant_id' => (string) $tenant->getKey()],
+                        [],
+                    );
+                    $count++;
+                }
+            }
+        });
+    }
+
+    $this->info("Successfully synchronized {$count} user-tenant lookup entries.");
+})->purpose('Synchronize central tenant_user_lookups from all tenant database users');
 
 // CENTRAL_SPECS.md §3E — one recurring invoice per tenant per billing cycle.
 Schedule::command('central:generate-invoices')->monthlyOn(1, '01:00');

@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\Tenant;
+use App\Services\CentralAuthService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,6 +24,25 @@ class AuthenticatedSessionController extends Controller
         return Inertia::render('Auth/Login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
+        ]);
+    }
+
+    /**
+     * Fast tenant discovery by email for adaptive login.
+     */
+    public function lookup(Request $request, CentralAuthService $authService): JsonResponse
+    {
+        $request->validate([
+            'email' => ['required', 'string', 'email'],
+        ]);
+
+        $tenants = $authService->getTenantsForEmail($request->string('email')->toString());
+
+        return response()->json([
+            'tenants' => $tenants->map(fn (Tenant $t) => [
+                'id' => (string) $t->getTenantKey(),
+                'name' => $t->displayName(),
+            ])->values(),
         ]);
     }
 
