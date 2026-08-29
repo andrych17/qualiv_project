@@ -3,11 +3,20 @@
 namespace App\Modules\Legal\Services;
 
 use App\Modules\Legal\Models\DueDiligenceCheck;
+use App\Modules\Legal\Models\FieldVisit;
+use App\Modules\Legal\Models\FieldVisitType;
 use App\Modules\Legal\Models\LandObject;
 use RuntimeException;
 
 class DueDiligenceService
 {
+    /** The field-visit type an auto-triggered site check is scheduled under (§3I / §3M). */
+    private const AUTO_VISIT_TYPE_CODE = 'site_survey';
+
+    public function __construct(
+        protected FieldVisitService $fieldVisits,
+    ) {}
+
     public function addCheck(LandObject $landObject, string $checkType): DueDiligenceCheck
     {
         return DueDiligenceCheck::query()->create([
@@ -29,8 +38,41 @@ class DueDiligenceService
             'checked_by' => $checkedBy,
             'checked_at' => now(),
         ]);
+        $check->refresh();
 
-        return $check->refresh();
+        if ($status === DueDiligenceCheck::STATUS_FLAGGED) {
+            $this->triggerFieldVisit($check);
+        }
+
+        return $check;
+    }
+
+    /**
+     * §3I: "Field checks ... are the natural trigger for a Field Visit (3M)." A flagged result
+     * needs someone to go verify on site before it can be resolved or overridden, so schedule
+     * one automatically — skipped if a visit is already open against this land object, so a
+     * re-flag (or multiple checks flagging together) doesn't spam duplicate visits.
+     */
+    private function triggerFieldVisit(DueDiligenceCheck $check): void
+    {
+        $type = FieldVisitType::query()->where('code', self::AUTO_VISIT_TYPE_CODE)->where('is_active', true)->first();
+        if (! $type) {
+            return;
+        }
+
+        $alreadyOpen = FieldVisit::query()
+            ->where('land_object_id', $check->land_object_id)
+            ->whereIn('status', [FieldVisit::STATUS_SCHEDULED, FieldVisit::STATUS_CHECKED_IN])
+            ->exists();
+        if ($alreadyOpen) {
+            return;
+        }
+
+        $this->fieldVisits->schedule([
+            'land_object_id' => $check->land_object_id,
+            'visit_type_id' => $type->id,
+            'notes' => "Auto-scheduled: verify flagged due diligence check ({$check->check_type}).",
+        ]);
     }
 
     /**

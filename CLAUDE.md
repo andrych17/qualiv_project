@@ -363,7 +363,9 @@ Every UI view must strictly compose from shared components in `resources/js/Comp
 ## 11. Open Items to Fill In As the Project Grows
 
 - [x] API contract (Web): **Inertia.js**. Controllers → Services → `Inertia::render`. REST only later for mobile/external; same Services.
-- [x] Auth strategy (session + login-bound tenancy; Sanctum reserved for future token clients)
+- [x] Auth strategy (session + login-bound tenancy for Web; Sanctum bearer tokens +
+      `X-Tenant-Id` header for API clients — first consumer is Legal's field-visit mobile
+      surface, `LEGAL_SPECS.md` §3M)
 - [ ] Tenant SaaS subscription billing (how the platform itself charges each tenant for their
       plan) — `tenants.plan` string exists in the central DB; no payment provider integration
       yet. Distinct from the in-app AR/AP item below — do not conflate the two.

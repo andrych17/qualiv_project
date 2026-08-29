@@ -143,9 +143,17 @@ generic practice-management or document tools, this dual nature is exactly what 
 
 ## 3A. Main Dashboard
 
-> **Not built.** No slot in §5's suggested build order — skipped for the MVP ship. The one
-> piece of dashboard-shaped value it would have carried (§3D's DPW-overdue flag) is
-> surfaced inline in the Deeds list instead (`DeedController::index` `will_dpw_overdue`).
+> **Shipped.** `LegalDashboardController`, `Legal/Dashboard/Index.vue` — the section landing
+> page now (`/legal` redirects to `/legal/dashboard`, same precedent CRM's own dashboard set,
+> CRM_SPECS.md §3A). Summary cards (Open Matters, Deeds Pending Signature, Tax Pending
+> Clearance, BPN In Process) + a unified "my work" queue (My Matters / My Deeds / Field Visits /
+> Protocol Books) with row-click drawers. A PPAT deed with unpaid/unvalidated tax, or a will
+> overdue for DPW (reusing `Will::isOverdueForDpw()`, the same check `DeedController::index`'s
+> `will_dpw_overdue` flag already used before this dashboard existed), surfaces with a danger
+> rail in the My Deeds tab. Drawers show linked DMS documents (querying `subject_type`/
+> `subject_id` per §5) in place of a full Activity Timeline, which isn't built anywhere in Legal
+> yet — same "built what exists today" substitution CRM's own dashboard docblock uses for its
+> partner drawer. Covered by `LegalDashboardTest`.
 
 
 **Function / features**
@@ -325,10 +333,15 @@ transactions on the same land build a history instead of re-entering data.
 
 ## 3I. Land Due Diligence (Engine)
 
-> **Shipped.** `LEGAL.due_diligence_checks`, `DueDiligenceCheckController`/
-> `DueDiligenceService`, `DueDiligenceChecklist.vue`. Override path (logged justification)
-> implemented via `overridden_by`/`overridden_at`/`override_justification` columns and
-> `DueDiligenceCheck::isBlocking()`. Field-visit auto-trigger (§3M note) not wired.
+> **Shipped**, including the field-visit auto-trigger. `LEGAL.due_diligence_checks`,
+> `DueDiligenceCheckController`/`DueDiligenceService`, `DueDiligenceChecklist.vue`. Override
+> path (logged justification) implemented via `overridden_by`/`overridden_at`/
+> `override_justification` columns and `DueDiligenceCheck::isBlocking()`.
+> `DueDiligenceService::recordResult()` auto-schedules a `site_survey` Field Visit (3M) against
+> the land object the moment a check comes back `flagged` — skipped if one is already open for
+> that land object (a re-flag, or several checks flagging together, doesn't spawn duplicates),
+> and a no-op (never throws) if the `site_survey` `field_visit_types` row has been removed.
+> Covered by `LegalDueDiligenceTest::test_flagged_check_auto_triggers_one_site_visit`.
 
 
 **Purpose:** the structured pre-transaction checklist every PPAT deed depends on.
@@ -434,12 +447,28 @@ split/merge, etc.), tracked as a checklist/status log.
 > **Partially shipped — web slice only.** `LEGAL.field_visits`, `LEGAL.field_visit_types`,
 > `FieldVisitController`/`FieldVisitService`, `Legal/FieldVisits/*.vue`. Schedule/GPS/
 > checklist/complete flow all work as an Inertia web page (browser geolocation stands in for
-> native GPS capture). **Not built, deferred by explicit user decision** ("Schedule dibangun
-> nanti"): the `schedule_item_id` FK to `SCHEDULE.sched_items` (column exists, no constraint,
-> no writer — Schedule module has zero code yet), the offline-tolerant sync queue, and the
-> versioned `api/v1/legal/field-visits/*` mobile surface (needs Sanctum, not set up in this
-> codebase yet). Wire all three once Schedule ships, same deferred-wiring precedent already
-> used for deed_number (§3F) and the tax gate (§3K).
+> native GPS capture), **and the versioned `api/v1/legal/field-visits/*` mobile surface is now
+> shipped too**, on top of Sanctum bearer-token auth (`config/sanctum.php`,
+> `personal_access_tokens` added as a tenant migration alongside `users`, `HasApiTokens` on
+> `App\Models\User`). `POST /api/v1/auth/login` (platform-level — `App\Http\Controllers\Api\
+> AuthController`, not owned by Legal, reused by any future vertical's mobile client) issues a
+> token after resolving the tenant the same way the web login does
+> (`CentralAuthService::getTenantsForEmail`/`POST /api/v1/auth/tenants` for the picker step,
+> mirroring the web's adaptive-login lookup); every subsequent request carries that token as
+> `Authorization: Bearer` plus an `X-Tenant-Id` header, since there's no session to be
+> login-bound to (`App\Http\Middleware\InitializeTenancyByHeader`, prioritized ahead of
+> `auth:sanctum` in `bootstrap/app.php` exactly like `InitializeTenancyBySession` is for the
+> web). `app/Modules/Legal/Routes/api.php` → `FieldVisitApiController` reuses the same
+> `FieldVisitService` and `CheckIn`/`CompleteFieldVisitRequest` classes as the web controller, so
+> the rules can't diverge between desktop and mobile. Covered by
+> `LegalFieldVisitApiTest` (login → list → check-in → complete → logout-revokes-token).
+>
+> **Still not built, deferred by explicit user decision** ("Schedule dibangun nanti"): the
+> `schedule_item_id` FK to `SCHEDULE.sched_items` (column exists, no constraint, no writer —
+> Schedule has since shipped its own tables, but wiring this FK wasn't in scope for this pass)
+> and the offline-tolerant sync queue (client-side/PWA architecture, no existing pattern in this
+> codebase to build against yet). Wire both once picked up, same deferred-wiring precedent
+> already used for deed_number (§3F) and the tax gate (§3K).
 
 
 **Purpose:** the one workflow that genuinely lives away from a desk.
@@ -603,11 +632,13 @@ waarmerking — same patterns as 3C, lower complexity) → 3M (field operations,
 mobile API surface) — ship at this point — then revisit Future Version items (e-meterai, AHU/
 BPN integrations, billing) once there's real usage to justify the build.
 
-**Build status: MVP shipped 2026-08-22.** Every §3 section above through 3M has a status
-callout at its own heading. Summary: 3B/3C/3D/3E/3F/3G/3H/3I/3J/3K/3L fully shipped; 3M
-shipped as a web-only slice (Schedule FK + mobile API surface deferred — user decision,
-"Schedule dibangun nanti"); 3A never had a build-order slot and stays unbuilt. 25 feature
-tests under `tests/Feature/Legal*Test.php`, all green; full suite has zero regressions.
+**Build status: MVP shipped 2026-08-22, with post-MVP follow-through since.** Every §3 section
+above has a status callout at its own heading. Summary: 3B/3C/3D/3E/3F/3G/3H/3I/3J/3K/3L fully
+shipped; 3M shipped web + mobile API/Sanctum (Schedule FK + offline sync queue still deferred —
+user decision, "Schedule dibangun nanti"); 3A (Main Dashboard), skipped for the original MVP
+ship, has since shipped too, as the section landing page. 27+ feature tests under
+`tests/Feature/Legal*Test.php`, all green; full suite has zero regressions attributable to
+Legal.
 
 **Marketability notes**
 - The protocol/ledger and tax-gate features are the hardest to build well and the easiest to

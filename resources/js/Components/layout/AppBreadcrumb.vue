@@ -7,7 +7,7 @@ import { ChevronRight, Home } from 'lucide-vue-next'
 /** Bare /config|/legal|/inventory have no page — link to first real screen. */
 const SECTION_HOME: Record<string, string> = {
   config: '/config/menus',
-  legal: '/legal/matters',
+  legal: '/legal/dashboard',
   inventory: '/inventory/products',
   crm: '/crm/dashboard',
   wne: '/wne/dashboard',

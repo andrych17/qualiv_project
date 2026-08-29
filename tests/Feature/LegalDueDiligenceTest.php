@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Modules\Legal\Models\DueDiligenceCheck;
+use App\Modules\Legal\Models\FieldVisit;
+use App\Modules\Legal\Models\FieldVisitType;
 use App\Modules\Legal\Models\LandObject;
 use App\Modules\Legal\Services\DueDiligenceService;
 use App\Modules\Legal\Services\LandObjectService;
@@ -69,6 +71,45 @@ class LegalDueDiligenceTest extends TestCase
             $check = $service->recordResult($check, DueDiligenceCheck::STATUS_CLEAR, 'Lunas', $userId);
 
             $this->assertFalse($check->isBlocking());
+        });
+    }
+
+    public function test_flagged_check_auto_triggers_one_site_visit(): void
+    {
+        $tenant = $this->provisionTenant();
+        $tenant->update(['plan' => 'legal']);
+
+        $tenant->run(function () {
+            FieldVisitType::query()->create([
+                'code' => 'site_survey', 'name' => 'Site Survey',
+                'default_checklist' => ['Verify boundary markers'],
+                'is_active' => true,
+            ]);
+
+            $landObject = app(LandObjectService::class)->create([
+                'certificate_type' => 'SHM',
+                'certificate_number' => 'SHM-003',
+                'address' => 'Jl. Contoh No. 3',
+                'status' => LandObject::STATUS_ACTIVE,
+            ]);
+
+            $userId = User::query()->where('email', 'admin@nusaevo.com')->value('id');
+            $service = app(DueDiligenceService::class);
+
+            $checkA = $service->addCheck($landObject, DueDiligenceCheck::TYPE_BLOKIR_SENGKETA);
+            $service->recordResult($checkA, DueDiligenceCheck::STATUS_FLAGGED, 'Dispute reported', $userId);
+
+            $this->assertSame(1, FieldVisit::query()->where('land_object_id', $landObject->id)->count());
+            $visit = FieldVisit::query()->where('land_object_id', $landObject->id)->first();
+            $this->assertSame(FieldVisit::STATUS_SCHEDULED, $visit->status);
+            $this->assertStringContainsString('blokir_sengketa', $visit->notes);
+
+            // A second check flagging on the same land object must not spawn a duplicate
+            // while the auto-scheduled visit is still open.
+            $checkB = $service->addCheck($landObject, DueDiligenceCheck::TYPE_SERTIFIKAT_VALIDITY);
+            $service->recordResult($checkB, DueDiligenceCheck::STATUS_FLAGGED, 'Certificate mismatch', $userId);
+
+            $this->assertSame(1, FieldVisit::query()->where('land_object_id', $landObject->id)->count());
         });
     }
 }

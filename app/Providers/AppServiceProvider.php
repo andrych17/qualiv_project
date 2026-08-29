@@ -48,8 +48,10 @@ use App\Modules\WNE\Listeners\DeliverRequestedNotification;
 use App\Services\AsyncSearchRegistry;
 use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Auth\Middleware\Authenticate;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
@@ -127,6 +129,11 @@ class AppServiceProvider extends ServiceProvider
         Authenticate::redirectUsing(
             fn ($request) => $request->is('central/*') ? route('central.login') : route('login'),
         );
+
+        // routes/api.php's throttleApi() (bootstrap/app.php) needs this — an authenticated
+        // request throttles per user (bearer token), an unauthenticated one (login itself) per
+        // IP, same split Laravel's own removed-in-11 default limiter used.
+        RateLimiter::for('api', fn ($request) => Limit::perMinute(60)->by($request->user()?->id ?: $request->ip()));
 
         // Register default searchable entities with 50 limit cap
         AsyncSearchRegistry::register(

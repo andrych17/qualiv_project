@@ -95,7 +95,7 @@ class SysConfigSeeder extends Seeder
             ['code' => 'SCHEDULE', 'menu_header' => 'Core', 'menu_caption' => 'Schedule', 'menu_link' => '/schedule/dashboard', 'icon' => 'CalendarDays', 'seq' => 30, 'status_code' => 'A'],
             ['code' => 'WNE', 'menu_header' => 'Core', 'menu_caption' => 'Workflow & Notifications', 'menu_link' => '/wne/dashboard', 'icon' => 'Workflow', 'seq' => 40, 'status_code' => 'A'],
             ['code' => 'DMS', 'menu_header' => 'Core', 'menu_caption' => 'Documents', 'menu_link' => '/dms/dashboard', 'icon' => 'FolderOpen', 'seq' => 45, 'status_code' => 'A'],
-            ['code' => 'LEGAL', 'menu_header' => 'Vertical', 'menu_caption' => 'Legal', 'menu_link' => '/legal/matters', 'icon' => 'Scale', 'seq' => 60, 'status_code' => 'A'],
+            ['code' => 'LEGAL', 'menu_header' => 'Vertical', 'menu_caption' => 'Legal', 'menu_link' => '/legal/dashboard', 'icon' => 'Scale', 'seq' => 60, 'status_code' => 'A'],
             ['code' => 'PROJECTS', 'menu_header' => 'Internal', 'menu_caption' => 'Projects', 'menu_link' => '/projects', 'icon' => 'Kanban', 'seq' => 65, 'status_code' => 'A'],
             ['code' => 'SALES', 'menu_header' => 'Operations', 'menu_caption' => 'Sales', 'menu_link' => '/sales/dashboard', 'icon' => 'ShoppingCart', 'seq' => 80, 'status_code' => 'A'],
             ['code' => 'PURCHASE', 'menu_header' => 'Operations', 'menu_caption' => 'Purchase', 'menu_link' => '/purchase/dashboard', 'icon' => 'Truck', 'seq' => 90, 'status_code' => 'A'],
@@ -125,6 +125,7 @@ class SysConfigSeeder extends Seeder
                 ['code' => 'CRM_CASES', 'caption' => 'Service Cases', 'link' => '/crm/service-cases', 'icon' => 'Briefcase', 'seq' => 27],
             ],
             'LEGAL' => [
+                ['code' => 'LEGAL_DASHBOARD', 'caption' => 'Dashboard', 'link' => '/legal/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 60],
                 ['code' => 'LEGAL_MATTERS', 'caption' => 'Matters', 'link' => '/legal/matters', 'icon' => 'FileText', 'seq' => 61],
                 ['code' => 'LEGAL_DEEDS', 'caption' => 'Deeds', 'link' => '/legal/deeds', 'icon' => 'Scroll', 'seq' => 62],
                 ['code' => 'LEGAL_FIELD_VISITS', 'caption' => 'Field Visits', 'link' => '/legal/field-visits', 'icon' => 'MapPin', 'seq' => 63],

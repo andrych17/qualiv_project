@@ -7,20 +7,29 @@ use App\Modules\Legal\Controllers\DeedTaxController;
 use App\Modules\Legal\Controllers\DueDiligenceCheckController;
 use App\Modules\Legal\Controllers\FieldVisitController;
 use App\Modules\Legal\Controllers\LandObjectController;
+use App\Modules\Legal\Controllers\LegalDashboardController;
 use App\Modules\Legal\Controllers\MatterController;
 use App\Modules\Legal\Controllers\PpatDeedController;
 use App\Modules\Legal\Controllers\ProtocolBookController;
 use App\Modules\Legal\Controllers\WillController;
 use Illuminate\Support\Facades\Route;
 
-// Bare /legal → index (avoids Laravel 404 if bookmark/link drops /matters)
-Route::redirect('/legal', '/legal/matters');
+// §3A: Legal's own dashboard is now the section landing page — ships last per LEGAL_SPECS.md's
+// build order since it aggregates §3B-§3M, same "dashboard as landing page" precedent CRM's
+// own routes/web.php already sets.
+Route::redirect('/legal', '/legal/dashboard');
 
 Route::middleware(['auth', 'verified', 'module:LEGAL', 'menu.perm:LEGAL'])
     ->prefix('legal')
     ->name('legal.')
     ->scopeBindings()
     ->group(function () {
+        Route::get('dashboard', [LegalDashboardController::class, 'index'])->name('dashboard');
+        Route::get('dashboard/matter/{matter}', [LegalDashboardController::class, 'matterDrawer'])->name('dashboard.matter');
+        Route::get('dashboard/deed/{deed}', [LegalDashboardController::class, 'deedDrawer'])->name('dashboard.deed');
+        Route::get('dashboard/field-visit/{fieldVisit}', [LegalDashboardController::class, 'fieldVisitDrawer'])->name('dashboard.fieldVisit');
+        Route::get('dashboard/protocol-book/{protocolBook}', [LegalDashboardController::class, 'protocolBookDrawer'])->name('dashboard.protocolBook');
+
         Route::delete('matters/bulk-destroy', [MatterController::class, 'bulkDestroy'])->name('matters.bulkDestroy');
         Route::resource('matters', MatterController::class)
             ->except(['show'])
