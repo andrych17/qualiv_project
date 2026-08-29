@@ -1,4 +1,4 @@
-<!-- ponytail: Sidebar from shared navMenus with intuitive accordion submenus & direct link navigation -->
+<!-- ponytail: Sidebar from shared navMenus supporting up to 3 levels of nested accordion submenus & direct link navigation -->
 <script setup lang="ts">
 import { computed, inject, ref, watch, type Component, type Ref } from 'vue'
 import { Link, usePage } from '@inertiajs/vue3'
@@ -6,12 +6,21 @@ import { ChevronRight, HelpCircle, X } from 'lucide-vue-next'
 import TenantSwitcher from './TenantSwitcher.vue'
 import * as LucideIcons from 'lucide-vue-next'
 
-type SubMenuItem = {
+type Level3MenuItem = {
   code: string
   label: string
   href: string
   icon: string | null
   seq: number
+}
+
+type Level2MenuItem = {
+  code: string
+  label: string
+  href: string
+  icon: string | null
+  seq: number
+  children?: Level3MenuItem[]
 }
 
 type MenuItem = {
@@ -21,7 +30,7 @@ type MenuItem = {
   icon: string | null
   seq: number
   header: string | null
-  children?: SubMenuItem[]
+  children?: Level2MenuItem[]
 }
 
 type MenuSection = {
@@ -59,9 +68,20 @@ const isItemActive = (href: string) => {
   return current === target || current.startsWith(target + '/')
 }
 
+const isLevel2Active = (item: Level2MenuItem) => {
+  if (item.children && item.children.length > 0) {
+    if (item.children.some((c) => isItemActive(c.href))) {
+      return true
+    }
+  }
+  return isItemActive(item.href)
+}
+
 const isParentActive = (item: MenuItem) => {
   if (item.children && item.children.length > 0) {
-    return item.children.some((c) => isItemActive(c.href))
+    if (item.children.some((c) => isLevel2Active(c))) {
+      return true
+    }
   }
   return isItemActive(item.href)
 }
@@ -74,13 +94,6 @@ const toggleSubmenu = (code: string) => {
   openMenus.value = {
     ...openMenus.value,
     [code]: !openMenus.value[code],
-  }
-}
-
-const openSubmenu = (code: string) => {
-  openMenus.value = {
-    ...openMenus.value,
-    [code]: true,
   }
 }
 
@@ -99,17 +112,21 @@ const menuSections = computed((): MenuSection[] => {
   return sections
 })
 
-// Auto-expand active module based on current URL
+// Auto-expand active module and nested sub-modules based on current URL
 watch(
   () => page.url,
   () => {
-    mobileSidebar?.close()
     const items = (page.props.navMenus as MenuItem[] | undefined) ?? []
     const updated: Record<string, boolean> = { ...openMenus.value }
 
     for (const item of items) {
       if (item.children && item.children.length > 0 && isParentActive(item)) {
         updated[item.code] = true
+        for (const child of item.children) {
+          if (child.children && child.children.length > 0 && isLevel2Active(child)) {
+            updated[child.code] = true
+          }
+        }
       }
     }
     openMenus.value = updated
@@ -148,76 +165,133 @@ const getIcon = (name: string | null): Component => {
         </p>
 
         <div v-for="item in section.items" :key="item.code" class="space-y-0.5">
-          <!-- Accordion Menu with Children -->
+          <!-- Level 1: Accordion Menu with Children -->
           <div v-if="item.children && item.children.length > 0">
-            <div
-              class="flex items-center justify-between rounded-lg transition-colors duration-150"
+            <button
+              type="button"
+              class="w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-150 cursor-pointer focus:outline-none select-none text-left"
               :class="isParentActive(item)
                 ? 'bg-accent/10 text-accent font-semibold'
                 : 'text-ink-700 hover:bg-surface-50 hover:text-ink-900'"
+              :aria-expanded="isSubmenuOpen(item.code)"
+              @click="toggleSubmenu(item.code)"
             >
-              <!-- Click title to navigate & expand -->
-              <Link
-                :href="item.href"
-                class="flex items-center gap-2.5 flex-1 min-w-0 px-3 py-2 text-sm font-medium"
-                @click="openSubmenu(item.code)"
-              >
+              <div class="flex items-center gap-2.5 min-w-0 flex-1">
                 <component
                   :is="getIcon(item.icon)"
-                  class="h-4 w-4 shrink-0"
+                  class="h-4 w-4 shrink-0 transition-colors"
                   :class="isParentActive(item) ? 'text-accent' : 'text-ink-500'"
                 />
                 <span class="truncate">{{ item.label }}</span>
-              </Link>
+              </div>
 
-              <!-- Chevron button to toggle accordion in-place -->
-              <button
-                type="button"
-                class="p-2 mr-1 rounded-md text-ink-400 hover:text-ink-700 hover:bg-surface-100/80 cursor-pointer focus:outline-none transition-colors"
-                :title="isSubmenuOpen(item.code) ? 'Collapse' : 'Expand'"
-                @click.stop.prevent="toggleSubmenu(item.code)"
-              >
-                <ChevronRight
-                  class="h-4 w-4 shrink-0 transition-transform duration-200"
-                  :class="{
-                    'rotate-90 text-accent': isSubmenuOpen(item.code),
-                    'text-ink-400': !isSubmenuOpen(item.code),
-                  }"
-                />
-              </button>
-            </div>
+              <ChevronRight
+                class="h-4 w-4 shrink-0 transition-transform duration-200"
+                :class="{
+                  'rotate-90 text-accent': isSubmenuOpen(item.code),
+                  'text-ink-400': !isSubmenuOpen(item.code),
+                }"
+              />
+            </button>
 
-            <!-- Submenu Children List -->
+            <!-- Level 2 Submenu List -->
             <div
-              v-if="isSubmenuOpen(item.code)"
-              class="mt-1 ml-4 pl-3 border-l-2 border-accent/25 space-y-0.5 py-0.5"
+              v-show="isSubmenuOpen(item.code)"
+              class="mt-1 ml-3.5 pl-2.5 border-l-2 border-accent/25 space-y-0.5 py-0.5"
             >
-              <Link
-                v-for="child in item.children"
-                :key="child.code"
-                :href="child.href"
-                class="flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all duration-150"
-                :class="isItemActive(child.href)
-                  ? 'bg-accent text-white font-semibold shadow-xs'
-                  : 'text-ink-600 hover:bg-surface-100 hover:text-ink-900'"
-              >
-                <component
-                  :is="getIcon(child.icon)"
-                  v-if="child.icon"
-                  class="h-3.5 w-3.5 shrink-0"
-                  :class="isItemActive(child.href) ? 'text-white' : 'text-ink-400'"
-                />
-                <span
+              <div v-for="child in item.children" :key="child.code" class="space-y-0.5">
+                <!-- Level 2 Accordion with Level 3 Children -->
+                <div v-if="child.children && child.children.length > 0">
+                  <button
+                    type="button"
+                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors duration-150 cursor-pointer focus:outline-none select-none text-left"
+                    :class="isLevel2Active(child)
+                      ? 'bg-accent/15 text-accent font-semibold'
+                      : 'text-ink-600 hover:bg-surface-100 hover:text-ink-900'"
+                    :aria-expanded="isSubmenuOpen(child.code)"
+                    @click="toggleSubmenu(child.code)"
+                  >
+                    <div class="flex items-center gap-2 min-w-0 flex-1">
+                      <component
+                        :is="getIcon(child.icon)"
+                        v-if="child.icon"
+                        class="h-3.5 w-3.5 shrink-0"
+                        :class="isLevel2Active(child) ? 'text-accent' : 'text-ink-400'"
+                      />
+                      <span
+                        v-else
+                        class="w-1.5 h-1.5 rounded-full shrink-0"
+                        :class="isLevel2Active(child) ? 'bg-accent' : 'bg-ink-400'"
+                      />
+                      <span class="truncate">{{ child.label }}</span>
+                    </div>
+
+                    <ChevronRight
+                      class="h-3.5 w-3.5 shrink-0 transition-transform duration-200"
+                      :class="{
+                        'rotate-90 text-accent': isSubmenuOpen(child.code),
+                        'text-ink-400': !isSubmenuOpen(child.code),
+                      }"
+                    />
+                  </button>
+
+                  <!-- Level 3 Sub-item List -->
+                  <div
+                    v-show="isSubmenuOpen(child.code)"
+                    class="mt-1 ml-3 pl-2.5 border-l border-accent/20 space-y-0.5 py-0.5"
+                  >
+                    <Link
+                      v-for="grandchild in child.children"
+                      :key="grandchild.code"
+                      :href="grandchild.href"
+                      class="flex items-center gap-2 px-2 py-1 text-[11px] font-medium rounded-md transition-all duration-150"
+                      :class="isItemActive(grandchild.href)
+                        ? 'bg-accent text-white font-semibold shadow-xs'
+                        : 'text-ink-600 hover:bg-surface-100 hover:text-ink-900'"
+                    >
+                      <component
+                        :is="getIcon(grandchild.icon)"
+                        v-if="grandchild.icon"
+                        class="h-3 w-3 shrink-0"
+                        :class="isItemActive(grandchild.href) ? 'text-white' : 'text-ink-400'"
+                      />
+                      <span
+                        v-else
+                        class="w-1 h-1 rounded-full shrink-0"
+                        :class="isItemActive(grandchild.href) ? 'bg-white' : 'bg-ink-400'"
+                      />
+                      <span class="truncate">{{ grandchild.label }}</span>
+                    </Link>
+                  </div>
+                </div>
+
+                <!-- Level 2 Direct Link (No Children) -->
+                <Link
                   v-else
-                  class="w-1.5 h-1.5 rounded-full shrink-0"
-                  :class="isItemActive(child.href) ? 'bg-white' : 'bg-ink-400'"
-                />
-                <span class="truncate">{{ child.label }}</span>
-              </Link>
+                  :href="child.href"
+                  class="flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all duration-150"
+                  :class="isItemActive(child.href)
+                    ? 'bg-accent text-white font-semibold shadow-xs'
+                    : 'text-ink-600 hover:bg-surface-100 hover:text-ink-900'"
+                >
+                  <component
+                    :is="getIcon(child.icon)"
+                    v-if="child.icon"
+                    class="h-3.5 w-3.5 shrink-0"
+                    :class="isItemActive(child.href) ? 'text-white' : 'text-ink-400'"
+                  />
+                  <span
+                    v-else
+                    class="w-1.5 h-1.5 rounded-full shrink-0"
+                    :class="isItemActive(child.href) ? 'bg-white' : 'bg-ink-400'"
+                  />
+                  <span class="truncate">{{ child.label }}</span>
+                </Link>
+              </div>
             </div>
           </div>
 
-          <!-- Single Item without Children -->
+          <!-- Level 1: Single Item without Children -->
           <Link
             v-else
             :href="item.href"
@@ -280,75 +354,135 @@ const getIcon = (name: string | null): Component => {
             </p>
 
             <div v-for="item in section.items" :key="item.code" class="space-y-0.5">
-              <!-- Accordion Menu with Children -->
+              <!-- Level 1: Accordion Menu with Children -->
               <div v-if="item.children && item.children.length > 0">
-                <div
-                  class="flex items-center justify-between rounded-lg transition-colors duration-150"
+                <button
+                  type="button"
+                  class="w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-150 cursor-pointer focus:outline-none select-none text-left"
                   :class="isParentActive(item)
                     ? 'bg-accent/10 text-accent font-semibold'
                     : 'text-ink-700 hover:bg-surface-50 hover:text-ink-900'"
+                  :aria-expanded="isSubmenuOpen(item.code)"
+                  @click="toggleSubmenu(item.code)"
                 >
-                  <Link
-                    :href="item.href"
-                    class="flex items-center gap-2.5 flex-1 min-w-0 px-3 py-2 text-sm font-medium"
-                    @click="openSubmenu(item.code); mobileSidebar?.close()"
-                  >
+                  <div class="flex items-center gap-2.5 min-w-0 flex-1">
                     <component
                       :is="getIcon(item.icon)"
-                      class="h-4 w-4 shrink-0"
+                      class="h-4 w-4 shrink-0 transition-colors"
                       :class="isParentActive(item) ? 'text-accent' : 'text-ink-500'"
                     />
                     <span class="truncate">{{ item.label }}</span>
-                  </Link>
+                  </div>
 
-                  <button
-                    type="button"
-                    class="p-2 mr-1 rounded-md text-ink-400 hover:text-ink-700 hover:bg-surface-100/80 cursor-pointer focus:outline-none transition-colors"
-                    :title="isSubmenuOpen(item.code) ? 'Collapse' : 'Expand'"
-                    @click.stop.prevent="toggleSubmenu(item.code)"
-                  >
-                    <ChevronRight
-                      class="h-4 w-4 shrink-0 transition-transform duration-200"
-                      :class="{
-                        'rotate-90 text-accent': isSubmenuOpen(item.code),
-                        'text-ink-400': !isSubmenuOpen(item.code),
-                      }"
-                    />
-                  </button>
-                </div>
+                  <ChevronRight
+                    class="h-4 w-4 shrink-0 transition-transform duration-200"
+                    :class="{
+                      'rotate-90 text-accent': isSubmenuOpen(item.code),
+                      'text-ink-400': !isSubmenuOpen(item.code),
+                    }"
+                  />
+                </button>
 
-                <!-- Submenu Children List -->
+                <!-- Level 2 Submenu List -->
                 <div
-                  v-if="isSubmenuOpen(item.code)"
-                  class="mt-1 ml-4 pl-3 border-l-2 border-accent/25 space-y-0.5 py-0.5"
+                  v-show="isSubmenuOpen(item.code)"
+                  class="mt-1 ml-3.5 pl-2.5 border-l-2 border-accent/25 space-y-0.5 py-0.5"
                 >
-                  <Link
-                    v-for="child in item.children"
-                    :key="child.code"
-                    :href="child.href"
-                    class="flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all duration-150"
-                    :class="isItemActive(child.href)
-                      ? 'bg-accent text-white font-semibold shadow-xs'
-                      : 'text-ink-600 hover:bg-surface-100 hover:text-ink-900'"
-                    @click="mobileSidebar?.close()"
-                  >
-                    <component
-                      :is="getIcon(child.icon)"
-                      v-if="child.icon"
-                      class="h-3.5 w-3.5 shrink-0"
-                      :class="isItemActive(child.href) ? 'text-white' : 'text-ink-400'"
-                    />
-                    <span
+                  <div v-for="child in item.children" :key="child.code" class="space-y-0.5">
+                    <!-- Level 2 Accordion with Level 3 Children -->
+                    <div v-if="child.children && child.children.length > 0">
+                      <button
+                        type="button"
+                        class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors duration-150 cursor-pointer focus:outline-none select-none text-left"
+                        :class="isLevel2Active(child)
+                          ? 'bg-accent/15 text-accent font-semibold'
+                          : 'text-ink-600 hover:bg-surface-100 hover:text-ink-900'"
+                        :aria-expanded="isSubmenuOpen(child.code)"
+                        @click="toggleSubmenu(child.code)"
+                      >
+                        <div class="flex items-center gap-2 min-w-0 flex-1">
+                          <component
+                            :is="getIcon(child.icon)"
+                            v-if="child.icon"
+                            class="h-3.5 w-3.5 shrink-0"
+                            :class="isLevel2Active(child) ? 'text-accent' : 'text-ink-400'"
+                          />
+                          <span
+                            v-else
+                            class="w-1.5 h-1.5 rounded-full shrink-0"
+                            :class="isLevel2Active(child) ? 'bg-accent' : 'bg-ink-400'"
+                          />
+                          <span class="truncate">{{ child.label }}</span>
+                        </div>
+
+                        <ChevronRight
+                          class="h-3.5 w-3.5 shrink-0 transition-transform duration-200"
+                          :class="{
+                            'rotate-90 text-accent': isSubmenuOpen(child.code),
+                            'text-ink-400': !isSubmenuOpen(child.code),
+                          }"
+                        />
+                      </button>
+
+                      <!-- Level 3 Sub-item List -->
+                      <div
+                        v-show="isSubmenuOpen(child.code)"
+                        class="mt-1 ml-3 pl-2.5 border-l border-accent/20 space-y-0.5 py-0.5"
+                      >
+                        <Link
+                          v-for="grandchild in child.children"
+                          :key="grandchild.code"
+                          :href="grandchild.href"
+                          class="flex items-center gap-2 px-2 py-1 text-[11px] font-medium rounded-md transition-all duration-150"
+                          :class="isItemActive(grandchild.href)
+                            ? 'bg-accent text-white font-semibold shadow-xs'
+                            : 'text-ink-600 hover:bg-surface-100 hover:text-ink-900'"
+                          @click="mobileSidebar?.close()"
+                        >
+                          <component
+                            :is="getIcon(grandchild.icon)"
+                            v-if="grandchild.icon"
+                            class="h-3 w-3 shrink-0"
+                            :class="isItemActive(grandchild.href) ? 'text-white' : 'text-ink-400'"
+                          />
+                          <span
+                            v-else
+                            class="w-1 h-1 rounded-full shrink-0"
+                            :class="isItemActive(grandchild.href) ? 'bg-white' : 'bg-ink-400'"
+                          />
+                          <span class="truncate">{{ grandchild.label }}</span>
+                        </Link>
+                      </div>
+                    </div>
+
+                    <!-- Level 2 Direct Link (No Children) -->
+                    <Link
                       v-else
-                      class="w-1.5 h-1.5 rounded-full shrink-0"
-                      :class="isItemActive(child.href) ? 'bg-white' : 'bg-ink-400'"
-                    />
-                    <span class="truncate">{{ child.label }}</span>
-                  </Link>
+                      :href="child.href"
+                      class="flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all duration-150"
+                      :class="isItemActive(child.href)
+                        ? 'bg-accent text-white font-semibold shadow-xs'
+                        : 'text-ink-600 hover:bg-surface-100 hover:text-ink-900'"
+                      @click="mobileSidebar?.close()"
+                    >
+                      <component
+                        :is="getIcon(child.icon)"
+                        v-if="child.icon"
+                        class="h-3.5 w-3.5 shrink-0"
+                        :class="isItemActive(child.href) ? 'text-white' : 'text-ink-400'"
+                      />
+                      <span
+                        v-else
+                        class="w-1.5 h-1.5 rounded-full shrink-0"
+                        :class="isItemActive(child.href) ? 'bg-white' : 'bg-ink-400'"
+                      />
+                      <span class="truncate">{{ child.label }}</span>
+                    </Link>
+                  </div>
                 </div>
               </div>
 
-              <!-- Single Item without Children -->
+              <!-- Level 1: Single Item without Children -->
               <Link
                 v-else
                 :href="item.href"

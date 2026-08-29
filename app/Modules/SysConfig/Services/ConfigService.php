@@ -81,14 +81,22 @@ class ConfigService
             ->pluck('menu_id')
             ->unique();
 
-        // Also resolve parent IDs if only child has explicit right
-        $parentIds = ConfigMenu::query()
-            ->whereIn('id', $menuIds)
-            ->whereNotNull('parent_id')
-            ->pluck('parent_id')
-            ->unique();
-
-        $allMenuIds = $menuIds->merge($parentIds)->unique();
+        // Recursively resolve all ancestor parent IDs (up to 3 levels: level 3 -> level 2 -> level 1)
+        $allMenuIds = collect($menuIds);
+        $currentIds = $menuIds;
+        while ($currentIds->isNotEmpty()) {
+            $parentIds = ConfigMenu::query()
+                ->whereIn('id', $currentIds)
+                ->whereNotNull('parent_id')
+                ->pluck('parent_id')
+                ->unique();
+            $newParents = $parentIds->diff($allMenuIds);
+            if ($newParents->isEmpty()) {
+                break;
+            }
+            $allMenuIds = $allMenuIds->merge($newParents)->unique();
+            $currentIds = $newParents;
+        }
 
         $allMenus = ConfigMenu::query()
             ->whereIn('id', $allMenuIds)
@@ -105,19 +113,41 @@ class ConfigService
                 return app(TenantFeatureService::class)->enabled($m->module_code);
             });
 
-        $parents = $allMenus->whereNull('parent_id');
         $childrenByParent = $allMenus->whereNotNull('parent_id')->groupBy('parent_id');
+        $parents = $allMenus->whereNull('parent_id');
 
         $result = $parents->map(function (ConfigMenu $parent) use ($childrenByParent, $menuIds) {
-            $children = ($childrenByParent->get($parent->id) ?? collect())
-                ->filter(fn (ConfigMenu $c) => $menuIds->contains($c->id) || $menuIds->contains($parent->id))
-                ->map(fn (ConfigMenu $c) => [
-                    'code' => $c->code,
-                    'label' => $c->menu_caption,
-                    'href' => $c->menu_link ?: '#',
-                    'icon' => $c->icon,
-                    'seq' => $c->seq,
-                ])
+            $level2Items = ($childrenByParent->get($parent->id) ?? collect())
+                ->filter(function (ConfigMenu $l2) use ($childrenByParent, $menuIds, $parent) {
+                    if ($menuIds->contains($l2->id) || $menuIds->contains($parent->id)) {
+                        return true;
+                    }
+                    $l3Children = $childrenByParent->get($l2->id) ?? collect();
+
+                    return $l3Children->contains(fn ($l3) => $menuIds->contains($l3->id));
+                })
+                ->map(function (ConfigMenu $l2) use ($childrenByParent, $menuIds, $parent) {
+                    $level3Items = ($childrenByParent->get($l2->id) ?? collect())
+                        ->filter(fn (ConfigMenu $l3) => $menuIds->contains($l3->id) || $menuIds->contains($l2->id) || $menuIds->contains($parent->id))
+                        ->map(fn (ConfigMenu $l3) => [
+                            'code' => $l3->code,
+                            'label' => $l3->menu_caption,
+                            'href' => $l3->menu_link ?: '#',
+                            'icon' => $l3->icon,
+                            'seq' => $l3->seq,
+                        ])
+                        ->values()
+                        ->all();
+
+                    return [
+                        'code' => $l2->code,
+                        'label' => $l2->menu_caption,
+                        'href' => $l2->menu_link ?: '#',
+                        'icon' => $l2->icon,
+                        'seq' => $l2->seq,
+                        'children' => $level3Items,
+                    ];
+                })
                 ->values()
                 ->all();
 
@@ -128,7 +158,7 @@ class ConfigService
                 'icon' => $parent->icon,
                 'seq' => $parent->seq,
                 'header' => $parent->menu_header,
-                'children' => $children,
+                'children' => $level2Items,
             ];
         })->values()->all();
 
@@ -179,17 +209,20 @@ class ConfigService
             ->where('app_code', $appCode)
             ->pluck('trustee');
 
-        // Fallback to parent menu code if child has no direct trustee
+        // Fallback to ancestors if child has no direct trustee (up to 3 levels)
         if ($trustees->isEmpty()) {
-            $menu = ConfigMenu::query()->where('code', $menuCode)->where('app_code', $appCode)->first();
-            if ($menu && $menu->parent_id) {
-                $parent = ConfigMenu::query()->find($menu->parent_id);
+            $currMenu = ConfigMenu::query()->where('code', $menuCode)->where('app_code', $appCode)->first();
+            while ($currMenu && $currMenu->parent_id && $trustees->isEmpty()) {
+                $parent = ConfigMenu::query()->find($currMenu->parent_id);
                 if ($parent) {
                     $trustees = ConfigRight::query()
                         ->whereIn('group_id', $groupIds)
                         ->where('menu_code', $parent->code)
                         ->where('app_code', $appCode)
                         ->pluck('trustee');
+                    $currMenu = $parent;
+                } else {
+                    break;
                 }
             }
         }
