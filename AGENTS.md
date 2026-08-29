@@ -105,9 +105,9 @@ Every UI view in `resources/js/Pages/` **must strictly compose from shared compo
 
 ### G. Layout & Headers
 - **Page Layout Shell:** `AppLayout.vue` (`@/Components/layout/AppLayout.vue`).
+- **Sidebar & Submenus:** Dynamic multi-level accordion navigation in `AppSidebar.vue` (`@/Components/layout/AppSidebar.vue`), driven by `SYSCONFIG.config_menus` with `parent_id` hierarchy and parent permission fallback.
 - **Page Header:** `PageHeader.vue` (`@/Components/layout/PageHeader.vue`) for title, subtitle, and action buttons.
-- **Sub-navigation Tabs:** `Tabs.vue` (`@/Components/navigation/Tabs.vue`).
-- **Module Sub-navigation:** Reusable module subnavs (e.g. `HcmSubNav.vue`, `CrmSubNav.vue`, `InventorySubNav.vue`).
+- **In-Page Sub-navigation:** In-page horizontal tab bars are deprecated in favor of unified Left Sidebar Accordion navigation. For detail page inner tabs (e.g. within a complex master form), use `Tabs.vue` (`@/Components/navigation/Tabs.vue`).
 
 ### H. Empty States & Formatters
 - **Empty States:** MUST use `@/Components/feedback/EmptyState.vue` (includes icon, title, description, and primary CTA). Never leave blank tables/lists or write plain text "no data".
