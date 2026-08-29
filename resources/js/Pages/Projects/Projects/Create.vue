@@ -43,8 +43,11 @@ const submit = () => form.post(route('projects.store'))
           name="status"
           label="Status"
           :options="[
+            { label: 'Planning', value: 'planning' },
             { label: 'Active', value: 'active' },
-            { label: 'Archived', value: 'archived' },
+            { label: 'On hold', value: 'on_hold' },
+            { label: 'Completed', value: 'completed' },
+            { label: 'Cancelled', value: 'cancelled' },
           ]"
           :error="form.errors.status"
           required

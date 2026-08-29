@@ -33,6 +33,12 @@ export const PRIORITY_LABEL: Record<string, string> = {
   urgent: 'Urgent',
 }
 
+export const TYPE_LABEL: Record<string, string> = {
+  task: 'Task',
+  bug: 'Bug',
+  story: 'Story',
+}
+
 export const PRIORITY_CLASS: Record<string, string> = {
   low: 'text-ink-600',
   medium: 'text-ink-900',

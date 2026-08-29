@@ -128,10 +128,18 @@ class ProjectController extends Controller
                 'name' => $project->name,
                 'description' => $project->description,
                 'status' => $project->status,
+                'lead_name' => $project->lead?->name,
                 'start_date' => $project->start_date?->format('Y-m-d'),
                 'end_date' => $project->end_date?->format('Y-m-d'),
             ],
             'issues' => $issues,
+            'stats' => [
+                'total' => $issues->count(),
+                'todo' => $issues->where('status', 'todo')->count(),
+                'in_progress' => $issues->where('status', 'in_progress')->count(),
+                'done' => $issues->where('status', 'done')->count(),
+                'overdue' => $issues->where('is_overdue', true)->count(),
+            ],
             'users' => User::query()->orderBy('name')->get(['id', 'name']),
         ]);
     }

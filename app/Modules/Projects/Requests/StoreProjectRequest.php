@@ -29,7 +29,7 @@ class StoreProjectRequest extends FormRequest
             'code' => 'required|string|max:20|alpha_dash',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'status' => 'required|in:active,archived',
+            'status' => 'required|in:planning,active,on_hold,completed,cancelled',
             'lead_id' => 'nullable|integer|exists:users,id',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',

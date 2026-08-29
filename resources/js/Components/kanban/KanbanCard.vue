@@ -6,6 +6,7 @@ import { Paperclip } from 'lucide-vue-next'
 import {
   PRIORITY_CLASS,
   PRIORITY_LABEL,
+  TYPE_LABEL,
   type KanbanItem,
   type KanbanUserOption,
 } from '@/Components/kanban/types'
@@ -32,7 +33,10 @@ const emit = defineEmits<{
     <p class="font-mono text-xs text-ink-600">{{ item.code }}</p>
     <p class="mt-1 text-sm font-medium text-ink-900">{{ item.title }}</p>
     <div class="mt-2 flex items-center justify-between gap-2 text-xs">
-      <span :class="PRIORITY_CLASS[item.priority]">{{ PRIORITY_LABEL[item.priority] ?? item.priority }}</span>
+      <span class="flex items-center gap-1.5">
+        <span v-if="item.type" class="rounded bg-surface-50 px-1.5 py-0.5 text-ink-600">{{ TYPE_LABEL[item.type] ?? item.type }}</span>
+        <span :class="PRIORITY_CLASS[item.priority]">{{ PRIORITY_LABEL[item.priority] ?? item.priority }}</span>
+      </span>
       <div class="w-32 shrink-0" draggable="false" @click.prevent.stop @mousedown.stop @dragstart.stop>
         <FormSearchableSelect
           :model-value="item.assignee_id"

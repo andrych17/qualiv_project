@@ -88,6 +88,9 @@ const badgeClass = computed(() => {
     // Performance §3E OKR Objective status ('on_track'/'completed' reuse the keys above)
     at_risk: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
     off_track: 'bg-signal-danger/10 text-signal-danger border-signal-danger/25',
+    // Projects §3A/§3B Project status ('active'/'completed'/'cancelled' reuse the keys above)
+    planning: 'bg-signal-info/10 text-signal-info border-signal-info/25',
+    on_hold: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
   }
 
   return map[normalizedStatus.value] ?? 'bg-surface-50 text-ink-600 border-border'

@@ -175,3 +175,31 @@ Every organization manages internal and client-facing work items — client deli
 - **Optimistic UI & Scroll Preservation**: All status and assignee updates use Inertia's `preserveScroll: true` to prevent scroll jumping on board updates.
 - **Tenant Isolation**: Schema-based multi-tenancy (`PROJECTS.*`) automatically isolated per tenant database.
 - **Custom Fields**: Compatible with `CUSTOMFIELDS` registry for per-tenant field extensions on projects and issues.
+
+---
+
+# 6. Build Order
+
+> Recommended sequence for implementing this module's own pieces, and why. This is internal to
+> Projects — see `CLAUDE.md` §5 for where the whole module sits in the platform-wide build
+> order (step 5, after Core modules, before the Legal vertical).
+
+1. **Storage (§4)** — `PROJECTS.projects` first (no FK dependents), then `PROJECTS.issues`
+   (FKs to `projects` and `USERS`), then `PROJECTS.issue_comments` and
+   `PROJECTS.issue_attachments` (both FK to `issues`). One migration file is fine at this
+   module's size, but table-creation order inside it must still respect this FK direction.
+2. **Models** — `Project`, then `Issue`, then `IssueComment`/`IssueAttachment`, mirroring the
+   storage dependency order above.
+3. **Services** — `ProjectService` (CRUD, seeds `next_issue_seq`) before `IssueService`
+   (creation needs a parent Project row to exist, and its code generation reads
+   `Project.next_issue_seq` under `lockForUpdate()` — see §4's own note on why that counter
+   stays local rather than routing through `SYSCONFIG.config_snums`) before
+   `IssueCommentService`/`IssueAttachmentService` (both need an Issue to attach to).
+4. **§3A/§3B Projects Index + Entry/Edit** — nothing else in this module works without a
+   Project to belong to, so the registry ships first.
+5. **§3C Project Board & Kanban** — the primary daily-use surface. It only needs
+   `IssueService`'s create/updateStatus/updateAssignee, not the full Issue detail page, so it
+   can (and should) ship before §3D.
+6. **§3D Issue Detail & Activity Log** — last. Reached via a link from Board cards, and is the
+   only caller of `IssueCommentService`/`IssueAttachmentService` — building it earlier would
+   mean testing comments/attachments against a UI with no board to link back from.

@@ -28,10 +28,12 @@ const props = defineProps<{
     name: string
     description: string | null
     status: string
+    lead_name: string | null
     start_date: string | null
     end_date: string | null
   }
   issues: KanbanItem[]
+  stats: { total: number; todo: number; in_progress: number; done: number; overdue: number }
   users: Array<{ id: number; name: string }>
 }>()
 
@@ -137,6 +139,7 @@ const filteredIssues = computed(() => {
     <PageHeader :title="`${project.code} — ${project.name}`" :description="project.description || 'No description.'">
       <template #actions>
         <div class="flex items-center gap-3">
+          <span v-if="project.lead_name" class="text-sm text-ink-600">Lead: {{ project.lead_name }}</span>
           <span v-if="formatProjectDates()" class="text-sm text-ink-600">{{ formatProjectDates() }}</span>
           <Link
             :href="route('projects.edit', project.id)"
@@ -147,6 +150,14 @@ const filteredIssues = computed(() => {
         </div>
       </template>
     </PageHeader>
+
+    <div class="mt-4 flex flex-wrap gap-2 text-xs">
+      <span class="rounded-full border border-border bg-surface-50 px-2.5 py-1 font-medium text-ink-600">{{ stats.total }} issues</span>
+      <span class="rounded-full border border-border bg-surface-50 px-2.5 py-1 text-ink-600">{{ stats.todo }} to do</span>
+      <span class="rounded-full border border-border bg-surface-50 px-2.5 py-1 text-ink-600">{{ stats.in_progress }} in progress</span>
+      <span class="rounded-full border border-border bg-surface-50 px-2.5 py-1 text-ink-600">{{ stats.done }} done</span>
+      <span v-if="stats.overdue" class="rounded-full border border-signal-danger/25 bg-signal-danger/10 px-2.5 py-1 font-medium text-signal-danger">{{ stats.overdue }} overdue</span>
+    </div>
 
     <Panel class="mt-6">
       <form class="flex flex-wrap items-end gap-3" @submit.prevent="submitNewIssue">
