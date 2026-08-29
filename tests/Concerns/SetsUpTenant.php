@@ -52,16 +52,18 @@ trait SetsUpTenant
     {
         $dbName = 'tenant_'.$tenantId;
 
-        // Use a dedicated connection so we are not inside a test transaction.
         DB::purge('tenant');
-        DB::purge('pgsql');
         DB::disconnect('tenant');
-        DB::disconnect('pgsql');
-        $pdo = DB::connection('pgsql')->getPdo();
-        // ponytail: WITH (FORCE) (PG13+) terminates stray connections server-side.
-        // The shared dev instance has GUI/backup clients that auto-connect to every
-        // new database (including tenant_* mid-test); tests therefore run as the
-        // dedicated nusa_test SUPERUSER role so teardown can always drop cleanly.
+
+        $host = config('database.connections.pgsql.host', 'postgres');
+        $port = config('database.connections.pgsql.port', 5432);
+        $user = config('database.connections.pgsql.username', 'nusa_test');
+        $pass = config('database.connections.pgsql.password', 'secret');
+        $centralDb = config('database.connections.pgsql.database', 'nusaevo_testing');
+
+        $pdo = new \PDO("pgsql:host={$host};port={$port};dbname={$centralDb}", $user, $pass, [
+            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+        ]);
         $pdo->exec('DROP DATABASE IF EXISTS "'.$dbName.'" WITH (FORCE)');
     }
 }

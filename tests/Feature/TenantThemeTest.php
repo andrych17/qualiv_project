@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Modules\SysConfig\Models\ConfigGroup;
+use App\Modules\SysConfig\Models\ConfigGroupUser;
 use App\Modules\SysConfig\Services\ThemeService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\SetsUpTenant;
@@ -89,14 +91,14 @@ class TenantThemeTest extends TestCase
         $tenant = $this->provisionTenant('th5');
 
         $tenant->run(function () {
-            $staffGroup = \App\Modules\SysConfig\Models\ConfigGroup::query()->where('code', 'STAFF')->firstOrFail();
+            $staffGroup = ConfigGroup::query()->where('code', 'STAFF')->firstOrFail();
             $staff = User::factory()->create([
                 'name' => 'Staff User',
                 'email' => 'staff@nusaevo.com',
                 'email_verified_at' => now(),
             ]);
 
-            \App\Modules\SysConfig\Models\ConfigGroupUser::create([
+            ConfigGroupUser::create([
                 'group_id' => $staffGroup->id,
                 'group_code' => $staffGroup->code,
                 'user_id' => $staff->id,

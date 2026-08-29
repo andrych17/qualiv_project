@@ -45,6 +45,8 @@ class ConfigMenuService
                 ]);
             }
 
+            ConfigService::clearCache();
+
             return $menu;
         });
     }
@@ -71,6 +73,8 @@ class ConfigMenuService
                 'menu_seq' => $menu->seq,
             ]);
 
+        ConfigService::clearCache();
+
         return $menu->refresh();
     }
 
@@ -80,6 +84,7 @@ class ConfigMenuService
             ConfigRight::query()->where('menu_id', $menu->id)->delete();
             ConfigMenu::query()->where('parent_id', $menu->id)->update(['parent_id' => null]);
             $menu->delete();
+            ConfigService::clearCache();
         });
     }
 }
