@@ -2,6 +2,7 @@
 
 namespace App\Modules\Sales\Models;
 
+use App\Modules\Inventory\Models\Product;
 use Illuminate\Database\Eloquent\Model;
 
 class SalesOrderLine extends Model
@@ -38,6 +39,11 @@ class SalesOrderLine extends Model
     public function order()
     {
         return $this->belongsTo(SalesOrder::class, 'so_hdr_id');
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'product_id');
     }
 
     public function deliveryLines()

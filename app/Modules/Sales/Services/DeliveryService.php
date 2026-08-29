@@ -2,6 +2,7 @@
 
 namespace App\Modules\Sales\Services;
 
+use App\Modules\Inventory\Models\Location;
 use App\Modules\Inventory\Services\InventoryService;
 use App\Modules\Sales\Events\DeliveryShipped;
 use App\Modules\Sales\Models\Delivery;
@@ -117,35 +118,41 @@ class DeliveryService
             return;
         }
 
-        try {
-            $inventoryService = app(InventoryService::class);
-            $issueLines = [];
+        $issueLines = [];
 
-            foreach ($delivery->lines as $dLine) {
-                $soLine = $dLine->salesOrderLine;
-                if ($soLine && $soLine->item_type === 'product' && $soLine->product_id) {
-                    $issueLines[] = [
-                        'product_id' => $soLine->product_id,
-                        'qty' => (float) $dLine->qty_shipped,
-                        'location_id' => $locationId,
-                    ];
-                }
+        foreach ($delivery->lines as $dLine) {
+            $soLine = $dLine->salesOrderLine;
+            if ($soLine && $soLine->item_type === 'product' && $soLine->product_id) {
+                $issueLines[] = [
+                    'product_id' => $soLine->product_id,
+                    'qty' => (float) $dLine->qty_shipped,
+                    'uom_id' => $soLine->product->base_uom_id,
+                    'source_location_id' => $locationId,
+                ];
             }
-
-            if (! empty($issueLines)) {
-                $issue = $inventoryService->issue([
-                    'movement_date' => now()->toDateString(),
-                    'reason' => 'Sales Delivery '.$delivery->uuid,
-                    'subject_type' => 'sales.dlv_hdrs',
-                    'subject_id' => $delivery->id,
-                    'lines' => $issueLines,
-                ]);
-
-                $delivery->inventory_goods_issue_id = $issue->id;
-            }
-        } catch (\Throwable $e) {
-            // If Inventory issue throws validation (e.g. out of stock), let it bubble or rethrow
-            throw $e;
         }
+
+        if (empty($issueLines)) {
+            return;
+        }
+
+        if ($locationId === null) {
+            throw ValidationException::withMessages([
+                'source_location_id' => ['A source location is required to ship product lines.'],
+            ]);
+        }
+
+        $warehouseId = Location::query()->whereKey($locationId)->value('warehouse_id');
+
+        $issue = app(InventoryService::class)->issue([
+            'warehouse_id' => $warehouseId,
+            'issue_date' => now()->toDateString(),
+            'reason' => 'consumption',
+            'subject_type' => 'sales.dlv_hdrs',
+            'subject_id' => $delivery->id,
+            'lines' => $issueLines,
+        ]);
+
+        $delivery->inventory_goods_issue_id = $issue->id;
     }
 }

@@ -66,7 +66,26 @@ pipeline {
 
         stage('Run tests') {
             steps {
-                sh 'docker compose run --rm app php artisan test'
+                sh 'docker compose run --rm app php artisan test --exclude-group nightly'
+            }
+        }
+
+        // Heavier cross-module integration scenarios (Order-to-Cash, etc.) — tagged
+        // #[Group('nightly')] and run only on the 03:00 cron trigger, not on every
+        // push, since they spin up a full Company/COA/fiscal-year fixture per test.
+        stage('Run nightly integration tests') {
+            when {
+                triggeredBy 'TimerTrigger'
+            }
+            steps {
+                sh 'docker compose run --rm app php artisan test --group nightly --log-junit storage/logs/nightly-junit.xml'
+            }
+            post {
+                always {
+                    // `.:/var/www/html` is bind-mounted (docker-compose.yml), so the file
+                    // written inside the container is already on the Jenkins workspace.
+                    junit allowEmptyResults: true, testResults: 'storage/logs/nightly-junit.xml'
+                }
             }
         }
     }
