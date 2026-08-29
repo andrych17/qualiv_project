@@ -96,6 +96,21 @@ return new class extends Migration
                 ['code' => 'ACCOUNTING_CASH_FLOW', 'caption' => 'Cash Flow', 'link' => '/accounting/cash-flow', 'icon' => 'Activity', 'seq' => 127],
                 ['code' => 'ACCOUNTING_TAX_PERIODS', 'caption' => 'Tax Periods', 'link' => '/accounting/tax-periods', 'icon' => 'CalendarCheck', 'seq' => 128],
             ],
+            // WNE
+            'WNE' => [
+                ['code' => 'WNE_DASHBOARD', 'caption' => 'Dashboard', 'link' => '/wne/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 41],
+                ['code' => 'WNE_WORKFLOWS', 'caption' => 'Workflows', 'link' => '/wne/workflows', 'icon' => 'Workflow', 'seq' => 42],
+                ['code' => 'WNE_APPROVALS', 'caption' => 'My Approvals', 'link' => '/wne/my-tasks', 'icon' => 'CheckCircle2', 'seq' => 43],
+                ['code' => 'WNE_TEMPLATES', 'caption' => 'Templates', 'link' => '/wne/templates', 'icon' => 'FileCode', 'seq' => 44],
+                ['code' => 'WNE_PREFERENCES', 'caption' => 'Preferences', 'link' => '/wne/preferences', 'icon' => 'Sliders', 'seq' => 45],
+                ['code' => 'WNE_DEAD_LETTERS', 'caption' => 'Dead Letters', 'link' => '/wne/dead-letters', 'icon' => 'AlertOctagon', 'seq' => 46],
+            ],
+            // DMS
+            'DMS' => [
+                ['code' => 'DMS_DASHBOARD', 'caption' => 'Dashboard', 'link' => '/dms/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 47],
+                ['code' => 'DMS_DOCUMENTS', 'caption' => 'Documents', 'link' => '/dms/documents', 'icon' => 'FileText', 'seq' => 48],
+                ['code' => 'DMS_CATEGORIES', 'caption' => 'Categories', 'link' => '/dms/categories', 'icon' => 'FolderOpen', 'seq' => 49],
+            ],
             // PERFORMANCE
             'PERFORMANCE' => [
                 ['code' => 'PERFORMANCE_KPIS', 'caption' => 'KPIs', 'link' => '/performance/kpi-definitions', 'icon' => 'Target', 'seq' => 151],
