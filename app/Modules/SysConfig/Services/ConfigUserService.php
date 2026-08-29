@@ -65,6 +65,8 @@ class ConfigUserService
                 $this->syncGroups($user, $data['group_ids'] ?? []);
             }
 
+            ConfigService::clearCache();
+
             return $user->refresh();
         });
     }

@@ -47,6 +47,8 @@ class ConfigGroupService
                 $this->syncUsers($group, $data['user_ids'] ?? []);
             }
 
+            ConfigService::clearCache();
+
             return $group->refresh();
         });
     }
@@ -57,6 +59,7 @@ class ConfigGroupService
             ConfigRight::query()->where('group_id', $group->id)->delete();
             ConfigGroupUser::query()->where('group_id', $group->id)->delete();
             $group->delete();
+            ConfigService::clearCache();
         });
     }
 
