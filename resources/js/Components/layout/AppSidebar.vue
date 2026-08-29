@@ -1,12 +1,9 @@
-<!-- ponytail: Sidebar from shared navMenus with nested submenu support -->
+<!-- ponytail: Sidebar from shared navMenus with nested accordion submenu support -->
 <script setup lang="ts">
 import { computed, inject, ref, watch, type Component, type Ref } from 'vue'
 import { Link, usePage } from '@inertiajs/vue3'
-import { ChevronDown, ChevronRight, HelpCircle, X } from 'lucide-vue-next'
+import { ChevronRight, HelpCircle, X } from 'lucide-vue-next'
 import TenantSwitcher from './TenantSwitcher.vue'
-
-// Config > Menus allows dynamic icon names from Lucide. Direct lookup from
-// lucide-vue-next avoids broken dynamic import paths in production builds.
 import * as LucideIcons from 'lucide-vue-next'
 
 type SubMenuItem = {
@@ -41,22 +38,32 @@ const mobileSidebar = inject<{
   close: () => void
 } | null>('mobileSidebar', null)
 
-const isItemActive = (href: string) => {
-  if (!href || href === '#') return false
+const normalizePath = (url: string) => {
+  if (!url || url === '#') return ''
   try {
-    const path = href.startsWith('http') ? new URL(href).pathname : href
-    return page.url === path || page.url.startsWith(path + '/')
+    const p = url.startsWith('http') ? new URL(url).pathname : url.split('?')[0].split('#')[0]
+    return p.replace(/\/+$/, '') || '/'
   } catch {
-    return false
+    return ''
   }
 }
 
+const isItemActive = (href: string) => {
+  const target = normalizePath(href)
+  if (!target) return false
+  const current = normalizePath(page.url)
+
+  if (target === '/dashboard') {
+    return current === '/dashboard'
+  }
+  return current === target || current.startsWith(target + '/')
+}
+
 const isParentActive = (item: MenuItem) => {
-  if (isItemActive(item.href)) return true
   if (item.children && item.children.length > 0) {
     return item.children.some((c) => isItemActive(c.href))
   }
-  return false
+  return isItemActive(item.href)
 }
 
 const toggleSubmenu = (code: string) => {
@@ -78,17 +85,24 @@ const menuSections = computed((): MenuSection[] => {
   return sections
 })
 
-// Auto-expand parents whose children match current URL
+// Auto-expand only the parent whose children match the current URL
 watch(
   () => page.url,
   () => {
     mobileSidebar?.close()
     const items = (page.props.navMenus as MenuItem[] | undefined) ?? []
+    const newOpen: Record<string, boolean> = {}
+
     for (const item of items) {
-      if (item.children && item.children.length > 0 && isParentActive(item)) {
-        openMenus.value[item.code] = true
+      if (item.children && item.children.length > 0) {
+        if (isParentActive(item)) {
+          newOpen[item.code] = true
+        } else if (openMenus.value[item.code]) {
+          newOpen[item.code] = true
+        }
       }
     }
+    openMenus.value = newOpen
   },
   { immediate: true },
 )
@@ -109,76 +123,102 @@ const getIcon = (name: string | null): Component => {
 
 <template>
   <!-- Desktop Sidebar -->
-  <aside class="hidden md:flex flex-col w-64 border-r border-border bg-surface-0 h-screen sticky top-0 shrink-0">
+  <aside class="hidden md:flex flex-col w-64 border-r border-border bg-surface-0 h-screen sticky top-0 shrink-0 select-none">
     <div class="border-b border-border px-4 py-3 space-y-2">
-      <div class="px-1 text-xs font-semibold uppercase tracking-wide text-ink-600">
+      <div class="px-1 text-xs font-semibold uppercase tracking-wider text-ink-500">
         NusaEvo ERP
       </div>
       <TenantSwitcher />
     </div>
 
-    <nav class="flex-1 overflow-y-auto p-4 space-y-4">
+    <nav class="flex-1 overflow-y-auto p-3 space-y-4">
       <div v-for="section in menuSections" :key="section.header" class="space-y-1">
-        <p class="px-3 text-[11px] font-semibold uppercase tracking-wide text-ink-600">
+        <p class="px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-ink-600">
           {{ section.header }}
         </p>
 
-        <div v-for="item in section.items" :key="item.code" class="space-y-1">
+        <div v-for="item in section.items" :key="item.code" class="space-y-0.5">
           <!-- Accordion Menu with Children -->
-          <div v-if="item.children && item.children.length > 0">
+          <div v-if="item.children && item.children.length > 0" class="rounded-lg overflow-hidden">
             <button
               type="button"
-              class="flex w-full items-center justify-between gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer"
+              class="flex w-full items-center justify-between gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-150 cursor-pointer"
               :class="isParentActive(item)
                 ? 'text-accent font-semibold bg-accent/5'
-                : 'text-ink-600 hover:bg-surface-50 hover:text-ink-900'"
+                : 'text-ink-700 hover:bg-surface-50 hover:text-ink-900'"
               @click="toggleSubmenu(item.code)"
             >
-              <div class="flex items-center gap-3 truncate">
-                <component :is="getIcon(item.icon)" class="h-4 w-4 shrink-0" />
+              <div class="flex items-center gap-2.5 truncate">
+                <component
+                  :is="getIcon(item.icon)"
+                  class="h-4 w-4 shrink-0 transition-colors"
+                  :class="isParentActive(item) ? 'text-accent' : 'text-ink-500'"
+                />
                 <span class="truncate">{{ item.label }}</span>
               </div>
-              <ChevronDown
-                v-if="openMenus[item.code]"
-                class="h-4 w-4 shrink-0 transition-transform text-ink-400"
-              />
               <ChevronRight
-                v-else
-                class="h-4 w-4 shrink-0 transition-transform text-ink-400"
+                class="h-4 w-4 shrink-0 transition-transform duration-200"
+                :class="{
+                  'rotate-90 text-accent': openMenus[item.code],
+                  'text-ink-400': !openMenus[item.code],
+                }"
               />
             </button>
 
-            <!-- Nested Submenu Children -->
-            <div
-              v-show="openMenus[item.code]"
-              class="mt-1 ml-4 pl-3 border-l border-border space-y-1"
+            <!-- Nested Submenu Items -->
+            <transition
+              enter-active-class="transition-all duration-200 ease-out"
+              enter-from-class="opacity-0 -translate-y-1 max-h-0"
+              enter-to-class="opacity-100 translate-y-0 max-h-96"
+              leave-active-class="transition-all duration-150 ease-in"
+              leave-from-class="opacity-100 translate-y-0 max-h-96"
+              leave-to-class="opacity-0 -translate-y-1 max-h-0"
             >
-              <Link
-                v-for="child in item.children"
-                :key="child.code"
-                :href="child.href"
-                class="flex items-center gap-2.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors"
-                :class="isItemActive(child.href)
-                  ? 'bg-surface-100 text-accent font-semibold'
-                  : 'text-ink-600 hover:bg-surface-50 hover:text-ink-900'"
+              <div
+                v-if="openMenus[item.code]"
+                class="mt-0.5 ml-4 pl-3 border-l-2 border-border/80 space-y-0.5"
               >
-                <component :is="getIcon(child.icon)" v-if="child.icon" class="h-3.5 w-3.5 shrink-0 opacity-80" />
-                <span>{{ child.label }}</span>
-              </Link>
-            </div>
+                <Link
+                  v-for="child in item.children"
+                  :key="child.code"
+                  :href="child.href"
+                  class="flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors duration-150"
+                  :class="isItemActive(child.href)
+                    ? 'bg-accent/10 text-accent font-semibold shadow-2xs'
+                    : 'text-ink-600 hover:bg-surface-50 hover:text-ink-900'"
+                >
+                  <component
+                    :is="getIcon(child.icon)"
+                    v-if="child.icon"
+                    class="h-3.5 w-3.5 shrink-0 opacity-70"
+                    :class="isItemActive(child.href) ? 'text-accent opacity-100' : ''"
+                  />
+                  <span
+                    v-else
+                    class="w-1.5 h-1.5 rounded-full shrink-0"
+                    :class="isItemActive(child.href) ? 'bg-accent' : 'bg-ink-300'"
+                  />
+                  <span class="truncate">{{ child.label }}</span>
+                </Link>
+              </div>
+            </transition>
           </div>
 
           <!-- Single Item without Children -->
           <Link
             v-else
             :href="item.href"
-            class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors"
+            class="flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-150"
             :class="isItemActive(item.href)
-              ? 'bg-surface-50 text-accent font-semibold shadow-2xs'
-              : 'text-ink-600 hover:bg-surface-50 hover:text-ink-900'"
+              ? 'bg-accent/10 text-accent font-semibold shadow-2xs'
+              : 'text-ink-700 hover:bg-surface-50 hover:text-ink-900'"
           >
-            <component :is="getIcon(item.icon)" class="h-4 w-4 shrink-0" />
-            <span>{{ item.label }}</span>
+            <component
+              :is="getIcon(item.icon)"
+              class="h-4 w-4 shrink-0"
+              :class="isItemActive(item.href) ? 'text-accent' : 'text-ink-500'"
+            />
+            <span class="truncate">{{ item.label }}</span>
           </Link>
         </div>
       </div>
@@ -200,10 +240,10 @@ const getIcon = (name: string | null): Component => {
 
       <!-- Drawer Panel -->
       <aside
-        class="relative flex flex-col w-72 max-w-[85vw] h-full bg-surface-0 border-r border-border shadow-2xl z-10"
+        class="relative flex flex-col w-72 max-w-[85vw] h-full bg-surface-0 border-r border-border shadow-2xl z-10 select-none"
       >
         <div class="border-b border-border px-4 py-3 flex items-center justify-between">
-          <div class="px-1 text-xs font-semibold uppercase tracking-wide text-ink-600">
+          <div class="px-1 text-xs font-semibold uppercase tracking-wider text-ink-500">
             NusaEvo ERP
           </div>
           <button
@@ -220,70 +260,96 @@ const getIcon = (name: string | null): Component => {
           <TenantSwitcher />
         </div>
 
-        <nav class="flex-1 overflow-y-auto p-4 space-y-4">
+        <nav class="flex-1 overflow-y-auto p-3 space-y-4">
           <div v-for="section in menuSections" :key="section.header" class="space-y-1">
-            <p class="px-3 text-[11px] font-semibold uppercase tracking-wide text-ink-600">
+            <p class="px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-ink-600">
               {{ section.header }}
             </p>
 
-            <div v-for="item in section.items" :key="item.code" class="space-y-1">
+            <div v-for="item in section.items" :key="item.code" class="space-y-0.5">
               <!-- Accordion Menu with Children -->
-              <div v-if="item.children && item.children.length > 0">
+              <div v-if="item.children && item.children.length > 0" class="rounded-lg overflow-hidden">
                 <button
                   type="button"
-                  class="flex w-full items-center justify-between gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer"
+                  class="flex w-full items-center justify-between gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-150 cursor-pointer"
                   :class="isParentActive(item)
                     ? 'text-accent font-semibold bg-accent/5'
-                    : 'text-ink-600 hover:bg-surface-50 hover:text-ink-900'"
+                    : 'text-ink-700 hover:bg-surface-50 hover:text-ink-900'"
                   @click="toggleSubmenu(item.code)"
                 >
-                  <div class="flex items-center gap-3 truncate">
-                    <component :is="getIcon(item.icon)" class="h-4 w-4 shrink-0" />
+                  <div class="flex items-center gap-2.5 truncate">
+                    <component
+                      :is="getIcon(item.icon)"
+                      class="h-4 w-4 shrink-0 transition-colors"
+                      :class="isParentActive(item) ? 'text-accent' : 'text-ink-500'"
+                    />
                     <span class="truncate">{{ item.label }}</span>
                   </div>
-                  <ChevronDown
-                    v-if="openMenus[item.code]"
-                    class="h-4 w-4 shrink-0 transition-transform text-ink-400"
-                  />
                   <ChevronRight
-                    v-else
-                    class="h-4 w-4 shrink-0 transition-transform text-ink-400"
+                    class="h-4 w-4 shrink-0 transition-transform duration-200"
+                    :class="{
+                      'rotate-90 text-accent': openMenus[item.code],
+                      'text-ink-400': !openMenus[item.code],
+                    }"
                   />
                 </button>
 
-                <!-- Nested Submenu Children -->
-                <div
-                  v-show="openMenus[item.code]"
-                  class="mt-1 ml-4 pl-3 border-l border-border space-y-1"
+                <!-- Nested Submenu Items -->
+                <transition
+                  enter-active-class="transition-all duration-200 ease-out"
+                  enter-from-class="opacity-0 -translate-y-1 max-h-0"
+                  enter-to-class="opacity-100 translate-y-0 max-h-96"
+                  leave-active-class="transition-all duration-150 ease-in"
+                  leave-from-class="opacity-100 translate-y-0 max-h-96"
+                  leave-to-class="opacity-0 -translate-y-1 max-h-0"
                 >
-                  <Link
-                    v-for="child in item.children"
-                    :key="child.code"
-                    :href="child.href"
-                    class="flex items-center gap-2.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors"
-                    :class="isItemActive(child.href)
-                      ? 'bg-surface-100 text-accent font-semibold'
-                      : 'text-ink-600 hover:bg-surface-50 hover:text-ink-900'"
-                    @click="mobileSidebar?.close()"
+                  <div
+                    v-if="openMenus[item.code]"
+                    class="mt-0.5 ml-4 pl-3 border-l-2 border-border/80 space-y-0.5"
                   >
-                    <component :is="getIcon(child.icon)" v-if="child.icon" class="h-3.5 w-3.5 shrink-0 opacity-80" />
-                    <span>{{ child.label }}</span>
-                  </Link>
-                </div>
+                    <Link
+                      v-for="child in item.children"
+                      :key="child.code"
+                      :href="child.href"
+                      class="flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors duration-150"
+                      :class="isItemActive(child.href)
+                        ? 'bg-accent/10 text-accent font-semibold shadow-2xs'
+                        : 'text-ink-600 hover:bg-surface-50 hover:text-ink-900'"
+                      @click="mobileSidebar?.close()"
+                    >
+                      <component
+                        :is="getIcon(child.icon)"
+                        v-if="child.icon"
+                        class="h-3.5 w-3.5 shrink-0 opacity-70"
+                        :class="isItemActive(child.href) ? 'text-accent opacity-100' : ''"
+                      />
+                      <span
+                        v-else
+                        class="w-1.5 h-1.5 rounded-full shrink-0"
+                        :class="isItemActive(child.href) ? 'bg-accent' : 'bg-ink-300'"
+                      />
+                      <span class="truncate">{{ child.label }}</span>
+                    </Link>
+                  </div>
+                </transition>
               </div>
 
               <!-- Single Item without Children -->
               <Link
                 v-else
                 :href="item.href"
-                class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors"
+                class="flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-150"
                 :class="isItemActive(item.href)
-                  ? 'bg-surface-50 text-accent font-semibold shadow-2xs'
-                  : 'text-ink-600 hover:bg-surface-50 hover:text-ink-900'"
+                  ? 'bg-accent/10 text-accent font-semibold shadow-2xs'
+                  : 'text-ink-700 hover:bg-surface-50 hover:text-ink-900'"
                 @click="mobileSidebar?.close()"
               >
-                <component :is="getIcon(item.icon)" class="h-4 w-4 shrink-0" />
-                <span>{{ item.label }}</span>
+                <component
+                  :is="getIcon(item.icon)"
+                  class="h-4 w-4 shrink-0"
+                  :class="isItemActive(item.href) ? 'text-accent' : 'text-ink-500'"
+                />
+                <span class="truncate">{{ item.label }}</span>
               </Link>
             </div>
           </div>
