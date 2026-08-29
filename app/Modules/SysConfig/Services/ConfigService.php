@@ -16,19 +16,62 @@ class ConfigService
         protected ConfigAuditLogger $audit,
     ) {}
 
+    /** @var array<string, array> */
+    protected static array $memoMenus = [];
+
+    /** @var array<string, array{create: bool, read: bool, update: bool, delete: bool}> */
+    protected static array $memoPerms = [];
+
+    public static function clearCache(): void
+    {
+        self::$memoMenus = [];
+        self::$memoPerms = [];
+
+        try {
+            if (request()->hasSession()) {
+                foreach (array_keys(request()->session()->all()) as $k) {
+                    if (str_starts_with((string) $k, 'sysconfig_')) {
+                        request()->session()->forget($k);
+                    }
+                }
+            }
+        } catch (\Throwable) {
+            // Ignore if session not available in CLI
+        }
+    }
+
     /**
-     * Active menus the user may see (has at least R in any group).
+     * Active menus the user may see (has at least R in any group), nested with children if present.
      *
-     * @return list<array{code: string, label: string, href: string, icon: string|null, seq: int, header: string|null}>
+     * @return list<array{code: string, label: string, href: string, icon: string|null, seq: int, header: string|null, children: list<array{code: string, label: string, href: string, icon: string|null, seq: int}>}>
      */
     public function menusForUser(int $userId, string $appCode = 'NUSAEVO'): array
     {
+        $tenantKey = tenancy()->initialized ? (string) tenant()->getTenantKey() : 'central';
+        $memoKey = "{$tenantKey}_{$userId}_{$appCode}";
+
+        if (isset(self::$memoMenus[$memoKey])) {
+            return self::$memoMenus[$memoKey];
+        }
+
+        $sessionKey = "sysconfig_menus_{$memoKey}";
+        try {
+            if (request()->hasSession() && request()->session()->has($sessionKey)) {
+                $cached = request()->session()->get($sessionKey);
+                if (is_array($cached)) {
+                    return self::$memoMenus[$memoKey] = $cached;
+                }
+            }
+        } catch (\Throwable) {
+            // CLI fallback
+        }
+
         $groupIds = ConfigGroupUser::query()
             ->where('user_id', $userId)
             ->pluck('group_id');
 
         if ($groupIds->isEmpty()) {
-            return [];
+            return self::$memoMenus[$memoKey] = [];
         }
 
         $menuIds = ConfigRight::query()
@@ -38,41 +81,126 @@ class ConfigService
             ->pluck('menu_id')
             ->unique();
 
-        return ConfigMenu::query()
-            ->whereIn('id', $menuIds)
+        // Recursively resolve all ancestor parent IDs (up to 3 levels: level 3 -> level 2 -> level 1)
+        $allMenuIds = collect($menuIds);
+        $currentIds = $menuIds;
+        while ($currentIds->isNotEmpty()) {
+            $parentIds = ConfigMenu::query()
+                ->whereIn('id', $currentIds)
+                ->whereNotNull('parent_id')
+                ->pluck('parent_id')
+                ->unique();
+            $newParents = $parentIds->diff($allMenuIds);
+            if ($newParents->isEmpty()) {
+                break;
+            }
+            $allMenuIds = $allMenuIds->merge($newParents)->unique();
+            $currentIds = $newParents;
+        }
+
+        $allMenus = ConfigMenu::query()
+            ->whereIn('id', $allMenuIds)
             ->where('app_code', $appCode)
             ->where('status_code', 'A')
             ->orderBy('seq')
             ->get()
             ->filter(function (ConfigMenu $m) {
-                // ponytail: module_code is the §3A gate. Null = always-on (SYSCONFIG/dashboard).
+                // module_code is the §3A gate. Null = always-on (SYSCONFIG/dashboard).
                 if ($m->module_code === null || $m->module_code === '') {
                     return true;
                 }
 
                 return app(TenantFeatureService::class)->enabled($m->module_code);
-            })
-            ->map(fn (ConfigMenu $m) => [
-                'code' => $m->code,
-                'label' => $m->menu_caption,
-                'href' => $m->menu_link ?: '#',
-                'icon' => $m->icon,
-                'seq' => $m->seq,
-                'header' => $m->menu_header,
-            ])
-            ->values()
-            ->all();
+            });
+
+        $childrenByParent = $allMenus->whereNotNull('parent_id')->groupBy('parent_id');
+        $parents = $allMenus->whereNull('parent_id');
+
+        $result = $parents->map(function (ConfigMenu $parent) use ($childrenByParent, $menuIds) {
+            $level2Items = ($childrenByParent->get($parent->id) ?? collect())
+                ->filter(function (ConfigMenu $l2) use ($childrenByParent, $menuIds, $parent) {
+                    if ($menuIds->contains($l2->id) || $menuIds->contains($parent->id)) {
+                        return true;
+                    }
+                    $l3Children = $childrenByParent->get($l2->id) ?? collect();
+
+                    return $l3Children->contains(fn ($l3) => $menuIds->contains($l3->id));
+                })
+                ->map(function (ConfigMenu $l2) use ($childrenByParent, $menuIds, $parent) {
+                    $level3Items = ($childrenByParent->get($l2->id) ?? collect())
+                        ->filter(fn (ConfigMenu $l3) => $menuIds->contains($l3->id) || $menuIds->contains($l2->id) || $menuIds->contains($parent->id))
+                        ->map(fn (ConfigMenu $l3) => [
+                            'code' => $l3->code,
+                            'label' => $l3->menu_caption,
+                            'href' => $l3->menu_link ?: '#',
+                            'icon' => $l3->icon,
+                            'seq' => $l3->seq,
+                        ])
+                        ->values()
+                        ->all();
+
+                    return [
+                        'code' => $l2->code,
+                        'label' => $l2->menu_caption,
+                        'href' => $l2->menu_link ?: '#',
+                        'icon' => $l2->icon,
+                        'seq' => $l2->seq,
+                        'children' => $level3Items,
+                    ];
+                })
+                ->values()
+                ->all();
+
+            return [
+                'code' => $parent->code,
+                'label' => $parent->menu_caption,
+                'href' => $parent->menu_link ?: '#',
+                'icon' => $parent->icon,
+                'seq' => $parent->seq,
+                'header' => $parent->menu_header,
+                'children' => $level2Items,
+            ];
+        })->values()->all();
+
+        try {
+            if (request()->hasSession()) {
+                request()->session()->put($sessionKey, $result);
+            }
+        } catch (\Throwable) {
+            // CLI fallback
+        }
+
+        return self::$memoMenus[$memoKey] = $result;
     }
 
     /** @return array{create: bool, read: bool, update: bool, delete: bool} */
     public function permissionsForUserMenu(int $userId, string $menuCode, string $appCode = 'NUSAEVO'): array
     {
+        $tenantKey = tenancy()->initialized ? (string) tenant()->getTenantKey() : 'central';
+        $memoKey = "{$tenantKey}_{$userId}_{$appCode}_{$menuCode}";
+
+        if (isset(self::$memoPerms[$memoKey])) {
+            return self::$memoPerms[$memoKey];
+        }
+
+        $sessionKey = "sysconfig_perms_{$memoKey}";
+        try {
+            if (request()->hasSession() && request()->session()->has($sessionKey)) {
+                $cached = request()->session()->get($sessionKey);
+                if (is_array($cached)) {
+                    return self::$memoPerms[$memoKey] = $cached;
+                }
+            }
+        } catch (\Throwable) {
+            // CLI fallback
+        }
+
         $groupIds = ConfigGroupUser::query()
             ->where('user_id', $userId)
             ->pluck('group_id');
 
         if ($groupIds->isEmpty()) {
-            return ConfigRight::parseTrustee('');
+            return self::$memoPerms[$memoKey] = ConfigRight::parseTrustee('');
         }
 
         $trustees = ConfigRight::query()
@@ -80,6 +208,24 @@ class ConfigService
             ->where('menu_code', $menuCode)
             ->where('app_code', $appCode)
             ->pluck('trustee');
+
+        // Fallback to ancestors if child has no direct trustee (up to 3 levels)
+        if ($trustees->isEmpty()) {
+            $currMenu = ConfigMenu::query()->where('code', $menuCode)->where('app_code', $appCode)->first();
+            while ($currMenu && $currMenu->parent_id && $trustees->isEmpty()) {
+                $parent = ConfigMenu::query()->find($currMenu->parent_id);
+                if ($parent) {
+                    $trustees = ConfigRight::query()
+                        ->whereIn('group_id', $groupIds)
+                        ->where('menu_code', $parent->code)
+                        ->where('app_code', $appCode)
+                        ->pluck('trustee');
+                    $currMenu = $parent;
+                } else {
+                    break;
+                }
+            }
+        }
 
         $merged = '';
         foreach ($trustees as $t) {
@@ -90,7 +236,17 @@ class ConfigService
             }
         }
 
-        return ConfigRight::parseTrustee($merged);
+        $result = ConfigRight::parseTrustee($merged);
+
+        try {
+            if (request()->hasSession()) {
+                request()->session()->put($sessionKey, $result);
+            }
+        } catch (\Throwable) {
+            // CLI fallback
+        }
+
+        return self::$memoPerms[$memoKey] = $result;
     }
 
     public function constsByGroup(string $constGroup): Collection

@@ -272,23 +272,33 @@ runtime consumption API behind §3B/§3C.
 ## 3F. Menus, Groups & Access Rights (Trustee)
 
 **Purpose:** formalize the schema behind infrastructure `CLAUDE.md` §4 already references as
-existing (`menu.perm:MENU_CODE` middleware) — no new authorization *behavior*, just a concrete
-schema for Claude Code to build and extend against, since every other module's spec assumes
-permission checks work without ever pointing at a schema.
+existing (`menu.perm:MENU_CODE` middleware) — unified hierarchical navigation and granular
+authorization with permission fallback and Redis/Session caching.
 
-- `SYSCONFIG.menus` — hierarchical tree (`parent_menu_id`, self-referencing — same pattern as
-  CRM's `parent_partner_id`), `code`, `label`, `route`, `icon`, `module_code` (which module's
-  sidebar section this belongs to — drives the activation hide/show behavior in §3A).
-- `SYSCONFIG.groups` — roles/teams (`name`, `description`). **The same concept used both for
+- `SYSCONFIG.config_menus` — hierarchical tree (`parent_id`, self-referencing to parent `id`),
+  `code`, `menu_header`, `menu_caption`, `menu_link`, `icon`, `seq`, `module_code`, `status_code`.
+  - Top-level module entries have `parent_id = null`. Submenus (e.g. `SCHEDULE_TASKS`,
+    `CRM_LEADS`, `PERFORMANCE_KPIS`) have `parent_id` pointing to their parent menu.
+  - `ConfigService::menusForUser($userId)` resolves active menus filtered by permissions and
+    `tenant_modules` activation, returning nested `children` arrays for accordion sidebar
+    rendering in `AppSidebar.vue`.
+  - In-page horizontal tab bars are deprecated in favor of persistent Left Sidebar Accordion
+    navigation.
+- `SYSCONFIG.config_groups` — roles/teams (`name`, `description`). **The same concept used both for
   menu-permission trustee below and as the `group_id` scope dimension on `config_consts`
-  (§3B/§3E)** — one "group" notion serves both purposes, avoiding a second, parallel concept
-  of "group" the same way this platform already avoids parallel AR ledgers or parallel
-  notification paths elsewhere.
-- `SYSCONFIG.group_members` — pivot, `group_id` × `user_id`.
-- `SYSCONFIG.menu_rights` — `menu_id` × `group_id`, C/R/U/D flags — the trustee table the
-  existing `menu.perm:MENU_CODE` middleware checks against.
-- Admin screens: menu tree CRUD, group CRUD + member assignment, a rights matrix (menu ×
-  group grid, per `DESIGN.md`'s component inventory).
+  (§3B/§3E)** — one "group" notion serves both purposes.
+- `SYSCONFIG.config_user_groups` — pivot, `group_id` × `user_id`.
+- `SYSCONFIG.config_rights` — `group_id` × `menu_code`, C/R/U/D boolean flags.
+  - **Permission Fallback:** If a child menu code has no explicit entry in `config_rights`,
+    `ConfigService::permissionsForUserMenu()` automatically looks up and inherits the parent
+    menu's rights for the user's groups.
+- **Caching Discipline:**
+  - `ConfigService` employs in-memory request memoization and Redis session caching (`sysconfig_menus_*`,
+    `sysconfig_perms_*`) to ensure 0 duplicate DB queries during page navigation.
+  - `ConfigService::clearCache()` invalidates session and memo caches on any mutation to groups,
+    menus, user group assignments, or tenant switching.
+- Admin screens: menu tree CRUD (`/config/menus`), group CRUD + member assignment (`/config/groups`),
+  users (`/config/users`), and rights matrix.
 
 ## 3G. Config Audit Log
 

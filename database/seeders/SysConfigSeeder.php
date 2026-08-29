@@ -70,7 +70,7 @@ class SysConfigSeeder extends Seeder
 
     /**
      * Flat sidebar menus. status I = placeholder (not shipped yet) — hidden from nav.
-     *
+         /**
      * @return array<string, ConfigMenu>
      */
     private function seedMenus(): array
@@ -78,9 +78,6 @@ class SysConfigSeeder extends Seeder
         $rows = [
             // Live
             ['code' => 'DASHBOARD', 'menu_header' => 'Main', 'menu_caption' => 'Dashboard', 'menu_link' => '/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 10, 'status_code' => 'A'],
-            // menu_link points at §3B Product Master (INVENTORY.* schema); legacy
-            // /inventory/items (public schema, CLAUDE.md §7A) stays routable but off the
-            // sidebar during the transition.
             ['code' => 'INVENTORY', 'menu_header' => 'Operations', 'menu_caption' => 'Inventory', 'menu_link' => '/inventory/products', 'icon' => 'Boxes', 'seq' => 70, 'status_code' => 'A'],
             ['code' => 'CONFIG_MENUS', 'menu_header' => 'System', 'menu_caption' => 'Menus', 'menu_link' => '/config/menus', 'icon' => 'Menu', 'seq' => 200, 'status_code' => 'A'],
             ['code' => 'CONFIG_GROUPS', 'menu_header' => 'System', 'menu_caption' => 'Groups', 'menu_link' => '/config/groups', 'icon' => 'Shield', 'seq' => 210, 'status_code' => 'A'],
@@ -91,37 +88,17 @@ class SysConfigSeeder extends Seeder
             ['code' => 'CONFIG_SERIALS', 'menu_header' => 'System', 'menu_caption' => 'Serials', 'menu_link' => '/config/serials', 'icon' => 'Hash', 'seq' => 225, 'status_code' => 'A'],
             ['code' => 'CONFIG_THEME', 'menu_header' => 'System', 'menu_caption' => 'Theme', 'menu_link' => '/config/theme', 'icon' => 'Palette', 'seq' => 228, 'status_code' => 'A'],
             ['code' => 'DESIGN_SYSTEM', 'menu_header' => 'System', 'menu_caption' => 'Komponen UI', 'menu_link' => '/design-system', 'icon' => 'Layers', 'seq' => 230, 'status_code' => 'A'],
-            // CRM §3A-§3G shipped — all reached via the in-page sub-nav on /crm/dashboard,
-            // not separate sidebar rows (one menu code covers all of them, see
-            // CRM_SPECS.md §5). §3A Dashboard is now the section landing page.
-            ['code' => 'CRM', 'menu_header' => 'Core', 'menu_caption' => 'CRM', 'menu_link' => '/crm/dashboard', 'icon' => 'Users', 'seq' => 20, 'status_code' => 'A'],
-            // §3G Merge — admin-only (menu.perm:CRM_MERGE below grants only ADMIN, per this
-            // seeder's array_fill_keys(...) for the ADMIN matrix; STAFF/VIEWER's matrices
-            // simply never list it). status_code I so it never appears as its own sidebar
-            // row — it's reached from the CRM sub-nav (permission-gated client-side via
-            // the shared `canMergePartners` Inertia prop) and the route itself is the real
-            // gate regardless of what the UI shows.
-            ['code' => 'CRM_MERGE', 'menu_header' => 'Core', 'menu_caption' => 'CRM — Merge', 'menu_link' => '/crm/merge', 'icon' => 'Merge', 'seq' => 21, 'status_code' => 'I'],
 
-            // §3A shipped — the calendar dashboard is now the section landing page.
+            // Core & Vertical Modules
+            ['code' => 'CRM', 'menu_header' => 'Core', 'menu_caption' => 'CRM', 'menu_link' => '/crm/dashboard', 'icon' => 'Users', 'seq' => 20, 'status_code' => 'A'],
+            ['code' => 'CRM_MERGE', 'menu_header' => 'Core', 'menu_caption' => 'CRM — Merge', 'menu_link' => '/crm/merge', 'icon' => 'Merge', 'seq' => 21, 'status_code' => 'I'],
             ['code' => 'SCHEDULE', 'menu_header' => 'Core', 'menu_caption' => 'Schedule', 'menu_link' => '/schedule/dashboard', 'icon' => 'CalendarDays', 'seq' => 30, 'status_code' => 'A'],
-            // §3B shipped (definition builder); §3A dashboard doesn't exist yet, so the
-            // workflow list is the landing page for now — same "point straight at the built
-            // page" convention Legal used before it had a dashboard either.
             ['code' => 'WNE', 'menu_header' => 'Core', 'menu_caption' => 'Workflow & Notifications', 'menu_link' => '/wne/dashboard', 'icon' => 'Workflow', 'seq' => 40, 'status_code' => 'A'],
-            // §3A shipped — the Main Dashboard is the only page so far, so it's also the
-            // section landing page (same "point straight at the built page" convention WNE
-            // used before §3B). Future sub-pages (3B upload form, 3C version viewer, ...)
-            // reuse this one menu code, same "one code covers every sub-page" convention.
             ['code' => 'DMS', 'menu_header' => 'Core', 'menu_caption' => 'Documents', 'menu_link' => '/dms/dashboard', 'icon' => 'FolderOpen', 'seq' => 45, 'status_code' => 'A'],
             ['code' => 'LEGAL', 'menu_header' => 'Vertical', 'menu_caption' => 'Legal', 'menu_link' => '/legal/matters', 'icon' => 'Scale', 'seq' => 60, 'status_code' => 'A'],
-            // Internal-only (Nusaevo's own team) — not part of any sellable plan, see config/tenant_modules.php.
             ['code' => 'PROJECTS', 'menu_header' => 'Internal', 'menu_caption' => 'Projects', 'menu_link' => '/projects', 'icon' => 'Kanban', 'seq' => 65, 'status_code' => 'A'],
             ['code' => 'SALES', 'menu_header' => 'Operations', 'menu_caption' => 'Sales', 'menu_link' => '/sales/dashboard', 'icon' => 'ShoppingCart', 'seq' => 80, 'status_code' => 'A'],
             ['code' => 'PURCHASE', 'menu_header' => 'Operations', 'menu_caption' => 'Purchase', 'menu_link' => '/purchase/dashboard', 'icon' => 'Truck', 'seq' => 90, 'status_code' => 'A'],
-            // §3B ships (COA/GL setup) — Accounts is the section landing page for now
-            // (no §3A dashboard yet), same "point straight at the built page" convention
-            // WNE/DMS used before their own dashboards existed.
             ['code' => 'ACCOUNTING', 'menu_header' => 'Operations', 'menu_caption' => 'Accounting', 'menu_link' => '/accounting/accounts', 'icon' => 'Calculator', 'seq' => 120, 'status_code' => 'A'],
             ['code' => 'HCM', 'menu_header' => 'People', 'menu_caption' => 'HCM', 'menu_link' => '/hcm/dashboard', 'icon' => 'UserCog', 'seq' => 130, 'status_code' => 'A'],
             ['code' => 'PAYROLL', 'menu_header' => 'People', 'menu_caption' => 'Payroll', 'menu_link' => '/payroll/dashboard', 'icon' => 'Wallet', 'seq' => 140, 'status_code' => 'A'],
@@ -131,11 +108,109 @@ class SysConfigSeeder extends Seeder
             ['code' => 'PERFORMANCE', 'menu_header' => 'People', 'menu_caption' => 'Performance', 'menu_link' => '/performance/kpi-definitions', 'icon' => 'Target', 'seq' => 150, 'status_code' => 'A'],
         ];
 
+        $submenus = [
+            'SCHEDULE' => [
+                ['code' => 'SCHEDULE_DASHBOARD', 'caption' => 'Dashboard', 'link' => '/schedule/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 31],
+                ['code' => 'SCHEDULE_TASKS', 'caption' => 'Tasks', 'link' => '/schedule/tasks', 'icon' => 'CheckSquare', 'seq' => 32],
+                ['code' => 'SCHEDULE_EVENTS', 'caption' => 'Events', 'link' => '/schedule/events', 'icon' => 'Calendar', 'seq' => 33],
+                ['code' => 'SCHEDULE_RESOURCES', 'caption' => 'Resources', 'link' => '/schedule/resources', 'icon' => 'DoorOpen', 'seq' => 34],
+            ],
+            'CRM' => [
+                ['code' => 'CRM_DASHBOARD', 'caption' => 'Dashboard', 'link' => '/crm/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 21],
+                ['code' => 'CRM_LEADS', 'caption' => 'Leads', 'link' => '/crm/leads', 'icon' => 'UserPlus', 'seq' => 22],
+                ['code' => 'CRM_OPPORTUNITIES', 'caption' => 'Opportunities', 'link' => '/crm/opportunities', 'icon' => 'Target', 'seq' => 23],
+                ['code' => 'CRM_CUSTOMERS', 'caption' => 'Customers', 'link' => '/crm/customers', 'icon' => 'Building', 'seq' => 24],
+                ['code' => 'CRM_CONTACTS', 'caption' => 'Contacts', 'link' => '/crm/contacts', 'icon' => 'Contact', 'seq' => 25],
+                ['code' => 'CRM_TICKETS', 'caption' => 'Tickets', 'link' => '/crm/tickets', 'icon' => 'LifeBuoy', 'seq' => 26],
+                ['code' => 'CRM_CASES', 'caption' => 'Service Cases', 'link' => '/crm/service-cases', 'icon' => 'Briefcase', 'seq' => 27],
+            ],
+            'LEGAL' => [
+                ['code' => 'LEGAL_MATTERS', 'caption' => 'Matters', 'link' => '/legal/matters', 'icon' => 'FileText', 'seq' => 61],
+                ['code' => 'LEGAL_DEEDS', 'caption' => 'Deeds', 'link' => '/legal/deeds', 'icon' => 'Scroll', 'seq' => 62],
+                ['code' => 'LEGAL_FIELD_VISITS', 'caption' => 'Field Visits', 'link' => '/legal/field-visits', 'icon' => 'MapPin', 'seq' => 63],
+                ['code' => 'LEGAL_BPN', 'caption' => 'BPN Submissions', 'link' => '/legal/bpn-submissions', 'icon' => 'Landmark', 'seq' => 64],
+                ['code' => 'LEGAL_TAXES', 'caption' => 'Deed Taxes', 'link' => '/legal/taxes', 'icon' => 'Receipt', 'seq' => 65],
+            ],
+            'HCM' => [
+                ['code' => 'HCM_DASHBOARD', 'caption' => 'Dashboard', 'link' => '/hcm/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 131],
+                ['code' => 'HCM_EMPLOYEES', 'caption' => 'Employees', 'link' => '/hcm/employees', 'icon' => 'Users', 'seq' => 132],
+                ['code' => 'HCM_DEPARTMENTS', 'caption' => 'Departments', 'link' => '/hcm/departments', 'icon' => 'Network', 'seq' => 133],
+                ['code' => 'HCM_DESIGNATIONS', 'caption' => 'Designations', 'link' => '/hcm/designations', 'icon' => 'Award', 'seq' => 134],
+                ['code' => 'HCM_BRANCHES', 'caption' => 'Branches', 'link' => '/hcm/branches', 'icon' => 'Building2', 'seq' => 135],
+            ],
+            'PAYROLL' => [
+                ['code' => 'PAYROLL_DASHBOARD', 'caption' => 'Dashboard', 'link' => '/payroll/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 141],
+                ['code' => 'PAYROLL_STRUCTURES', 'caption' => 'Salary Structures', 'link' => '/payroll/salary-structures', 'icon' => 'Sliders', 'seq' => 142],
+                ['code' => 'PAYROLL_RUNS', 'caption' => 'Payroll Runs', 'link' => '/payroll/runs', 'icon' => 'PlayCircle', 'seq' => 143],
+                ['code' => 'PAYROLL_PAYSLIPS', 'caption' => 'Payslips', 'link' => '/payroll/payslips', 'icon' => 'FileSpreadsheet', 'seq' => 144],
+            ],
+            'INVENTORY' => [
+                ['code' => 'INVENTORY_PRODUCTS', 'caption' => 'Products', 'link' => '/inventory/products', 'icon' => 'Package', 'seq' => 71],
+                ['code' => 'INVENTORY_CATEGORIES', 'caption' => 'Categories', 'link' => '/inventory/categories', 'icon' => 'Tags', 'seq' => 72],
+                ['code' => 'INVENTORY_UOMS', 'caption' => 'UOMs', 'link' => '/inventory/uoms', 'icon' => 'Ruler', 'seq' => 73],
+                ['code' => 'INVENTORY_WAREHOUSES', 'caption' => 'Warehouses', 'link' => '/inventory/warehouses', 'icon' => 'Warehouse', 'seq' => 74],
+                ['code' => 'INVENTORY_RECEIPTS', 'caption' => 'Goods Receipts', 'link' => '/inventory/goods-receipts', 'icon' => 'ArrowDownLeft', 'seq' => 75],
+                ['code' => 'INVENTORY_ISSUES', 'caption' => 'Goods Issues', 'link' => '/inventory/goods-issues', 'icon' => 'ArrowUpRight', 'seq' => 76],
+                ['code' => 'INVENTORY_TRANSFERS', 'caption' => 'Transfers', 'link' => '/inventory/transfers', 'icon' => 'ArrowLeftRight', 'seq' => 77],
+                ['code' => 'INVENTORY_ADJUSTMENTS', 'caption' => 'Adjustments', 'link' => '/inventory/adjustments', 'icon' => 'Scale', 'seq' => 78],
+                ['code' => 'INVENTORY_STOCK_CARD', 'caption' => 'Stock Card', 'link' => '/inventory/stock-card', 'icon' => 'ClipboardList', 'seq' => 79],
+                ['code' => 'INVENTORY_VALUATION', 'caption' => 'Valuation', 'link' => '/inventory/valuation', 'icon' => 'TrendingUp', 'seq' => 80],
+                ['code' => 'INVENTORY_BATCHES', 'caption' => 'Batches & Serials', 'link' => '/inventory/batches', 'icon' => 'Layers', 'seq' => 81],
+            ],
+            'SALES' => [
+                ['code' => 'SALES_DASHBOARD', 'caption' => 'Dashboard', 'link' => '/sales/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 81],
+                ['code' => 'SALES_QUOTATIONS', 'caption' => 'Quotations', 'link' => '/sales/quotations', 'icon' => 'FileText', 'seq' => 82],
+                ['code' => 'SALES_ORDERS', 'caption' => 'Sales Orders', 'link' => '/sales/orders', 'icon' => 'ShoppingBag', 'seq' => 83],
+                ['code' => 'SALES_DELIVERIES', 'caption' => 'Deliveries', 'link' => '/sales/deliveries', 'icon' => 'Truck', 'seq' => 84],
+                ['code' => 'SALES_INVOICES', 'caption' => 'Invoices', 'link' => '/sales/invoices', 'icon' => 'Receipt', 'seq' => 85],
+                ['code' => 'SALES_PROFILES', 'caption' => 'Customer Profiles', 'link' => '/sales/customer-profiles', 'icon' => 'UserCheck', 'seq' => 86],
+            ],
+            'PURCHASE' => [
+                ['code' => 'PURCHASE_DASHBOARD', 'caption' => 'Dashboard', 'link' => '/purchase/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 91],
+                ['code' => 'PURCHASE_REQUISITIONS', 'caption' => 'Requisitions', 'link' => '/purchase/requisitions', 'icon' => 'FileSignature', 'seq' => 92],
+                ['code' => 'PURCHASE_ORDERS', 'caption' => 'Purchase Orders', 'link' => '/purchase/orders', 'icon' => 'ShoppingCart', 'seq' => 93],
+                ['code' => 'PURCHASE_RECEIPTS', 'caption' => 'Receipts', 'link' => '/purchase/receipts', 'icon' => 'PackageCheck', 'seq' => 94],
+                ['code' => 'PURCHASE_INVOICES', 'caption' => 'Vendor Bills', 'link' => '/purchase/invoices', 'icon' => 'Receipt', 'seq' => 95],
+                ['code' => 'PURCHASE_SPEND', 'caption' => 'Spend Analytics', 'link' => '/purchase/spend-analytics', 'icon' => 'PieChart', 'seq' => 96],
+                ['code' => 'PURCHASE_ESG', 'caption' => 'ESG Scorecard', 'link' => '/purchase/esg', 'icon' => 'Leaf', 'seq' => 97],
+            ],
+            'ACCOUNTING' => [
+                ['code' => 'ACCOUNTING_ACCOUNTS', 'caption' => 'Chart of Accounts', 'link' => '/accounting/accounts', 'icon' => 'BookOpen', 'seq' => 121],
+                ['code' => 'ACCOUNTING_JOURNALS', 'caption' => 'Journal Entries', 'link' => '/accounting/journals', 'icon' => 'BookMarked', 'seq' => 122],
+                ['code' => 'ACCOUNTING_GL', 'caption' => 'General Ledger', 'link' => '/accounting/general-ledger', 'icon' => 'FileSpreadsheet', 'seq' => 123],
+                ['code' => 'ACCOUNTING_TRIAL_BALANCE', 'caption' => 'Trial Balance', 'link' => '/accounting/trial-balance', 'icon' => 'Scale', 'seq' => 124],
+                ['code' => 'ACCOUNTING_BALANCE_SHEET', 'caption' => 'Balance Sheet', 'link' => '/accounting/balance-sheet', 'icon' => 'Table', 'seq' => 125],
+                ['code' => 'ACCOUNTING_INCOME_STMT', 'caption' => 'Income Statement', 'link' => '/accounting/income-statement', 'icon' => 'LineChart', 'seq' => 126],
+                ['code' => 'ACCOUNTING_CASH_FLOW', 'caption' => 'Cash Flow', 'link' => '/accounting/cash-flow', 'icon' => 'Activity', 'seq' => 127],
+                ['code' => 'ACCOUNTING_TAX_PERIODS', 'caption' => 'Tax Periods', 'link' => '/accounting/tax-periods', 'icon' => 'CalendarCheck', 'seq' => 128],
+            ],
+            'WNE' => [
+                ['code' => 'WNE_DASHBOARD', 'caption' => 'Dashboard', 'link' => '/wne/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 41],
+                ['code' => 'WNE_WORKFLOWS', 'caption' => 'Workflows', 'link' => '/wne/workflows', 'icon' => 'Workflow', 'seq' => 42],
+                ['code' => 'WNE_APPROVALS', 'caption' => 'My Approvals', 'link' => '/wne/my-tasks', 'icon' => 'CheckCircle2', 'seq' => 43],
+                ['code' => 'WNE_TEMPLATES', 'caption' => 'Templates', 'link' => '/wne/templates', 'icon' => 'FileCode', 'seq' => 44],
+                ['code' => 'WNE_PREFERENCES', 'caption' => 'Preferences', 'link' => '/wne/preferences', 'icon' => 'Sliders', 'seq' => 45],
+                ['code' => 'WNE_DEAD_LETTERS', 'caption' => 'Dead Letters', 'link' => '/wne/dead-letters', 'icon' => 'AlertOctagon', 'seq' => 46],
+            ],
+            'DMS' => [
+                ['code' => 'DMS_DASHBOARD', 'caption' => 'Dashboard', 'link' => '/dms/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 47],
+                ['code' => 'DMS_DOCUMENTS', 'caption' => 'Documents', 'link' => '/dms/documents', 'icon' => 'FileText', 'seq' => 48],
+                ['code' => 'DMS_CATEGORIES', 'caption' => 'Categories', 'link' => '/dms/categories', 'icon' => 'FolderOpen', 'seq' => 49],
+            ],
+            'PERFORMANCE' => [
+                ['code' => 'PERFORMANCE_KPIS', 'caption' => 'KPIs', 'link' => '/performance/kpi-definitions', 'icon' => 'Target', 'seq' => 151],
+                ['code' => 'PERFORMANCE_OKRS', 'caption' => 'OKRs', 'link' => '/performance/okr-objectives', 'icon' => 'Compass', 'seq' => 152],
+                ['code' => 'PERFORMANCE_BUDGETS', 'caption' => 'Budgets', 'link' => '/performance/budgets', 'icon' => 'PieChart', 'seq' => 153],
+                ['code' => 'PERFORMANCE_SCORECARDS', 'caption' => 'Scorecards', 'link' => '/performance/scorecards', 'icon' => 'Award', 'seq' => 154],
+            ],
+        ];
+
         $map = [];
         foreach ($rows as $row) {
             $map[$row['code']] = ConfigMenu::query()->updateOrCreate(
                 ['app_code' => self::APP, 'code' => $row['code']],
                 [
+                    'parent_id' => null,
                     'menu_header' => $row['menu_header'],
                     'menu_caption' => $row['menu_caption'],
                     'menu_link' => $row['menu_link'],
@@ -149,6 +224,29 @@ class SysConfigSeeder extends Seeder
             );
         }
 
+        foreach ($submenus as $parentCode => $items) {
+            $parent = $map[$parentCode] ?? null;
+            if (! $parent) {
+                continue;
+            }
+
+            foreach ($items as $item) {
+                $map[$item['code']] = ConfigMenu::query()->updateOrCreate(
+                    ['app_code' => self::APP, 'code' => $item['code']],
+                    [
+                        'parent_id' => $parent->id,
+                        'menu_header' => $parent->menu_header,
+                        'menu_caption' => $item['caption'],
+                        'menu_link' => $item['link'],
+                        'icon' => $item['icon'],
+                        'seq' => $item['seq'],
+                        'status_code' => 'A',
+                        'module_code' => $parent->module_code,
+                    ]
+                );
+            }
+        }
+
         return $map;
     }
 
@@ -158,7 +256,7 @@ class SysConfigSeeder extends Seeder
      */
     private function seedRights(array $groups, array $menus): void
     {
-        // ponytail: rights still seeded for placeholders so flipping status A later is enough
+        // rights still seeded for placeholders so flipping status A later is enough
         $matrix = [
             'ADMIN' => array_fill_keys(array_keys($menus), 'CRUD'),
             'STAFF' => [
@@ -197,10 +295,28 @@ class SysConfigSeeder extends Seeder
             ],
         ];
 
+        // Also propagate parent permissions to child menus for STAFF and VIEWER
+        foreach ($menus as $code => $menu) {
+            if ($menu->parent_id) {
+                $parent = ConfigMenu::query()->find($menu->parent_id);
+                if ($parent) {
+                    if (isset($matrix['STAFF'][$parent->code])) {
+                        $matrix['STAFF'][$code] = $matrix['STAFF'][$parent->code];
+                    }
+                    if (isset($matrix['VIEWER'][$parent->code])) {
+                        $matrix['VIEWER'][$code] = $matrix['VIEWER'][$parent->code];
+                    }
+                }
+            }
+        }
+
         foreach ($matrix as $groupCode => $menuTrustees) {
             $group = $groups[$groupCode];
             foreach ($menuTrustees as $menuCode => $trustee) {
-                $menu = $menus[$menuCode];
+                $menu = $menus[$menuCode] ?? null;
+                if (! $menu) {
+                    continue;
+                }
                 ConfigRight::query()->updateOrCreate(
                     ['group_id' => $group->id, 'menu_id' => $menu->id],
                     [

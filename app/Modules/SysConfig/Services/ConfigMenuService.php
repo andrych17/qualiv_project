@@ -19,9 +19,9 @@ class ConfigMenuService
                 'app_code' => self::APP,
                 'menu_header' => $data['menu_header'] ?? 'Main',
                 'menu_caption' => $data['menu_caption'],
-                'menu_link' => $data['menu_link'] ?: '#',
-                'icon' => $data['icon'] ?: null,
-                'parent_id' => $data['parent_id'] ?: null,
+                'menu_link' => ($data['menu_link'] ?? null) ?: '#',
+                'icon' => ($data['icon'] ?? null) ?: null,
+                'parent_id' => ($data['parent_id'] ?? null) ?: null,
                 'seq' => (int) ($data['seq'] ?? 0),
                 'status_code' => $data['status_code'] ?? 'A',
                 'module_code' => ($data['module_code'] ?? null) ?: null,
@@ -45,6 +45,8 @@ class ConfigMenuService
                 ]);
             }
 
+            ConfigService::clearCache();
+
             return $menu;
         });
     }
@@ -55,9 +57,9 @@ class ConfigMenuService
             'code' => $data['code'],
             'menu_header' => $data['menu_header'] ?? $menu->menu_header,
             'menu_caption' => $data['menu_caption'],
-            'menu_link' => $data['menu_link'] ?: '#',
-            'icon' => $data['icon'] ?: null,
-            'parent_id' => $data['parent_id'] ?: null,
+            'menu_link' => ($data['menu_link'] ?? null) ?: '#',
+            'icon' => ($data['icon'] ?? null) ?: null,
+            'parent_id' => ($data['parent_id'] ?? null) ?: null,
             'seq' => (int) ($data['seq'] ?? $menu->seq),
             'status_code' => $data['status_code'] ?? $menu->status_code,
             'module_code' => array_key_exists('module_code', $data) ? ($data['module_code'] ?: null) : $menu->module_code,
@@ -71,6 +73,8 @@ class ConfigMenuService
                 'menu_seq' => $menu->seq,
             ]);
 
+        ConfigService::clearCache();
+
         return $menu->refresh();
     }
 
@@ -80,6 +84,7 @@ class ConfigMenuService
             ConfigRight::query()->where('menu_id', $menu->id)->delete();
             ConfigMenu::query()->where('parent_id', $menu->id)->update(['parent_id' => null]);
             $menu->delete();
+            ConfigService::clearCache();
         });
     }
 }

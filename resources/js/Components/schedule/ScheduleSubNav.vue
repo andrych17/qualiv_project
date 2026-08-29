@@ -1,46 +1,8 @@
-<!-- ponytail: Dashboard/Tasks/Events/Resources switcher — one SCHEDULE menu row covers all
-     Schedule routes, same in-page sub-nav convention as CrmSubNav/WneSubNav. -->
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3'
-
+// Sub-navigation is now managed directly by the left sidebar accordion.
 defineProps<{
-  active: 'dashboard' | 'tasks' | 'events' | 'resources'
+  active?: string
 }>()
 </script>
 
-<template>
-  <div class="flex items-center gap-1 border-b border-border overflow-x-auto scrollbar-none" role="tablist">
-    <Link
-      :href="route('schedule.dashboard')"
-      role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
-      :class="active === 'dashboard' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
-    >
-      Dashboard
-    </Link>
-    <Link
-      :href="route('schedule.tasks.index')"
-      role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
-      :class="active === 'tasks' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
-    >
-      Tasks
-    </Link>
-    <Link
-      :href="route('schedule.events.index')"
-      role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
-      :class="active === 'events' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
-    >
-      Events
-    </Link>
-    <Link
-      :href="route('schedule.resources.index')"
-      role="tab"
-      class="border-b-2 px-3 py-2 text-sm font-medium transition whitespace-nowrap"
-      :class="active === 'resources' ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
-    >
-      Resources
-    </Link>
-  </div>
-</template>
+<template></template>

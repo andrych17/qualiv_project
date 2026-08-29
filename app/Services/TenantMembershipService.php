@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Tenant;
 use App\Models\TenantUserLookup;
 use App\Models\User;
+use App\Modules\SysConfig\Services\ConfigService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -95,6 +96,7 @@ class TenantMembershipService
         Auth::login($user);
         session()->put('tenant_id', (string) $tenant->getTenantKey());
         session()->regenerate();
+        ConfigService::clearCache();
 
         return $tenant;
     }

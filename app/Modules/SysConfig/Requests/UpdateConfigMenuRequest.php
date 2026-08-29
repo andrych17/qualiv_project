@@ -49,8 +49,43 @@ class UpdateConfigMenuRequest extends FormRequest
             if ($parentId) {
                 if ((int) $parentId === (int) $menuId) {
                     $validator->errors()->add('parent_id', 'A menu cannot be its own parent.');
-                } elseif (! ConfigMenu::query()->whereKey($parentId)->exists()) {
-                    $validator->errors()->add('parent_id', 'The selected parent menu is invalid.');
+                } else {
+                    $parent = ConfigMenu::query()->find($parentId);
+                    if (! $parent) {
+                        $validator->errors()->add('parent_id', 'The selected parent menu is invalid.');
+                    } else {
+                        // Check if parent is a descendant of this menu (prevent cyclic loops)
+                        $curr = $parent;
+                        $isDescendant = false;
+                        while ($curr && $curr->parent_id) {
+                            if ((int) $curr->parent_id === (int) $menuId) {
+                                $isDescendant = true;
+                                break;
+                            }
+                            $curr = ConfigMenu::query()->find($curr->parent_id);
+                        }
+
+                        if ($isDescendant) {
+                            $validator->errors()->add('parent_id', 'Cannot set a descendant menu as the parent.');
+                        } else {
+                            // Calculate depth of parent from root
+                            $parentDepth = 1;
+                            $curr = $parent;
+                            while ($curr && $curr->parent_id) {
+                                $parentDepth++;
+                                $curr = ConfigMenu::query()->find($curr->parent_id);
+                            }
+
+                            // Subtree height below this menu
+                            $childIds = ConfigMenu::query()->where('parent_id', $menuId)->pluck('id');
+                            $hasGrandchildren = $childIds->isNotEmpty() && ConfigMenu::query()->whereIn('parent_id', $childIds)->exists();
+                            $subtreeHeight = $hasGrandchildren ? 3 : ($childIds->isNotEmpty() ? 2 : 1);
+
+                            if ($parentDepth + $subtreeHeight > 3) {
+                                $validator->errors()->add('parent_id', 'Menu hierarchy cannot exceed 3 levels.');
+                            }
+                        }
+                    }
                 }
             }
         });

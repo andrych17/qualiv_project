@@ -280,27 +280,35 @@ membaca sebuah setting — API konsumsi runtime aktual di balik §3B/§3C.
   tidak berskop modul. Logika dua-tingkat menanganinya secara otomatis (ia hanya hidup di tier
   fallback "tidak ada kecocokan modul"), tanpa special-casing yang dibutuhkan.
 
-## 3F. Menu, Group & Hak Akses (Trustee)
+### 3F. Menu, Group & Hak Akses (Trustee)
 
-**Tujuan:** memformalkan skema di balik infrastruktur yang sudah dirujuk `CLAUDE.md` §4 sebagai
-sudah ada (middleware `menu.perm:MENU_CODE`) — bukan *perilaku* otorisasi baru, hanya skema
-konkret bagi Claude Code untuk dibangun dan diperluas, karena spesifikasi modul lain mana pun
-mengasumsikan pemeriksaan izin berfungsi tanpa pernah menunjuk ke sebuah skema.
+**Tujuan:** memformalkan skema di balik infrastruktur otorisasi dan navigasi terpadu — navigasi
+hierarkis multi-level, hak akses granular dengan fallback otomatis ke parent, serta caching
+performa tinggi dengan Redis/Session.
 
-- `SYSCONFIG.menus` — pohon hierarkis (`parent_menu_id`, self-referencing — pola yang sama
-  seperti `parent_partner_id` milik CRM), `code`, `label`, `route`, `icon`, `module_code`
-  (bagian sidebar modul mana yang menjadi milik ini — menggerakkan perilaku hide/show aktivasi
-  di §3A).
-- `SYSCONFIG.groups` — role/tim (`name`, `description`). **Konsep yang sama yang dipakai baik
-  untuk trustee izin-menu di bawah maupun sebagai dimensi scope `group_id` pada `config_consts`
-  (§3B/§3E)** — satu notion "group" melayani dua tujuan, menghindari konsep "group" kedua yang
-  paralel sama seperti platform ini sudah menghindari ledger AR paralel atau jalur notifikasi
-  paralel di tempat lain.
-- `SYSCONFIG.group_members` — pivot, `group_id` × `user_id`.
-- `SYSCONFIG.menu_rights` — `menu_id` × `group_id`, flag C/R/U/D — tabel trustee yang diperiksa
-  middleware `menu.perm:MENU_CODE` yang sudah ada.
-- Layar admin: CRUD pohon menu, CRUD group + penugasan member, matriks rights (grid menu ×
-  group, sesuai inventaris komponen `DESIGN.md`).
+- `SYSCONFIG.config_menus` — pohon menu hierarkis (`parent_id`, self-referencing ke `id` parent),
+  `code`, `menu_header`, `menu_caption`, `menu_link`, `icon`, `seq`, `module_code`, `status_code`.
+  - Entri modul tingkat atas memiliki `parent_id = null`. Submenu (misal `SCHEDULE_TASKS`,
+    `CRM_LEADS`, `PERFORMANCE_KPIS`) memiliki `parent_id` yang mengarah ke parent menu-nya.
+  - `ConfigService::menusForUser($userId)` mengembalikan tree menu dengan array `children` bersarang
+    yang difilter berdasarkan hak akses dan aktivasi modul, dirender sebagai Accordion di
+    `AppSidebar.vue`.
+  - Seluruh tab bar horizontal di dalam halaman didepresiasi dan digantikan oleh Accordion Sidebar
+    Kiri terpadu.
+- `SYSCONFIG.config_groups` — role/tim (`name`, `description`). **Konsep yang sama yang dipakai baik
+  untuk trustee izin-menu maupun sebagai dimensi scope `group_id` pada `config_consts` (§3B/§3E)**.
+- `SYSCONFIG.config_user_groups` — pivot, `group_id` × `user_id`.
+- `SYSCONFIG.config_rights` — `group_id` × `menu_code`, flag boolean C/R/U/D.
+  - **Fallback Hak Akses:** Jika suatu submenu belum memiliki entri spesifik di `config_rights`,
+    `ConfigService::permissionsForUserMenu()` secara otomatis memeriksa dan menurunkan hak akses
+    dari menu parent-nya untuk grup user tersebut.
+- **Disiplin Caching Performa:**
+  - `ConfigService` menerapkan in-memory request memoization dan Redis session caching
+    (`sysconfig_menus_*`, `sysconfig_perms_*`) sehingga navigasi halaman tidak melakukan query database berulang.
+  - `ConfigService::clearCache()` membersihkan cache memo dan session pada setiap mutasi grup,
+    menu, role user, atau saat berpindah tenant.
+- Layar Admin: CRUD menu tree (`/config/menus`), CRUD grup + penetapan anggota (`/config/groups`),
+  manajemen user (`/config/users`), dan matriks hak akses.
 
 ## 3G. Log Audit Config
 

@@ -38,8 +38,24 @@ class StoreConfigMenuRequest extends FormRequest
             }
 
             $parentId = $this->input('parent_id');
-            if ($parentId && ! ConfigMenu::query()->whereKey($parentId)->exists()) {
-                $validator->errors()->add('parent_id', 'The selected parent menu is invalid.');
+            if ($parentId) {
+                $parent = ConfigMenu::query()->find($parentId);
+                if (! $parent) {
+                    $validator->errors()->add('parent_id', 'The selected parent menu is invalid.');
+                } else {
+                    $depth = 1;
+                    $curr = $parent;
+                    while ($curr->parent_id) {
+                        $depth++;
+                        $curr = ConfigMenu::query()->find($curr->parent_id);
+                        if (! $curr || $depth >= 3) {
+                            break;
+                        }
+                    }
+                    if ($depth >= 3) {
+                        $validator->errors()->add('parent_id', 'Menu hierarchy cannot exceed 3 levels.');
+                    }
+                }
             }
         });
     }
