@@ -1,5 +1,6 @@
 <!-- ponytail: Create matter (§3B) — Panel + Primary/SecondaryButton -->
 <script setup lang="ts">
+import { computed, ref } from 'vue'
 import { useForm, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
@@ -7,12 +8,22 @@ import Panel from '@/Components/cards/Panel.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
 import FormAsyncSearchableSelect from '@/Components/forms/FormAsyncSearchableSelect.vue'
+import FormSearchableSelect from '@/Components/forms/FormSearchableSelect.vue'
 import CustomFieldInputs, { type CustomFieldDef } from '@/Components/forms/CustomFieldInputs.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
+
+interface ConvertibleLead {
+  id: number
+  name: string
+  company_name: string | null
+  partner_id: number | null
+  partner_name: string | null
+}
 
 const props = defineProps<{
   assignees: Array<{ id: number; name: string }>
   customFields: CustomFieldDef[]
+  convertedLeads: ConvertibleLead[]
 }>()
 
 const customBag: Record<string, string> = {}
@@ -25,6 +36,7 @@ const form = useForm({
   title: '',
   matter_type: '',
   partner_id: null as number | null,
+  converted_from_lead_id: null as number | null,
   assigned_to: null as number | null,
   status: 'open',
   opened_at: '',
@@ -32,6 +44,32 @@ const form = useForm({
   notes: '',
   custom_fields: customBag,
 })
+
+// Convert-from-Lead (§3B): a converted lead already has a Partner (CRM's own
+// conversion, 3D of CRM_SPECS.md) — this just links a new Matter back to it and
+// reuses the partner, so the client isn't re-typed.
+const showLeadPicker = ref(false)
+const leadOptions = computed(() =>
+  props.convertedLeads.map((l) => ({
+    label: l.company_name ? `${l.name} · ${l.company_name}` : l.name,
+    value: l.id,
+    description: l.partner_name ? `Client: ${l.partner_name}` : undefined,
+  })),
+)
+const selectedLead = ref<number | null>(null)
+
+const applyLead = (leadId: number | string | null) => {
+  selectedLead.value = leadId as number | null
+  const lead = props.convertedLeads.find((l) => l.id === leadId)
+  form.converted_from_lead_id = lead?.id ?? null
+  if (lead?.partner_id) form.partner_id = lead.partner_id
+}
+
+const cancelLeadConversion = () => {
+  showLeadPicker.value = false
+  selectedLead.value = null
+  form.converted_from_lead_id = null
+}
 
 const submit = () => form.post(route('legal.matters.store'))
 </script>
@@ -45,6 +83,36 @@ const submit = () => form.post(route('legal.matters.store'))
 
     <Panel class="mt-6 max-w-xl">
       <form class="space-y-4" @submit.prevent="submit">
+        <div v-if="convertedLeads.length" class="rounded-md border border-border bg-surface-50 p-3">
+          <button
+            v-if="!showLeadPicker && !form.converted_from_lead_id"
+            type="button"
+            class="text-sm font-medium text-accent hover:underline cursor-pointer"
+            @click="showLeadPicker = true"
+          >
+            Convert from Lead
+          </button>
+          <div v-else class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-medium text-ink-900">Convert from Lead</span>
+              <button type="button" class="text-xs text-ink-600 hover:text-ink-900 cursor-pointer" @click="cancelLeadConversion">
+                Cancel
+              </button>
+            </div>
+            <FormSearchableSelect
+              :model-value="selectedLead"
+              name="converted_from_lead_id"
+              :options="leadOptions"
+              placeholder="Search converted leads…"
+              :error="form.errors.converted_from_lead_id"
+              @update:model-value="applyLead"
+            />
+            <p v-if="form.converted_from_lead_id" class="text-xs text-ink-600">
+              Client below pre-filled from this lead's converted partner.
+            </p>
+          </div>
+        </div>
+
         <FormInput
           v-model="form.code"
           name="code"

@@ -32,11 +32,12 @@ logic. Left unsolved as a shared mechanism, every module ends up solving it diff
   `CustomLogicEngine`) but stops short of a formal module spec — Claude Code has a pattern to
   imitate, not a documented contract to build against when the next module needs the same
   thing.
-- Admin CRUD for field definitions is explicitly flagged as **not yet built** in
-  `ARCHITECTURE.md` §3.1 ("Admin CRUD for defs: not yet (seed / SQL)") — every tenant-specific
-  field today requires Simon to hand-seed a database row. That doesn't scale past one paying
-  tenant, and it leaves a genuine selling point on the table ("add your own intake fields, no
-  support ticket needed").
+- Admin CRUD for field definitions was, for a while, flagged as **not yet built** in
+  `ARCHITECTURE.md` §3.1 — every tenant-specific field required Simon to hand-seed a database
+  row, which doesn't scale past one paying tenant and left a genuine selling point on the table
+  ("add your own intake fields, no support ticket needed"). **Shipped** as of the §3A build
+  below (`/config/fields`, gated by `menu.perm:CONFIG_FIELDS`) — `ARCHITECTURE.md` §3.1 has been
+  updated to match.
 
 **Client requirements:**
 - One reusable mechanism for "this entity has tenant-specific extra fields," usable by any
@@ -75,7 +76,8 @@ logic. Left unsolved as a shared mechanism, every module ends up solving it diff
 **MVP**
 - **Field Definition Management (Admin Entry).** CRUD over `field_defs` — entity type, field
   type, label, options, required/order/status — gated by the existing `SYSCONFIG` menu/rights
-  trustee, resolving `ARCHITECTURE.md`'s "Admin CRUD for defs: not yet" open item (§3A).
+  trustee, resolving `ARCHITECTURE.md`'s former "Admin CRUD for defs: not yet" open item.
+  **Shipped** (§3A).
 - **Custom Field Value Capture (shared Vue component).** `CustomFieldInputs.vue`, one reusable
   component embedded in any module's Create/Edit page, rendering the right input per field
   type from a single `formPayload()` call (§3B).
@@ -124,10 +126,17 @@ logic. Left unsolved as a shared mechanism, every module ends up solving it diff
 > Every Form and Engine (Entry, View, Report, Service) — layout, logic, business rules,
 > database design.
 
-## 3A. Field Definition Management (Entry)
+## 3A. Field Definition Management (Entry) — Shipped
 
-**Purpose:** the admin screen that closes `ARCHITECTURE.md`'s "not yet" gap — lets a tenant
-admin (or Simon) add a custom field without a SQL/seed change.
+**Purpose:** the admin screen that closes `ARCHITECTURE.md`'s former "not yet" gap — lets a
+tenant admin (or Simon) add a custom field without a SQL/seed change.
+
+**Built at:** `app/Modules/CustomFields/{Models/FieldDef.php,Models/FieldDefAuditLog.php,
+Services/FieldDefService.php,Controllers/FieldDefController.php,
+Requests/{Store,Update}FieldDefRequest.php}`, routes in `app/Modules/SysConfig/Routes/web.php`
+under `menu.perm:CONFIG_FIELDS`, menu seed row in `SysConfigSeeder.php`, Vue pages at
+`resources/js/Pages/Config/Fields/{Index,Create,Edit}.vue`. Covered by
+`tests/Feature/CustomFieldDefCrudTest.php`.
 
 - Fields: `entity_type` (the registration key an owning module already uses internally, e.g.
   `legal_case`, `inventory_item` — free text in the DB, but the UI offers a dropdown built
@@ -404,6 +413,6 @@ module actually needs) → 3B (`CustomFieldInputs.vue`, the shared component) �
 `HasCustomFields` trait/registration convention once at least two modules have actually used
 it, so it reflects real usage rather than speculation) → 3A (the Admin CRUD screen — not
 blocking for the first module or two, since manual seeding works fine initially, but the
-concrete deliverable that removes the SQL/seed workaround permanently) — ship here — then
+concrete deliverable that removes the SQL/seed workaround permanently — **shipped**) — then
 revisit Future Version items (JSONB ceiling, conditional visibility, multi-select, versioned
 defs) only once a real tenant need appears.

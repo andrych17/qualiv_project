@@ -2,6 +2,7 @@
 
 namespace App\Modules\Legal\Requests;
 
+use App\Modules\CRM\Models\Lead;
 use App\Modules\CRM\Models\Partner;
 use App\Modules\Legal\Models\Matter;
 use Illuminate\Foundation\Http\FormRequest;
@@ -22,6 +23,7 @@ class StoreMatterRequest extends FormRequest
             'title' => 'required|string|max:255',
             'matter_type' => 'nullable|string|max:100',
             'partner_id' => 'nullable|integer',
+            'converted_from_lead_id' => 'nullable|integer',
             'assigned_to' => 'nullable|integer|exists:users,id',
             'status' => ['required', Rule::in(Matter::STATUSES)],
             'opened_at' => 'nullable|date',
@@ -48,6 +50,11 @@ class StoreMatterRequest extends FormRequest
             $partnerId = $this->input('partner_id');
             if ($partnerId && ! Partner::query()->whereKey($partnerId)->exists()) {
                 $validator->errors()->add('partner_id', 'The selected client is invalid.');
+            }
+
+            $leadId = $this->input('converted_from_lead_id');
+            if ($leadId && ! Lead::query()->whereKey($leadId)->where('stage', Lead::STAGE_CONVERTED)->exists()) {
+                $validator->errors()->add('converted_from_lead_id', 'The selected lead is invalid or not yet converted.');
             }
         });
     }

@@ -11,6 +11,8 @@ const props = withDefaults(defineProps<{
   error?: string
   required?: boolean
   disabled?: boolean
+  /** Wires to a sibling <datalist id="..."> for native browser suggestions without blocking free text. */
+  list?: string
 }>(), {
   label: '',
   name: '',
@@ -38,6 +40,7 @@ const inputId = computed(() => props.name ? `input-${props.name}` : undefined)
       :id="inputId"
       :name="name"
       :type="type"
+      :list="list"
       :value="modelValue ?? ''"
       :placeholder="placeholder"
       :disabled="disabled"

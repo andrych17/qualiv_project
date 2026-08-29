@@ -53,6 +53,15 @@ const filterFields: FilterFieldDef[] = [
   { key: 'entity_type', label: 'Entity', type: 'select', options: props.entityTypes },
 ]
 
+const groupByModuleThenEntity = (item: Record<string, any>) => {
+  const row = item as FieldRow
+  const moduleLabel = row.module_code ?? '(no module)'
+  return {
+    key: `${moduleLabel}/${row.entity_type}`,
+    label: `${moduleLabel} · ${row.entity_type}`,
+  }
+}
+
 const columns = [
   { key: 'module_code', label: 'Module', sortable: true },
   { key: 'entity_type', label: 'Entity', sortable: true },
@@ -129,6 +138,7 @@ const confirmBulkDelete = () => {
         storage-key="config.fields"
         search-placeholder="Search entity, code, label..."
         :filter-fields="filterFields"
+        :group-by="groupByModuleThenEntity"
         export-filename="custom-fields"
         :total="defs.total"
         :from="defs.from"

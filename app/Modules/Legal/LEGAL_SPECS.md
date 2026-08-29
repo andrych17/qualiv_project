@@ -170,10 +170,14 @@ generic practice-management or document tools, this dual nature is exactly what 
 
 ## 3B. Matters (Engagements)
 
-> **Shipped.** `LEGAL.matters`, `MatterController`/`MatterService`, `Legal/Matters/*.vue`.
-> Renamed/extended from the pre-existing `LEGAL.cases` scaffold (see `ARCHITECTURE.md`).
-> Not built: Convert-from-Lead UI button (`converted_from_lead_id` column + relation exist,
-> no entry-point wired yet).
+> **Shipped**, including the Convert-from-Lead entry point. `LEGAL.matters`,
+> `MatterController`/`MatterService`, `Legal/Matters/*.vue`. Renamed/extended from the
+> pre-existing `LEGAL.cases` scaffold (see `ARCHITECTURE.md`). The "Convert from Lead" picker on
+> `Legal/Matters/Create.vue` lists CRM leads already in `converted` stage (Legal, a Vertical,
+> reads CRM's own Lead→Partner conversion per CRM_SPECS.md §3D rather than building a second
+> intake pipeline — CRM has no knowledge of this), pre-fills the primary client from the lead's
+> converted partner, and stamps `converted_from_lead_id`. Covered by
+> `LegalMatterCrudTest::test_admin_can_open_matter_converted_from_lead`.
 
 
 **Purpose:** the client-facing unit of work; groups one or more deeds under one transaction.

@@ -206,11 +206,13 @@ Extra attributes per entity, defined per tenant in `field_defs`, stored in `fiel
 
 - UI: `CustomFieldInputs` on Legal create/edit
 - Validation: required / type / select options in `CustomFieldService`
-- Admin CRUD for defs: **not yet** (seed / SQL)
+- Admin CRUD for defs: shipped — `/config/fields` (`FieldDefController`, gated by
+  `menu.perm:CONFIG_FIELDS`), see `CUSTOMFIELDS_SPECS.md` §3A
 
 Add to another entity:
 
-1. Seed defs with new `entity_type` (e.g. `inventory_item`)
+1. Seed defs with new `entity_type` (e.g. `inventory_item`) — via the Admin screen above, or a
+   seeder for initial defaults
 2. Wire that module’s Service like Legal
 3. Reuse `CustomFieldInputs.vue`
 

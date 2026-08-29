@@ -63,9 +63,12 @@ const submit = () => form.put(route('config.fields.update', props.def.id))
       <Panel>
         <form class="space-y-4" @submit.prevent="submit">
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <FormInput v-model="form.entity_type" name="entity_type" label="Entity type" :error="form.errors.entity_type" required />
+            <FormInput v-model="form.entity_type" name="entity_type" label="Entity type" list="entity-type-options" :error="form.errors.entity_type" required />
             <FormSelect v-model="form.module_code" name="module_code" label="Module" :options="[{ label: '(none)', value: '' }, ...props.modules]" :error="form.errors.module_code" />
           </div>
+          <datalist id="entity-type-options">
+            <option v-for="t in props.entityTypes" :key="t.value" :value="t.value" />
+          </datalist>
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FormInput v-model="form.code" name="code" label="Code" :error="form.errors.code" required />
             <FormInput v-model="form.label" name="label" label="Label" :error="form.errors.label" required />

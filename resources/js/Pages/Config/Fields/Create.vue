@@ -54,6 +54,7 @@ const submit = () => form.post(route('config.fields.store'))
               name="entity_type"
               label="Entity type"
               placeholder="e.g. legal_matter"
+              list="entity-type-options"
               :error="form.errors.entity_type"
               required
             />
@@ -65,18 +66,9 @@ const submit = () => form.post(route('config.fields.store'))
               :error="form.errors.module_code"
             />
           </div>
-          <p v-if="props.entityTypes.length" class="text-xs text-ink-600">
-            Known types:
-            <button
-              v-for="t in props.entityTypes"
-              :key="t.value"
-              type="button"
-              class="mr-2 underline hover:text-ink-900 cursor-pointer"
-              @click="form.entity_type = t.value"
-            >
-              {{ t.value }}
-            </button>
-          </p>
+          <datalist id="entity-type-options">
+            <option v-for="t in props.entityTypes" :key="t.value" :value="t.value" />
+          </datalist>
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FormInput v-model="form.code" name="code" label="Code" placeholder="court_register" :error="form.errors.code" required />
             <FormInput v-model="form.label" name="label" label="Label" :error="form.errors.label" required />

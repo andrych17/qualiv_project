@@ -4,6 +4,7 @@ namespace App\Modules\Legal\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Modules\CRM\Models\Lead;
 use App\Modules\CustomFields\Services\CustomFieldService;
 use App\Modules\Legal\Models\Matter;
 use App\Modules\Legal\Requests\StoreMatterRequest;
@@ -65,6 +66,7 @@ class MatterController extends Controller
         return Inertia::render('Legal/Matters/Create', [
             'assignees' => User::query()->orderBy('name')->get(['id', 'name']),
             'customFields' => $this->customFields->formPayload(MatterService::ENTITY),
+            'convertedLeads' => $this->convertedLeads(),
         ]);
     }
 
@@ -116,5 +118,31 @@ class MatterController extends Controller
     public function bulkDestroy(Request $request)
     {
         return $this->bulkDestroyUsing($request, Matter::class, fn (Matter $matter) => $this->service->delete($matter));
+    }
+
+    /**
+     * Converted CRM leads for the "Convert from Lead" picker (§3B) — reuses CRM's own Lead
+     * conversion (Lead -> Partner) rather than a second intake pipeline. Legal, a Vertical
+     * module, is allowed to read CRM (Core); CRM has no knowledge of this endpoint.
+     *
+     * @return list<array{id: int, name: string, company_name: ?string, partner_id: ?int, partner_name: ?string}>
+     */
+    private function convertedLeads(): array
+    {
+        return Lead::query()
+            ->where('stage', Lead::STAGE_CONVERTED)
+            ->whereNotNull('converted_partner_id')
+            ->with('convertedPartner:id,name')
+            ->orderByDesc('id')
+            ->limit(200)
+            ->get()
+            ->map(fn (Lead $l) => [
+                'id' => $l->id,
+                'name' => $l->name,
+                'company_name' => $l->company_name,
+                'partner_id' => $l->convertedPartner?->id,
+                'partner_name' => $l->convertedPartner?->name,
+            ])
+            ->all();
     }
 }
