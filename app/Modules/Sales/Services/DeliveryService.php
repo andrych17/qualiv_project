@@ -9,6 +9,7 @@ use App\Modules\Sales\Models\Delivery;
 use App\Modules\Sales\Models\SalesOrder;
 use App\Modules\Sales\Models\SalesOrderLine;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
 
 class DeliveryService
@@ -113,8 +114,11 @@ class DeliveryService
 
     protected function postToInventoryIfApplicable(Delivery $delivery, ?int $locationId): void
     {
-        // Only run if Inventory module service is resolvable in container
-        if (! class_exists(InventoryService::class)) {
+        // Inventory is a soft dependency (§3H/§5) — class_exists() is always true in this
+        // monolith regardless of whether the tenant has Inventory installed/migrated, so the
+        // real signal is whether its schema exists, same convention as Billing/Credit's
+        // Schema::hasTable('ACCOUNTING.ar_invoices') checks elsewhere in Sales.
+        if (! Schema::hasTable('INVENTORY.products')) {
             return;
         }
 

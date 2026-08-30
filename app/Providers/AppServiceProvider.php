@@ -43,6 +43,8 @@ use App\Modules\Sales\Events\SalesOrderRequested;
 use App\Modules\Sales\Listeners\CreateSalesOrderFromRequested;
 use App\Modules\Sales\Listeners\ProcessCommissionOnPaymentRecorded;
 use App\Modules\Sales\Listeners\UpdateSalesOrderOnInvoicePosted;
+use App\Modules\Sales\Models\CustomerCreditProfile;
+use App\Modules\Sales\Models\CustomerSalesProfile;
 use App\Modules\WNE\Events\NotificationRequested;
 use App\Modules\WNE\Listeners\DeliverRequestedNotification;
 use App\Services\AsyncSearchRegistry;
@@ -100,6 +102,14 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(InvoicePosted::class, UpdateSalesOrderOnInvoicePosted::class);
         Event::listen(PaymentRecorded::class, ProcessCommissionOnPaymentRecorded::class);
         Event::listen(SalesOrderRequested::class, CreateSalesOrderFromRequested::class);
+
+        // SALES_SPECS.md §3B/§5: Sales FKs into CRM.partners, never the reverse — CRM's own
+        // Partner model must stay ignorant of Sales. Registering these relations here (Sales
+        // attaching onto Core, not Core declaring Sales) is what lets CustomerProfileController
+        // eager-load Partner::with(['salesProfile', 'creditProfile']) without a `salesProfile()`
+        // method ever appearing in app/Modules/CRM/Models/Partner.php.
+        Partner::resolveRelationUsing('salesProfile', fn (Partner $partner) => $partner->hasOne(CustomerSalesProfile::class, 'partner_id'));
+        Partner::resolveRelationUsing('creditProfile', fn (Partner $partner) => $partner->hasOne(CustomerCreditProfile::class, 'partner_id'));
 
         // §3D/§3G — closes the gap KpiValueService's docblock flagged: the Variance Engine
         // now re-evaluates status on every recorded actual and routes a WNE notification when

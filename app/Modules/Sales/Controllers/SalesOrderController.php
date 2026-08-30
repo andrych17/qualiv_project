@@ -122,6 +122,20 @@ class SalesOrderController extends Controller
         return back()->with('success', "Sales Order {$order->so_number} confirmed.");
     }
 
+    /**
+     * §3K: the "without WNE, explicit admin action" override for a credit-blocked order.
+     * Gated by the same menu.perm:SALES the rest of order management uses (same tier as
+     * Returns' approve() / Commissions' approve() — no dedicated admin-only permission code
+     * exists for this yet; anyone with Sales create rights, including STAFF per
+     * SysConfigSeeder's trustee matrix, can invoke it).
+     */
+    public function confirmOverride(SalesOrder $order, Request $request): RedirectResponse
+    {
+        $this->salesOrderService->confirm($order, skipCreditCheck: true, overriddenBy: $request->user()?->id);
+
+        return back()->with('success', "Sales Order {$order->so_number} confirmed with credit override.");
+    }
+
     public function cancel(SalesOrder $order): RedirectResponse
     {
         $this->salesOrderService->cancel($order);

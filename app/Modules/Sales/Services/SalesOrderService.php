@@ -5,6 +5,7 @@ namespace App\Modules\Sales\Services;
 use App\Modules\Sales\Events\SalesOrderConfirmed;
 use App\Modules\Sales\Models\SalesOrder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class SalesOrderService
@@ -115,8 +116,14 @@ class SalesOrderService
 
     /**
      * Confirm a sales order (§3F/§3K synchronous credit check).
+     *
+     * §3K's WNE-routed credit override doesn't exist yet (no module in this codebase fires
+     * WorkflowRequested — see BudgetService::submit()'s docblock for the same documented gap),
+     * so $skipCreditCheck is the "without WNE, an explicit admin action" fallback the spec
+     * calls for. $overriddenBy is logged, never silently dropped, since bypassing a credit
+     * block is exactly the kind of action that needs a paper trail.
      */
-    public function confirm(SalesOrder $order, bool $skipCreditCheck = false): SalesOrder
+    public function confirm(SalesOrder $order, bool $skipCreditCheck = false, ?int $overriddenBy = null): SalesOrder
     {
         if ($order->status !== SalesOrder::STATUS_DRAFT) {
             throw ValidationException::withMessages([
@@ -134,6 +141,12 @@ class SalesOrderService
 
         if (! $skipCreditCheck) {
             $this->creditService->check($order);
+        } else {
+            Log::warning('Sales order confirmed with credit check overridden', [
+                'so_hdr_id' => $order->id,
+                'so_number' => $order->so_number,
+                'overridden_by' => $overriddenBy,
+            ]);
         }
 
         $order->update(['status' => SalesOrder::STATUS_CONFIRMED]);

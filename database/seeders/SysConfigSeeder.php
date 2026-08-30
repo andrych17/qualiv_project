@@ -118,8 +118,7 @@ class SysConfigSeeder extends Seeder
             'CRM' => [
                 ['code' => 'CRM_DASHBOARD', 'caption' => 'Dashboard', 'link' => '/crm/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 21],
                 ['code' => 'CRM_LEADS', 'caption' => 'Leads', 'link' => '/crm/leads', 'icon' => 'UserPlus', 'seq' => 22],
-                ['code' => 'CRM_OPPORTUNITIES', 'caption' => 'Opportunities', 'link' => '/crm/opportunities', 'icon' => 'Target', 'seq' => 23],
-                ['code' => 'CRM_CUSTOMERS', 'caption' => 'Customers', 'link' => '/crm/customers', 'icon' => 'Building', 'seq' => 24],
+                ['code' => 'CRM_COMPANIES', 'caption' => 'Companies', 'link' => '/crm/companies', 'icon' => 'Building', 'seq' => 24],
                 ['code' => 'CRM_CONTACTS', 'caption' => 'Contacts', 'link' => '/crm/contacts', 'icon' => 'Contact', 'seq' => 25],
                 ['code' => 'CRM_TICKETS', 'caption' => 'Tickets', 'link' => '/crm/tickets', 'icon' => 'LifeBuoy', 'seq' => 26],
                 ['code' => 'CRM_CASES', 'caption' => 'Service Cases', 'link' => '/crm/service-cases', 'icon' => 'Briefcase', 'seq' => 27],
@@ -160,11 +159,12 @@ class SysConfigSeeder extends Seeder
             ],
             'SALES' => [
                 ['code' => 'SALES_DASHBOARD', 'caption' => 'Dashboard', 'link' => '/sales/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 81],
-                ['code' => 'SALES_QUOTATIONS', 'caption' => 'Quotations', 'link' => '/sales/quotations', 'icon' => 'FileText', 'seq' => 82],
-                ['code' => 'SALES_ORDERS', 'caption' => 'Sales Orders', 'link' => '/sales/orders', 'icon' => 'ShoppingBag', 'seq' => 83],
-                ['code' => 'SALES_DELIVERIES', 'caption' => 'Deliveries', 'link' => '/sales/deliveries', 'icon' => 'Truck', 'seq' => 84],
-                ['code' => 'SALES_INVOICES', 'caption' => 'Invoices', 'link' => '/sales/invoices', 'icon' => 'Receipt', 'seq' => 85],
-                ['code' => 'SALES_PROFILES', 'caption' => 'Customer Profiles', 'link' => '/sales/customer-profiles', 'icon' => 'UserCheck', 'seq' => 86],
+                ['code' => 'SALES_OPPORTUNITIES', 'caption' => 'Opportunity Management', 'link' => '/sales/opportunities', 'icon' => 'Target', 'seq' => 82],
+                ['code' => 'SALES_QUOTATIONS', 'caption' => 'Quotations', 'link' => '/sales/quotations', 'icon' => 'FileText', 'seq' => 83],
+                ['code' => 'SALES_ORDERS', 'caption' => 'Sales Orders', 'link' => '/sales/orders', 'icon' => 'ShoppingBag', 'seq' => 84],
+                ['code' => 'SALES_DELIVERIES', 'caption' => 'Deliveries', 'link' => '/sales/deliveries', 'icon' => 'Truck', 'seq' => 85],
+                ['code' => 'SALES_INVOICES', 'caption' => 'Invoices', 'link' => '/sales/invoices', 'icon' => 'Receipt', 'seq' => 86],
+                ['code' => 'SALES_PROFILES', 'caption' => 'Customer Profiles', 'link' => '/sales/master/customers', 'icon' => 'UserCheck', 'seq' => 87],
             ],
             'PURCHASE' => [
                 ['code' => 'PURCHASE_DASHBOARD', 'caption' => 'Dashboard', 'link' => '/purchase/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 91],

@@ -2,18 +2,23 @@
 
 namespace App\Modules\Sales\Services;
 
+use App\Modules\Accounting\Models\Account;
+use App\Modules\Accounting\Models\ArInvoice;
+use App\Modules\Accounting\Models\Company;
 use App\Modules\Accounting\Services\ArCreditNoteService;
 use App\Modules\Sales\Models\CommissionPlan;
 use App\Modules\Sales\Models\CommissionSettlement;
 use App\Modules\Sales\Models\SalesOrder;
 use App\Modules\Sales\Models\SalesReturn;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
 
 class ReturnService
 {
     public function __construct(
         protected SalesOrderService $salesOrderService,
+        protected ArCreditNoteService $creditNoteService,
     ) {}
 
     /**
@@ -89,12 +94,14 @@ class ReturnService
             ]);
         }
 
-        return DB::transaction(function () use ($return) {
+        return DB::transaction(function () use ($return, $userId) {
             $return->load(['lines.salesOrderLine.order', 'order']);
 
-            // If Accounting ArCreditNoteService is available, issue credit note
-            if ($return->accounting_invoice_id && class_exists(ArCreditNoteService::class)) {
-                // Issue credit note in Accounting
+            // Issue a credit note in Accounting against the original invoice (§3J) — Accounting
+            // is a soft dependency for Sales, so gate on the schema existing, same convention
+            // as Billing/Credit's Schema::hasTable('ACCOUNTING.ar_invoices') checks.
+            if ($return->accounting_invoice_id && Schema::hasTable('ACCOUNTING.ar_credit_notes')) {
+                $this->issueCreditNote($return, $userId);
             }
 
             // Commission reversal line on the next open/draft settlement (§3M/§3J)
@@ -149,6 +156,50 @@ class ReturnService
 
             return $newOrder;
         });
+    }
+
+    /**
+     * Request a credit note from Accounting against the return's original invoice (§3J: "same
+     * 'Accounting is the ledger, Sales is the requester' rule as Billing"). Mirrors
+     * BillingService::generateInvoiceForOrder's Company/revenue-Account resolution so a return
+     * lands on the same books an invoice for the same order would have.
+     */
+    protected function issueCreditNote(SalesReturn $return, ?int $userId): void
+    {
+        $amount = 0.0;
+        foreach ($return->lines as $retLine) {
+            $soLine = $retLine->salesOrderLine;
+            if ($soLine) {
+                $amount += (float) $retLine->qty_returned * (float) $soLine->unit_price;
+            }
+        }
+
+        $amount = round($amount, 2);
+        if ($amount <= 0) {
+            return;
+        }
+
+        $invoice = ArInvoice::query()->find($return->accounting_invoice_id);
+        $company = $invoice?->company ?? Company::query()->first();
+
+        if (! $company) {
+            return;
+        }
+
+        $revenueAccount = Account::query()
+            ->where('company_id', $company->id)
+            ->where('account_type', Account::TYPE_REVENUE)
+            ->first();
+
+        $this->creditNoteService->create([
+            'company_id' => $company->id,
+            'partner_id' => $return->customer_id,
+            'ar_invoice_id' => $return->accounting_invoice_id,
+            'credit_date' => now()->toDateString(),
+            'amount' => $amount,
+            'reason' => "Return {$return->uuid} ({$return->reason_code})",
+            'revenue_account_id' => $revenueAccount ? $revenueAccount->id : 1,
+        ], $userId);
     }
 
     protected function recordCommissionReversals(SalesReturn $return): void

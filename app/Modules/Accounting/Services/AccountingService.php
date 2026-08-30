@@ -108,4 +108,20 @@ class AccountingService
 
         return $this->ledger->forAccount($account, $throughDate)['closingBalance'];
     }
+
+    /**
+     * Sum of open (posted/partially paid) invoice balances for a customer — the exact
+     * integration point Sales's Customer Credit Engine names (SALES_SPECS.md §3K:
+     * "AccountingService::getOpenARBalance(partnerId)"). Caller is responsible for checking
+     * Accounting is installed first (Schema::hasTable('ACCOUNTING.ar_invoices')) — this facade
+     * assumes the schema exists, same posture as every other method here.
+     */
+    public function getOpenARBalance(int $partnerId): float
+    {
+        return (float) ArInvoice::query()
+            ->where('partner_id', $partnerId)
+            ->whereIn('status', [ArInvoice::STATUS_POSTED, ArInvoice::STATUS_PARTIALLY_PAID])
+            ->selectRaw('COALESCE(SUM(total_amount - paid_amount - credited_amount), 0) as balance')
+            ->value('balance');
+    }
 }
