@@ -185,7 +185,11 @@ class CentralTenantService
         // so the window is effectively zero); the tenants.id unique constraint is the real
         // backstop — a collision surfaces as a 500 rather than silent data corruption.
         return DB::transaction(function (): string {
-            $max = (int) Tenant::query()->orderByDesc('id')->lockForUpdate()->value('id') ?? 0;
+            $max = (int) (Tenant::query()
+                ->whereRaw("id ~ '^[0-9]+$'")
+                ->orderByRaw('CAST(id AS INTEGER) DESC')
+                ->lockForUpdate()
+                ->value('id') ?? 0);
 
             return str_pad((string) ($max + 1), 3, '0', STR_PAD_LEFT);
         });

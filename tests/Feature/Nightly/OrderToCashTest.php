@@ -18,7 +18,7 @@ use App\Modules\Inventory\Models\Product;
 use App\Modules\Inventory\Models\StockBalance;
 use App\Modules\Inventory\Models\Uom;
 use App\Modules\Inventory\Models\Warehouse;
-use App\Modules\Inventory\Services\AdjustmentService;
+use App\Modules\Inventory\Services\GoodsReceiptService;
 use App\Modules\Sales\Models\CustomerCreditProfile;
 use App\Modules\Sales\Models\Delivery;
 use App\Modules\Sales\Models\SalesOrder;
@@ -47,7 +47,8 @@ class OrderToCashTest extends TestCase
         $this->post('/login', [
             'email' => 'admin@nusaevo.com',
             'password' => 'password',
-        ]);
+            'tenant_id' => 'o2c_01',
+        ])->assertRedirect('/dashboard');
 
         $companyId = null;
         $customerId = null;
@@ -114,7 +115,7 @@ class OrderToCashTest extends TestCase
 
             // --- Beginning balance: valued via a Goods Receipt (Adjustment posts at
             // current cost, which is 0 for a brand-new product with no valuation layer) ---
-            $receipt = app(\App\Modules\Inventory\Services\GoodsReceiptService::class)->create([
+            $receipt = app(GoodsReceiptService::class)->create([
                 'warehouse_id' => $warehouse->id,
                 'receipt_date' => now()->toDateString(),
                 'reference_number' => 'OPEN-BAL-O2C-WIDGET-01',
@@ -128,7 +129,7 @@ class OrderToCashTest extends TestCase
                     ],
                 ],
             ]);
-            app(\App\Modules\Inventory\Services\GoodsReceiptService::class)->post($receipt);
+            app(GoodsReceiptService::class)->post($receipt);
 
             $onHand = StockBalance::query()
                 ->where('product_id', $product->id)
