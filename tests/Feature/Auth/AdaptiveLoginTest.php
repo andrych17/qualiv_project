@@ -132,7 +132,7 @@ class AdaptiveLoginTest extends TestCase
         $this->assertSame('002', tenant('id'));
     }
 
-    public function test_multi_tenant_user_without_tenant_id_is_prompted_to_select_tenant(): void
+    public function test_multi_tenant_user_without_tenant_id_authenticates_to_matching_tenant(): void
     {
         $tenantA = $this->provisionTenant('001', 'multi@example.com', 'pass1');
 
@@ -147,6 +147,7 @@ class AdaptiveLoginTest extends TestCase
                 'email' => 'multi@example.com',
                 'password' => 'pass2',
                 'email_verified_at' => now(),
+                'is_active' => true,
             ]);
             $this->seed(SysConfigSeeder::class);
         });
@@ -156,12 +157,27 @@ class AdaptiveLoginTest extends TestCase
             [],
         );
 
+        // 1. Password pass1 matches tenant 001
         $response = $this->post('/login', [
             'email' => 'multi@example.com',
             'password' => 'pass1',
         ]);
 
-        $response->assertSessionHasErrors(['tenant_id']);
-        $this->assertGuest();
+        $this->assertAuthenticated();
+        $response->assertRedirect(route('dashboard', absolute: false));
+        $this->assertSame('001', tenant('id'));
+
+        // Logout
+        $this->post('/logout');
+
+        // 2. Password pass2 matches tenant 002 without providing tenant_id
+        $response2 = $this->post('/login', [
+            'email' => 'multi@example.com',
+            'password' => 'pass2',
+        ]);
+
+        $this->assertAuthenticated();
+        $response2->assertRedirect(route('dashboard', absolute: false));
+        $this->assertSame('002', tenant('id'));
     }
 }
