@@ -65,65 +65,57 @@ class CentralAuthService
             ? (string) $credentials['tenant_id']
             : null;
 
-        if ($requestedTenantId !== null) {
-            $lookup = $lookups->firstWhere('tenant_id', $requestedTenantId);
-            if (! $lookup) {
-                RateLimiter::hit($throttleKey);
-                throw ValidationException::withMessages([
-                    'tenant_id' => 'You do not have access to the selected company/tenant.',
-                ]);
-            }
-        } else {
-            if ($lookups->count() === 1) {
-                $lookup = $lookups->first();
-            } else {
-                RateLimiter::hit($throttleKey);
-                throw ValidationException::withMessages([
-                    'tenant_id' => 'Please select a company/tenant to login.',
-                ]);
-            }
-        }
+        $targetLookups = $requestedTenantId !== null
+            ? $lookups->where('tenant_id', $requestedTenantId)
+            : $lookups;
 
-        $tenant = Tenant::query()->find($lookup->tenant_id);
-
-        if (! $tenant) {
+        if ($targetLookups->isEmpty()) {
             RateLimiter::hit($throttleKey);
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'tenant_id' => 'You do not have access to the selected company/tenant.',
             ]);
         }
 
-        tenancy()->initialize($tenant);
+        $hasDeactivatedAccount = false;
 
-        if (! Auth::attempt(['email' => $email, 'password' => $credentials['password']], $remember)) {
+        foreach ($targetLookups as $lookup) {
+            $tenant = Tenant::query()->find($lookup->tenant_id);
+            if (! $tenant) {
+                continue;
+            }
+
+            tenancy()->initialize($tenant);
+
+            if (Auth::attempt(['email' => $email, 'password' => $credentials['password']], $remember)) {
+                /** @var User $user */
+                $user = Auth::user();
+
+                if ($user->is_active) {
+                    if ($request) {
+                        $request->session()->put('tenant_id', (string) $tenant->getTenantKey());
+                    }
+                    RateLimiter::clear($throttleKey);
+                    return $user;
+                }
+
+                $hasDeactivatedAccount = true;
+                Auth::logout();
+            }
+
             tenancy()->end();
-            RateLimiter::hit($throttleKey);
-
-            throw ValidationException::withMessages([
-                'password' => trans('auth.failed'),
-            ]);
         }
 
-        /** @var User $user */
-        $user = Auth::user();
+        RateLimiter::hit($throttleKey);
 
-        if (! $user->is_active) {
-            Auth::logout();
-            tenancy()->end();
-            RateLimiter::hit($throttleKey);
-
+        if ($hasDeactivatedAccount) {
             throw ValidationException::withMessages([
                 'email' => 'This account has been deactivated. Contact your administrator.',
             ]);
         }
 
-        if ($request) {
-            $request->session()->put('tenant_id', (string) $tenant->getTenantKey());
-        }
-
-        RateLimiter::clear($throttleKey);
-
-        return $user;
+        throw ValidationException::withMessages([
+            'password' => trans('auth.failed'),
+        ]);
     }
 
     /**
