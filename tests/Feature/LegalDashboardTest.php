@@ -36,7 +36,8 @@ class LegalDashboardTest extends TestCase
         $this->post('/login', [
             'email' => 'admin@nusaevo.com',
             'password' => 'password',
-        ]);
+            'tenant_id' => '001',
+        ])->assertRedirect('/dashboard');
 
         $ids = [];
         $tenant->run(function () use (&$ids) {
@@ -134,7 +135,8 @@ class LegalDashboardTest extends TestCase
         $this->post('/login', [
             'email' => 'admin@nusaevo.com',
             'password' => 'password',
-        ]);
+            'tenant_id' => '001',
+        ])->assertRedirect('/dashboard');
 
         $this->get('/legal')->assertRedirect('/legal/dashboard');
         $this->get('/legal/dashboard')->assertForbidden();

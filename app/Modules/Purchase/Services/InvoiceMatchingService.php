@@ -2,6 +2,7 @@
 
 namespace App\Modules\Purchase\Services;
 
+use App\Modules\Accounting\Models\Account;
 use App\Modules\Accounting\Models\Company;
 use App\Modules\Accounting\Services\AccountingService;
 use App\Modules\Purchase\Models\PurException;
@@ -220,11 +221,16 @@ class InvoiceMatchingService
                     'subject_id' => $invoice->id,
                 ];
 
+                $defaultExpenseAccountId = Account::query()
+                    ->where('account_type', Account::TYPE_EXPENSE)
+                    ->where('is_active', true)
+                    ->value('id') ?? Account::query()->value('id') ?? 1;
+
                 $lines = $invoice->lines->map(fn (PurInvoiceLine $l) => [
                     'description' => $l->poLine?->description ?? "Item line #{$l->po_line_id}",
                     'qty' => (float) $l->qty,
                     'unit_price' => (float) $l->unit_price,
-                    'expense_account_id' => 1, // default mapped expense / AP clearing account
+                    'expense_account_id' => $defaultExpenseAccountId,
                 ])->all();
 
                 $apBill = $accounting->createBill($header, $lines, $userId);

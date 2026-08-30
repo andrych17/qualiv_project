@@ -19,16 +19,30 @@ class CentralTenantCreateTest extends TestCase
     {
         parent::setUp();
 
-        $this->dropTenantDatabaseIfExists('001');
-        Tenant::query()->whereKey('001')->delete();
+        $this->cleanUpTestTenants();
     }
 
     protected function tearDown(): void
     {
-        $this->dropTenantDatabaseIfExists('001');
-        Tenant::query()->whereKey('001')->delete();
+        $this->cleanUpTestTenants();
 
         parent::tearDown();
+    }
+
+    private function cleanUpTestTenants(): void
+    {
+        $tenantIds = Tenant::query()
+            ->whereIn('id', ['001', '002', '003', '004', '005'])
+            ->orWhere('name', 'Demo Co')
+            ->pluck('id')
+            ->merge(['001', '002', '003', '004', '005'])
+            ->unique()
+            ->all();
+
+        foreach ($tenantIds as $id) {
+            $this->dropTenantDatabaseIfExists((string) $id);
+            Tenant::query()->whereKey($id)->delete();
+        }
     }
 
     /** Registering a tenant via the admin screen really provisions a new Postgres DB (existing stancl pipeline). */
@@ -52,22 +66,22 @@ class CentralTenantCreateTest extends TestCase
             ])
             ->assertRedirect(route('central.tenants.index'));
 
-        $tenant = Tenant::query()->find('001');
+        $tenant = Tenant::query()->where('name', 'Demo Co')->first();
         $this->assertNotNull($tenant);
         $this->assertSame('Demo Co', $tenant->name);
         $this->assertSame('starter', $tenant->plan);
-        $this->assertSame('tenant_001', $tenant->tenant_db_name);
+        $this->assertSame('tenant_'.$tenant->id, $tenant->tenant_db_name);
         $this->assertSame('provisioned', $tenant->provisioning_status);
         $this->assertNotNull($tenant->provisioned_at);
 
         $this->assertDatabaseHas('central_audit_logs', [
             'action' => 'tenant_registered',
-            'entity_id' => '001',
+            'entity_id' => (string) $tenant->id,
         ]);
 
         // Proves the DB actually exists and is reachable, not just the central row.
         $databaseName = $tenant->run(fn () => DB::connection()->getDatabaseName());
-        $this->assertSame('tenant_001', $databaseName);
+        $this->assertSame('tenant_'.$tenant->id, $databaseName);
     }
 
     /** A plan change is a billing-relevant event — it must be audit-logged (CENTRAL_SPECS.md §3C). */
@@ -81,6 +95,8 @@ class CentralTenantCreateTest extends TestCase
         CentralPlan::query()->updateOrCreate(['code' => 'starter'], ['name' => 'Starter', 'price_monthly' => 500000]);
         CentralPlan::query()->updateOrCreate(['code' => 'legal-pro'], ['name' => 'Legal Pro', 'price_monthly' => 2000000]);
 
+        $this->dropTenantDatabaseIfExists('001');
+        Tenant::query()->whereKey('001')->delete();
         $tenant = Tenant::create(['id' => '001', 'name' => 'Demo Co', 'plan' => 'starter']);
 
         $this->actingAs($admin, 'central_admin')

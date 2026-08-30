@@ -3,6 +3,7 @@
 namespace Tests\Feature\Central;
 
 use App\Models\Tenant;
+use App\Modules\Central\Models\CentralInvoice;
 use App\Modules\Central\Models\CentralPlan;
 use App\Modules\Central\Models\CentralTenantAddon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -51,11 +52,11 @@ class GenerateCentralInvoicesCommandTest extends TestCase
             'amount_total' => 600000,
         ]);
         $this->assertDatabaseHas('central_invoice_lines', ['description' => 'Add-on: PERF', 'amount' => 100000]);
-        $this->assertDatabaseCount('central_invoices', 1);
+        $this->assertSame(1, CentralInvoice::query()->where('tenant_id', '905')->count());
 
         // Re-running for the same period must not duplicate the invoice.
         $this->artisan('central:generate-invoices')->assertSuccessful();
-        $this->assertDatabaseCount('central_invoices', 1);
+        $this->assertSame(1, CentralInvoice::query()->where('tenant_id', '905')->count());
     }
 
     public function test_annual_plan_uses_annual_price_and_anniversary_period(): void
