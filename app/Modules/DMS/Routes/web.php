@@ -16,6 +16,13 @@ Route::middleware(['auth', 'verified', 'module:DMS', 'menu.perm:DMS'])
     ->group(function () {
         Route::get('dashboard', [DocumentController::class, 'index'])->name('dashboard');
 
+        // DMS_DOCUMENTS (SysConfigSeeder) links to /dms/documents expecting a list page, but
+        // only 'dashboard' was ever routed to DocumentController::index() — the "Documents"
+        // sidebar entry 404'd/405'd. index() already IS the "browse, upload, drill in front
+        // door" the class docblock describes (folders + filterable table), so this is the same
+        // action under its own name rather than a second implementation.
+        Route::get('documents', [DocumentController::class, 'index'])->name('documents.index');
+
         // §3B — 'create'/'edit' registered before the '{document}' show route so they aren't
         // swallowed as a route-model-bound id (same ordering constraint any resource route has).
         Route::get('documents/create', [DocumentController::class, 'create'])->name('documents.create');

@@ -196,7 +196,7 @@ class SysConfigSeeder extends Seeder
             'DMS' => [
                 ['code' => 'DMS_DASHBOARD', 'caption' => 'Dashboard', 'link' => '/dms/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 47],
                 ['code' => 'DMS_DOCUMENTS', 'caption' => 'Documents', 'link' => '/dms/documents', 'icon' => 'FileText', 'seq' => 48],
-                ['code' => 'DMS_CATEGORIES', 'caption' => 'Categories', 'link' => '/dms/categories', 'icon' => 'FolderOpen', 'seq' => 49],
+                ['code' => 'DMS_CATEGORIES', 'caption' => 'Categories', 'link' => '/dms/folders', 'icon' => 'FolderOpen', 'seq' => 49],
             ],
             'PERFORMANCE' => [
                 ['code' => 'PERFORMANCE_KPIS', 'caption' => 'KPIs', 'link' => '/performance/kpi-definitions', 'icon' => 'Target', 'seq' => 151],

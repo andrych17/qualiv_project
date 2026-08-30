@@ -110,7 +110,9 @@ const columns = [
 ]
 
 watch([search, filters, sort, perPage, activeFolderId], debounce(() => {
-  router.get(route('dms.dashboard'), {
+  // route().current() so filtering from /dms/documents (dms.documents.index) doesn't bounce
+  // the URL to /dms/dashboard — both names route to this same index() action/component.
+  router.get(route(route().current() ?? 'dms.dashboard'), {
     search: search.value,
     doc_type_id: filters.value.doc_type_id,
     status: filters.value.status,
