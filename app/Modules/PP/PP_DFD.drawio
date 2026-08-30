@@ -1,0 +1,107 @@
+<mxfile host="app.diagrams.net" agent="claude" version="24.0.0">
+  <diagram id="pp-dfd" name="PP - DFD (Level 1)">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1650" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+<mxCell id="n1" value="Planner / MRP Controller
+(external entity — plans production)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="90" width="240" height="72" as="geometry"/></mxCell>
+<mxCell id="n2" value="Sales Module
+[soft — SalesOrderRequested event]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="40" y="192" width="240" height="72" as="geometry"/></mxCell>
+<mxCell id="n3" value="Inventory Module
+[hard — checkAvailability(), product identity]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="40" y="294" width="240" height="72" as="geometry"/></mxCell>
+<mxCell id="n4" value="Schedule Module
+[hard — AvailabilityService, resource calendar]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="40" y="396" width="240" height="72" as="geometry"/></mxCell>
+<mxCell id="n5" value="MES Module
+[hard for release + capacity/timing —
+MES_SPECS.md is spec-only, not built yet]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="40" y="498" width="240" height="98" as="geometry"/></mxCell>
+<mxCell id="n6" value="Purchase Module
+[soft — requisition on release]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="40" y="626" width="240" height="72" as="geometry"/></mxCell>
+<mxCell id="n7" value="HCM Module
+[soft — labor/shift availability, read-only]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;dashed=1;" vertex="1" parent="1"><mxGeometry x="40" y="728" width="240" height="72" as="geometry"/></mxCell>
+<mxCell id="n8" value="P1  Demand Aggregation
+(§3B — Sales/forecast/safety-stock/manual)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="420" y="60" width="300" height="90" as="geometry"/></mxCell>
+<mxCell id="n9" value="P2  Master Production Schedule
+(§3C — grid, freeze fence)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="420" y="190" width="300" height="80" as="geometry"/></mxCell>
+<mxCell id="n10" value="P3  BOM/Recipe &amp; MRP Engine
+(§3D — netting + explosion + planned orders)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="420" y="310" width="300" height="90" as="geometry"/></mxCell>
+<mxCell id="n11" value="P8  Release
+(§3D — the Planning→Execution seam)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="420" y="440" width="300" height="80" as="geometry"/></mxCell>
+<mxCell id="n12" value="P9  Scenario Engine
+(§3N — copy-on-scope, never touches baseline)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="420" y="560" width="300" height="90" as="geometry"/></mxCell>
+<mxCell id="n13" value="P4  Resource &amp; Capacity Planning
+(§3E/§3F/§3G — RCCP)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="780" y="60" width="300" height="90" as="geometry"/></mxCell>
+<mxCell id="n14" value="P5  Detailed Scheduling &amp; Sequencing
+(§3H/§3I/§3J — Gantt, changeover)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="780" y="190" width="300" height="90" as="geometry"/></mxCell>
+<mxCell id="n15" value="P6  Constraint Checks
+(§3L — material/resource/sequence/tank/quality/labor)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="780" y="320" width="300" height="90" as="geometry"/></mxCell>
+<mxCell id="n16" value="P7  Planning Exception Center
+(§3M — triage + suggested actions)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="780" y="450" width="300" height="90" as="geometry"/></mxCell>
+<mxCell id="n17" value="D2  Item Planning Params
+(pp_item_planning_params)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1140" y="20" width="280" height="50" as="geometry"/></mxCell>
+<mxCell id="n18" value="D1  BOM / Recipe
+(pp_boms/pp_bom_lines, pp_recipes/pp_recipe_ingredients)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1140" y="100" width="280" height="60" as="geometry"/></mxCell>
+<mxCell id="n19" value="D3  Demand
+(pp_demand_hdrs/pp_demand_lines/pp_demand_forecasts)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1140" y="190" width="280" height="60" as="geometry"/></mxCell>
+<mxCell id="n20" value="D4  MPS
+(pp_mps_hdrs/pp_mps_lines)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1140" y="280" width="280" height="50" as="geometry"/></mxCell>
+<mxCell id="n21" value="D5  Planned Orders
+(pp_mrp_runs/pp_planned_orders)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1140" y="360" width="280" height="60" as="geometry"/></mxCell>
+<mxCell id="n22" value="D6  Resources &amp; Capacity
+(pp_resources/pp_resource_groups/pp_capacity_plans)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1460" y="20" width="280" height="60" as="geometry"/></mxCell>
+<mxCell id="n23" value="D7  Schedule Ops &amp; Changeover
+(pp_schedule_ops/pp_changeover_matrix)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1460" y="110" width="280" height="60" as="geometry"/></mxCell>
+<mxCell id="n24" value="D8  Exceptions
+(pp_exceptions)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1460" y="200" width="280" height="50" as="geometry"/></mxCell>
+<mxCell id="n25" value="D9  Scenarios &amp; Audit
+(pp_scenarios/pp_audit_logs)" style="shape=partialRectangle;whiteSpace=wrap;html=1;top=1;left=1;bottom=1;right=0;fillColor=#F4F6F8;strokeColor=#4A5563;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="1460" y="280" width="280" height="50" as="geometry"/></mxCell>
+<mxCell id="n26" value="enter manual demand / adjust forecast" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n1" target="n8"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n27" value="SalesOrderRequested event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n2" target="n8"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n28" value="read safety stock / reorder point" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n17" target="n8"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n29" value="checkAvailability() for safety-stock demand" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n3" target="n8"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n30" value="write demand line" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n8" target="n19"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n31" value="freeze / split / change due date" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n1" target="n9"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n32" value="aggregate into weekly/monthly grid" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n19" target="n9"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n33" value="write MPS line" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n9" target="n20"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n34" value="net requirement per item/period" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n20" target="n10"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n35" value="BOM/Recipe explosion (PP&#39;s own data — no MES call)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n18" target="n10"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n36" value="available inventory / scheduled receipts" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n3" target="n10"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n37" value="write planned order (production/purchase/transfer)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n10" target="n21"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n38" value="required load = qty × standard time" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n21" target="n13"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n39" value="listResources() + routing/phase timing standards" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n5" target="n13"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n40" value="AvailabilityService — resource calendar" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n4" target="n13"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n41" value="write capacity plan (RCCP)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n13" target="n22"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n42" value="propose schedule for planned/released orders" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n21" target="n14"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n43" value="changeover matrix + dispatch strategy" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n23" target="n14"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n44" value="write schedule op" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n14" target="n23"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n45" value="consumed as MES §3Q dispatch-list starting point" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n14" target="n5"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n46" value="capacity check" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n22" target="n15"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n47" value="sequence / predecessor check" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n18" target="n15"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n48" value="material check" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n3" target="n15"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n49" value="quality hold check (mes_qc_holds)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n5" target="n15"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n50" value="labor certification check" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n7" target="n15"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n51" value="write exception on failed check" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n15" target="n24"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n52" value="triage exceptions" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n1" target="n16"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n53" value="read open exceptions" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n24" target="n16"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n54" value="drill-down: problem → order → resource → suggested actions" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n16" target="n1"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n55" value="release planned order" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n1" target="n11"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n56" value="read planned order" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n21" target="n11"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n57" value="createProductionOrder()
+[production]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n11" target="n5"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n58" value="create requisition
+[purchase]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n11" target="n6"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n59" value="create transfer
+[transfer]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n11" target="n3"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n60" value="mark released_subject_type/_id/_at" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n11" target="n21"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n61" value="create scenario / what-if" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n1" target="n12"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n62" value="write scenario row" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;" edge="1" parent="1" source="n12" target="n25"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n63" value="scenario_id scopes every engine&#39;s query (§5) — same for P1/P2/P4/P5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;fontSize=10;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="n25" target="n10"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="t1" value="PP Module — Level-1 Data Flow Diagram (Gane-Sarson)" style="text;html=1;fontSize=22;fontStyle=1;fontColor=#12181F;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="-70" width="1200" height="30" as="geometry"/></mxCell>
+<mxCell id="lgA" value="Sharp rectangle = External Entity" style="text;html=1;fontSize=11;fontColor=#12181F;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="-30" width="520" height="20" as="geometry"/></mxCell>
+<mxCell id="lgB" value="Rounded rectangle = Process (engine, §3 of spec)" style="text;html=1;fontSize=11;fontColor=#1F5FBF;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="-10" width="520" height="20" as="geometry"/></mxCell>
+<mxCell id="lgC" value="Open-sided rectangle = Data Store (table group)" style="text;html=1;fontSize=11;fontColor=#4A5563;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="10" width="520" height="20" as="geometry"/></mxCell>
+<mxCell id="lgD" value="(dashed) Dashed = cross-module (soft dependency or MES not yet built)" style="text;html=1;fontSize=11;fontColor=#4A5563;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="30" width="700" height="20" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

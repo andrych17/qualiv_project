@@ -1,0 +1,141 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.6.6 Chrome/144.0.7559.236 Electron/40.8.4 Safari/537.36" version="29.6.6">
+  <diagram id="pp-flow" name="PP - From Sales Orders to a Released Production Order (plain language)">
+    <mxGraphModel dx="1252" dy="757" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1522" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ftitle" parent="1" style="text;html=1;fontSize=24;fontStyle=1;fontColor=#12181F;align=left;" value="How a Production Plan Survives Contact With Reality" vertex="1">
+          <mxGeometry height="36" width="1100" x="40" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="fsub" parent="1" style="text;html=1;fontSize=14;fontColor=#4A5563;align=left;" value="Plain-language walkthrough of turning September&#39;s sales orders into a shop-floor-ready production order, and what happens when material or machine time falls short" vertex="1">
+          <mxGeometry height="24" width="1200" x="40" y="78" as="geometry" />
+        </mxCell>
+        <mxCell id="f2" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="September&#39;s Sales Orders Are Rolled Up Into a Production Plan" vertex="1">
+          <mxGeometry height="70" width="400" x="430" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="f3" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;" value="Is There Enough Material and Machine Time &lt;br&gt;to Actually Make It?" vertex="1">
+          <mxGeometry height="110" width="360" x="450" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="f4" parent="1" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#FBF1E1;strokeColor=#B5760A;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="A Raw Material Is Running Low — a Purchase Request Is Raised Automatically" vertex="1">
+          <mxGeometry height="80" width="300" x="120" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="f5" parent="1" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#FBEAEA;strokeColor=#C1332B;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="The Assembly Line Is Booked Past 100% — Flagged as Overloaded" vertex="1">
+          <mxGeometry height="80" width="300" x="480" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="f6" parent="1" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="Both Problems Land on One Short List — Not Buried Among Thousands of Orders" vertex="1">
+          <mxGeometry height="70" width="420" x="240" y="610" as="geometry" />
+        </mxCell>
+        <mxCell id="f7" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;" value="Can It Be Fixed Without Missing the Delivery Date?" vertex="1">
+          <mxGeometry height="100" width="340" x="280" y="740" as="geometry" />
+        </mxCell>
+        <mxCell id="f8" parent="1" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#FBF1E1;strokeColor=#B5760A;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="Add a Weekend Shift, Move Some Production to Another Line, or Pull the Purchase Forward a Few Days" vertex="1">
+          <mxGeometry height="90" width="340" x="80" y="900" as="geometry" />
+        </mxCell>
+        <mxCell id="f8b" parent="1" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#FBEAEA;strokeColor=#C1332B;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="The Planner Is Told Exactly What&#39;s Blocking It and by How Much" vertex="1">
+          <mxGeometry height="80" width="320" x="480" y="900" as="geometry" />
+        </mxCell>
+        <mxCell id="f9" parent="1" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#E7F5EF;strokeColor=#1E7F5C;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="Once Everything Checks Out, the Order Is Released" vertex="1">
+          <mxGeometry height="70" width="360" x="500" y="1050" as="geometry" />
+        </mxCell>
+        <mxCell id="f10" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#E7F5EF;strokeColor=#1E7F5C;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="It Shows Up on the Shop Floor as a Real Production Order, Ready to Run" vertex="1">
+          <mxGeometry height="80" width="400" x="480" y="1170" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="f2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" target="f3" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="f3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="f4" value="No — material short">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="f3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="f5" value="No — capacity short">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="f3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="f9" value="Yes — all clear">
+          <mxGeometry relative="1" x="0.2921" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="900" y="325" />
+              <mxPoint x="900" y="1085" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="f4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" target="f6" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="f5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" target="f6" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="f6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" target="f7" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="f7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;exitX=0.2;exitY=1;exitDx=0;exitDy=0;" target="f8" value="Yes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="f7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;exitX=0.8;exitY=1;exitDx=0;exitDy=0;" target="f8b" value="No">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="f8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.3;exitDx=0;exitDy=0;entryX=0.31;entryY=0.199;entryDx=0;entryDy=0;exitPerimeter=0;entryPerimeter=0;" target="f3" value="plan adjusted — recheck">
+          <mxGeometry relative="1" x="0.2205" y="-30" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="30" y="927" />
+              <mxPoint x="30" y="260" />
+              <mxPoint x="562" y="260" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e11" edge="1" parent="1" source="f8b" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.661;entryY=0.158;entryDx=0;entryDy=0;entryPerimeter=0;" target="f3" value="planner adjusts manually — recheck">
+          <mxGeometry relative="1" x="0.551" y="-60" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="840" y="940" />
+              <mxPoint x="840" y="260" />
+              <mxPoint x="688" y="260" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e12" edge="1" parent="1" source="f9" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#4A5563;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;labelBackgroundColor=#FFFFFF;" target="f10" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="note1" parent="1" style="text;html=1;fontSize=11;fontColor=#4A5563;fontStyle=2;align=left;verticalAlign=top;whiteSpace=wrap;" value="The overload check runs the same way whether it&#39;s an assembly line bolting metal together or a mixing tank blending chemicals — one planning engine, two production models underneath." vertex="1">
+          <mxGeometry height="90" width="420" x="920" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="note2" parent="1" style="text;html=1;fontSize=11;fontColor=#4A5563;fontStyle=2;align=left;verticalAlign=top;whiteSpace=wrap;" value="A &quot;what if&quot; version of this entire check can run inside its own scenario first — demand +15%, a machine down for five days — without ever touching the real plan, real inventory, or real orders." vertex="1">
+          <mxGeometry height="100" width="420" x="920" y="610" as="geometry" />
+        </mxCell>
+        <mxCell id="note3" parent="1" style="text;html=1;fontSize=11;fontColor=#4A5563;fontStyle=2;align=left;verticalAlign=top;whiteSpace=wrap;" value="This whole plan is useful on its own even before a shop floor system exists to receive the released order — knowing what to buy and when to buy it doesn&#39;t wait for execution software." vertex="1">
+          <mxGeometry height="100" width="420" x="920" y="900" as="geometry" />
+        </mxCell>
+        <mxCell id="note4" parent="1" style="text;html=1;fontSize=11;fontColor=#4A5563;fontStyle=2;align=left;verticalAlign=top;whiteSpace=wrap;" value="&quot;Released&quot; here means a planned order becomes a real order in whichever system executes it: a production order, a purchase requisition, or a stock transfer — never a second copy of the plan." vertex="1">
+          <mxGeometry height="90" width="420" x="920" y="1170" as="geometry" />
+        </mxCell>
+        <mxCell id="flegtitle" parent="1" style="text;html=1;fontSize=14;fontStyle=1;fontColor=#12181F;align=left;" value="Legend" vertex="1">
+          <mxGeometry height="24" width="200" x="40" y="1300" as="geometry" />
+        </mxCell>
+        <mxCell id="lg1" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="22" width="34" x="40" y="1334" as="geometry" />
+        </mxCell>
+        <mxCell id="lg2" parent="1" style="text;html=1;fontSize=12;fontColor=#12181F;align=left;verticalAlign=middle;" value="Normal step in the plan" vertex="1">
+          <mxGeometry height="28" width="480" x="86" y="1331" as="geometry" />
+        </mxCell>
+        <mxCell id="lg3" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#FBF1E1;strokeColor=#B5760A;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="22" width="34" x="40" y="1366" as="geometry" />
+        </mxCell>
+        <mxCell id="lg4" parent="1" style="text;html=1;fontSize=12;fontColor=#12181F;align=left;verticalAlign=middle;" value="An automatic or manual corrective action" vertex="1">
+          <mxGeometry height="28" width="480" x="86" y="1363" as="geometry" />
+        </mxCell>
+        <mxCell id="lg5" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#FBEAEA;strokeColor=#C1332B;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="22" width="34" x="40" y="1398" as="geometry" />
+        </mxCell>
+        <mxCell id="lg6" parent="1" style="text;html=1;fontSize=12;fontColor=#12181F;align=left;verticalAlign=middle;" value="Blocked — a shortage or overload was found" vertex="1">
+          <mxGeometry height="28" width="480" x="86" y="1395" as="geometry" />
+        </mxCell>
+        <mxCell id="lg7" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#E7F5EF;strokeColor=#1E7F5C;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="22" width="34" x="40" y="1430" as="geometry" />
+        </mxCell>
+        <mxCell id="lg8" parent="1" style="text;html=1;fontSize=12;fontColor=#12181F;align=left;verticalAlign=middle;" value="Confirmed and handed off to execution" vertex="1">
+          <mxGeometry height="28" width="480" x="86" y="1427" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

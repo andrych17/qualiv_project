@@ -39,6 +39,8 @@ return [
             'PAYROLL',
             'PERFORMANCE',
             'PROJECTS',
+            'PP',
+            'MES',
             'DESIGN_SYSTEM',
         ],
         'internal' => [

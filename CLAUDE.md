@@ -85,7 +85,7 @@ Notes:
 - Central DB (`nusaevo`) holds tenant registry + login lookup (`tenant_user_lookups`) + **plan** (`tenants.plan`), plus plan/entitlement, billing, and dunning tables — see `CENTRAL_SPECS.md` for the full schema; this is the Platform-level module described in §2. Users and module data live in the tenant DB.
 - Inside each tenant DB, modules get separate schemas (`SYSCONFIG`, `WNE`, `DMS`, `CRM`,
   `SCHEDULE`, `INVENTORY`, `ACCOUNTING`, `SALES`, `PURCHASE`, `HCM`, `PAYROLL`, `PERF`,
-  `AIINSIGHT`, `LEGAL`, `CUSTOMFIELDS`, `PROJECTS`). See §7A for the authoritative list. (This consolidates
+  `AIINSIGHT`, `LEGAL`, `CUSTOMFIELDS`, `PROJECTS`, `PP`, `MES`). See §7A for the authoritative list. (This consolidates
   the old separate `NOTIFICATIONS`/`WORKFLOW` schemas into the single `WNE` schema, per
   `WNE_SPECS.md` — an earlier version of this section still had the pre-merge names.)
 - Tenant resolution is **login-bound** (session `tenant_id` after email lookup), not domain/subdomain. UI may switch among memberships via sidebar tenant dropdown.
@@ -135,6 +135,21 @@ Notes:
    - **HCM**
    - **Payroll** — hard dependency on HCM (employee identity); build immediately after it.
    - **Performance**
+   - **PP** (Production Planning & Scheduling — hybrid discrete/process planning engine: Demand
+     → MPS → MRP → Capacity Planning → Detailed Scheduling → planned-order release into MES) —
+     specced (`app/Modules/PP/PP_SPECS.md`) but not yet built; sequenced immediately **before**
+     MES, since PP owns BOM/Recipe (material composition, planning master data) and MES's own
+     Process-Phase master data references it (`MES_SPECS.md` §3B/§3F). Not a strict one-way
+     dependency, though: PP's Resource/Capacity engines in turn wait on MES's Work Center/Machine
+     identity, so the two modules' foundational pieces are best built interleaved — see
+     `PP_SPECS.md` §7 Open Items for the detail this one-line summary can't carry. Wired into
+     `config/tenant_modules.php`'s `full` plan only.
+   - **MES** (Manufacturing Execution System — discrete/assembly + continuous/process, one
+     execution engine) — specced (`MES_SPECS.md`) but not yet built; depends on Inventory (stock/
+     lot/serial identity), HCM (employee/shift identity), WNE (approvals/notifications), DMS
+     (work instructions/attachments), and PP (BOM/Recipe material composition, §3B boundary
+     note), so it is sequenced after all of them. Not yet wired into any plan in
+     `config/tenant_modules.php` beyond `full` — see `MES_SPECS.md` §7 Open Items.
    - **AIInsight** — specced (`AIINSIGHT_SPECS.md`) but not yet built; gated on a Zero Data
      Retention agreement with Anthropic before going live for any confidentiality-sensitive
      tenant (see the project's "on the horizon" notes).
@@ -185,6 +200,8 @@ tenant_001.			# Database
 ├── PERF.
 ├── PROJECTS.		
 ├── AIINSIGHT.
+├── PP.
+├── MES.
 └── CUSTOMFIELDS.
 ```
 - Table naming: 
