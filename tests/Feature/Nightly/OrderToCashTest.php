@@ -4,10 +4,12 @@ namespace Tests\Feature\Nightly;
 
 use App\Models\User;
 use App\Modules\Accounting\Models\Account;
+use App\Modules\Accounting\Models\ArCreditNote;
 use App\Modules\Accounting\Models\ArInvoice;
 use App\Modules\Accounting\Models\ArPayment;
 use App\Modules\Accounting\Models\Company;
 use App\Modules\Accounting\Models\Currency;
+use App\Modules\Accounting\Models\GlJournal;
 use App\Modules\Accounting\Services\AccountService;
 use App\Modules\Accounting\Services\FiscalYearService;
 use App\Modules\CRM\Models\Partner;
@@ -22,6 +24,7 @@ use App\Modules\Inventory\Services\GoodsReceiptService;
 use App\Modules\Sales\Models\CustomerCreditProfile;
 use App\Modules\Sales\Models\Delivery;
 use App\Modules\Sales\Models\SalesOrder;
+use App\Modules\Sales\Models\SalesReturn;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\Concerns\SetsUpTenant;
@@ -56,8 +59,9 @@ class OrderToCashTest extends TestCase
         $warehouseId = null;
         $locationId = null;
         $bankAccountId = null;
+        $revenueAccountId = null;
 
-        $tenant->run(function () use (&$companyId, &$customerId, &$productId, &$warehouseId, &$locationId, &$bankAccountId) {
+        $tenant->run(function () use (&$companyId, &$customerId, &$productId, &$warehouseId, &$locationId, &$bankAccountId, &$revenueAccountId) {
             $admin = User::where('email', 'admin@nusaevo.com')->firstOrFail();
 
             // --- Accounting: company + starter COA + open fiscal year ---
@@ -75,6 +79,10 @@ class OrderToCashTest extends TestCase
             $bankAccountId = Account::query()
                 ->where('company_id', $company->id)
                 ->where('account_code', '10200') // Bank, per starter COA
+                ->value('id');
+            $revenueAccountId = Account::query()
+                ->where('company_id', $company->id)
+                ->where('account_code', '41000') // Pendapatan Usaha, per starter COA
                 ->value('id');
 
             // --- Customer ---
@@ -211,14 +219,104 @@ class OrderToCashTest extends TestCase
 
         $this->post("/accounting/ar-invoices/{$invoice->id}/post")->assertRedirect();
         $tenant->run(function () use ($invoice) {
-            $this->assertEquals(ArInvoice::STATUS_POSTED, $invoice->fresh()->status);
+            $posted = $invoice->fresh();
+            $this->assertEquals(ArInvoice::STATUS_POSTED, $posted->status);
+
+            // --- Accounting posting: invoice journal must balance ---
+            $journal = $posted->journal()->with('lines')->first();
+            $this->assertNotNull($journal, 'AR invoice was posted without a GL journal.');
+            $this->assertEquals(GlJournal::STATUS_POSTED, $journal->status);
+            $this->assertEquals((float) $journal->lines->sum('debit'), (float) $journal->lines->sum('credit'), 'Invoice journal does not balance.');
+            $this->assertEquals(1500000.0, (float) $journal->lines->sum('debit'));
         });
 
-        // --- Payment: full settlement, auto-applied against open invoices ---
-        $invoiceTotal = null;
-        $tenant->run(function () use (&$invoiceTotal, $invoice) {
-            $invoiceTotal = (float) $invoice->fresh()->total_amount;
+        // --- Return: customer returns 3 of the 10 shipped units ---
+        $this->post('/sales/returns', [
+            'customer_id' => $customerId,
+            'so_hdr_id' => $order->id,
+            'accounting_invoice_id' => $invoice->id,
+            'reason_code' => 'DAMAGED',
+            'lines' => [
+                ['so_line_id' => $order->lines[0]->id, 'qty_returned' => 3],
+            ],
+        ])->assertRedirect();
+
+        $return = null;
+        $tenant->run(function () use (&$return, $customerId) {
+            $return = SalesReturn::where('customer_id', $customerId)->latest('id')->first();
         });
+        $this->assertNotNull($return);
+        $this->assertEquals(SalesReturn::STATUS_REQUESTED, $return->status);
+
+        $this->post("/sales/returns/{$return->id}/approve")->assertRedirect();
+        $tenant->run(function () use ($return) {
+            $this->assertEquals(SalesReturn::STATUS_APPROVED, $return->fresh()->status);
+        });
+
+        $this->post("/sales/returns/{$return->id}/receive")->assertRedirect();
+        $tenant->run(function () use ($return) {
+            $this->assertEquals(SalesReturn::STATUS_RECEIVED, $return->fresh()->status);
+        });
+
+        // --- Delivery inbound: returned units go back into stock via a Goods Receipt ---
+        $tenant->run(function () use ($return, $productId, $warehouseId, $locationId) {
+            $receipt = app(GoodsReceiptService::class)->create([
+                'warehouse_id' => $warehouseId,
+                'receipt_date' => now()->toDateString(),
+                'reference_number' => "RETURN-{$return->uuid}",
+                'lines' => [
+                    [
+                        'product_id' => $productId,
+                        'qty' => 3,
+                        'uom_id' => Product::query()->findOrFail($productId)->base_uom_id,
+                        'unit_cost' => 50000,
+                        'destination_location_id' => $locationId,
+                    ],
+                ],
+            ]);
+            app(GoodsReceiptService::class)->post($receipt);
+
+            $onHand = StockBalance::query()
+                ->where('product_id', $productId)
+                ->where('warehouse_id', $warehouseId)
+                ->sum('qty_on_hand');
+            $this->assertEquals(93.0, (float) $onHand, 'Returned quantity was not added back to stock.');
+        });
+
+        // --- Credit note: issue and post against the invoice for the returned value ---
+        $this->post('/accounting/ar-credit-notes', [
+            'ar_invoice_id' => $invoice->id,
+            'credit_date' => now()->toDateString(),
+            'amount' => 450000,
+            'reason' => "Customer return {$return->uuid}",
+            'revenue_account_id' => $revenueAccountId,
+        ])->assertRedirect();
+
+        $tenant->run(function () use ($invoice) {
+            $creditNote = ArCreditNote::where('ar_invoice_id', $invoice->id)->latest('id')->first();
+            $this->assertNotNull($creditNote);
+            $this->assertEquals(ArCreditNote::STATUS_POSTED, $creditNote->status);
+            $this->assertEquals(450000.0, (float) $creditNote->amount);
+
+            $reconciled = $invoice->fresh();
+            $this->assertEquals(450000.0, (float) $reconciled->credited_amount);
+            $this->assertEquals(1050000.0, $reconciled->openBalance(), 'Credit note did not reconcile against the invoice open balance.');
+            $this->assertEquals(ArInvoice::STATUS_PARTIALLY_PAID, $reconciled->status);
+
+            // --- Accounting posting: credit note journal must balance ---
+            $journal = $creditNote->journal()->with('lines')->first();
+            $this->assertNotNull($journal, 'Credit note was posted without a GL journal.');
+            $this->assertEquals(GlJournal::STATUS_POSTED, $journal->status);
+            $this->assertEquals((float) $journal->lines->sum('debit'), (float) $journal->lines->sum('credit'), 'Credit note journal does not balance.');
+            $this->assertEquals(450000.0, (float) $journal->lines->sum('debit'));
+        });
+
+        // --- Payment: settle the remaining balance after the return credit, auto-applied ---
+        $remainingBalance = null;
+        $tenant->run(function () use (&$remainingBalance, $invoice) {
+            $remainingBalance = $invoice->fresh()->openBalance();
+        });
+        $this->assertEquals(1050000.0, $remainingBalance);
 
         $this->post('/accounting/ar-payments', [
             'company_id' => $companyId,
@@ -226,15 +324,22 @@ class OrderToCashTest extends TestCase
             'cash_gl_account_id' => $bankAccountId,
             'currency_code' => 'IDR',
             'payment_date' => now()->toDateString(),
-            'amount' => $invoiceTotal,
+            'amount' => $remainingBalance,
         ])->assertRedirect();
 
-        $tenant->run(function () use ($invoice, $companyId, $customerId) {
+        $tenant->run(function () use ($invoice, $companyId, $customerId, $remainingBalance) {
             $this->assertEquals(ArInvoice::STATUS_PAID, $invoice->fresh()->status);
 
             $payment = ArPayment::where('company_id', $companyId)->where('partner_id', $customerId)->latest('id')->first();
             $this->assertNotNull($payment);
             $this->assertEquals(ArPayment::STATUS_POSTED, $payment->status);
+
+            // --- Accounting posting: payment journal must balance ---
+            $journal = $payment->journal()->with('lines')->first();
+            $this->assertNotNull($journal, 'AR payment was posted without a GL journal.');
+            $this->assertEquals(GlJournal::STATUS_POSTED, $journal->status);
+            $this->assertEquals((float) $journal->lines->sum('debit'), (float) $journal->lines->sum('credit'), 'Payment journal does not balance.');
+            $this->assertEquals($remainingBalance, (float) $journal->lines->sum('debit'));
         });
     }
 }

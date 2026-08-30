@@ -83,11 +83,11 @@ Route::middleware(['auth', 'module:SALES', 'menu.perm:SALES'])->prefix('sales')-
     Route::get('/returns', [ReturnController::class, 'index'])->name('returns.index');
     Route::get('/returns/create', [ReturnController::class, 'create'])->name('returns.create');
     Route::post('/returns', [ReturnController::class, 'store'])->name('returns.store');
-    Route::get('/returns/{returnRecord}', [ReturnController::class, 'show'])->name('returns.show');
-    Route::post('/returns/{returnRecord}/approve', [ReturnController::class, 'approve'])->name('returns.approve');
-    Route::post('/returns/{returnRecord}/receive', [ReturnController::class, 'receive'])->name('returns.receive');
-    Route::post('/returns/{returnRecord}/refund', [ReturnController::class, 'refund'])->name('returns.refund');
-    Route::post('/returns/{returnRecord}/replace', [ReturnController::class, 'replace'])->name('returns.replace');
+    Route::get('/returns/{return}', [ReturnController::class, 'show'])->name('returns.show');
+    Route::post('/returns/{return}/approve', [ReturnController::class, 'approve'])->name('returns.approve');
+    Route::post('/returns/{return}/receive', [ReturnController::class, 'receive'])->name('returns.receive');
+    Route::post('/returns/{return}/refund', [ReturnController::class, 'refund'])->name('returns.refund');
+    Route::post('/returns/{return}/replace', [ReturnController::class, 'replace'])->name('returns.replace');
 
     // §3M Commissions
     Route::get('/commissions', [CommissionSettlementController::class, 'index'])->name('commissions.index');
