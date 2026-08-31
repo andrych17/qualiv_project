@@ -199,6 +199,7 @@ class SysConfigSeeder extends Seeder
                 ['code' => 'DMS_CATEGORIES', 'caption' => 'Categories', 'link' => '/dms/folders', 'icon' => 'FolderOpen', 'seq' => 49],
             ],
             'PERFORMANCE' => [
+                ['code' => 'PERFORMANCE_DASHBOARD', 'caption' => 'Dashboard', 'link' => '/performance/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 150],
                 ['code' => 'PERFORMANCE_KPIS', 'caption' => 'KPIs', 'link' => '/performance/kpi-definitions', 'icon' => 'Target', 'seq' => 151],
                 ['code' => 'PERFORMANCE_OKRS', 'caption' => 'OKRs', 'link' => '/performance/okr-objectives', 'icon' => 'Compass', 'seq' => 152],
                 ['code' => 'PERFORMANCE_BUDGETS', 'caption' => 'Budgets', 'link' => '/performance/budgets', 'icon' => 'PieChart', 'seq' => 153],
