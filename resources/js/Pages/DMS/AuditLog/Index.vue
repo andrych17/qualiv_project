@@ -89,7 +89,7 @@ const clearDocumentFilter = () => {
   <AppLayout>
     <PageHeader title="Audit Trail" description="Every logged action across every document — upload, edit, download, restore, retention, and more.">
       <template #actions>
-        <Link :href="route('dms.dashboard')" class="text-sm font-medium text-accent hover:underline">← Back to library</Link>
+        <Link :href="route('dms.documents.index')" class="text-sm font-medium text-accent hover:underline">← Back to library</Link>
       </template>
     </PageHeader>
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Modules\DMS\Controllers\AuditLogController;
+use App\Modules\DMS\Controllers\DmsDashboardController;
 use App\Modules\DMS\Controllers\DocumentController;
 use App\Modules\DMS\Controllers\FolderController;
 use Illuminate\Support\Facades\Route;
@@ -14,13 +15,12 @@ Route::middleware(['auth', 'verified', 'module:DMS', 'menu.perm:DMS'])
     ->prefix('dms')
     ->name('dms.')
     ->group(function () {
-        Route::get('dashboard', [DocumentController::class, 'index'])->name('dashboard');
+        // §3A — lightweight KPI/recent-activity landing page (DmsDashboardController), distinct
+        // from the Document Library browse page below (DocumentController::index()). Both used
+        // to route to index() — same content under two captions — until this split; see
+        // DmsDashboardController's own docblock.
+        Route::get('dashboard', [DmsDashboardController::class, 'index'])->name('dashboard');
 
-        // DMS_DOCUMENTS (SysConfigSeeder) links to /dms/documents expecting a list page, but
-        // only 'dashboard' was ever routed to DocumentController::index() — the "Documents"
-        // sidebar entry 404'd/405'd. index() already IS the "browse, upload, drill in front
-        // door" the class docblock describes (folders + filterable table), so this is the same
-        // action under its own name rather than a second implementation.
         Route::get('documents', [DocumentController::class, 'index'])->name('documents.index');
 
         // §3B — 'create'/'edit' registered before the '{document}' show route so they aren't

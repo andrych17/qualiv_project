@@ -1,6 +1,9 @@
-<!-- ponytail: OrgUnits management — hierarchical org tree and department list. -->
+<!-- ponytail: OrgUnits management — hierarchical org tree covering departments, divisions, and
+     branches in one table (HCM_SPECS.md §3C: "tree (department/division/branch)"), split by
+     `unit_type` rather than three separate tables — the sidebar's Departments/Branches links
+     just pre-filter this same page via query string, same pattern DMS's flag filter uses. -->
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { router, useForm } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
@@ -19,6 +22,7 @@ import { useConfirm } from '@/Composables/useConfirmDialog'
 interface OrgUnit {
   id: number
   name: string
+  unit_type: 'department' | 'division' | 'branch'
   parent_org_unit_id?: number
   parent?: { name: string }
   is_active: boolean
@@ -39,6 +43,7 @@ const props = defineProps<{
   filters: {
     search?: string
     is_active?: string
+    unit_type?: string
     sort?: string
     direction?: string
     per_page?: string
@@ -48,12 +53,19 @@ const props = defineProps<{
 const search = ref(props.filters.search ?? '')
 const filters = ref({
   is_active: props.filters.is_active ?? '',
+  unit_type: props.filters.unit_type ?? '',
 })
 const sort = ref<SortState>(
   props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
 )
 const selected = ref<Array<string | number>>([])
 const perPage = ref(Number(props.filters.per_page) || props.orgUnits.per_page)
+
+const unitTypeOptions = [
+  { label: 'Department', value: 'department' },
+  { label: 'Division', value: 'division' },
+  { label: 'Branch', value: 'branch' },
+]
 
 const filterFields: FilterFieldDef[] = [
   {
@@ -65,18 +77,33 @@ const filterFields: FilterFieldDef[] = [
       { label: 'Inactive', value: '0' },
     ],
   },
+  {
+    key: 'unit_type',
+    label: 'Type',
+    type: 'select',
+    options: unitTypeOptions,
+  },
 ]
 
 const columns = [
   { key: 'name', label: 'Unit Name' },
+  { key: 'unit_type', label: 'Type' },
   { key: 'parent', label: 'Parent Unit' },
   { key: 'status', label: 'Status' },
   { key: 'actions', label: 'Actions', align: 'right' as const },
 ]
 
+// Sidebar links pre-filter by unit_type (Departments/Branches) — reflect that in the header
+// instead of always showing the generic "Org Units" title.
+const pageTitle = computed(() => {
+  const match = unitTypeOptions.find((o) => o.value === filters.value.unit_type)
+  return match ? `${match.label}s` : 'Org Units'
+})
+
 const form = useForm({
   id: null as number | null,
   name: '',
+  unit_type: 'department',
   parent_org_unit_id: null as number | null,
   is_active: true,
 })
@@ -87,6 +114,8 @@ const isEditing = ref(false)
 const openCreate = () => {
   form.reset()
   form.id = null
+  // Creating from a filtered view (Departments/Branches) should default to that type.
+  form.unit_type = filters.value.unit_type || 'department'
   isEditing.value = false
   showModal.value = true
 }
@@ -94,6 +123,7 @@ const openCreate = () => {
 const openEdit = (unit: OrgUnit) => {
   form.id = unit.id
   form.name = unit.name
+  form.unit_type = unit.unit_type
   form.parent_org_unit_id = unit.parent_org_unit_id || null
   form.is_active = Boolean(unit.is_active)
   isEditing.value = true
@@ -133,6 +163,7 @@ watch([search, filters, sort, perPage], debounce(() => {
     {
       search: search.value || undefined,
       is_active: filters.value.is_active || undefined,
+      unit_type: filters.value.unit_type || undefined,
       sort: sort.value?.key,
       direction: sort.value?.direction,
       per_page: perPage.value,
@@ -144,7 +175,7 @@ watch([search, filters, sort, perPage], debounce(() => {
 
 <template>
   <AppLayout title="Organizational Units">
-    <PageHeader title="Org Units" subtitle="Manage departments, divisions, and reporting structure.">
+    <PageHeader :title="pageTitle" subtitle="Manage departments, divisions, and reporting structure.">
       <template #actions>
         <PrimaryButton type="button" @click="openCreate">+ Add Org Unit</PrimaryButton>
       </template>
@@ -178,6 +209,10 @@ watch([search, filters, sort, perPage], debounce(() => {
       >
         <template #cell-name="{ item }">
           <span class="font-semibold text-ink-900">{{ (item as OrgUnit).name }}</span>
+        </template>
+
+        <template #cell-unit_type="{ item }">
+          <span class="text-xs capitalize text-ink-700">{{ (item as OrgUnit).unit_type }}</span>
         </template>
 
         <template #cell-parent="{ item }">
@@ -222,6 +257,17 @@ watch([search, filters, sort, perPage], debounce(() => {
               v-model="form.name"
               :error="form.errors.name"
               placeholder="e.g. Legal Operations, Human Resources"
+              required
+            />
+          </div>
+
+          <div>
+            <FormSelect
+              label="Type"
+              name="unit_type"
+              v-model="form.unit_type"
+              :error="form.errors.unit_type"
+              :options="unitTypeOptions"
               required
             />
           </div>

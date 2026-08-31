@@ -4,6 +4,7 @@ use App\Modules\HCM\Controllers\AttendanceController;
 use App\Modules\HCM\Controllers\ContractController;
 use App\Modules\HCM\Controllers\DashboardController;
 use App\Modules\HCM\Controllers\EmployeeController;
+use App\Modules\HCM\Controllers\JobController;
 use App\Modules\HCM\Controllers\LeaveController;
 use App\Modules\HCM\Controllers\OrgUnitController;
 use App\Modules\HCM\Controllers\PositionController;
@@ -29,6 +30,10 @@ Route::middleware(['auth', 'verified', 'module:HCM', 'menu.perm:HCM'])
 
         Route::delete('positions/bulk-destroy', [PositionController::class, 'bulkDestroy'])->name('positions.bulkDestroy');
         Route::resource('positions', PositionController::class)->except(['create', 'show', 'edit'])->names('positions');
+
+        // Designations — job title catalog (HCM.jobs), independent of the org-chart seats above.
+        Route::delete('jobs/bulk-destroy', [JobController::class, 'bulkDestroy'])->name('jobs.bulkDestroy');
+        Route::resource('jobs', JobController::class)->except(['create', 'show', 'edit'])->names('jobs');
 
         // Contracts
         Route::get('contracts', [ContractController::class, 'index'])->name('contracts.index');

@@ -1,10 +1,17 @@
 <!-- ponytail: Sidebar from shared navMenus supporting up to 3 levels of nested accordion submenus & direct link navigation -->
 <script setup lang="ts">
-import { computed, inject, ref, watch, type Component, type Ref } from 'vue'
+import { computed, inject, nextTick, onMounted, ref, watch, type Component, type Ref } from 'vue'
 import { Link, usePage } from '@inertiajs/vue3'
 import { ChevronRight, HelpCircle, X } from 'lucide-vue-next'
 import TenantSwitcher from './TenantSwitcher.vue'
 import * as LucideIcons from 'lucide-vue-next'
+
+// AppLayout is wrapped inline per-page (not an Inertia persistent layout), so every visit
+// destroys and recreates this component — a plain `ref` can't survive that. These module-scope
+// variables live outside setup() and persist for the tab's lifetime, so the sidebar's scroll
+// position and manually-expanded accordions carry over across navigations instead of resetting.
+let savedScroll = 0
+let savedOpenMenus: Record<string, boolean> = {}
 
 type Level3MenuItem = {
   code: string
@@ -39,7 +46,8 @@ type MenuSection = {
 }
 
 const page = usePage()
-const openMenus = ref<Record<string, boolean>>({})
+const openMenus = ref<Record<string, boolean>>({ ...savedOpenMenus })
+const navRef = ref<HTMLElement | null>(null)
 
 const mobileSidebar = inject<{
   isOpen: Ref<boolean>
@@ -134,6 +142,23 @@ watch(
   { immediate: true },
 )
 
+// Persist accordion state across the remounts every Inertia navigation causes (see the
+// module-scope vars above) — a menu the user expanded by hand stays expanded on the next page.
+watch(openMenus, (value) => { savedOpenMenus = value }, { deep: true })
+
+// Restore scroll position after the remount. openMenus is already correct by mount time (the
+// `immediate` watch above runs during setup(), before this), so the nav's scrollHeight is
+// final and one nextTick is enough — no need to wait a frame further.
+onMounted(() => {
+  nextTick(() => {
+    if (navRef.value) navRef.value.scrollTop = savedScroll
+  })
+})
+
+const onNavScroll = (e: Event) => {
+  savedScroll = (e.target as HTMLElement).scrollTop
+}
+
 const getIcon = (name: string | null): Component => {
   if (!name) return HelpCircle
 
@@ -158,7 +183,7 @@ const getIcon = (name: string | null): Component => {
       <TenantSwitcher />
     </div>
 
-    <nav class="flex-1 overflow-y-auto p-3 space-y-4">
+    <nav ref="navRef" class="flex-1 overflow-y-auto p-3 space-y-4" @scroll.passive="onNavScroll">
       <div v-for="section in menuSections" :key="section.header" class="space-y-1">
         <p class="px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-ink-500">
           {{ section.header }}

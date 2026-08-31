@@ -24,9 +24,11 @@ use Inertia\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
- * §3A Main Dashboard (Document Library) — folder tree + filterable document table +
- * upload + row-click drawer (metadata/versions/audit/relations tabs). Preview and
- * folder CRUD (§3D) are later pages; this is the "browse, upload, drill in" front door.
+ * §3A Document Library — folder tree + filterable document table + upload + row-click
+ * drawer (metadata/versions/audit/relations tabs). This is the "browse, upload, drill in"
+ * front door; DmsDashboardController is the lightweight KPI/recent-activity landing page
+ * that links into it (same "dashboard summarizes, this page does the work" split every
+ * other module's Dashboard vs. list page already uses).
  */
 class DocumentController extends Controller
 {
@@ -77,7 +79,7 @@ class DocumentController extends Controller
                 'created_at_formatted' => $d->created_at?->format('d M Y H:i'),
             ]);
 
-        return Inertia::render('DMS/Dashboard/Index', [
+        return Inertia::render('DMS/Documents/Index', [
             'documents' => $documents,
             'filters' => $filters,
             'summary' => [

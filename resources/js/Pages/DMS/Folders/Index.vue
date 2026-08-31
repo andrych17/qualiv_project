@@ -64,7 +64,7 @@ watch(() => (page.props.errors as { folder?: string })?.folder, (message) => {
     <PageHeader title="DMS Folders" description="Organize documents into structured taxonomy with inherited access controls.">
       <template #actions>
         <div class="flex items-center gap-2">
-          <SecondaryButton :href="route('dms.dashboard')">
+          <SecondaryButton :href="route('dms.documents.index')">
             &larr; Document Library
           </SecondaryButton>
           <PrimaryButton :href="route('dms.folders.create')">
