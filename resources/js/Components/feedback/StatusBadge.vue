@@ -91,6 +91,9 @@ const badgeClass = computed(() => {
     // Projects §3A/§3B Project status ('active'/'completed'/'cancelled' reuse the keys above)
     planning: 'bg-signal-info/10 text-signal-info border-signal-info/25',
     on_hold: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
+    // PP §3D/§3C Planned Order status ('released'/'cancelled' reuse the keys above)
+    planned: 'bg-signal-info/10 text-signal-info border-signal-info/25',
+    firmed: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
   }
 
   return map[normalizedStatus.value] ?? 'bg-surface-50 text-ink-600 border-border'

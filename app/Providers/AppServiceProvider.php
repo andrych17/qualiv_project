@@ -39,6 +39,8 @@ use App\Modules\Performance\Events\OkrObjectiveCompleted;
 use App\Modules\Performance\Listeners\AwardKpiAchievements;
 use App\Modules\Performance\Listeners\AwardOkrCompletionAchievements;
 use App\Modules\Performance\Listeners\EvaluateKpiValueVariance;
+use App\Modules\PP\Listeners\SyncDemandFromSalesOrder;
+use App\Modules\Sales\Events\SalesOrderConfirmed;
 use App\Modules\Sales\Events\SalesOrderRequested;
 use App\Modules\Sales\Listeners\CreateSalesOrderFromRequested;
 use App\Modules\Sales\Listeners\ProcessCommissionOnPaymentRecorded;
@@ -102,6 +104,9 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(InvoicePosted::class, UpdateSalesOrderOnInvoicePosted::class);
         Event::listen(PaymentRecorded::class, ProcessCommissionOnPaymentRecorded::class);
         Event::listen(SalesOrderRequested::class, CreateSalesOrderFromRequested::class);
+
+        // PP_SPECS.md §3B — a confirmed Sales order becomes real demand for MRP netting.
+        Event::listen(SalesOrderConfirmed::class, SyncDemandFromSalesOrder::class);
 
         // SALES_SPECS.md §3B/§5: Sales FKs into CRM.partners, never the reverse — CRM's own
         // Partner model must stay ignorant of Sales. Registering these relations here (Sales

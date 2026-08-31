@@ -605,11 +605,64 @@ import file, scenario export) routes through **DMS** (`DMS/PP/...`) with a `subj
       not as a single linear module-after-module sequence — `CLAUDE.md` §5's one-line-per-module
       format can't express that nuance, so it states the coarse "PP before MES" placement and this
       note is the caveat.
-- [ ] **`PpService::getActiveBom`/`getActiveRecipe`/`scaleRecipe` and `MesService::
-      listResources`/`createProductionOrder` contracts** — named here and cross-referenced in
-      `MES_SPECS.md` §3B/§3E/§3F, but neither is implemented yet.
+- [x] **`PpService::getActiveBom`/`getActiveRecipe`/`scaleRecipe` — implemented.** Built as part
+      of §3D's MRP engine, whose own explosion step is the first real caller (not a speculative
+      stub): `getActiveBom`/`getActiveRecipe` resolve the one active version for a product,
+      `scaleRecipe` wraps `RecipeService::scale()` by recipe id for the eventual MES caller.
+      `MesService::listResources`/`createProductionOrder` remain unimplemented — MES itself
+      isn't built (`MES_SPECS.md` §7) — so `PlannedOrderService::release()` guards a
+      production-type planned order with a clear "MES not available yet" message rather than
+      calling a stub; that half of this item stays open until MES ships.
 - [x] **`.id.md` translation** — this document itself; every module spec except MES (the newest)
       has an `.id.md` sibling, and now PP does too.
+- [x] **MPS (§3C) built as presentation + firm/release over §3D's existing planned orders, per
+      this spec's own §6 build-order note — not a rework of MrpService into period-bucketed
+      netting.** `pp_mps_lines.is_frozen` is an edit lock on `planned_qty` only; it does not (yet)
+      block MRP from replanning a period, since §3D nets one planned order per product per *run*,
+      not per period. The real "exclude from automatic MRP regeneration" mechanism is
+      `PlannedOrderService::firm()`/`unfirm()` (the `status = 'firmed'` value this spec's own SQL
+      already reserved) — `MrpService::explode()` now leaves a firmed baseline order untouched
+      and skips creating a new row for that product, while still exploding its BOM/recipe so
+      dependent demand on its components isn't lost. A consequence worth remembering: because
+      §3D isn't period-bucketed, a period cell's firm/release controls are only active when a
+      planned order's `need_by_date` actually falls inside that period; true multi-period MPS-vs-
+      MRP reconciliation is future work once/if MRP itself becomes period-bucketed. `pp_mps_lines`
+      is in §4's `CUSTOMFIELDS.field_defs` list, but no per-cell custom-field UI was built —
+      editing custom fields one grid cell at a time is bad UX; deferred until a real use case
+      asks for it.
+- [x] **Resource & Resource Group Reference (§3E) built as flat master data — `pp_resources`
+      CRUD (tool/tank/utility/warehouse, no custom fields — not in §4's registry) and
+      `pp_resource_groups` CRUD with a synced `members` list (same header+lines sync pattern as
+      `BomService`).** `pp_resource_group_members.resource_ref_id` is genuinely polymorphic by
+      `resource_type` (its meaning depends on the type), so it gets no DB FK even for the
+      `pp_resource` case — validated in the Request's `withValidator` instead, same discipline
+      `pp_planned_orders.source_type`/`source_id` already uses. Only the `pp_resource` type is
+      checkable today; `mes_work_center`/`mes_machine`/`mes_station` stay informational/
+      app-trusted since MES isn't built yet — the member list-input UI makes this explicit
+      (labels those options "informational — MES not built yet" and swaps the picker for a bare
+      ID field). `pp_resources`/`pp_resource_groups`/`pp_resource_group_members` carry no
+      `created_at`/`updated_at` columns, matching this spec's own SQL DDL exactly, so their
+      Eloquent models set `$timestamps = false` — the one thing that failed on first pass
+      (caught by the Feature test, not by `php -l`).
+- [x] **Capacity Planning — RCCP (§3F) built as planner-entered flat CRUD, not the automatic
+      pipeline this spec's own §3F Function/Features bullet describes.** That bullet names two
+      sources for `required_hours`/`available_hours`: `MesService` routing/recipe-phase standard
+      times (MES isn't built — no standard-time data exists anywhere to explode MPS/MRP output
+      against) and Schedule's `AvailabilityService` (which only answers "is this exact slot free
+      right now?" via `isFree()`/`findConflicts()` — there is no "how many hours are available in
+      this date range?" aggregator to call). Building either integration now would mean writing
+      against data or an API shape that doesn't exist. Since this spec's own Rules/Logic already
+      frames Phase 1 as "rough-cut... load vs. available is informational," a planner-entered
+      `required_hours`/`available_hours` pair per resource-or-group/period satisfies that bar
+      honestly — `CapacityPlanService::loadPct()`/`isOverloaded()` (threshold via
+      `SYSCONFIG.config_consts` `PP.CAPACITY_OVERLOAD_THRESHOLD_PCT`, default 100) are real,
+      just computed from planner input instead of derived automatically. The overload flag is
+      also **not** written as a `pp_exceptions` row — §3M isn't built yet — it's a computed
+      badge in the Index page only, same "derive it inline, don't fabricate the sink" choice
+      made for MPS's demand-shortfall flag (§3C). `resource_group_id` gets a real FK
+      (`pp_resource_groups` exists in-schema); `resource_ref_id` stays unconstrained
+      (polymorphic by `resource_type`, §3E's discipline); the Request enforces group-XOR-
+      resource (exactly one target), tighter than the DB CHECK's permissive "at least one."
 - [ ] **Advanced constraint solver (Phase 3)** — if a real tenant's joint material+resource+
       sequence+tank+quality+labor optimization workload turns out to need a dedicated solver
       library/runtime, evaluate microservice extraction against `CLAUDE.md` §2's criteria at that

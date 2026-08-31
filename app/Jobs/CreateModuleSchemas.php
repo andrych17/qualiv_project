@@ -29,6 +29,7 @@ class CreateModuleSchemas
         'PAYROLL',
         'PERF',
         'AIINSIGHT',
+        'PP',
     ];
 
     public function __construct(

@@ -8,6 +8,7 @@ use App\Modules\SysConfig\Models\ConfigGroup;
 use App\Modules\SysConfig\Models\ConfigGroupUser;
 use App\Modules\SysConfig\Models\ConfigMenu;
 use App\Modules\SysConfig\Models\ConfigRight;
+use App\Modules\SysConfig\Models\ConfigSnum;
 use Illuminate\Database\Seeder;
 
 /**
@@ -49,6 +50,7 @@ class SysConfigSeeder extends Seeder
         $this->seedRights($groups, $menus);
         $this->seedGroupUsers($groups);
         $this->seedConsts();
+        $this->seedSnums();
     }
 
     /** @return array<string, ConfigGroup> */
@@ -106,6 +108,8 @@ class SysConfigSeeder extends Seeder
             // (no §3A dashboard yet), same "point straight at the built page" convention
             // WNE/DMS/Accounting used before their own dashboards existed.
             ['code' => 'PERFORMANCE', 'menu_header' => 'People', 'menu_caption' => 'Performance', 'menu_link' => '/performance/kpi-definitions', 'icon' => 'Target', 'seq' => 150, 'status_code' => 'A'],
+            // PP_SPECS.md §3A ships (Item Planning Parameters) — full plan only (config/tenant_modules.php).
+            ['code' => 'PP', 'menu_header' => 'Operations', 'menu_caption' => 'Production Planning', 'menu_link' => '/pp/item-planning-params', 'icon' => 'CalendarRange', 'seq' => 160, 'status_code' => 'A'],
         ];
 
         $submenus = [
@@ -205,6 +209,18 @@ class SysConfigSeeder extends Seeder
                 ['code' => 'PERFORMANCE_BUDGETS', 'caption' => 'Budgets', 'link' => '/performance/budgets', 'icon' => 'PieChart', 'seq' => 153],
                 ['code' => 'PERFORMANCE_SCORECARDS', 'caption' => 'Scorecards', 'link' => '/performance/scorecards', 'icon' => 'Award', 'seq' => 154],
             ],
+            'PP' => [
+                ['code' => 'PP_ITEM_PARAMS', 'caption' => 'Item Planning Parameters', 'link' => '/pp/item-planning-params', 'icon' => 'SlidersHorizontal', 'seq' => 161],
+                ['code' => 'PP_DEMAND', 'caption' => 'Demand Aggregation', 'link' => '/pp/demand', 'icon' => 'TrendingUp', 'seq' => 162],
+                ['code' => 'PP_DEMAND_FORECASTS', 'caption' => 'Demand Forecasts', 'link' => '/pp/demand-forecasts', 'icon' => 'LineChart', 'seq' => 163],
+                ['code' => 'PP_BOMS', 'caption' => 'Bills of Material', 'link' => '/pp/boms', 'icon' => 'Layers3', 'seq' => 164],
+                ['code' => 'PP_RECIPES', 'caption' => 'Recipes', 'link' => '/pp/recipes', 'icon' => 'FlaskConical', 'seq' => 165],
+                ['code' => 'PP_PLANNED_ORDERS', 'caption' => 'Planned Orders', 'link' => '/pp/planned-orders', 'icon' => 'ClipboardList', 'seq' => 166],
+                ['code' => 'PP_MPS', 'caption' => 'Master Production Schedule', 'link' => '/pp/mps', 'icon' => 'Grid3x3', 'seq' => 167],
+                ['code' => 'PP_RESOURCES', 'caption' => 'Resources', 'link' => '/pp/resources', 'icon' => 'Wrench', 'seq' => 168],
+                ['code' => 'PP_RESOURCE_GROUPS', 'caption' => 'Resource Groups', 'link' => '/pp/resource-groups', 'icon' => 'Group', 'seq' => 169],
+                ['code' => 'PP_CAPACITY', 'caption' => 'Capacity Planning (RCCP)', 'link' => '/pp/capacity-plans', 'icon' => 'Gauge', 'seq' => 170],
+            ],
         ];
 
         $map = [];
@@ -276,6 +292,7 @@ class SysConfigSeeder extends Seeder
                 'PERFORMANCE' => 'CRUD',
                 'PURCHASE' => 'CRUD',
                 'SALES' => 'CRUD',
+                'PP' => 'CRUD',
                 'DESIGN_SYSTEM' => 'R',
             ],
             'VIEWER' => [
@@ -293,6 +310,7 @@ class SysConfigSeeder extends Seeder
                 'PERFORMANCE' => 'R',
                 'PURCHASE' => 'R',
                 'SALES' => 'R',
+                'PP' => 'R',
                 'DESIGN_SYSTEM' => 'R',
             ],
         ];
@@ -381,6 +399,13 @@ class SysConfigSeeder extends Seeder
             ['const_group' => 'STATUS', 'group_code' => 'INACTIVE', 'seq' => 2, 'str1' => 'I', 'str2' => 'Inactive'],
             ['const_group' => 'TRUSTEE', 'group_code' => 'CRUD', 'seq' => 1, 'str1' => 'CRUD', 'note1' => 'Full menu trustee'],
             ['const_group' => 'TRUSTEE', 'group_code' => 'R', 'seq' => 2, 'str1' => 'R', 'note1' => 'Read-only trustee'],
+            // PP §3C — MPS grid period bucket size and horizon, customization ladder rung 1
+            // (CLAUDE.md §2), never hardcoded since tenants plan on different cadences.
+            ['const_group' => 'PP', 'group_code' => 'MPS_PERIOD_TYPE', 'seq' => 1, 'str1' => 'week', 'note1' => 'week | month — MPS grid period bucket size'],
+            ['const_group' => 'PP', 'group_code' => 'MPS_HORIZON_PERIODS', 'seq' => 2, 'num1' => 8, 'note1' => 'Number of periods the MPS grid shows ahead'],
+            // §3F — RCCP overload threshold, tenant-editable since what counts as "overloaded"
+            // varies (e.g. a tenant running lean shifts may flag at 90%, not 100%).
+            ['const_group' => 'PP', 'group_code' => 'CAPACITY_OVERLOAD_THRESHOLD_PCT', 'seq' => 3, 'num1' => 100, 'note1' => 'Load % beyond which an RCCP row is flagged overloaded'],
         ];
 
         foreach ($consts as $c) {
@@ -398,5 +423,21 @@ class SysConfigSeeder extends Seeder
                 ],
             );
         }
+    }
+
+    /** PP_SPECS.md §3D/§5 — auto-seeded (unlike Legal's LEGAL_MATTER_LASTID) so a fresh 'full'-plan tenant can create a planned order without an extra manual Config > Serials setup step. */
+    private function seedSnums(): void
+    {
+        ConfigSnum::query()->updateOrCreate(
+            ['code' => 'PP_PLAN_LASTID'],
+            [
+                'last_cnt' => 0,
+                'wrap_low' => 1,
+                'wrap_high' => 999999,
+                'step_cnt' => 1,
+                'descr' => 'PP planned order running number',
+                'status_code' => 'A',
+            ],
+        );
     }
 }
