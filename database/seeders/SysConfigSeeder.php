@@ -110,6 +110,8 @@ class SysConfigSeeder extends Seeder
             ['code' => 'PERFORMANCE', 'menu_header' => 'People', 'menu_caption' => 'Performance', 'menu_link' => '/performance/kpi-definitions', 'icon' => 'Target', 'seq' => 150, 'status_code' => 'A'],
             // PP_SPECS.md §3O ships (Dashboard) — full plan only (config/tenant_modules.php).
             ['code' => 'PP', 'menu_header' => 'Operations', 'menu_caption' => 'Production Planning', 'menu_link' => '/pp/dashboard', 'icon' => 'CalendarRange', 'seq' => 160, 'status_code' => 'A'],
+            // MES_SPECS.md — full plan only (config/tenant_modules.php).
+            ['code' => 'MES', 'menu_header' => 'Operations', 'menu_caption' => 'Manufacturing Execution', 'menu_link' => '/mes/work-centers', 'icon' => 'Factory', 'seq' => 230, 'status_code' => 'A'],
         ];
 
         $submenus = [
@@ -225,6 +227,26 @@ class SysConfigSeeder extends Seeder
                 ['code' => 'PP_SCHEDULE_OPS', 'caption' => 'Detailed Scheduling', 'link' => '/pp/schedule-ops', 'icon' => 'GanttChart', 'seq' => 172],
                 ['code' => 'PP_CHANGEOVER_MATRIX', 'caption' => 'Changeover Matrix', 'link' => '/pp/changeover-matrix', 'icon' => 'Shuffle', 'seq' => 173],
             ],
+            'MES' => [
+                ['code' => 'MES_WORK_CENTERS', 'caption' => 'Work Centers', 'link' => '/mes/work-centers', 'icon' => 'Boxes', 'seq' => 231],
+                ['code' => 'MES_MACHINES', 'caption' => 'Machines', 'link' => '/mes/machines', 'icon' => 'Cog', 'seq' => 232],
+                ['code' => 'MES_STATIONS', 'caption' => 'Stations', 'link' => '/mes/stations', 'icon' => 'MapPin', 'seq' => 233],
+                ['code' => 'MES_ROUTINGS', 'caption' => 'Routings', 'link' => '/mes/routings', 'icon' => 'Route', 'seq' => 234],
+                ['code' => 'MES_PROCESS_PHASES', 'caption' => 'Process Phases', 'link' => '/mes/process-phases', 'icon' => 'Thermometer', 'seq' => 235],
+                ['code' => 'MES_PROD_ORDERS', 'caption' => 'Production Orders', 'link' => '/mes/prod-orders', 'icon' => 'ClipboardList', 'seq' => 236],
+                ['code' => 'MES_PROD_EVENTS', 'caption' => 'Production Events', 'link' => '/mes/prod-events', 'icon' => 'History', 'seq' => 237],
+                ['code' => 'MES_QC_PLANS', 'caption' => 'QC Inspection Plans', 'link' => '/mes/qc-plans', 'icon' => 'ClipboardCheck', 'seq' => 238],
+                ['code' => 'MES_TRACEABILITY', 'caption' => 'Traceability', 'link' => '/mes/traceability', 'icon' => 'GitBranch', 'seq' => 239],
+                ['code' => 'MES_AUDIT_LOGS', 'caption' => 'Audit Trail', 'link' => '/mes/audit-logs', 'icon' => 'FileClock', 'seq' => 240],
+                ['code' => 'MES_DOWNTIME', 'caption' => 'Equipment Downtime', 'link' => '/mes/downtime-events', 'icon' => 'AlertOctagon', 'seq' => 241],
+                ['code' => 'MES_OEE', 'caption' => 'OEE & Process KPIs', 'link' => '/mes/oee', 'icon' => 'Gauge', 'seq' => 242],
+                ['code' => 'MES_SHIFT_HANDOVERS', 'caption' => 'Shift Handover', 'link' => '/mes/shift-handovers', 'icon' => 'ArrowLeftRight', 'seq' => 243],
+                ['code' => 'MES_DISPATCH_QUEUE', 'caption' => 'Dispatch Queue', 'link' => '/mes/dispatch-queue', 'icon' => 'ListOrdered', 'seq' => 244],
+                ['code' => 'MES_ANDON', 'caption' => 'Andon Board', 'link' => '/mes/andon', 'icon' => 'AlarmClockCheck', 'seq' => 245],
+                ['code' => 'MES_DASHBOARD_PLANT', 'caption' => 'Plant Dashboard', 'link' => '/mes/dashboards/plant', 'icon' => 'LayoutDashboard', 'seq' => 246],
+                ['code' => 'MES_DASHBOARD_LINE', 'caption' => 'Line Dashboard', 'link' => '/mes/dashboards/line', 'icon' => 'BarChart3', 'seq' => 247],
+                ['code' => 'MES_DASHBOARD_PROCESS', 'caption' => 'Process Area Dashboard', 'link' => '/mes/dashboards/process-area', 'icon' => 'FlaskConical', 'seq' => 248],
+            ],
         ];
 
         $map = [];
@@ -297,6 +319,7 @@ class SysConfigSeeder extends Seeder
                 'PURCHASE' => 'CRUD',
                 'SALES' => 'CRUD',
                 'PP' => 'CRUD',
+                'MES' => 'CRUD',
                 'DESIGN_SYSTEM' => 'R',
             ],
             'VIEWER' => [
@@ -315,6 +338,7 @@ class SysConfigSeeder extends Seeder
                 'PURCHASE' => 'R',
                 'SALES' => 'R',
                 'PP' => 'R',
+                'MES' => 'R',
                 'DESIGN_SYSTEM' => 'R',
             ],
         ];

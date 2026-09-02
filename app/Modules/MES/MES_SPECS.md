@@ -92,10 +92,14 @@ goods) need to know **what actually happened on the floor**, not just what the E
 - Batch genealogy detail views, quality hold/release workflow via WNE (§3K, §3L).
 
 ## Phase 3 — Advanced (future version — do not build now)
-- IoT/PLC/SCADA integration layer (OPC-UA/MQTT/Modbus ingestion → production events /
-  time-series parameter readings) (§3S).
-- Real-time process-parameter streaming and alarms.
-- Andon visual status board (§3R).
+- **§3R (Alerts & Andon) and §3S (IoT / PLC Integration) were built ahead of this phase gate**,
+  by explicit user override (2026-09-02) — see each section's own build for what actually
+  shipped: §3R ships the Andon read model + the six-condition alert sweep via WNE; §3S ships one
+  concrete protocol adapter (REST/webhook, Sanctum bearer-token auth) behind the pluggable
+  `IotProtocolAdapter` interface, plus the queued ingestion job — not MQTT/OPC-UA/Modbus, which
+  still wait on real hardware/client libraries and stay properly Phase 3.
+- Real-time process-parameter streaming and alarms — the alert *sweep* (§3R) now exists;
+  sub-second streaming/alarming does not.
 - Advanced finite-capacity scheduling / optimization.
 - Predictive-maintenance integration (beyond the reactive downtime → maintenance-request hook in
   §3M).
@@ -407,7 +411,7 @@ Elapsed        32:14
   calendar engine — same "don't duplicate an existing Core module" rule Inventory's Dock
   Scheduling (Advanced) already follows (`INVENTORY_SPECS.md` §3S).
 
-## 3R. Alerts & Andon (Phase 3)
+## 3R. Alerts & Andon (Phase 3 — built ahead of schedule, see §2 note)
 
 **Function / Features**
 - Andon states (`running` / `attention` / `stopped` / `maintenance`) derived from
@@ -418,7 +422,7 @@ Elapsed        32:14
   (`NotificationRequested`), same integration seam every other module uses — MES does not build
   its own notification channel.
 
-## 3S. IoT / PLC Integration (Phase 3)
+## 3S. IoT / PLC Integration (Phase 3 — built ahead of schedule, see §2 note)
 
 **Function / Features**
 - Integration layer only, never hard-coded machine protocol handling inside MES's own services:
@@ -560,7 +564,9 @@ headers (BOM/Recipe's own custom-field registration is PP's, `PP_SPECS.md` §4).
    above engine's governance-sensitive edit paths are identified, rather than building it
    monolithically up front.
 10. Phase 2 items (§3M, §3O, §3P, §3Q) and Phase 3 items (§3R, §3S) follow only after Phase 1 is
-    validated with a real tenant, per §2's phasing.
+    validated with a real tenant, per §2's phasing — **§3R/§3S were the exception, built ahead
+    of a real tenant per explicit override, see §2's note**; §3T (untagged, no phase gate) was
+    built in the same pass.
 
 ---
 

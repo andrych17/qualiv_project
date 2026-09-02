@@ -1,9 +1,14 @@
 <?php
 
+use App\Modules\MES\Controllers\AndonController;
 use App\Modules\MES\Controllers\BatchExecutionController;
+use App\Modules\MES\Controllers\DashboardController;
+use App\Modules\MES\Controllers\DispatchQueueController;
+use App\Modules\MES\Controllers\DowntimeController;
 use App\Modules\MES\Controllers\MachineController;
 use App\Modules\MES\Controllers\MaterialConsumptionController;
 use App\Modules\MES\Controllers\MesAuditLogController;
+use App\Modules\MES\Controllers\OeeController;
 use App\Modules\MES\Controllers\ProcessPhaseController;
 use App\Modules\MES\Controllers\ProdEventController;
 use App\Modules\MES\Controllers\ProdOrderController;
@@ -13,6 +18,7 @@ use App\Modules\MES\Controllers\QcPlanController;
 use App\Modules\MES\Controllers\QcSampleController;
 use App\Modules\MES\Controllers\ReworkController;
 use App\Modules\MES\Controllers\RoutingController;
+use App\Modules\MES\Controllers\ShiftHandoverController;
 use App\Modules\MES\Controllers\ShopFloorController;
 use App\Modules\MES\Controllers\StationController;
 use App\Modules\MES\Controllers\TraceabilityController;
@@ -98,4 +104,30 @@ Route::middleware(['auth', 'verified', 'module:MES', 'menu.perm:MES'])
 
         // §3U Digital Audit Trail — read-only, system-written only (see MesAuditLogger).
         Route::get('audit-logs', [MesAuditLogController::class, 'index'])->name('auditLogs.index');
+
+        // §3M Equipment Status & Downtime — start/end only, no edit/delete (append-only, same
+        // posture as the production event ledger this feeds).
+        Route::get('downtime-events', [DowntimeController::class, 'index'])->name('downtimeEvents.index');
+        Route::post('downtime-events', [DowntimeController::class, 'store'])->name('downtimeEvents.store');
+        Route::post('downtime-events/{downtimeEvent}/end', [DowntimeController::class, 'end'])->name('downtimeEvents.end');
+
+        // §3O OEE & Process KPIs — read-only, no dedicated table (derived over §3C/§3J/§3L/§3M).
+        Route::get('oee', [OeeController::class, 'index'])->name('oee.index');
+
+        // §3P Shift Reference & Handover — create-only, no edit/delete (a point-in-time record).
+        Route::get('shift-handovers', [ShiftHandoverController::class, 'index'])->name('shiftHandovers.index');
+        Route::post('shift-handovers', [ShiftHandoverController::class, 'store'])->name('shiftHandovers.store');
+
+        // §3Q MES Scheduling — live dispatch queue, read-only + one write lever (`promote`); see
+        // DispatchQueueService for the boundary with PP's own §3H planning engine.
+        Route::get('dispatch-queue', [DispatchQueueController::class, 'index'])->name('dispatchQueue.index');
+        Route::post('dispatch-queue/{prodOrder}/promote', [DispatchQueueController::class, 'promote'])->name('dispatchQueue.promote');
+
+        // §3R Alerts & Andon — pure read model; alert delivery/history is the mes:check-andon-alerts sweep.
+        Route::get('andon', [AndonController::class, 'index'])->name('andon.index');
+
+        // §3T Dashboards — three focused read models, no dedicated table.
+        Route::get('dashboards/plant', [DashboardController::class, 'plant'])->name('dashboards.plant');
+        Route::get('dashboards/line', [DashboardController::class, 'line'])->name('dashboards.line');
+        Route::get('dashboards/process-area', [DashboardController::class, 'processArea'])->name('dashboards.processArea');
     });

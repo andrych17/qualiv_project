@@ -60,3 +60,11 @@ Schedule::command('tenants:run "accounting:run-recurring-sweep"')->dailyAt('03:0
 // computed live regardless of sweep timing, see ReservationService::activeReservedQty()),
 // hourly is plenty given the default hold window is measured in hours, not minutes.
 Schedule::command('tenants:run "inventory:release-expired-reservations"')->hourly();
+
+// MES_SPECS.md §3M downtime-threshold sweep — same tenant-scoped tenants:run convention and
+// cadence as WNE's SLA escalation sweep, since both are "notify once, past a threshold" rules.
+Schedule::command('tenants:run "mes:check-downtime-thresholds"')->everyFiveMinutes();
+
+// MES_SPECS.md §3R Andon alert sweep — same posture, five conditions computed fresh each run,
+// idempotent via mes_andon_alerts' open-row uniqueness.
+Schedule::command('tenants:run "mes:check-andon-alerts"')->everyFiveMinutes();
