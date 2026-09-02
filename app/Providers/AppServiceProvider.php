@@ -40,6 +40,7 @@ use App\Modules\Performance\Listeners\AwardKpiAchievements;
 use App\Modules\Performance\Listeners\AwardOkrCompletionAchievements;
 use App\Modules\Performance\Listeners\EvaluateKpiValueVariance;
 use App\Modules\PP\Listeners\SyncDemandFromSalesOrder;
+use App\Modules\PP\Models\Recipe;
 use App\Modules\Sales\Events\SalesOrderConfirmed;
 use App\Modules\Sales\Events\SalesOrderRequested;
 use App\Modules\Sales\Listeners\CreateSalesOrderFromRequested;
@@ -283,6 +284,24 @@ class AppServiceProvider extends ServiceProvider
                 })),
             filterable: [],
             menuCode: 'HCM',
+        );
+
+        // MES_SPECS.md §3F Process Phases picker — active recipe only, since a phase set is
+        // built against the recipe version currently in force (§3B boundary note).
+        AsyncSearchRegistry::register(
+            'pp_recipe',
+            Recipe::class,
+            ['id'],
+            fn (Recipe $r) => $r->product ? "{$r->product->sku} — {$r->product->name} (v{$r->version})" : "Recipe #{$r->id}",
+            fn (Recipe $r) => "Batch size {$r->batch_size} {$r->uom_code}",
+            queryCallback: fn ($query, $search, $extraFilters) => $query
+                ->with('product:id,sku,name')
+                ->active()
+                ->whereHas('product', fn ($q) => $q
+                    ->when($search !== '', fn ($q) => $q->where('sku', 'ilike', '%'.$search.'%')
+                        ->orWhere('name', 'ilike', '%'.$search.'%'))),
+            filterable: [],
+            menuCode: 'PP',
         );
     }
 }
