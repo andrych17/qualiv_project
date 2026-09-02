@@ -79,8 +79,13 @@ class RecipeService
     }
 
     /**
-     * §3D formula scaling — pure calculation, no stored scaled rows:
-     * `qty = ingredient.qty_per_batch * targetBatchSize / recipe.batch_size`.
+     * §3D formula scaling — pure calculation, no stored scaled rows, formula pinned by the spec
+     * verbatim: `qty = ingredient.qty_per_batch * targetBatchSize / recipe.batch_size`.
+     * `expected_waste_pct` is deliberately not applied here — §3D describes it only as a header
+     * field, never as part of this formula, and §3K's batch-size-planning bullet names only
+     * `batch_size` and `expected_yield_pct` as MRP inputs (see `MrpService::applyBatchSizing()`).
+     * Applying it here too would double-count against whatever loss `expected_yield_pct` already
+     * represents without a spec basis for treating them as two distinct physical losses.
      *
      * @return list<array{product_id: int, qty: float, uom_code: string|null}>
      */

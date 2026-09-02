@@ -8,6 +8,7 @@ use App\Modules\PP\Models\DemandLine;
 use App\Modules\PP\Models\ItemPlanningParam;
 use App\Modules\PP\Models\MrpRun;
 use App\Modules\PP\Models\PlannedOrder;
+use App\Modules\PP\Models\PpException;
 use App\Modules\PP\Models\Recipe;
 use App\Modules\SysConfig\Services\ConfigSnumService;
 use Illuminate\Support\Carbon;
@@ -34,6 +35,23 @@ use RuntimeException;
  * dependent-demand explosion, and no new row is created for it (only `status = 'planned'` rows
  * are cleared at the top of `run()`, so the firmed row survives untouched). This is how a
  * planner's "firm" action on an MPS cell excludes that order from automatic MRP regeneration.
+ *
+ * PP_SPECS.md §3K — a recipe-driven (process) product's netted qty is further batch-sized:
+ * `applyBatchSizing()` inflates for `recipe.expected_yield_pct` and rounds up to a whole multiple
+ * of `recipe.batch_size` before either the planned order is created or `RecipeService::scale()`
+ * explodes dependent ingredient demand, so both reflect what actually gets produced (whole
+ * batches), not the raw net requirement.
+ *
+ * PP_SPECS.md §3L — the "Material" constraint check: `checkMaterialShortage()` fires when a
+ * covering order is actually created for a product whose available-to-promise was already
+ * negative (not when netting alone would have shown it, and not for a firmed order — a planner's
+ * firm override skips this check the same way it skips lot-sizing, see the §3C paragraph above),
+ * and `checkLateOrders()` splits `TYPE_LATE_ORDER`/`TYPE_LATE_PURCHASE` by `order_type`. The other
+ * four §3L checks (Resource, Sequence, Tank, Quality, Labor) are not run from here: Tank already
+ * runs generically through `CapacityPlanService::checkOverload()` (§3F, no PP-specific code
+ * needed); Resource/Sequence/Quality need MES equipment status, routing/phase predecessors, and
+ * `mes_qc_holds` (none exist yet); Labor needs an HCM certification/skill model that doesn't
+ * exist yet either — same "not built yet" posture as `PlannedOrderService::release()`.
  */
 class MrpService
 {
@@ -44,6 +62,7 @@ class MrpService
         protected PpService $pp,
         protected RecipeService $recipeScaler,
         protected ConfigSnumService $serials,
+        protected PpExceptionService $exceptions,
     ) {}
 
     public function run(): MrpRun
@@ -56,12 +75,31 @@ class MrpService
             ]);
 
             // Regenerative: clear what a prior run produced that nothing downstream owns yet.
+            $stalePlannedIds = PlannedOrder::query()->baseline()->where('status', PlannedOrder::STATUS_PLANNED)->pluck('id');
             PlannedOrder::query()->baseline()->where('status', PlannedOrder::STATUS_PLANNED)->delete();
             DemandHeader::query()->where('source_type', DemandHeader::SOURCE_DEPENDENT)->delete();
+
+            // §3L exceptions are keyed on `subject_id` = a planned order's own PK, which does not
+            // survive regeneration (the row above was just deleted and, if the condition still
+            // holds, a fresh order with a fresh id is about to replace it). Without this, every
+            // re-run would orphan the prior exception and PpExceptionService::record()'s
+            // firstOrCreate — matched on the new id — would create a duplicate open row instead
+            // of recognizing "same condition, still true". Resolved (not deleted, per this
+            // repo's "keep non-destructive" migration convention) rather than removed outright:
+            // an acknowledged row is a planner's work product, not disposable, and a resolved
+            // trail survives even though the order it once pointed at is gone (the Exception
+            // Center already renders a deleted subject gracefully — see
+            // PpExceptionController::subjectLabel()).
+            PpException::query()
+                ->where('subject_type', PpException::SUBJECT_PLANNED_ORDER)
+                ->whereIn('subject_id', $stalePlannedIds)
+                ->whereIn('status', [PpException::STATUS_OPEN, PpException::STATUS_ACKNOWLEDGED])
+                ->update(['status' => PpException::STATUS_RESOLVED, 'resolved_at' => now()]);
 
             [$netted, $childContributions] = $this->explode($this->seedRequirements());
 
             $this->persist($mrpRun, $netted, $childContributions);
+            $this->checkLateOrders();
 
             $mrpRun->update(['status' => MrpRun::STATUS_COMPLETED]);
 
@@ -71,7 +109,7 @@ class MrpService
 
     /**
      * @return array<int, array{qty: float, need_by: Carbon, driving_line_id: int|null}>
-     *         product_id => accumulated independent (non-dependent) gross requirement
+     *                                                                                   product_id => accumulated independent (non-dependent) gross requirement
      */
     private function seedRequirements(): array
     {
@@ -144,6 +182,10 @@ class MrpService
                 $bom = $lotQty > 0 ? $this->pp->getActiveBom($productId) : null;
                 $recipe = ($lotQty > 0 && $bom === null) ? $this->pp->getActiveRecipe($productId) : null;
 
+                if ($recipe) {
+                    $lotQty = $this->applyBatchSizing($recipe, $lotQty);
+                }
+
                 $netted[$productId] = $lotQty > 0 ? [
                     'qty' => $lotQty,
                     'need_by' => $req['need_by'],
@@ -151,6 +193,7 @@ class MrpService
                     'type' => ($bom || $recipe) ? PlannedOrder::TYPE_PRODUCTION : PlannedOrder::TYPE_PURCHASE,
                     'bom_id' => $bom?->id,
                     'recipe_id' => $recipe?->id,
+                    'available' => $available,
                 ] : null;
             }
 
@@ -223,6 +266,26 @@ class MrpService
     }
 
     /**
+     * PP_SPECS.md §3K "batch-size planning" — applied after §3A's item-level lot sizing, since
+     * `recipe.batch_size` is a physical constraint (a process order can only run in whole
+     * batches) rather than a planning policy. `expected_yield_pct` means a batch's *good* output
+     * is less than its `batch_size`, so netting $netQty good units requires producing enough
+     * gross batches to cover the yield loss before rounding up to the nearest whole batch.
+     */
+    private function applyBatchSizing(Recipe $recipe, float $netQty): float
+    {
+        $batchSize = (float) $recipe->batch_size;
+        if ($batchSize <= 0) {
+            return $netQty;
+        }
+
+        $yieldPct = (float) $recipe->expected_yield_pct;
+        $grossQty = $yieldPct > 0 ? $netQty / ($yieldPct / 100) : $netQty;
+
+        return ceil($grossQty / $batchSize) * $batchSize;
+    }
+
+    /**
      * @param  array<int, array<string, mixed>|null>  $netted
      * @param  array<int, array<int, float>>  $childContributions
      */
@@ -255,8 +318,33 @@ class MrpService
                 'status' => PlannedOrder::STATUS_PLANNED,
             ]);
 
+            if (($data['available'] ?? 0) < 0) {
+                $this->checkMaterialShortage($order, (float) $data['available']);
+            }
+
             $this->recordDependentDemand($order, $childContributions[$productId] ?? []);
         }
+    }
+
+    /**
+     * PP_SPECS.md §3L "Material" — reads PP's own `AvailabilityService::totalAvailableQty()`,
+     * the warehouse-agnostic MRP-planning equivalent of `InventoryService::checkAvailability()`
+     * the spec names (see that service's own docblock). A negative available-to-promise means
+     * this product was already oversold/overcommitted against physical + reserved stock before
+     * this covering order — a distinct condition from `checkLateOrders()`'s "will this order
+     * arrive in time". Only reached for a newly-created (non-firmed) order — see this class's
+     * own docblock for why firmed orders and a fully-covered net requirement (`$lotQty === 0`,
+     * never persisted) skip it.
+     */
+    private function checkMaterialShortage(PlannedOrder $order, float $available): void
+    {
+        $this->exceptions->record(
+            PpException::TYPE_MATERIAL_SHORTAGE,
+            PpException::SUBJECT_PLANNED_ORDER,
+            $order->id,
+            "Planned order {$order->plan_number} ({$order->product?->sku}) covers a shortage — available-to-promise was already {$available} before this order.",
+            PpException::SEVERITY_HIGH,
+        );
     }
 
     /** @param  array<int, float>  $contributions childProductId => qty */
@@ -281,6 +369,43 @@ class MrpService
                 'need_by_date' => $order->need_by_date,
                 'qty' => $qty,
             ]);
+        }
+    }
+
+    /**
+     * PP_SPECS.md §3M "late production orders" — scans every still-open baseline planned order
+     * (not just this run's output, since a firmed order survives a run untouched — see class
+     * docblock) whose need_by_date has already passed. PP_SPECS.md §3L splits the exception type
+     * by `order_type`: a purchase order past due is `TYPE_LATE_PURCHASE` (the material never
+     * arrived), everything else (production/transfer) is `TYPE_LATE_ORDER` — two distinct rows
+     * in §3M's dashboard, `PpExceptionService::suggestedActions()` already groups them.
+     */
+    private function checkLateOrders(): void
+    {
+        $late = PlannedOrder::query()->baseline()
+            ->whereIn('status', [PlannedOrder::STATUS_PLANNED, PlannedOrder::STATUS_FIRMED])
+            ->where('need_by_date', '<', now()->toDateString())
+            ->with('product:id,sku')
+            ->get();
+
+        foreach ($late as $order) {
+            $daysLate = (int) now()->diffInDays($order->need_by_date);
+            $severity = match (true) {
+                $daysLate >= 14 => PpException::SEVERITY_CRITICAL,
+                $daysLate >= 7 => PpException::SEVERITY_HIGH,
+                default => PpException::SEVERITY_MEDIUM,
+            };
+            $type = $order->order_type === PlannedOrder::TYPE_PURCHASE
+                ? PpException::TYPE_LATE_PURCHASE
+                : PpException::TYPE_LATE_ORDER;
+
+            $this->exceptions->record(
+                $type,
+                PpException::SUBJECT_PLANNED_ORDER,
+                $order->id,
+                "Planned order {$order->plan_number} ({$order->product?->sku}) is overdue by {$daysLate} day(s) — need-by was {$order->need_by_date->toDateString()}.",
+                $severity,
+            );
         }
     }
 

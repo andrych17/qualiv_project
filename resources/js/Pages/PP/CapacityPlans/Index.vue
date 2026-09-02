@@ -4,6 +4,7 @@ import { Link, router } from '@inertiajs/vue3'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
+import Panel from '@/Components/cards/Panel.vue'
 import DataTable, { type SortState } from '@/Components/tables/DataTable.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import { ref, watch } from 'vue'
@@ -14,12 +15,21 @@ import { formatNumber } from '@/Utils/formatters'
 interface CapacityPlanRow {
   id: number
   target_label: string
+  dimension: string
+  unit: string
   period_start: string
   period_end: string
   required_hours: number
   available_hours: number
   load_pct: number
   is_overloaded: boolean
+}
+
+interface DimensionRow {
+  dimension: string
+  status: 'ok' | 'over' | 'not_tracked'
+  worst_label: string | null
+  worst_load_pct: number | null
 }
 
 interface PaginatedData<T> {
@@ -34,7 +44,10 @@ interface PaginatedData<T> {
 const props = defineProps<{
   plans: PaginatedData<CapacityPlanRow>
   filters: { search?: string; period_start?: string; sort?: string; direction?: string; per_page?: string }
+  dimensions: DimensionRow[]
 }>()
+
+const formatDimension = (dimension: string) => dimension.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
 
 const search = ref(props.filters.search ?? '')
 const sort = ref<SortState>(
@@ -99,6 +112,17 @@ const confirmBulkDelete = () => {
       </template>
     </PageHeader>
 
+    <Panel title="Capacity by Dimension" subtitle="§3G — one status per dimension, worst-case across every row in it. Not a separate engine: same RCCP data as the table below, grouped by resource type." class="mt-6">
+      <ul class="flex flex-wrap gap-4">
+        <li v-for="row in dimensions" :key="row.dimension" class="flex items-center gap-2">
+          <span class="text-sm text-ink-700">{{ formatDimension(row.dimension) }}</span>
+          <StatusBadge v-if="row.status === 'not_tracked'" status="neutral" label="Not tracked yet" />
+          <StatusBadge v-else-if="row.status === 'over'" status="breach" label="Over" />
+          <StatusBadge v-else status="active" label="OK" />
+        </li>
+      </ul>
+    </Panel>
+
     <div class="mt-6 space-y-4">
       <DataTable
         :columns="columns"
@@ -132,10 +156,10 @@ const confirmBulkDelete = () => {
           <span class="text-xs text-ink-600">{{ (item as CapacityPlanRow).period_start }} – {{ (item as CapacityPlanRow).period_end }}</span>
         </template>
         <template #cell-required_hours="{ item }">
-          <span class="font-mono text-xs text-ink-600">{{ formatNumber((item as CapacityPlanRow).required_hours) }} hr</span>
+          <span class="font-mono text-xs text-ink-600">{{ formatNumber((item as CapacityPlanRow).required_hours) }} {{ (item as CapacityPlanRow).unit }}</span>
         </template>
         <template #cell-available_hours="{ item }">
-          <span class="font-mono text-xs text-ink-600">{{ formatNumber((item as CapacityPlanRow).available_hours) }} hr</span>
+          <span class="font-mono text-xs text-ink-600">{{ formatNumber((item as CapacityPlanRow).available_hours) }} {{ (item as CapacityPlanRow).unit }}</span>
         </template>
         <template #cell-load_pct="{ item }">
           <div class="flex items-center gap-2">

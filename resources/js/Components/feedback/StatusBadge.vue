@@ -94,6 +94,15 @@ const badgeClass = computed(() => {
     // PP §3D/§3C Planned Order status ('released'/'cancelled' reuse the keys above)
     planned: 'bg-signal-info/10 text-signal-info border-signal-info/25',
     firmed: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
+    // PP §3M Exception status ('open'/'resolved' reuse the keys above)
+    acknowledged: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
+    // PP §3M Exception severity
+    critical: 'bg-signal-danger/10 text-signal-danger border-signal-danger/25',
+    high: 'bg-signal-danger/10 text-signal-danger border-signal-danger/25',
+    medium: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
+    low: 'bg-signal-info/10 text-signal-info border-signal-info/25',
+    // PP §3H Schedule Op status ('draft'/'released' reuse the keys above)
+    committed: 'bg-signal-info/10 text-signal-info border-signal-info/25',
   }
 
   return map[normalizedStatus.value] ?? 'bg-surface-50 text-ink-600 border-border'

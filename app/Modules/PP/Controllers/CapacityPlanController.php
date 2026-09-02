@@ -41,20 +41,31 @@ class CapacityPlanController extends Controller
             )
             ->paginate(TableQuery::perPage(isset($filters['per_page']) ? (int) $filters['per_page'] : null, 20))
             ->withQueryString()
-            ->through(fn (CapacityPlan $p) => [
-                'id' => $p->id,
-                'target_label' => $this->targetLabel($p),
-                'period_start' => $p->period_start->toDateString(),
-                'period_end' => $p->period_end->toDateString(),
-                'required_hours' => (float) $p->required_hours,
-                'available_hours' => (float) $p->available_hours,
-                'load_pct' => $this->service->loadPct($p),
-                'is_overloaded' => $this->service->isOverloaded($p),
-            ]);
+            ->through(function (CapacityPlan $p) {
+                $info = $this->service->dimensionInfo($p);
+
+                return [
+                    'id' => $p->id,
+                    'target_label' => $this->targetLabel($p),
+                    'dimension' => $info['dimension'],
+                    'unit' => $info['unit'],
+                    'period_start' => $p->period_start->toDateString(),
+                    'period_end' => $p->period_end->toDateString(),
+                    'required_hours' => (float) $p->required_hours,
+                    'available_hours' => (float) $p->available_hours,
+                    'load_pct' => $this->service->loadPct($p),
+                    'is_overloaded' => $this->service->isOverloaded($p),
+                ];
+            });
+
+        $dimensions = $this->service->dimensionRollup();
+        $dimensions['labor'] ??= ['dimension' => 'labor', 'status' => 'not_tracked', 'worst_label' => null, 'worst_load_pct' => null];
+        $dimensions['material'] ??= ['dimension' => 'material', 'status' => 'not_tracked', 'worst_label' => null, 'worst_load_pct' => null];
 
         return Inertia::render('PP/CapacityPlans/Index', [
             'plans' => $plans,
             'filters' => $filters,
+            'dimensions' => array_values($this->orderDimensions($dimensions)),
         ]);
     }
 
@@ -99,6 +110,16 @@ class CapacityPlanController extends Controller
     public function bulkDestroy(Request $request)
     {
         return $this->bulkDestroyUsing($request, CapacityPlan::class, fn (CapacityPlan $p) => $this->service->delete($p));
+    }
+
+    /** PP_SPECS.md §3G mockup order (machine, labor, material, tank, utility), any other derived dimension appended after. */
+    private function orderDimensions(array $dimensions): array
+    {
+        $order = ['machine', 'labor', 'material', 'tank', 'utility', 'tool', 'storage', 'unclassified'];
+        $rank = fn (string $d) => ($i = array_search($d, $order, true)) !== false ? $i : 99;
+        uksort($dimensions, fn ($a, $b) => $rank($a) <=> $rank($b));
+
+        return $dimensions;
     }
 
     private function targetLabel(CapacityPlan $plan): string

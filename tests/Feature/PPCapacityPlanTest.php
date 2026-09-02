@@ -92,4 +92,54 @@ class PPCapacityPlanTest extends TestCase
             $this->assertNull(CapacityPlan::query()->find($planId));
         });
     }
+
+    /** PP_SPECS.md §3G — dimension/UoM derived from pp_resources.type, not stored; worst-case OK/OVER per dimension. */
+    public function test_capacity_by_dimension_rollup_and_row_unit_derived_from_resource_type(): void
+    {
+        $tenant = $this->provisionTenant();
+        $tenant->update(['plan' => 'full']);
+
+        $this->post('/login', ['email' => 'admin@nusaevo.com', 'password' => 'password']);
+
+        $tankId = null;
+        $tenant->run(function () use (&$tankId) {
+            $tankId = Resource::query()->create([
+                'type' => Resource::TYPE_TANK, 'code' => 'TANK-01', 'name' => 'Mixing Tank 01',
+                'uom_code' => 'L', 'is_active' => true,
+            ])->id;
+        });
+
+        // Tank resource, earliest period, 90% load — OK.
+        $this->post('/pp/capacity-plans', [
+            'resource_type' => 'pp_resource', 'resource_ref_id' => $tankId,
+            'period_start' => '2026-09-01', 'period_end' => '2026-09-07',
+            'required_hours' => 900, 'available_hours' => 1000,
+        ])->assertRedirect('/pp/capacity-plans');
+
+        // mes_work_center (machine, informational), later period, 130% load — OVER.
+        $this->post('/pp/capacity-plans', [
+            'resource_type' => 'mes_work_center', 'resource_ref_id' => 201,
+            'period_start' => '2026-09-15', 'period_end' => '2026-09-21',
+            'required_hours' => 130, 'available_hours' => 100,
+        ])->assertRedirect('/pp/capacity-plans');
+
+        // Fixed §3G order (machine, labor, material, tank, ...): only machine/labor/material/tank
+        // are present here, so their index is deterministic regardless of DB row order.
+        $this->get('/pp/capacity-plans')->assertOk()->assertInertia(fn ($page) => $page
+            ->component('PP/CapacityPlans/Index')
+            ->where('dimensions.0.dimension', 'machine')
+            ->where('dimensions.0.status', 'over')
+            ->where('dimensions.1.dimension', 'labor')
+            ->where('dimensions.1.status', 'not_tracked')
+            ->where('dimensions.2.dimension', 'material')
+            ->where('dimensions.2.status', 'not_tracked')
+            ->where('dimensions.3.dimension', 'tank')
+            ->where('dimensions.3.status', 'ok')
+            // plans.data ordered by period_start asc — tank (earlier period) first, machine second.
+            ->where('plans.data.0.dimension', 'tank')
+            ->where('plans.data.0.unit', 'L')
+            ->where('plans.data.1.dimension', 'machine')
+            ->where('plans.data.1.unit', 'hr')
+        );
+    }
 }

@@ -108,8 +108,8 @@ class SysConfigSeeder extends Seeder
             // (no §3A dashboard yet), same "point straight at the built page" convention
             // WNE/DMS/Accounting used before their own dashboards existed.
             ['code' => 'PERFORMANCE', 'menu_header' => 'People', 'menu_caption' => 'Performance', 'menu_link' => '/performance/kpi-definitions', 'icon' => 'Target', 'seq' => 150, 'status_code' => 'A'],
-            // PP_SPECS.md §3A ships (Item Planning Parameters) — full plan only (config/tenant_modules.php).
-            ['code' => 'PP', 'menu_header' => 'Operations', 'menu_caption' => 'Production Planning', 'menu_link' => '/pp/item-planning-params', 'icon' => 'CalendarRange', 'seq' => 160, 'status_code' => 'A'],
+            // PP_SPECS.md §3O ships (Dashboard) — full plan only (config/tenant_modules.php).
+            ['code' => 'PP', 'menu_header' => 'Operations', 'menu_caption' => 'Production Planning', 'menu_link' => '/pp/dashboard', 'icon' => 'CalendarRange', 'seq' => 160, 'status_code' => 'A'],
         ];
 
         $submenus = [
@@ -210,6 +210,7 @@ class SysConfigSeeder extends Seeder
                 ['code' => 'PERFORMANCE_SCORECARDS', 'caption' => 'Scorecards', 'link' => '/performance/scorecards', 'icon' => 'Award', 'seq' => 154],
             ],
             'PP' => [
+                ['code' => 'PP_DASHBOARD', 'caption' => 'Dashboard', 'link' => '/pp/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 160],
                 ['code' => 'PP_ITEM_PARAMS', 'caption' => 'Item Planning Parameters', 'link' => '/pp/item-planning-params', 'icon' => 'SlidersHorizontal', 'seq' => 161],
                 ['code' => 'PP_DEMAND', 'caption' => 'Demand Aggregation', 'link' => '/pp/demand', 'icon' => 'TrendingUp', 'seq' => 162],
                 ['code' => 'PP_DEMAND_FORECASTS', 'caption' => 'Demand Forecasts', 'link' => '/pp/demand-forecasts', 'icon' => 'LineChart', 'seq' => 163],
@@ -220,6 +221,9 @@ class SysConfigSeeder extends Seeder
                 ['code' => 'PP_RESOURCES', 'caption' => 'Resources', 'link' => '/pp/resources', 'icon' => 'Wrench', 'seq' => 168],
                 ['code' => 'PP_RESOURCE_GROUPS', 'caption' => 'Resource Groups', 'link' => '/pp/resource-groups', 'icon' => 'Group', 'seq' => 169],
                 ['code' => 'PP_CAPACITY', 'caption' => 'Capacity Planning (RCCP)', 'link' => '/pp/capacity-plans', 'icon' => 'Gauge', 'seq' => 170],
+                ['code' => 'PP_EXCEPTIONS', 'caption' => 'Planning Exceptions', 'link' => '/pp/exceptions', 'icon' => 'AlertTriangle', 'seq' => 171],
+                ['code' => 'PP_SCHEDULE_OPS', 'caption' => 'Detailed Scheduling', 'link' => '/pp/schedule-ops', 'icon' => 'GanttChart', 'seq' => 172],
+                ['code' => 'PP_CHANGEOVER_MATRIX', 'caption' => 'Changeover Matrix', 'link' => '/pp/changeover-matrix', 'icon' => 'Shuffle', 'seq' => 173],
             ],
         ];
 
