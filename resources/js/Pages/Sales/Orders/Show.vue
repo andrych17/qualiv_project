@@ -200,7 +200,7 @@ const requestInvoice = () => {
               type="button"
               @click="activeTab = 'lines'"
               class="px-3 py-1.5 text-xs font-medium rounded-md transition"
-              :class="activeTab === 'lines' ? 'bg-ink-900 text-white font-semibold' : 'text-ink-600 hover:bg-surface-100'"
+              :class="activeTab === 'lines' ? 'bg-ink-900 text-surface-0 font-semibold' : 'text-ink-600 hover:bg-surface-50'"
             >
               Order Lines ({{ props.order.lines.length }})
             </button>
@@ -208,7 +208,7 @@ const requestInvoice = () => {
               type="button"
               @click="activeTab = 'deliveries'"
               class="px-3 py-1.5 text-xs font-medium rounded-md transition"
-              :class="activeTab === 'deliveries' ? 'bg-ink-900 text-white font-semibold' : 'text-ink-600 hover:bg-surface-100'"
+              :class="activeTab === 'deliveries' ? 'bg-ink-900 text-surface-0 font-semibold' : 'text-ink-600 hover:bg-surface-50'"
             >
               Deliveries ({{ props.order.deliveries.length }})
             </button>
@@ -216,7 +216,7 @@ const requestInvoice = () => {
               type="button"
               @click="activeTab = 'invoices'"
               class="px-3 py-1.5 text-xs font-medium rounded-md transition"
-              :class="activeTab === 'invoices' ? 'bg-ink-900 text-white font-semibold' : 'text-ink-600 hover:bg-surface-100'"
+              :class="activeTab === 'invoices' ? 'bg-ink-900 text-surface-0 font-semibold' : 'text-ink-600 hover:bg-surface-50'"
             >
               Accounting Invoices ({{ props.invoices.length }})
             </button>
@@ -224,7 +224,7 @@ const requestInvoice = () => {
               type="button"
               @click="activeTab = 'returns'"
               class="px-3 py-1.5 text-xs font-medium rounded-md transition"
-              :class="activeTab === 'returns' ? 'bg-ink-900 text-white font-semibold' : 'text-ink-600 hover:bg-surface-100'"
+              :class="activeTab === 'returns' ? 'bg-ink-900 text-surface-0 font-semibold' : 'text-ink-600 hover:bg-surface-50'"
             >
               Returns ({{ props.order.returns.length }})
             </button>

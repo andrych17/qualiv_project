@@ -209,7 +209,7 @@ const cancelRfx = () => {
               v-if="!['awarded', 'cancelled'].includes(rfx.status)"
               type="button"
               class="px-2.5 py-1 text-xs font-semibold rounded transition"
-              :class="s.responded ? 'bg-surface border border-border text-ink-700 hover:bg-surface-elevated' : 'bg-accent text-white hover:bg-accent/90'"
+              :class="s.responded ? 'bg-surface-0 border border-border text-ink-900 hover:bg-surface-50' : 'bg-accent text-accent-text hover:opacity-90'"
               @click="openQuoteModal(s)"
             >
               {{ s.responded ? 'Edit Quote' : '+ Enter Quote' }}

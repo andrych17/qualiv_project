@@ -257,7 +257,7 @@ onUnmounted(() => {
           <div v-if="selectedOption" class="flex items-center gap-2 min-w-0 pr-2">
             <div
               v-if="selectedOption.avatar"
-              class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-900 font-semibold text-[10px] text-white"
+              class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent font-semibold text-[10px] text-accent-text"
             >
               {{ selectedOption.avatar }}
             </div>
@@ -364,7 +364,7 @@ onUnmounted(() => {
               <div class="flex items-center gap-3 min-w-0 pr-2">
                 <div
                   v-if="opt.avatar"
-                  class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gray-900 font-bold text-xs text-white shadow-sm"
+                  class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent font-bold text-xs text-accent-text shadow-sm"
                 >
                   {{ opt.avatar }}
                 </div>

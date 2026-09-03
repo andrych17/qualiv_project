@@ -402,7 +402,7 @@ const removeRelation = (relationId: number) => {
               <FormSelect v-model="relationForm.relation_type" name="relation_type" label="Relation type" :options="relationTypes" :error="relationForm.errors.relation_type" required />
               <button
                 type="submit"
-                class="w-full rounded-sm bg-accent px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-accent/90 disabled:opacity-50"
+                class="w-full rounded-sm bg-accent px-3 py-2 text-sm font-semibold text-accent-text shadow-sm transition hover:opacity-90 disabled:opacity-50"
                 :disabled="relationForm.processing || !relationForm.target_document_id"
               >
                 Add relation
