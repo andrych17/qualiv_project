@@ -19,6 +19,13 @@ class PosSession extends Model
     public const STATUS_OPEN = 'open';
     public const STATUS_CLOSED = 'closed';
 
+    protected $appends = ['session_no'];
+
+    public function getSessionNoAttribute(): string
+    {
+        return 'SES-' . str_pad((string) $this->id, 5, '0', STR_PAD_LEFT);
+    }
+
     protected $fillable = [
         'terminal_id',
         'cashier_user_id',

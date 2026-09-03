@@ -21,6 +21,7 @@ interface ProductRow {
   costing_method: string
   reorder_point: number
   is_active: boolean
+  image_url?: string | null
   created_at_formatted: string | null
 }
 
@@ -161,6 +162,17 @@ const confirmBulkDeactivate = () => {
         </template>
         <template #cell-sku="{ item }">
           <span class="font-mono text-xs text-ink-900">{{ (item as ProductRow).sku }}</span>
+        </template>
+        <template #cell-name="{ item }">
+          <div class="flex items-center gap-3">
+            <img
+              v-if="(item as any).image_url"
+              :src="(item as any).image_url"
+              :alt="(item as any).name"
+              class="h-8 w-8 rounded-md object-contain bg-white p-0.5 border border-surface-200 shrink-0"
+            />
+            <span class="font-medium text-ink-900">{{ (item as ProductRow).name }}</span>
+          </div>
         </template>
         <template #cell-costing_method="{ item }">
           <span class="text-xs uppercase text-ink-600">{{ (item as ProductRow).costing_method }}</span>

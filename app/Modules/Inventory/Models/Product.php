@@ -28,7 +28,7 @@ class Product extends Model
 
     protected $fillable = [
         'uuid', 'sku', 'name', 'description', 'category_id', 'base_uom_id',
-        'costing_method', 'reorder_point', 'reorder_quantity', 'tracking_mode', 'abc_class', 'is_active',
+        'costing_method', 'reorder_point', 'reorder_quantity', 'tracking_mode', 'abc_class', 'is_active', 'image_url',
     ];
 
     protected $casts = [

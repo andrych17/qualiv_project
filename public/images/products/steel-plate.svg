@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <rect width="120" height="120" rx="24" fill="#ECEFF1"/>
+  <!-- Steel Slab Isometric -->
+  <path d="M 25 55 L 60 35 L 95 55 L 60 75 Z" fill="#B0BEC5" stroke="#78909C" stroke-width="2"/>
+  <path d="M 25 55 L 25 68 L 60 88 L 60 75 Z" fill="#78909C"/>
+  <path d="M 95 55 L 95 68 L 60 88 L 60 75 Z" fill="#546E7A"/>
+  <circle cx="42" cy="52" r="2.5" fill="#37474F"/>
+  <circle cx="78" cy="52" r="2.5" fill="#37474F"/>
+  <circle cx="60" cy="42" r="2.5" fill="#37474F"/>
+  <circle cx="60" cy="64" r="2.5" fill="#37474F"/>
+</svg>
