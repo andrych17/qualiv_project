@@ -8,6 +8,13 @@ import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Nusaevo';
 
+// ponytail: auto-reload when dynamic import fails due to stale chunk after deployment
+if (typeof window !== 'undefined') {
+    window.addEventListener('vite:preloadError', () => {
+        window.location.reload();
+    });
+}
+
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: (name) =>

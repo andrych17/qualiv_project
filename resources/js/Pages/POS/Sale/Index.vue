@@ -398,29 +398,29 @@ const resumeParkedOrder = async (order: TxnHdr) => {
 <template>
   <AppLayout>
     <!-- Top POS Toolbar -->
-    <div class="mb-4 flex flex-wrap items-center justify-between gap-4 rounded-lg bg-surface-100 p-3 shadow-sm">
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-4 rounded-lg border border-border bg-surface-0 p-3 shadow-sm">
       <div class="flex items-center gap-3">
-        <label class="text-sm font-semibold text-ink-700">Terminal:</label>
+        <label class="text-sm font-semibold text-ink-900">Terminal:</label>
         <select
           :value="selectedTerminalId"
-          class="rounded-md border-surface-300 bg-white py-1.5 pl-3 pr-8 text-sm focus:border-primary-500 focus:ring-primary-500"
+          class="rounded-md border-border bg-surface-50 text-ink-900 py-1.5 pl-3 pr-8 text-sm focus:border-accent focus:ring-accent"
           @change="changeTerminal(Number(($event.target as HTMLSelectElement).value))"
         >
-          <option v-for="t in terminals" :key="t.id" :value="t.id">
+          <option v-for="t in terminals" :key="t.id" :value="t.id" class="bg-surface-0 text-ink-900">
             {{ t.name }} ({{ t.code }}) - {{ t.profile?.name }}
           </option>
         </select>
 
         <span
           v-if="activeSession"
-          class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20"
+          class="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-xs font-medium text-emerald-400 border border-emerald-500/30"
         >
-          <span class="h-1.5 w-1.5 rounded-full bg-emerald-600"></span>
+          <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
           Shift: {{ activeSession.session_no }} ({{ activeSession.cashier?.name || 'Cashier' }})
         </span>
         <span
           v-else
-          class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20"
+          class="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-medium text-amber-400 border border-amber-500/30"
         >
           <AlertTriangle class="h-3.5 w-3.5" />
           No Open Shift
@@ -430,7 +430,7 @@ const resumeParkedOrder = async (order: TxnHdr) => {
       <div class="flex items-center gap-2">
         <button
           v-if="parkedOrders && parkedOrders.length > 0"
-          class="relative inline-flex items-center gap-1.5 rounded-md bg-amber-100 px-3 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-200"
+          class="relative inline-flex items-center gap-1.5 rounded-md border border-amber-500/30 bg-amber-500/15 px-3 py-1.5 text-xs font-semibold text-amber-300 hover:bg-amber-500/25 transition-colors"
           @click="showParkedModal = true"
         >
           <Pause class="h-3.5 w-3.5" />
@@ -439,7 +439,7 @@ const resumeParkedOrder = async (order: TxnHdr) => {
 
         <button
           v-if="terminals.find((t) => t.id === selectedTerminalId)?.profile?.table_management"
-          class="inline-flex items-center gap-1.5 rounded-md bg-surface-200 px-3 py-1.5 text-xs font-semibold text-ink-800 hover:bg-surface-300"
+          class="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface-50 px-3 py-1.5 text-xs font-semibold text-ink-900 hover:bg-surface-0 transition-colors"
           @click="showTableModal = true"
         >
           <Utensils class="h-3.5 w-3.5" />
@@ -448,7 +448,7 @@ const resumeParkedOrder = async (order: TxnHdr) => {
 
         <Link
           :href="route('pos.sessions.index')"
-          class="inline-flex items-center gap-1.5 rounded-md border border-surface-300 bg-white px-3 py-1.5 text-xs font-semibold text-ink-700 shadow-sm hover:bg-surface-50"
+          class="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface-50 px-3 py-1.5 text-xs font-semibold text-ink-900 shadow-sm hover:bg-surface-0 hover:text-accent transition-colors"
         >
           <Clock class="h-3.5 w-3.5" />
           Shifts & Cash
@@ -457,10 +457,10 @@ const resumeParkedOrder = async (order: TxnHdr) => {
     </div>
 
     <!-- If no terminals exist at all -->
-    <div v-if="!terminals || terminals.length === 0" class="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-6 text-center shadow-sm">
-      <AlertTriangle class="mx-auto h-10 w-10 text-amber-500" />
-      <h3 class="mt-2 text-base font-semibold text-amber-900">Belum Ada Terminal Kasir</h3>
-      <p class="mt-1 text-sm text-amber-700">Daftarkan minimal satu terminal / mesin kasir terlebih dahulu untuk mulai membuka shift.</p>
+    <div v-if="!terminals || terminals.length === 0" class="mb-6 rounded-lg border border-amber-500/30 bg-amber-500/10 p-6 text-center shadow-sm">
+      <AlertTriangle class="mx-auto h-10 w-10 text-amber-400" />
+      <h3 class="mt-2 text-base font-semibold text-ink-900">Belum Ada Terminal Kasir</h3>
+      <p class="mt-1 text-sm text-ink-600">Daftarkan minimal satu terminal / mesin kasir terlebih dahulu untuk mulai membuka shift.</p>
       <div class="mt-4">
         <Link :href="route('pos.terminals.index')">
           <PrimaryButton class="px-5 py-2.5 text-sm">
@@ -471,10 +471,10 @@ const resumeParkedOrder = async (order: TxnHdr) => {
     </div>
 
     <!-- Active Session Banner / Notice if closed -->
-    <div v-else-if="!activeSession" class="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-6 text-center shadow-sm">
-      <AlertTriangle class="mx-auto h-10 w-10 text-amber-500" />
-      <h3 class="mt-2 text-base font-semibold text-amber-900">Shift Belum Dibuka</h3>
-      <p class="mt-1 text-sm text-amber-700">Buka shift kasir terlebih dahulu untuk mulai melayani transaksi pada terminal ini.</p>
+    <div v-else-if="!activeSession" class="mb-6 rounded-lg border border-amber-500/30 bg-amber-500/10 p-6 text-center shadow-sm">
+      <AlertTriangle class="mx-auto h-10 w-10 text-amber-400" />
+      <h3 class="mt-2 text-base font-semibold text-ink-900">Shift Belum Dibuka</h3>
+      <p class="mt-1 text-sm text-ink-600">Buka shift kasir terlebih dahulu untuk mulai melayani transaksi pada terminal ini.</p>
       <div class="mt-4">
         <PrimaryButton class="px-5 py-2.5 text-sm" @click="showOpenSessionModal = true">
           Buka Shift Sekarang
@@ -487,10 +487,10 @@ const resumeParkedOrder = async (order: TxnHdr) => {
       <!-- Left: Catalog & Barcode Scanner (7 cols) -->
       <div class="space-y-4 lg:col-span-7">
         <!-- Barcode Input Bar -->
-        <div class="rounded-lg bg-white p-3 shadow-sm ring-1 ring-surface-200">
+        <div class="rounded-lg border border-border bg-surface-0 p-3 shadow-sm">
           <form class="flex items-center gap-2" @submit.prevent="handleBarcodeScan">
             <div class="relative flex-1">
-              <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-ink-400">
+              <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-ink-600">
                 <Barcode class="h-5 w-5" />
               </div>
               <input
@@ -498,7 +498,7 @@ const resumeParkedOrder = async (order: TxnHdr) => {
                 type="text"
                 autofocus
                 placeholder="Scan Barcode atau masukkan Kode Produk..."
-                class="block w-full rounded-md border-surface-300 pl-10 pr-4 text-sm focus:border-primary-500 focus:ring-primary-500"
+                class="block w-full rounded-md border-border bg-surface-50 pl-10 pr-4 text-sm text-ink-900 placeholder:text-ink-600 focus:border-accent focus:ring-accent"
               />
             </div>
             <PrimaryButton type="submit" :disabled="isScanning" class="py-2">
@@ -506,7 +506,7 @@ const resumeParkedOrder = async (order: TxnHdr) => {
               <span v-else>Tambah</span>
             </PrimaryButton>
           </form>
-          <p v-if="scanError" class="mt-1.5 text-xs text-rose-600">{{ scanError }}</p>
+          <p v-if="scanError" class="mt-1.5 text-xs text-signal-danger">{{ scanError }}</p>
         </div>
 
         <!-- Touch Favorites / Quick Items -->
@@ -515,25 +515,29 @@ const resumeParkedOrder = async (order: TxnHdr) => {
             <button
               v-for="fav in favorites"
               :key="fav.id"
-              class="flex flex-col justify-between rounded-lg border border-surface-200 bg-surface-50 p-3 text-left transition hover:border-primary-500 hover:bg-primary-50/30 active:scale-95"
+              class="group flex flex-col justify-between rounded-lg border border-border bg-surface-50 p-3 text-left transition hover:border-accent hover:bg-surface-0 active:scale-95"
               @click="addFavorite(fav)"
             >
               <div class="w-full">
-                <img
+                <div
                   v-if="fav.product?.image_url"
-                  :src="fav.product.image_url"
-                  :alt="fav.product.name"
-                  class="mb-2 h-20 w-full rounded-md object-contain bg-white/80 p-1.5 border border-surface-200"
-                />
-                <p class="text-xs font-medium text-ink-500">{{ fav.product?.code || fav.product?.sku }}</p>
-                <h4 class="line-clamp-2 text-sm font-semibold text-ink-900">{{ fav.product?.name }}</h4>
+                  class="mb-2 flex h-20 w-full items-center justify-center rounded-md border border-border bg-surface-0/60 p-1.5 overflow-hidden"
+                >
+                  <img
+                    :src="fav.product.image_url"
+                    :alt="fav.product.name"
+                    class="h-full w-full object-contain"
+                  />
+                </div>
+                <p class="text-xs font-mono font-medium text-ink-600">{{ fav.product?.code || fav.product?.sku }}</p>
+                <h4 class="line-clamp-2 text-sm font-semibold text-ink-900 group-hover:text-accent transition-colors">{{ fav.product?.name }}</h4>
               </div>
-              <p class="mt-2 font-mono text-sm font-bold text-primary-700">
+              <p class="mt-2 font-mono text-sm font-bold text-accent">
                 {{ formatCurrency(fav.product?.default_price) }}
               </p>
             </button>
           </div>
-          <div v-else class="py-8 text-center text-sm text-ink-500">
+          <div v-else class="py-8 text-center text-sm text-ink-600">
             Belum ada item favorit diatur untuk terminal ini.
           </div>
         </Panel>
@@ -541,13 +545,13 @@ const resumeParkedOrder = async (order: TxnHdr) => {
 
       <!-- Right: Cart & Settle Panel (5 cols) -->
       <div class="lg:col-span-5">
-        <div class="flex h-full flex-col justify-between rounded-lg bg-white p-4 shadow-sm ring-1 ring-surface-200">
+        <div class="flex h-full flex-col justify-between rounded-lg border border-border bg-surface-0 p-4 shadow-sm">
           <div>
-            <div class="flex items-center justify-between border-b border-surface-100 pb-3">
+            <div class="flex items-center justify-between border-b border-border pb-3">
               <h3 class="text-base font-bold text-ink-900">Keranjang Kasir</h3>
               <button
                 v-if="cart.length > 0"
-                class="text-xs text-rose-600 hover:text-rose-800"
+                class="text-xs font-medium text-signal-danger hover:underline"
                 @click="clearCart"
               >
                 Kosongkan
@@ -559,34 +563,34 @@ const resumeParkedOrder = async (order: TxnHdr) => {
               <div
                 v-for="(item, idx) in cart"
                 :key="item.product_id"
-                class="flex items-center justify-between rounded-md border border-surface-100 bg-surface-50/50 p-2 text-sm"
+                class="flex items-center justify-between rounded-md border border-border bg-surface-50 p-2.5 text-sm"
               >
                 <div class="min-w-0 flex-1 pr-2">
                   <p class="truncate font-medium text-ink-900">{{ item.name }}</p>
-                  <p class="font-mono text-xs text-ink-500">{{ formatCurrency(item.unit_price) }} / unit</p>
+                  <p class="font-mono text-xs text-ink-600">{{ formatCurrency(item.unit_price) }} / unit</p>
                 </div>
 
                 <div class="flex items-center gap-2">
-                  <div class="flex items-center rounded border border-surface-200 bg-white">
+                  <div class="flex items-center rounded border border-border bg-surface-0">
                     <button
-                      class="px-2 py-1 text-ink-600 hover:bg-surface-100"
+                      class="px-2 py-1 text-ink-600 hover:bg-surface-50 hover:text-ink-900 transition-colors"
                       @click="updateQty(idx, -1)"
                     >
                       <Minus class="h-3.5 w-3.5" />
                     </button>
-                    <span class="w-8 text-center font-mono text-xs font-semibold">{{ item.qty }}</span>
+                    <span class="w-8 text-center font-mono text-xs font-semibold text-ink-900">{{ item.qty }}</span>
                     <button
-                      class="px-2 py-1 text-ink-600 hover:bg-surface-100"
+                      class="px-2 py-1 text-ink-600 hover:bg-surface-50 hover:text-ink-900 transition-colors"
                       @click="updateQty(idx, 1)"
                     >
                       <Plus class="h-3.5 w-3.5" />
                     </button>
                   </div>
-                  <span class="w-20 text-right font-mono text-sm font-semibold text-ink-900">
+                  <span class="w-24 text-right font-mono text-sm font-semibold text-ink-900">
                     {{ formatCurrency(item.qty * item.unit_price) }}
                   </span>
                   <button
-                    class="text-surface-400 hover:text-rose-600"
+                    class="text-ink-600 hover:text-signal-danger transition-colors p-1"
                     @click="removeItem(idx)"
                   >
                     <Trash2 class="h-4 w-4" />
@@ -594,26 +598,26 @@ const resumeParkedOrder = async (order: TxnHdr) => {
                 </div>
               </div>
 
-              <div v-if="cart.length === 0" class="py-12 text-center text-sm text-ink-400">
+              <div v-if="cart.length === 0" class="py-12 text-center text-sm text-ink-600">
                 Keranjang masih kosong. Scan barcode atau pilih item favorit.
               </div>
             </div>
           </div>
 
           <!-- Bottom Summary & Settle -->
-          <div class="mt-4 border-t border-surface-200 pt-4">
+          <div class="mt-4 border-t border-border pt-4">
             <div class="space-y-1.5 text-sm">
               <div class="flex justify-between text-ink-600">
                 <span>Subtotal</span>
-                <span class="font-mono">{{ formatCurrency(subtotal) }}</span>
+                <span class="font-mono text-ink-900 font-medium">{{ formatCurrency(subtotal) }}</span>
               </div>
               <div class="flex justify-between text-ink-600">
                 <span>PPN (11%)</span>
-                <span class="font-mono">{{ formatCurrency(taxAmount) }}</span>
+                <span class="font-mono text-ink-900 font-medium">{{ formatCurrency(taxAmount) }}</span>
               </div>
-              <div class="flex justify-between border-t border-surface-200 pt-2 text-base font-bold text-ink-900">
+              <div class="flex justify-between border-t border-border pt-2 text-base font-bold text-ink-900">
                 <span>Total Bayar</span>
-                <span class="font-mono text-primary-700">{{ formatCurrency(grandTotal) }}</span>
+                <span class="font-mono text-accent text-lg">{{ formatCurrency(grandTotal) }}</span>
               </div>
             </div>
 
@@ -647,26 +651,26 @@ const resumeParkedOrder = async (order: TxnHdr) => {
 
         <div class="mt-4 space-y-4">
           <div>
-            <label class="block text-sm font-medium text-ink-700">Terminal Kasir</label>
+            <label class="block text-sm font-medium text-ink-900">Terminal Kasir</label>
             <select
               v-model="selectedTerminalForSession"
-              class="mt-1 block w-full rounded-md border-surface-300 text-sm focus:border-primary-500 focus:ring-primary-500"
+              class="mt-1 block w-full rounded-md border-border bg-surface-50 text-ink-900 text-sm focus:border-accent focus:ring-accent"
             >
               <option value="" disabled>-- Pilih Terminal --</option>
-              <option v-for="t in terminals" :key="t.id" :value="t.id">
+              <option v-for="t in terminals" :key="t.id" :value="t.id" class="bg-surface-0 text-ink-900">
                 {{ t.name }} ({{ t.code }})
               </option>
             </select>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-ink-700">Modal Kas Awal (IDR)</label>
+            <label class="block text-sm font-medium text-ink-900">Modal Kas Awal (IDR)</label>
             <input
               v-model.number="openingCash"
               type="number"
               min="0"
               step="1000"
-              class="mt-1 block w-full rounded-md border-surface-300 font-mono text-base focus:border-primary-500 focus:ring-primary-500"
+              class="mt-1 block w-full rounded-md border-border bg-surface-50 text-ink-900 font-mono text-base focus:border-accent focus:ring-accent"
             />
           </div>
         </div>
@@ -684,11 +688,11 @@ const resumeParkedOrder = async (order: TxnHdr) => {
     <Modal :show="showPayModal" @close="closePayModal">
       <div class="p-6">
         <div v-if="paymentSuccess" class="py-4 text-center">
-          <CheckCircle2 class="mx-auto h-12 w-12 text-emerald-500" />
+          <CheckCircle2 class="mx-auto h-12 w-12 text-emerald-400" />
           <h3 class="mt-2 text-lg font-bold text-ink-900">Pembayaran Berhasil!</h3>
           <p class="mt-1 text-sm text-ink-600">Transaksi selesai dicatat dan struk siap dicetak.</p>
 
-          <div v-if="lastChange > 0" class="mt-4 rounded-lg bg-emerald-50 p-4 text-emerald-900">
+          <div v-if="lastChange > 0" class="mt-4 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4 text-emerald-400">
             <span class="text-xs uppercase tracking-wider font-semibold">Kembalian</span>
             <p class="font-mono text-2xl font-bold">{{ formatCurrency(lastChange) }}</p>
           </div>
@@ -702,11 +706,11 @@ const resumeParkedOrder = async (order: TxnHdr) => {
 
         <div v-else>
           <h3 class="text-lg font-bold text-ink-900">Penyelesaian Pembayaran</h3>
-          <p class="mt-1 text-sm text-ink-500">Pilih metode pembayaran dan masukkan jumlah bayar.</p>
+          <p class="mt-1 text-sm text-ink-600">Pilih metode pembayaran dan masukkan jumlah bayar.</p>
 
-          <div class="mt-4 rounded-lg bg-surface-100 p-3 text-center">
-            <span class="text-xs font-semibold text-ink-500">TOTAL TAGIHAN</span>
-            <p class="font-mono text-2xl font-extrabold text-primary-700">{{ formatCurrency(grandTotal) }}</p>
+          <div class="mt-4 rounded-lg border border-border bg-surface-50 p-3 text-center">
+            <span class="text-xs font-semibold text-ink-600">TOTAL TAGIHAN</span>
+            <p class="font-mono text-2xl font-extrabold text-accent">{{ formatCurrency(grandTotal) }}</p>
           </div>
 
           <!-- Method Tabs -->
@@ -715,7 +719,7 @@ const resumeParkedOrder = async (order: TxnHdr) => {
               type="button"
               :class="[
                 'flex flex-col items-center rounded-lg border p-2.5 text-xs font-semibold transition',
-                paymentMethod === 'cash' ? 'border-primary-600 bg-primary-50 text-primary-900' : 'border-surface-200 bg-white text-ink-700 hover:bg-surface-50'
+                paymentMethod === 'cash' ? 'border-accent bg-accent/15 text-accent font-bold shadow-xs' : 'border-border bg-surface-50 text-ink-600 hover:bg-surface-0 hover:text-ink-900'
               ]"
               @click="paymentMethod = 'cash'"
             >
@@ -726,7 +730,7 @@ const resumeParkedOrder = async (order: TxnHdr) => {
               type="button"
               :class="[
                 'flex flex-col items-center rounded-lg border p-2.5 text-xs font-semibold transition',
-                paymentMethod === 'card' ? 'border-primary-600 bg-primary-50 text-primary-900' : 'border-surface-200 bg-white text-ink-700 hover:bg-surface-50'
+                paymentMethod === 'card' ? 'border-accent bg-accent/15 text-accent font-bold shadow-xs' : 'border-border bg-surface-50 text-ink-600 hover:bg-surface-0 hover:text-ink-900'
               ]"
               @click="paymentMethod = 'card'"
             >
@@ -737,7 +741,7 @@ const resumeParkedOrder = async (order: TxnHdr) => {
               type="button"
               :class="[
                 'flex flex-col items-center rounded-lg border p-2.5 text-xs font-semibold transition',
-                paymentMethod === 'qris' ? 'border-primary-600 bg-primary-50 text-primary-900' : 'border-surface-200 bg-white text-ink-700 hover:bg-surface-50'
+                paymentMethod === 'qris' ? 'border-accent bg-accent/15 text-accent font-bold shadow-xs' : 'border-border bg-surface-50 text-ink-600 hover:bg-surface-0 hover:text-ink-900'
               ]"
               @click="paymentMethod = 'qris'"
             >
@@ -748,7 +752,7 @@ const resumeParkedOrder = async (order: TxnHdr) => {
               type="button"
               :class="[
                 'flex flex-col items-center rounded-lg border p-2.5 text-xs font-semibold transition',
-                paymentMethod === 'transfer' ? 'border-primary-600 bg-primary-50 text-primary-900' : 'border-surface-200 bg-white text-ink-700 hover:bg-surface-50'
+                paymentMethod === 'transfer' ? 'border-accent bg-accent/15 text-accent font-bold shadow-xs' : 'border-border bg-surface-50 text-ink-600 hover:bg-surface-0 hover:text-ink-900'
               ]"
               @click="paymentMethod = 'transfer'"
             >
@@ -760,13 +764,13 @@ const resumeParkedOrder = async (order: TxnHdr) => {
           <!-- Cash Input -->
           <div v-if="paymentMethod === 'cash'" class="mt-4 space-y-3">
             <div>
-              <label class="block text-xs font-semibold text-ink-700">Uang Diterima</label>
+              <label class="block text-xs font-semibold text-ink-900">Uang Diterima</label>
               <input
                 v-model.number="tenderAmount"
                 type="number"
                 min="0"
                 step="1000"
-                class="mt-1 block w-full rounded-md border-surface-300 font-mono text-lg font-bold focus:border-primary-500 focus:ring-primary-500"
+                class="mt-1 block w-full rounded-md border-border bg-surface-50 text-ink-900 font-mono text-lg font-bold focus:border-accent focus:ring-accent"
               />
             </div>
 
@@ -774,48 +778,48 @@ const resumeParkedOrder = async (order: TxnHdr) => {
             <div class="flex flex-wrap gap-2">
               <button
                 type="button"
-                class="rounded border border-surface-200 bg-white px-2.5 py-1 text-xs font-medium text-ink-700 hover:bg-surface-50"
+                class="rounded border border-border bg-surface-50 px-2.5 py-1 text-xs font-medium text-ink-900 hover:bg-surface-0 transition-colors"
                 @click="tenderAmount = grandTotal"
               >
                 Uang Pas
               </button>
               <button
                 type="button"
-                class="rounded border border-surface-200 bg-white px-2.5 py-1 text-xs font-medium text-ink-700 hover:bg-surface-50"
+                class="rounded border border-border bg-surface-50 px-2.5 py-1 text-xs font-medium text-ink-900 hover:bg-surface-0 transition-colors"
                 @click="tenderAmount = 50000"
               >
                 50.000
               </button>
               <button
                 type="button"
-                class="rounded border border-surface-200 bg-white px-2.5 py-1 text-xs font-medium text-ink-700 hover:bg-surface-50"
+                class="rounded border border-border bg-surface-50 px-2.5 py-1 text-xs font-medium text-ink-900 hover:bg-surface-0 transition-colors"
                 @click="tenderAmount = 100000"
               >
                 100.000
               </button>
               <button
                 type="button"
-                class="rounded border border-surface-200 bg-white px-2.5 py-1 text-xs font-medium text-ink-700 hover:bg-surface-50"
+                class="rounded border border-border bg-surface-50 px-2.5 py-1 text-xs font-medium text-ink-900 hover:bg-surface-0 transition-colors"
                 @click="tenderAmount = 200000"
               >
                 200.000
               </button>
             </div>
 
-            <div class="flex justify-between border-t border-surface-200 pt-2 text-sm font-semibold">
+            <div class="flex justify-between border-t border-border pt-2 text-sm font-semibold">
               <span class="text-ink-600">Kembalian:</span>
-              <span class="font-mono text-emerald-600">{{ formatCurrency(changeDue) }}</span>
+              <span class="font-mono text-signal-success font-bold">{{ formatCurrency(changeDue) }}</span>
             </div>
           </div>
 
           <!-- Non-Cash Ref -->
           <div v-else class="mt-4">
-            <label class="block text-xs font-semibold text-ink-700">Nomor Referensi / Trace / Approval Code</label>
+            <label class="block text-xs font-semibold text-ink-900">Nomor Referensi / Trace / Approval Code</label>
             <input
               v-model="tenderReference"
               type="text"
               placeholder="Contoh: TRACE-892182"
-              class="mt-1 block w-full rounded-md border-surface-300 text-sm focus:border-primary-500 focus:ring-primary-500"
+              class="mt-1 block w-full rounded-md border-border bg-surface-50 text-ink-900 text-sm focus:border-accent focus:ring-accent"
             />
           </div>
 
@@ -840,17 +844,17 @@ const resumeParkedOrder = async (order: TxnHdr) => {
           <div
             v-for="order in parkedOrders"
             :key="order.id"
-            class="flex items-center justify-between rounded-lg border border-surface-200 bg-surface-50 p-3 text-sm"
+            class="flex items-center justify-between rounded-lg border border-border bg-surface-50 p-3 text-sm"
           >
             <div>
               <span class="font-mono font-bold text-ink-900">{{ order.txn_no }}</span>
-              <p class="text-xs text-ink-500">{{ order.lines?.length || 0 }} item • {{ formatCurrency(order.grand_total) }}</p>
+              <p class="text-xs text-ink-600">{{ order.lines?.length || 0 }} item • {{ formatCurrency(order.grand_total) }}</p>
             </div>
             <PrimaryButton class="py-1.5 text-xs" @click="resumeParkedOrder(order)">
               Lanjutkan Pesanan
             </PrimaryButton>
           </div>
-          <div v-if="!parkedOrders || parkedOrders.length === 0" class="py-6 text-center text-sm text-ink-500">
+          <div v-if="!parkedOrders || parkedOrders.length === 0" class="py-6 text-center text-sm text-ink-600">
             Tidak ada pesanan yang diparkir.
           </div>
         </div>
