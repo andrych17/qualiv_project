@@ -48,7 +48,7 @@ class PosSessionController extends Controller
         return response()->json($summary);
     }
 
-    public function open(Request $request): JsonResponse
+    public function open(Request $request): mixed
     {
         $validated = $request->validate([
             'terminal_id' => ['required', 'integer'],
@@ -63,10 +63,14 @@ class PosSessionController extends Controller
             $validated['employee_id'] ?? null
         );
 
+        if ($request->header('X-Inertia')) {
+            return redirect()->back()->with('success', 'Shift kasir berhasil dibuka.');
+        }
+
         return response()->json($session->load('terminal'));
     }
 
-    public function cashMovement(Request $request, PosSession $session): JsonResponse
+    public function cashMovement(Request $request, PosSession $session): mixed
     {
         $validated = $request->validate([
             'type' => ['required', 'string', 'in:cash_in,cash_out,petty_cash'],
@@ -82,10 +86,14 @@ class PosSessionController extends Controller
             auth()->id() ?: 1
         );
 
+        if ($request->header('X-Inertia')) {
+            return redirect()->back()->with('success', 'Pergerakan kas berhasil dicatat.');
+        }
+
         return response()->json($movement);
     }
 
-    public function close(Request $request, PosSession $session): JsonResponse
+    public function close(Request $request, PosSession $session): mixed
     {
         $validated = $request->validate([
             'actual_cash' => ['required', 'numeric'],
@@ -98,6 +106,10 @@ class PosSessionController extends Controller
             auth()->id() ?: 1,
             $validated['supervisor_pin'] ?? null
         );
+
+        if ($request->header('X-Inertia')) {
+            return redirect()->back()->with('success', 'Shift kasir berhasil ditutup.');
+        }
 
         return response()->json($closedSession);
     }
