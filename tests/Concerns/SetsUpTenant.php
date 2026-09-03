@@ -40,10 +40,6 @@ trait SetsUpTenant
 
         DB::table('tenant_user_lookups')->where('tenant_id', $tenantId)->delete();
         DB::table('domains')->where('tenant_id', $tenantId)->delete();
-        if (DB::getSchemaBuilder()->hasTable('central_invoice_lines')) {
-            $invoiceIds = DB::table('central_invoices')->where('tenant_id', $tenantId)->pluck('id');
-            DB::table('central_invoice_lines')->whereIn('central_invoice_id', $invoiceIds)->delete();
-        }
         if (DB::getSchemaBuilder()->hasTable('central_invoices')) {
             DB::table('central_invoices')->where('tenant_id', $tenantId)->delete();
         }
