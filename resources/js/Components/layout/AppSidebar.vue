@@ -110,14 +110,16 @@ const toggleSubmenu = (code: string) => {
 const menuSections = computed((): MenuSection[] => {
   const items = (page.props.navMenus as MenuItem[] | undefined) ?? []
   const sections: MenuSection[] = []
+  const byHeader = new Map<string, MenuSection>()
   for (const item of items) {
-    const header = item.header || 'Main'
-    const last = sections[sections.length - 1]
-    if (last && last.header === header) {
-      last.items.push(item)
-    } else {
-      sections.push({ header, items: [item] })
+    const header = (item.header || 'Main').trim() || 'Main'
+    let section = byHeader.get(header)
+    if (!section) {
+      section = { header, items: [] }
+      byHeader.set(header, section)
+      sections.push(section)
     }
+    section.items.push(item)
   }
   return sections
 })
