@@ -13,6 +13,7 @@ use App\Modules\POS\Services\PosPaymentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -37,17 +38,35 @@ class PosSaleController extends Controller
         $tables = [];
 
         if ($terminalId) {
+            $terminal = $terminals->firstWhere('id', $terminalId);
+
             $activeSession = PosSession::query()
                 ->where('terminal_id', $terminalId)
                 ->where('status', PosSession::STATUS_OPEN)
                 ->with('terminal.profile')
                 ->first();
 
+            $priceListId = $terminal?->default_price_list_id
+                ?: DB::table('SALES.price_lists')->where('is_tenant_default', true)->value('id');
+
+            $priceMap = $priceListId
+                ? DB::table('SALES.price_list_lines')
+                    ->where('price_list_id', $priceListId)
+                    ->whereNotNull('product_id')
+                    ->pluck('unit_price', 'product_id')
+                : collect();
+
             $favorites = PosFavoriteItem::query()
                 ->where('terminal_id', $terminalId)
                 ->with('product.baseUom')
                 ->orderBy('sort_order')
-                ->get();
+                ->get()
+                ->each(function ($fav) use ($priceMap) {
+                    if ($fav->product) {
+                        $fav->product->default_price = (float) ($priceMap[$fav->product->id] ?? 0);
+                        $fav->product->code = $fav->product->sku;
+                    }
+                });
 
             if ($activeSession) {
                 $parkedOrders = PosTxnHdr::query()
@@ -78,6 +97,16 @@ class PosSaleController extends Controller
         ]);
 
         $item = $this->cartService->scanBarcode($validated['barcode'], (int) $validated['terminal_id']);
+
+        if (isset($item['product']) && is_object($item['product'])) {
+            $product = $item['product'];
+            $item['id'] = $product->id;
+            $item['product_id'] = $product->id;
+            $item['code'] = $product->sku;
+            $item['name'] = $product->name;
+            $item['uom_id'] = $product->base_uom_id;
+            $item['price'] = $item['unit_price'];
+        }
 
         return response()->json($item);
     }

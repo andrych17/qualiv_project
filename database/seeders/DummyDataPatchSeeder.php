@@ -12,8 +12,22 @@ class DummyDataPatchSeeder extends Seeder
 {
     public function run(): void
     {
-        $tenantId = tenant('id') ?? '001';
-        $this->seedTenantData($tenantId);
+        if (function_exists('tenant') && tenant('id')) {
+            $this->seedTenantData(tenant('id'));
+            return;
+        }
+
+        $tenants = Tenant::all();
+        if ($tenants->isEmpty()) {
+            $t = Tenant::find('001');
+            if ($t) {
+                $tenants = collect([$t]);
+            }
+        }
+
+        foreach ($tenants as $tenant) {
+            $tenant->run(fn () => $this->seedTenantData($tenant->id));
+        }
     }
 
     public function seedTenantData(string $tenantId): void
@@ -25,6 +39,10 @@ class DummyDataPatchSeeder extends Seeder
         $this->seedCrm();
         $this->seedHcmAvatars();
         $this->seedProjects();
+        $this->seedPerformance();
+        $this->seedPp();
+        $this->seedMes();
+        $this->seedWne();
     }
 
     private function seedInventory(): void
@@ -372,40 +390,61 @@ class DummyDataPatchSeeder extends Seeder
 
     private function seedPosData(): void
     {
+        $priceList = DB::table('SALES.price_lists')->where('is_tenant_default', true)->first();
+        $priceListId = $priceList?->id;
+
+        $restaurantProfile = DB::table('POS.pos_profiles')->where('code', 'RESTAURANT')->first();
+        $warehouse = DB::table('INVENTORY.warehouses')->first();
+
         // 1. Terminals
         $terminal = DB::table('POS.pos_terminals')->where('code', 'POS-01')->first();
         $terminalId = $terminal?->id;
         if (!$terminal) {
-            $profile = DB::table('POS.pos_profiles')->first();
-            $warehouse = DB::table('INVENTORY.warehouses')->first();
             $terminalId = DB::table('POS.pos_terminals')->insertGetId([
-                'profile_id' => $profile?->id ?? 1,
+                'profile_id' => $restaurantProfile?->id ?? 1,
                 'warehouse_id' => $warehouse?->id ?? 1,
                 'code' => 'POS-01',
                 'name' => 'Kasir Utama Depan',
                 'receipt_prefix' => 'POS01',
+                'default_price_list_id' => $priceListId,
                 'last_local_seq' => 1,
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
+            ]);
+        } else {
+            DB::table('POS.pos_terminals')->where('id', $terminalId)->update([
+                'default_price_list_id' => $priceListId,
+                'profile_id' => $restaurantProfile?->id ?? $terminal->profile_id,
             ]);
         }
 
         // Secondary Terminal
         $terminal2 = DB::table('POS.pos_terminals')->where('code', 'POS-02')->first();
         if (!$terminal2) {
-            $profile = DB::table('POS.pos_profiles')->first();
-            $warehouse = DB::table('INVENTORY.warehouses')->first();
             DB::table('POS.pos_terminals')->insert([
-                'profile_id' => $profile?->id ?? 1,
+                'profile_id' => $restaurantProfile?->id ?? 1,
                 'warehouse_id' => $warehouse?->id ?? 1,
                 'code' => 'POS-02',
                 'name' => 'Kasir Bar & Minuman',
                 'receipt_prefix' => 'POS02',
+                'default_price_list_id' => $priceListId,
                 'last_local_seq' => 1,
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
+            ]);
+        } else {
+            DB::table('POS.pos_terminals')->where('id', $terminal2->id)->update([
+                'default_price_list_id' => $priceListId,
+                'profile_id' => $restaurantProfile?->id ?? $terminal2->profile_id,
+            ]);
+        }
+
+        // Update default_price_list_id for any other terminals
+        if ($priceListId) {
+            DB::table('POS.pos_terminals')->whereNull('default_price_list_id')->update([
+                'default_price_list_id' => $priceListId,
             ]);
         }
 
@@ -472,21 +511,56 @@ class DummyDataPatchSeeder extends Seeder
             );
         }
 
-        // 4. Favorite Items for POS-01
-        $favSkus = ['ESP-001', 'CAP-001', 'TEA-001', 'WAT-001', 'NAS-001', 'MIE-001', 'CRO-001', 'SND-001'];
-        $order = 1;
-        foreach ($favSkus as $sku) {
-            $p = DB::table('INVENTORY.products')->where('sku', $sku)->first();
-            if ($p && $terminalId) {
-                DB::table('POS.pos_favorite_items')->updateOrInsert(
-                    [
-                        'terminal_id' => $terminalId,
-                        'product_id' => $p->id,
-                    ],
-                    [
-                        'sort_order' => $order++,
-                    ]
+        $kdsBarId = DB::table('POS.pos_kds_stations')->where('code', 'BAR')->value('id');
+        $kdsKitchenId = DB::table('POS.pos_kds_stations')->where('code', 'KITCHEN')->value('id');
+        $kdsPastryId = DB::table('POS.pos_kds_stations')->where('code', 'PASTRY')->value('id');
+
+        // Product KDS Routing
+        if ($kdsBarId) {
+            $bevProds = DB::table('INVENTORY.products')->whereIn('sku', ['ESP-001', 'CAP-001', 'TEA-001', 'WAT-001'])->get();
+            foreach ($bevProds as $bp) {
+                DB::table('POS.pos_product_kds_routing')->updateOrInsert(
+                    ['product_id' => $bp->id, 'kds_station_id' => $kdsBarId]
                 );
+            }
+        }
+
+        if ($kdsKitchenId) {
+            $kitchenProds = DB::table('INVENTORY.products')->whereIn('sku', ['NAS-001', 'MIE-001', 'SND-001'])->get();
+            foreach ($kitchenProds as $kp) {
+                DB::table('POS.pos_product_kds_routing')->updateOrInsert(
+                    ['product_id' => $kp->id, 'kds_station_id' => $kdsKitchenId]
+                );
+            }
+        }
+
+        if ($kdsPastryId) {
+            $pastryProds = DB::table('INVENTORY.products')->whereIn('sku', ['CRO-001', 'SNP-001'])->get();
+            foreach ($pastryProds as $pp) {
+                DB::table('POS.pos_product_kds_routing')->updateOrInsert(
+                    ['product_id' => $pp->id, 'kds_station_id' => $kdsPastryId]
+                );
+            }
+        }
+
+        // 4. Favorite Items for ALL terminals
+        $allTerminals = DB::table('POS.pos_terminals')->get();
+        $favSkus = ['ESP-001', 'CAP-001', 'TEA-001', 'WAT-001', 'NAS-001', 'MIE-001', 'CRO-001', 'SND-001'];
+        foreach ($allTerminals as $term) {
+            $order = 1;
+            foreach ($favSkus as $sku) {
+                $p = DB::table('INVENTORY.products')->where('sku', $sku)->first();
+                if ($p) {
+                    DB::table('POS.pos_favorite_items')->updateOrInsert(
+                        [
+                            'terminal_id' => $term->id,
+                            'product_id' => $p->id,
+                        ],
+                        [
+                            'sort_order' => $order++,
+                        ]
+                    );
+                }
             }
         }
 
@@ -515,6 +589,14 @@ class DummyDataPatchSeeder extends Seeder
             );
         }
 
+        // Attach coffee modifiers to coffee products
+        $coffeeProds = DB::table('INVENTORY.products')->whereIn('sku', ['ESP-001', 'CAP-001'])->get();
+        foreach ($coffeeProds as $cp) {
+            DB::table('POS.pos_product_modifier_groups')->updateOrInsert(
+                ['product_id' => $cp->id, 'group_id' => $grp1Id]
+            );
+        }
+
         $modGroup2 = DB::table('POS.pos_modifier_groups')->where('name', 'Tingkat Kepedasan')->first();
         if (!$modGroup2) {
             $grp2Id = DB::table('POS.pos_modifier_groups')->insertGetId([
@@ -536,6 +618,14 @@ class DummyDataPatchSeeder extends Seeder
             DB::table('POS.pos_modifiers')->updateOrInsert(
                 ['group_id' => $grp2Id, 'name' => $m['name']],
                 ['price_delta' => $m['price_delta'], 'replaces_base_price' => $m['replaces_base_price']]
+            );
+        }
+
+        // Attach spicy modifiers to food products
+        $foodProds = DB::table('INVENTORY.products')->whereIn('sku', ['NAS-001', 'MIE-001'])->get();
+        foreach ($foodProds as $fp) {
+            DB::table('POS.pos_product_modifier_groups')->updateOrInsert(
+                ['product_id' => $fp->id, 'group_id' => $grp2Id]
             );
         }
     }
@@ -811,6 +901,929 @@ class DummyDataPatchSeeder extends Seeder
                     'status' => $prj['status'],
                     'updated_at' => now(),
                 ]);
+            }
+        }
+    }
+
+    private function seedPerformance(): void
+    {
+        $adminUser = DB::table('users')->where('email', 'admin@nusaevo.com')->first() ?? DB::table('users')->first();
+        $adminId = $adminUser?->id;
+
+        // 1. Perspectives
+        $perspectives = [
+            ['name' => 'Financial Growth', 'description' => 'Target pendapatan, efisiensi biaya, dan pertumbuhan profit margin.'],
+            ['name' => 'Customer Satisfaction', 'description' => 'Kualitas layanan, loyalitas pelanggan B2B/Retail, dan SLA.'],
+            ['name' => 'Operational Excellence', 'description' => 'Produktivitas pabrik, efisiensi gudang, dan pengurangan defect/waste.'],
+            ['name' => 'Learning & Innovation', 'description' => 'Pengembangan SDM, sertifikasi staf, dan adopsi modul ERP.'],
+        ];
+        $perspIds = [];
+        foreach ($perspectives as $p) {
+            $existing = DB::table('PERF.perspectives')->where('name', $p['name'])->first();
+            if (!$existing) {
+                $id = DB::table('PERF.perspectives')->insertGetId([
+                    'name' => $p['name'],
+                    'description' => $p['description'],
+                    'is_active' => true,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                $perspIds[$p['name']] = $id;
+            } else {
+                $perspIds[$p['name']] = $existing->id;
+            }
+        }
+
+        // 2. Periods
+        $periods = [
+            ['label' => 'FY 2026', 'period_type' => 'year', 'year' => 2026, 'quarter' => null, 'month' => null, 'start_date' => '2026-01-01', 'end_date' => '2026-12-31'],
+            ['label' => 'Q1 2026', 'period_type' => 'quarter', 'year' => 2026, 'quarter' => 1, 'month' => null, 'start_date' => '2026-01-01', 'end_date' => '2026-03-31'],
+            ['label' => 'Q2 2026', 'period_type' => 'quarter', 'year' => 2026, 'quarter' => 2, 'month' => null, 'start_date' => '2026-04-01', 'end_date' => '2026-06-30'],
+            ['label' => 'Q3 2026', 'period_type' => 'quarter', 'year' => 2026, 'quarter' => 3, 'month' => null, 'start_date' => '2026-07-01', 'end_date' => '2026-09-30'],
+        ];
+        $periodIds = [];
+        foreach ($periods as $pd) {
+            $existing = DB::table('PERF.periods')->where('label', $pd['label'])->first();
+            if (!$existing) {
+                $id = DB::table('PERF.periods')->insertGetId(array_merge($pd, [
+                    'is_active' => true,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]));
+                $periodIds[$pd['label']] = $id;
+            } else {
+                $periodIds[$pd['label']] = $existing->id;
+            }
+        }
+
+        // 3. KPI Definitions
+        $kpis = [
+            [
+                'name' => 'Pertumbuhan Omzet Penjualan (Revenue Growth)',
+                'unit' => 'percent',
+                'direction' => 'higher_is_better',
+                'perspective_id' => $perspIds['Financial Growth'] ?? null,
+                'description' => 'Persentase pertumbuhan pendapatan kotor dibandingkan periode sebelumnya.',
+            ],
+            [
+                'name' => 'Skor Kepuasan Klien (CSAT)',
+                'unit' => 'number',
+                'direction' => 'higher_is_better',
+                'perspective_id' => $perspIds['Customer Satisfaction'] ?? null,
+                'description' => 'Indeks kepuasan pelanggan skala 1-100 dari umpan balik survei.',
+            ],
+            [
+                'name' => 'Order Fulfillment Cycle Time',
+                'unit' => 'number',
+                'direction' => 'lower_is_better',
+                'perspective_id' => $perspIds['Operational Excellence'] ?? null,
+                'description' => 'Rata-rata waktu siklus dari Sales Order hingga barang diterima pelanggan (hari).',
+            ],
+            [
+                'name' => 'Tingkat Defect Produksi Pabrik (Scrap Rate)',
+                'unit' => 'percent',
+                'direction' => 'lower_is_better',
+                'perspective_id' => $perspIds['Operational Excellence'] ?? null,
+                'description' => 'Persentase barang cacat atau limbah dalam proses manufaktur.',
+            ],
+            [
+                'name' => 'Employee Training Hours',
+                'unit' => 'number',
+                'direction' => 'higher_is_better',
+                'perspective_id' => $perspIds['Learning & Innovation'] ?? null,
+                'description' => 'Rata-rata jam pelatihan kompetensi per karyawan per tahun.',
+            ],
+        ];
+
+        $kpiIds = [];
+        foreach ($kpis as $kpi) {
+            $existing = DB::table('PERF.kpi_definitions')->where('name', $kpi['name'])->first();
+            if (!$existing) {
+                $id = DB::table('PERF.kpi_definitions')->insertGetId(array_merge($kpi, [
+                    'is_active' => true,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]));
+                $kpiIds[$kpi['name']] = $id;
+            } else {
+                $kpiIds[$kpi['name']] = $existing->id;
+            }
+        }
+
+        // 4. Targets & Values
+        $targetData = [
+            ['kpi' => 'Pertumbuhan Omzet Penjualan (Revenue Growth)', 'period' => 'FY 2026', 'target' => 25.0, 'stretch' => 30.0, 'actual' => 27.5],
+            ['kpi' => 'Skor Kepuasan Klien (CSAT)', 'period' => 'Q1 2026', 'target' => 90.0, 'stretch' => 95.0, 'actual' => 92.4],
+            ['kpi' => 'Order Fulfillment Cycle Time', 'period' => 'Q1 2026', 'target' => 2.0, 'stretch' => 1.5, 'actual' => 1.8],
+            ['kpi' => 'Tingkat Defect Produksi Pabrik (Scrap Rate)', 'period' => 'Q1 2026', 'target' => 2.0, 'stretch' => 1.0, 'actual' => 1.4],
+            ['kpi' => 'Employee Training Hours', 'period' => 'FY 2026', 'target' => 40.0, 'stretch' => 50.0, 'actual' => 42.0],
+        ];
+
+        foreach ($targetData as $td) {
+            $kId = $kpiIds[$td['kpi']] ?? null;
+            $pId = $periodIds[$td['period']] ?? null;
+            if ($kId && $pId) {
+                DB::table('PERF.targets')->updateOrInsert(
+                    [
+                        'kpi_id' => $kId,
+                        'subject_type' => 'company',
+                        'subject_id' => null,
+                        'period_id' => $pId,
+                    ],
+                    [
+                        'target_value' => $td['target'],
+                        'stretch_value' => $td['stretch'],
+                        'notes' => 'Target korporat per rencana kerja tahunan 2026.',
+                        'created_by' => $adminId,
+                        'updated_at' => now(),
+                    ]
+                );
+
+                DB::table('PERF.kpi_values')->updateOrInsert(
+                    [
+                        'kpi_id' => $kId,
+                        'subject_type' => 'company',
+                        'subject_id' => null,
+                        'period_id' => $pId,
+                    ],
+                    [
+                        'actual_value' => $td['actual'],
+                        'source' => 'manual',
+                        'entered_by' => $adminId,
+                        'entered_at' => now(),
+                    ]
+                );
+            }
+        }
+
+        // 5. OKR Cycles & Objectives
+        $cycle = DB::table('PERF.okr_cycles')->where('label', 'Siklus OKR 2026')->first();
+        if (!$cycle) {
+            $cycleId = DB::table('PERF.okr_cycles')->insertGetId([
+                'label' => 'Siklus OKR 2026',
+                'start_date' => '2026-01-01',
+                'end_date' => '2026-12-31',
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        } else {
+            $cycleId = $cycle->id;
+        }
+
+        $objectives = [
+            [
+                'text' => 'Akselerasi Efisiensi Produksi dan Pengiriman Pesanan Konsumen',
+                'status' => 'on_track',
+                'krs' => [
+                    ['desc' => 'Tingkatkan akurasi pemenuhan pesanan (OTIF) hingga 98%', 'metric_type' => 'percent', 'start' => 90, 'current' => 96, 'target' => 98, 'weight' => 100],
+                    ['desc' => 'Kurangi lead time roasting biji kopi dari 3 hari menjadi 1 hari', 'metric_type' => 'numeric', 'start' => 3, 'current' => 1.5, 'target' => 1, 'weight' => 100],
+                ],
+            ],
+            [
+                'text' => 'Ekspansi Jaringan Retail POS dan Pelayanan Restoran Premium',
+                'status' => 'on_track',
+                'krs' => [
+                    ['desc' => 'Implementasi sistem kasir POS & KDS di seluruh cabang aktif', 'metric_type' => 'boolean', 'start' => 0, 'current' => 1, 'target' => 1, 'weight' => 100],
+                    ['desc' => 'Tingkatkan rata-rata nilai transaksi (basket size) sebesar 20%', 'metric_type' => 'percent', 'start' => 0, 'current' => 15, 'target' => 20, 'weight' => 100],
+                ],
+            ],
+        ];
+
+        foreach ($objectives as $obj) {
+            $existingObj = DB::table('PERF.okr_objectives')->where('cycle_id', $cycleId)->where('objective_text', $obj['text'])->first();
+            if (!$existingObj) {
+                $objId = DB::table('PERF.okr_objectives')->insertGetId([
+                    'cycle_id' => $cycleId,
+                    'subject_type' => 'company',
+                    'subject_id' => null,
+                    'objective_text' => $obj['text'],
+                    'status' => $obj['status'],
+                    'created_by' => $adminId,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            } else {
+                $objId = $existingObj->id;
+            }
+
+            foreach ($obj['krs'] as $kr) {
+                DB::table('PERF.okr_key_results')->updateOrInsert(
+                    [
+                        'okr_id' => $objId,
+                        'description' => $kr['desc'],
+                    ],
+                    [
+                        'metric_type' => $kr['metric_type'],
+                        'start_value' => $kr['start'],
+                        'current_value' => $kr['current'],
+                        'target_value' => $kr['target'],
+                        'weight' => $kr['weight'],
+                        'updated_at' => now(),
+                    ]
+                );
+            }
+        }
+
+        // 6. Badges & Achievements
+        $badges = [
+            ['name' => 'Operational Hero', 'trigger_type' => 'target_hit', 'icon' => 'Award'],
+            ['name' => 'Zero Defect Master', 'trigger_type' => 'target_hit', 'icon' => 'ShieldCheck'],
+            ['name' => 'Sprint Finisher', 'trigger_type' => 'okr_completed', 'icon' => 'Trophy'],
+        ];
+
+        $badgeIds = [];
+        foreach ($badges as $b) {
+            $existingB = DB::table('PERF.badge_definitions')->where('name', $b['name'])->first();
+            if (!$existingB) {
+                $bId = DB::table('PERF.badge_definitions')->insertGetId([
+                    'name' => $b['name'],
+                    'trigger_type' => $b['trigger_type'],
+                    'icon' => $b['icon'],
+                    'is_active' => true,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                $badgeIds[$b['name']] = $bId;
+            } else {
+                $badgeIds[$b['name']] = $existingB->id;
+            }
+        }
+
+        $emp = DB::table('HCM.employees')->first();
+        if ($emp && !empty($badgeIds)) {
+            $firstBadgeId = reset($badgeIds);
+            $hasAch = DB::table('PERF.achievements')->where('badge_id', $firstBadgeId)->where('subject_id', $emp->id)->exists();
+            if (!$hasAch) {
+                DB::table('PERF.achievements')->insert([
+                    'subject_type' => 'employee',
+                    'subject_id' => $emp->id,
+                    'badge_id' => $firstBadgeId,
+                    'kpi_id' => null,
+                    'okr_id' => null,
+                    'period_id' => $periodIds['Q1 2026'] ?? null,
+                    'earned_at' => now()->subDays(5),
+                    'awarded_by' => $adminId,
+                ]);
+            }
+        }
+
+        // 7. Budget
+        $bgtPeriodId = $periodIds['FY 2026'] ?? reset($periodIds);
+        if ($bgtPeriodId) {
+            $existingBgt = DB::table('PERF.budget_hdrs')->where('name', 'Rencana Anggaran Operasional 2026')->first();
+            if (!$existingBgt) {
+                $bgtId = DB::table('PERF.budget_hdrs')->insertGetId([
+                    'name' => 'Rencana Anggaran Operasional 2026',
+                    'subject_type' => 'company',
+                    'subject_id' => null,
+                    'fiscal_year' => 2026,
+                    'fiscal_quarter' => null,
+                    'status' => 'approved',
+                    'owner_id' => $adminId,
+                    'version_no' => 1,
+                    'notes' => 'Anggaran operasional tahunan yang telah disetujui direksi.',
+                    'created_by' => $adminId,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                $lines = [
+                    ['category' => 'Biaya Produksi & Bahan Baku', 'amount' => 250000000],
+                    ['category' => 'Gaji & Operasional Karyawan', 'amount' => 480000000],
+                    ['category' => 'Pengembangan IT & Lisensi Cloud', 'amount' => 120000000],
+                    ['category' => 'Logistik & Pemeliharaan Mesin', 'amount' => 75000000],
+                ];
+
+                foreach ($lines as $line) {
+                    DB::table('PERF.budget_lines')->insert([
+                        'budget_id' => $bgtId,
+                        'category' => $line['category'],
+                        'period_id' => $bgtPeriodId,
+                        'amount_planned' => $line['amount'],
+                        'notes' => 'Plafon alokasi ' . $line['category'],
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
+        }
+    }
+
+    private function seedPp(): void
+    {
+        $adminUser = DB::table('users')->where('email', 'admin@nusaevo.com')->first() ?? DB::table('users')->first();
+        $adminId = $adminUser?->id;
+
+        $uomKg = DB::table('INVENTORY.uoms')->where('code', 'KG')->first();
+        $uomL = DB::table('INVENTORY.uoms')->where('code', 'L')->first();
+        $uomPcs = DB::table('INVENTORY.uoms')->where('code', 'PCS')->first();
+        $uomCup = DB::table('INVENTORY.uoms')->where('code', 'CUP')->first();
+        $baseUomId = $uomPcs?->id ?? 1;
+
+        $catRaw = DB::table('INVENTORY.product_categories')->where('name', 'Bahan Baku & Mentah')->first();
+        $catRawId = $catRaw?->id ?? DB::table('INVENTORY.product_categories')->insertGetId([
+            'name' => 'Bahan Baku & Mentah',
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Raw materials
+        $raws = [
+            ['sku' => 'RAW-COF-01', 'name' => 'Biji Kopi Hijau Arabika Gayo', 'uom_id' => $uomKg?->id ?? $baseUomId],
+            ['sku' => 'RAW-MLK-01', 'name' => 'Susu Segar Murni Pasteurised', 'uom_id' => $uomL?->id ?? $baseUomId],
+            ['sku' => 'RAW-CUP-01', 'name' => 'Paper Cup Takeaway 8oz + Lid', 'uom_id' => $uomCup?->id ?? $baseUomId],
+            ['sku' => 'RAW-RIC-01', 'name' => 'Beras Premium Rojolele Super', 'uom_id' => $uomKg?->id ?? $baseUomId],
+            ['sku' => 'PKG-BOX-01', 'name' => 'Kotak Dus Makanan Bento Eco', 'uom_id' => $uomPcs?->id ?? $baseUomId],
+        ];
+
+        $rawMap = [];
+        foreach ($raws as $r) {
+            $existing = DB::table('INVENTORY.products')->where('sku', $r['sku'])->first();
+            if (!$existing) {
+                $id = DB::table('INVENTORY.products')->insertGetId([
+                    'uuid' => (string) Str::uuid(),
+                    'sku' => $r['sku'],
+                    'name' => $r['name'],
+                    'description' => 'Bahan baku produksi standar pabrik & dapur.',
+                    'category_id' => $catRawId,
+                    'base_uom_id' => $r['uom_id'],
+                    'costing_method' => 'fifo',
+                    'tracking_mode' => 'none',
+                    'is_active' => true,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                $rawMap[$r['sku']] = $id;
+            } else {
+                $rawMap[$r['sku']] = $existing->id;
+            }
+        }
+
+        $prodEsp = DB::table('INVENTORY.products')->where('sku', 'ESP-001')->first();
+        $prodCap = DB::table('INVENTORY.products')->where('sku', 'CAP-001')->first();
+        $prodNas = DB::table('INVENTORY.products')->where('sku', 'NAS-001')->first();
+
+        // 1. BOMs
+        if ($prodEsp && isset($rawMap['RAW-COF-01'], $rawMap['RAW-CUP-01'])) {
+            $bomEsp = DB::table('PP.pp_boms')->where('product_id', $prodEsp->id)->where('is_active', true)->first();
+            if (!$bomEsp) {
+                $bomEspId = DB::table('PP.pp_boms')->insertGetId([
+                    'product_id' => $prodEsp->id,
+                    'version' => 1,
+                    'effective_from' => now()->subDays(30)->toDateString(),
+                    'is_active' => true,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                DB::table('PP.pp_bom_lines')->insert([
+                    ['bom_id' => $bomEspId, 'component_product_id' => $rawMap['RAW-COF-01'], 'qty_per_parent_unit' => 0.018000, 'uom_code' => 'KG', 'scrap_pct' => 2.0],
+                    ['bom_id' => $bomEspId, 'component_product_id' => $rawMap['RAW-CUP-01'], 'qty_per_parent_unit' => 1.000000, 'uom_code' => 'CUP', 'scrap_pct' => 1.0],
+                ]);
+            }
+        }
+
+        if ($prodCap && isset($rawMap['RAW-COF-01'], $rawMap['RAW-MLK-01'], $rawMap['RAW-CUP-01'])) {
+            $bomCap = DB::table('PP.pp_boms')->where('product_id', $prodCap->id)->where('is_active', true)->first();
+            if (!$bomCap) {
+                $bomCapId = DB::table('PP.pp_boms')->insertGetId([
+                    'product_id' => $prodCap->id,
+                    'version' => 1,
+                    'effective_from' => now()->subDays(30)->toDateString(),
+                    'is_active' => true,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                DB::table('PP.pp_bom_lines')->insert([
+                    ['bom_id' => $bomCapId, 'component_product_id' => $rawMap['RAW-COF-01'], 'qty_per_parent_unit' => 0.018000, 'uom_code' => 'KG', 'scrap_pct' => 2.0],
+                    ['bom_id' => $bomCapId, 'component_product_id' => $rawMap['RAW-MLK-01'], 'qty_per_parent_unit' => 0.150000, 'uom_code' => 'L', 'scrap_pct' => 3.0],
+                    ['bom_id' => $bomCapId, 'component_product_id' => $rawMap['RAW-CUP-01'], 'qty_per_parent_unit' => 1.000000, 'uom_code' => 'CUP', 'scrap_pct' => 1.0],
+                ]);
+            }
+        }
+
+        if ($prodNas && isset($rawMap['RAW-RIC-01'], $rawMap['PKG-BOX-01'])) {
+            $bomNas = DB::table('PP.pp_boms')->where('product_id', $prodNas->id)->where('is_active', true)->first();
+            if (!$bomNas) {
+                $bomNasId = DB::table('PP.pp_boms')->insertGetId([
+                    'product_id' => $prodNas->id,
+                    'version' => 1,
+                    'effective_from' => now()->subDays(30)->toDateString(),
+                    'is_active' => true,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                DB::table('PP.pp_bom_lines')->insert([
+                    ['bom_id' => $bomNasId, 'component_product_id' => $rawMap['RAW-RIC-01'], 'qty_per_parent_unit' => 0.200000, 'uom_code' => 'KG', 'scrap_pct' => 1.0],
+                    ['bom_id' => $bomNasId, 'component_product_id' => $rawMap['PKG-BOX-01'], 'qty_per_parent_unit' => 1.000000, 'uom_code' => 'PCS', 'scrap_pct' => 0.0],
+                ]);
+            }
+        }
+
+        // 2. Recipes
+        if ($prodEsp && isset($rawMap['RAW-COF-01'], $rawMap['RAW-CUP-01'])) {
+            $recipe = DB::table('PP.pp_recipes')->where('product_id', $prodEsp->id)->where('is_active', true)->first();
+            if (!$recipe) {
+                $recId = DB::table('PP.pp_recipes')->insertGetId([
+                    'product_id' => $prodEsp->id,
+                    'version' => 1,
+                    'batch_size' => 50.0,
+                    'uom_code' => 'CUP',
+                    'expected_yield_pct' => 100.0,
+                    'expected_waste_pct' => 2.0,
+                    'effective_from' => now()->subDays(30)->toDateString(),
+                    'is_active' => true,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                DB::table('PP.pp_recipe_ingredients')->insert([
+                    ['recipe_id' => $recId, 'raw_material_product_id' => $rawMap['RAW-COF-01'], 'qty_per_batch' => 0.900000, 'uom_code' => 'KG'],
+                    ['recipe_id' => $recId, 'raw_material_product_id' => $rawMap['RAW-CUP-01'], 'qty_per_batch' => 50.000000, 'uom_code' => 'CUP'],
+                ]);
+            }
+        }
+
+        // 3. Planning Parameters
+        $planProds = [$prodEsp, $prodCap, $prodNas];
+        foreach ($planProds as $pp) {
+            if ($pp) {
+                DB::table('PP.pp_item_planning_params')->updateOrInsert(
+                    ['product_id' => $pp->id],
+                    [
+                        'make_type' => 'mts',
+                        'min_lot_qty' => 10.0,
+                        'max_lot_qty' => 500.0,
+                        'safety_stock_qty' => 25.0,
+                        'lead_time_days' => 1,
+                        'planning_lead_time_days' => 2,
+                        'scrap_pct' => 2.0,
+                        'updated_at' => now(),
+                    ]
+                );
+            }
+        }
+
+        // 4. Resources
+        $resources = [
+            ['type' => 'tool', 'code' => 'RES-ROAST-01', 'name' => 'Industrial Drum Coffee Roaster 15kg', 'capacity' => 15.0, 'uom_code' => 'KG'],
+            ['type' => 'utility', 'code' => 'RES-BREW-01', 'name' => 'Commercial High-Volume Espresso Machine', 'capacity' => 120.0, 'uom_code' => 'CUP'],
+            ['type' => 'tank', 'code' => 'RES-SILO-01', 'name' => 'Silo Penyimpanan Biji Kopi Sangrai', 'capacity' => 200.0, 'uom_code' => 'KG'],
+        ];
+        foreach ($resources as $res) {
+            DB::table('PP.pp_resources')->updateOrInsert(
+                ['code' => $res['code']],
+                array_merge($res, ['is_active' => true])
+            );
+        }
+
+        // 5. Demand Forecast & Lines
+        if ($prodEsp) {
+            DB::table('PP.pp_demand_forecasts')->updateOrInsert(
+                [
+                    'product_id' => $prodEsp->id,
+                    'period_start' => now()->startOfMonth()->toDateString(),
+                ],
+                [
+                    'qty' => 1500.0,
+                    'source' => 'manual',
+                    'note' => 'Perkiraan konsumsi bulanan kafe & takeaway.',
+                    'created_by' => $adminId,
+                    'updated_at' => now(),
+                ]
+            );
+
+            $dmdHdr = DB::table('PP.pp_demand_hdrs')->where('note', 'Demand Forecast Produksi F&B September 2026')->first();
+            if (!$dmdHdr) {
+                $dmdHdrId = DB::table('PP.pp_demand_hdrs')->insertGetId([
+                    'source_type' => 'forecast',
+                    'demand_date' => now()->toDateString(),
+                    'note' => 'Demand Forecast Produksi F&B September 2026',
+                    'created_by' => $adminId,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                DB::table('PP.pp_demand_lines')->insert([
+                    'demand_hdr_id' => $dmdHdrId,
+                    'product_id' => $prodEsp->id,
+                    'need_by_date' => now()->addDays(7)->toDateString(),
+                    'qty' => 300.0,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+
+        // 6. MRP Run & Planned Orders
+        $mrpRun = DB::table('PP.pp_mrp_runs')->first();
+        if (!$mrpRun) {
+            $mrpRunId = DB::table('PP.pp_mrp_runs')->insertGetId([
+                'run_at' => now(),
+                'triggered_by' => $adminId,
+                'status' => 'completed',
+            ]);
+        } else {
+            $mrpRunId = $mrpRun->id;
+        }
+
+        if ($prodEsp) {
+            $bomEspRow = DB::table('PP.pp_boms')->where('product_id', $prodEsp->id)->first();
+            if ($bomEspRow) {
+                $existingPlan = DB::table('PP.pp_planned_orders')->where('plan_number', 'PLAN-2026-0001')->first();
+                if (!$existingPlan) {
+                    $planId = DB::table('PP.pp_planned_orders')->insertGetId([
+                        'mrp_run_id' => $mrpRunId,
+                        'plan_number' => 'PLAN-2026-0001',
+                        'order_type' => 'production',
+                        'product_id' => $prodEsp->id,
+                        'qty' => 100.0,
+                        'need_by_date' => now()->addDays(3)->toDateString(),
+                        'bom_id' => $bomEspRow->id,
+                        'status' => 'firmed',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+
+                    DB::table('PP.pp_schedule_ops')->insert([
+                        'planned_order_id' => $planId,
+                        'seq' => 1,
+                        'resource_type' => 'mes_work_center',
+                        'planned_start' => now()->addHours(2),
+                        'planned_end' => now()->addHours(4),
+                        'status' => 'committed',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
+        }
+    }
+
+    private function seedMes(): void
+    {
+        // 1. Work Centers
+        $wcs = [
+            ['code' => 'WC-COFFEE', 'name' => 'Line Pengolahan Minuman & Kopi', 'area_line' => 'Area Beverage Lantai 1', 'type' => 'discrete'],
+            ['code' => 'WC-KITCHEN', 'name' => 'Dapur Produksi Makanan Panas', 'area_line' => 'Area Kitchen Pusat', 'type' => 'discrete'],
+            ['code' => 'WC-PACK', 'name' => 'Area Pengemasan & Quality Control', 'area_line' => 'Area Packaging', 'type' => 'discrete'],
+        ];
+
+        $wcMap = [];
+        foreach ($wcs as $w) {
+            $existing = DB::table('MES.mes_work_centers')->where('code', $w['code'])->first();
+            if (!$existing) {
+                $id = DB::table('MES.mes_work_centers')->insertGetId(array_merge($w, ['created_at' => now(), 'updated_at' => now()]));
+                $wcMap[$w['code']] = $id;
+            } else {
+                $wcMap[$w['code']] = $existing->id;
+            }
+        }
+
+        // 2. Machines
+        $machines = [
+            ['code' => 'M-ESPRESSO-01', 'name' => 'Mesin Espresso Commercial 3-Group', 'work_center_id' => $wcMap['WC-COFFEE'], 'status' => 'running'],
+            ['code' => 'M-ROASTER-01', 'name' => 'Mesin Roaster Drum Kopi 12kg', 'work_center_id' => $wcMap['WC-COFFEE'], 'status' => 'idle'],
+            ['code' => 'M-WOK-01', 'name' => 'Kompor Wok Komersial High-Pressure 2-Tungku', 'work_center_id' => $wcMap['WC-KITCHEN'], 'status' => 'running'],
+            ['code' => 'M-SEALER-01', 'name' => 'Mesin Cup Sealer Otomatis Digital', 'work_center_id' => $wcMap['WC-PACK'], 'status' => 'running'],
+        ];
+
+        $machineMap = [];
+        foreach ($machines as $m) {
+            $existing = DB::table('MES.mes_machines')->where('code', $m['code'])->first();
+            if (!$existing) {
+                $id = DB::table('MES.mes_machines')->insertGetId(array_merge($m, ['created_at' => now(), 'updated_at' => now()]));
+                $machineMap[$m['code']] = $id;
+            } else {
+                $machineMap[$m['code']] = $existing->id;
+            }
+        }
+
+        // 3. Stations
+        $stations = [
+            ['code' => 'ST-BEV-01', 'name' => 'Station Barista Utama', 'work_center_id' => $wcMap['WC-COFFEE'], 'machine_id' => $machineMap['M-ESPRESSO-01'] ?? null],
+            ['code' => 'ST-COOK-01', 'name' => 'Station Chef Wok Dapur', 'work_center_id' => $wcMap['WC-KITCHEN'], 'machine_id' => $machineMap['M-WOK-01'] ?? null],
+            ['code' => 'ST-PACK-01', 'name' => 'Meja Packaging & Sealing', 'work_center_id' => $wcMap['WC-PACK'], 'machine_id' => $machineMap['M-SEALER-01'] ?? null],
+        ];
+
+        foreach ($stations as $st) {
+            DB::table('MES.mes_stations')->updateOrInsert(
+                ['code' => $st['code']],
+                ['name' => $st['name'], 'work_center_id' => $st['work_center_id'], 'machine_id' => $st['machine_id']]
+            );
+        }
+
+        // 4. Routings
+        $prodEsp = DB::table('INVENTORY.products')->where('sku', 'ESP-001')->first();
+        if ($prodEsp && isset($wcMap['WC-COFFEE'], $wcMap['WC-PACK'])) {
+            $routing = DB::table('MES.mes_routings')->where('product_id', $prodEsp->id)->where('is_active', true)->first();
+            if (!$routing) {
+                $rId = DB::table('MES.mes_routings')->insertGetId([
+                    'product_id' => $prodEsp->id,
+                    'version' => 1,
+                    'is_active' => true,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                DB::table('MES.mes_routing_ops')->insert([
+                    ['routing_id' => $rId, 'seq' => 10, 'op_code' => 'OP-GRIND', 'op_name' => 'Penggilingan Biji Kopi Presisi', 'work_center_id' => $wcMap['WC-COFFEE'], 'setup_time_minutes' => 2, 'run_time_minutes' => 3, 'queue_time_minutes' => 0, 'standard_output_qty' => 50, 'instructions' => 'Giling 18g biji kopi per shot.'],
+                    ['routing_id' => $rId, 'seq' => 20, 'op_code' => 'OP-BREW', 'op_name' => 'Ekstraksi Tekanan 9 Bar Espresso', 'work_center_id' => $wcMap['WC-COFFEE'], 'setup_time_minutes' => 1, 'run_time_minutes' => 2, 'queue_time_minutes' => 0, 'standard_output_qty' => 50, 'instructions' => 'Waktu ekstraksi 25-30 detik.'],
+                    ['routing_id' => $rId, 'seq' => 30, 'op_code' => 'OP-QC', 'op_name' => 'Inspeksi Kualitas Crema & Cup Sealing', 'work_center_id' => $wcMap['WC-PACK'], 'setup_time_minutes' => 1, 'run_time_minutes' => 1, 'queue_time_minutes' => 0, 'standard_output_qty' => 50, 'instructions' => 'Pastikan aroma optimal dan cup tertutup rapat.'],
+                ]);
+            }
+        }
+
+        // 5. Production Orders
+        if ($prodEsp) {
+            $bomEsp = DB::table('PP.pp_boms')->where('product_id', $prodEsp->id)->first();
+            $recipeEsp = DB::table('PP.pp_recipes')->where('product_id', $prodEsp->id)->first();
+            $routingEsp = DB::table('MES.mes_routings')->where('product_id', $prodEsp->id)->first();
+
+            if ($bomEsp) {
+                // Completed Order
+                $moDone = DB::table('MES.mes_prod_order_hdrs')->where('order_number', 'MO-2026-0001')->first();
+                if (!$moDone) {
+                    $moDoneId = DB::table('MES.mes_prod_order_hdrs')->insertGetId([
+                        'order_number' => 'MO-2026-0001',
+                        'product_id' => $prodEsp->id,
+                        'production_model' => 'assembly',
+                        'bom_id' => $bomEsp->id,
+                        'routing_id' => $routingEsp?->id,
+                        'qty' => 50.0,
+                        'uom_code' => 'CUP',
+                        'planned_start' => now()->subHours(6),
+                        'planned_end' => now()->subHours(4),
+                        'actual_start' => now()->subHours(6),
+                        'actual_end' => now()->subHours(4),
+                        'priority' => 'normal',
+                        'status' => 'completed',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+
+                    DB::table('MES.mes_production_outputs')->insert([
+                        'order_id' => $moDoneId,
+                        'output_type' => 'finished',
+                        'product_id' => $prodEsp->id,
+                        'qty' => 50.0,
+                        'uom_code' => 'CUP',
+                        'created_at' => now()->subHours(4),
+                    ]);
+                    DB::table('MES.mes_production_outputs')->insert([
+                        'order_id' => $moDoneId,
+                        'output_type' => 'waste',
+                        'product_id' => $prodEsp->id,
+                        'qty' => 2.0,
+                        'uom_code' => 'CUP',
+                        'reason_code' => 'tamping_defect',
+                        'disposition' => 'scrap',
+                        'created_at' => now()->subHours(4),
+                    ]);
+
+                    if ($recipeEsp) {
+                        DB::table('MES.mes_batches')->updateOrInsert(
+                            ['batch_number' => 'BATCH-202609-001'],
+                            [
+                                'order_id' => $moDoneId,
+                                'recipe_id' => $recipeEsp->id,
+                                'status' => 'completed',
+                                'planned_qty' => 50.0,
+                                'actual_yield_pct' => 100.0,
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]
+                        );
+                    }
+                }
+
+                // In-Progress Order
+                $moWip = DB::table('MES.mes_prod_order_hdrs')->where('order_number', 'MO-2026-0002')->first();
+                if (!$moWip) {
+                    DB::table('MES.mes_prod_order_hdrs')->insertGetId([
+                        'order_number' => 'MO-2026-0002',
+                        'product_id' => $prodEsp->id,
+                        'production_model' => 'assembly',
+                        'bom_id' => $bomEsp->id,
+                        'routing_id' => $routingEsp?->id,
+                        'qty' => 30.0,
+                        'uom_code' => 'CUP',
+                        'planned_start' => now()->subHours(1),
+                        'planned_end' => now()->addHours(2),
+                        'actual_start' => now()->subHours(1),
+                        'priority' => 'high',
+                        'status' => 'in_progress',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
+        }
+
+        // 6. Downtime Event & Andon Alert
+        if (isset($machineMap['M-ROASTER-01'])) {
+            $hasDown = DB::table('MES.mes_downtime_events')->where('machine_id', $machineMap['M-ROASTER-01'])->exists();
+            if (!$hasDown) {
+                DB::table('MES.mes_downtime_events')->insert([
+                    'machine_id' => $machineMap['M-ROASTER-01'],
+                    'category' => 'unplanned',
+                    'reason_code' => 'mechanical',
+                    'started_at' => now()->subHours(4),
+                    'ended_at' => now()->subHours(3)->subMinutes(40),
+                ]);
+            }
+        }
+
+        if (isset($machineMap['M-ESPRESSO-01'])) {
+            $hasAlert = DB::table('MES.mes_andon_alerts')->where('subject_id', $machineMap['M-ESPRESSO-01'])->exists();
+            if (!$hasAlert) {
+                DB::table('MES.mes_andon_alerts')->insert([
+                    'alert_type' => 'out_of_spec_parameter',
+                    'subject_type' => 'MES.mes_machines',
+                    'subject_id' => $machineMap['M-ESPRESSO-01'],
+                    'severity' => 'warning',
+                    'message' => 'Suhu boiler grup 2 sempat turun di bawah 90C.',
+                    'fired_at' => now()->subHours(3),
+                    'resolved_at' => now()->subHours(2)->subMinutes(30),
+                ]);
+            }
+        }
+    }
+
+    private function seedWne(): void
+    {
+        $adminUser = DB::table('users')->where('email', 'admin@nusaevo.com')->first() ?? DB::table('users')->first();
+        $adminId = $adminUser?->id;
+
+        // 1. Workflow Categories
+        $cats = [
+            ['name' => 'Persetujuan Pembelian & Keuangan', 'description' => 'Alur verifikasi & otorisasi PO, AP Bill, dan budget expenditure.'],
+            ['name' => 'Manajemen Sumber Daya Manusia', 'description' => 'Alur pengajuan cuti, reimbursement, dan onboarding karyawan.'],
+            ['name' => 'Operasional & Manufaktur', 'description' => 'Eskalasi maintenance mesin, QC hold, dan penerimaan logistik.'],
+        ];
+        $catMap = [];
+        foreach ($cats as $c) {
+            $existing = DB::table('WNE.wrkflow_categories')->where('name', $c['name'])->first();
+            if (!$existing) {
+                $id = DB::table('WNE.wrkflow_categories')->insertGetId([
+                    'name' => $c['name'],
+                    'description' => $c['description'],
+                    'is_active' => true,
+                ]);
+                $catMap[$c['name']] = $id;
+            } else {
+                $catMap[$c['name']] = $existing->id;
+            }
+        }
+
+        // 2. Workflow Definitions & Versions
+        $def = DB::table('WNE.wrkflow_definitions')->where('code', 'pur.po_approval')->first();
+        if (!$def) {
+            $defId = DB::table('WNE.wrkflow_definitions')->insertGetId([
+                'code' => 'pur.po_approval',
+                'name' => 'Alur Persetujuan Purchase Order Bernilai Tinggi',
+                'description' => 'PO di atas Rp 10.000.000 wajib disetujui Manager Operasional & Keuangan.',
+                'category_id' => $catMap['Persetujuan Pembelian & Keuangan'] ?? null,
+                'status' => 'published',
+                'created_by' => $adminId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            $verId = DB::table('WNE.wrkflow_versions')->insertGetId([
+                'definition_id' => $defId,
+                'version_no' => 1,
+                'published_at' => now(),
+                'published_by' => $adminId,
+            ]);
+
+            $step1 = DB::table('WNE.wrkflow_steps')->insertGetId([
+                'version_id' => $verId,
+                'step_code' => 'entry_po_draft',
+                'type' => 'task',
+                'config' => json_encode(['label' => 'Pembuatan Draft PO']),
+                'is_entry_step' => true,
+            ]);
+
+            $step2 = DB::table('WNE.wrkflow_steps')->insertGetId([
+                'version_id' => $verId,
+                'step_code' => 'manager_review',
+                'type' => 'approval',
+                'config' => json_encode(['assignee_role' => 'Procurement Manager', 'sla_hours' => 24]),
+                'is_entry_step' => false,
+            ]);
+
+            $step3 = DB::table('WNE.wrkflow_steps')->insertGetId([
+                'version_id' => $verId,
+                'step_code' => 'finance_approval',
+                'type' => 'approval',
+                'config' => json_encode(['assignee_role' => 'Finance Director', 'sla_hours' => 48]),
+                'is_entry_step' => false,
+            ]);
+
+            $step4 = DB::table('WNE.wrkflow_steps')->insertGetId([
+                'version_id' => $verId,
+                'step_code' => 'notify_supplier',
+                'type' => 'notify',
+                'config' => json_encode(['channels' => ['email', 'in_app']]),
+                'is_entry_step' => false,
+            ]);
+
+            DB::table('WNE.wrkflow_transitions')->insert([
+                ['from_step_id' => $step1, 'to_step_id' => $step2, 'condition_expression' => null, 'seq' => 1],
+                ['from_step_id' => $step2, 'to_step_id' => $step3, 'condition_expression' => null, 'seq' => 1],
+                ['from_step_id' => $step3, 'to_step_id' => $step4, 'condition_expression' => null, 'seq' => 1],
+            ]);
+
+            // Create active workflow instance
+            $instId = DB::table('WNE.wrkflow_instances')->insertGetId([
+                'uuid' => (string) Str::uuid(),
+                'definition_version_id' => $verId,
+                'subject_type' => 'purchase_order',
+                'subject_id' => 1,
+                'status' => 'running',
+                'payload' => json_encode(['order_no' => 'PO-2026-001', 'total' => 25000000]),
+                'started_by' => $adminId,
+                'started_at' => now()->subHours(2),
+            ]);
+
+            DB::table('WNE.wrkflow_instance_steps')->insert([
+                [
+                    'instance_id' => $instId,
+                    'step_id' => $step1,
+                    'status' => 'completed',
+                    'assigned_to' => $adminId,
+                    'started_at' => now()->subHours(2),
+                    'completed_at' => now()->subHours(2),
+                    'decision' => 'submit',
+                    'comment' => 'Pengajuan draft PO bahan baku kopi bulanan.',
+                ],
+                [
+                    'instance_id' => $instId,
+                    'step_id' => $step2,
+                    'status' => 'in_progress',
+                    'assigned_to' => $adminId,
+                    'started_at' => now()->subHours(2),
+                    'completed_at' => null,
+                    'decision' => null,
+                    'comment' => null,
+                ],
+            ]);
+        }
+
+        // 3. Notification Categories & Templates
+        $msgCats = [
+            ['code' => 'trans.po_approved', 'name' => 'Purchase Order Disetujui'],
+            ['code' => 'hcm.leave_status', 'name' => 'Status Pengajuan Cuti'],
+            ['code' => 'mes.machine_alert', 'name' => 'Peringatan Operasional Mesin Pabrik'],
+        ];
+        foreach ($msgCats as $mc) {
+            DB::table('WNE.msg_categories')->updateOrInsert(
+                ['code' => $mc['code']],
+                ['name' => $mc['name'], 'is_mandatory' => false, 'default_channels' => json_encode(['in_app', 'email'])]
+            );
+        }
+
+        // 4. Notifications & Deliveries
+        if ($adminId) {
+            $sampleNotifs = [
+                [
+                    'category_code' => 'trans.po_approved',
+                    'recipient_type' => 'user',
+                    'recipient_user_id' => $adminId,
+                    'subject' => 'Purchase Order PO-2026-001 Siap Diproses',
+                    'body' => 'Purchase Order untuk PT Supplier Pangan Makmur telah diverifikasi dan siap dikirimkan.',
+                    'status' => 'sent',
+                ],
+                [
+                    'category_code' => 'mes.machine_alert',
+                    'recipient_type' => 'user',
+                    'recipient_user_id' => $adminId,
+                    'subject' => 'Pemberitahuan Mesin: M-ESPRESSO-01 Telah Normal',
+                    'body' => 'Fluktuasi suhu pada boiler grup 2 telah disesuaikan oleh teknisi dan beroperasi normal.',
+                    'status' => 'sent',
+                ],
+            ];
+
+            foreach ($sampleNotifs as $sn) {
+                $hasNotif = DB::table('WNE.msg_notifications')
+                    ->where('recipient_user_id', $adminId)
+                    ->where('subject', $sn['subject'])
+                    ->exists();
+
+                if (!$hasNotif) {
+                    $notifId = DB::table('WNE.msg_notifications')->insertGetId(array_merge($sn, [
+                        'data' => json_encode([]),
+                        'created_at' => now(),
+                    ]));
+
+                    DB::table('WNE.msg_notification_deliveries')->insert([
+                        'notification_id' => $notifId,
+                        'channel' => 'in_app',
+                        'status' => 'delivered',
+                        'sent_at' => now(),
+                        'delivered_at' => now(),
+                    ]);
+                }
             }
         }
     }

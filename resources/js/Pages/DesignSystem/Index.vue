@@ -320,9 +320,9 @@ const triggerConfirmDemo = (variant: 'default' | 'destructive') => {
               <p class="text-xs font-bold uppercase tracking-wide text-ink-600">Signature Element: Status Rail</p>
               <p class="text-xs text-ink-600">Garis vertikal 3px pada tepi kiri kartu/baris untuk scannability instan:</p>
               <div class="space-y-1 text-xs font-medium">
-                <div class="border-l-[3px] border-l-signal-success bg-white px-2 py-1 rounded-r">Active Rail</div>
-                <div class="border-l-[3px] border-l-signal-warning bg-white px-2 py-1 rounded-r">Pending Rail</div>
-                <div class="border-l-[3px] border-l-signal-danger bg-white px-2 py-1 rounded-r">Overdue Rail</div>
+                <div class="border-l-[3px] border-l-signal-success bg-surface-0 px-2 py-1 rounded-r">Active Rail</div>
+                <div class="border-l-[3px] border-l-signal-warning bg-surface-0 px-2 py-1 rounded-r">Pending Rail</div>
+                <div class="border-l-[3px] border-l-signal-danger bg-surface-0 px-2 py-1 rounded-r">Overdue Rail</div>
               </div>
             </div>
           </div>
@@ -344,7 +344,7 @@ const triggerConfirmDemo = (variant: 'default' | 'destructive') => {
                 type="button"
                 @click="setTheme(t.id, false)"
                 class="flex items-center justify-between rounded-md border p-2.5 text-left text-xs transition-all"
-                :class="activeTheme === t.id ? 'border-accent bg-accent/5 ring-1 ring-accent font-semibold' : 'border-border bg-white hover:bg-surface-50'"
+                :class="activeTheme === t.id ? 'border-accent bg-accent/5 ring-1 ring-accent font-semibold' : 'border-border bg-surface-0 hover:bg-surface-50'"
               >
                 <div class="flex items-center gap-2">
                   <span

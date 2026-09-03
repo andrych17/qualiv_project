@@ -27,6 +27,7 @@ export default {
                 },
                 accent: {
                     DEFAULT: 'var(--color-accent)',
+                    text: 'var(--color-accent-text, #ffffff)',
                 },
                 signal: {
                     success: 'var(--color-signal-success)',

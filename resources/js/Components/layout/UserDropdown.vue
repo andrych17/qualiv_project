@@ -19,7 +19,7 @@ const isOpen = ref(false)
       @click="isOpen = !isOpen"
     >
       <!-- Avatar with User Initial -->
-      <div class="flex h-8 w-8 items-center justify-center rounded-full bg-accent font-semibold text-xs text-white shadow-xs">
+      <div class="flex h-8 w-8 items-center justify-center rounded-full bg-accent font-semibold text-xs text-accent-text shadow-xs">
         {{ user?.name ? user.name.charAt(0).toUpperCase() : 'U' }}
       </div>
       <!-- User Info (Hidden on very small mobile) -->

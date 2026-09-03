@@ -63,7 +63,8 @@ interface FavoriteItem {
   sort_order: number
   product?: {
     id: number
-    code: string
+    code?: string
+    sku?: string
     name: string
     default_price: number
     image_url?: string | null
@@ -219,17 +220,18 @@ const handleBarcodeScan = async () => {
   scanError.value = ''
 
   try {
-    const { data: product } = await axios.post(route('pos.sale.scan'), {
+    const { data: res } = await axios.post(route('pos.sale.scan'), {
       barcode: code,
       terminal_id: props.selectedTerminalId,
     })
 
+    const prod = res.product || res
     addToCart({
-      product_id: product.id || product.product_id,
-      code: product.code,
-      name: product.name,
-      uom_id: product.uom_id || null,
-      unit_price: product.price || product.unit_price || 0,
+      product_id: prod.id || res.product_id || res.id,
+      code: prod.sku || prod.code || res.code || res.barcode,
+      name: prod.name || res.name,
+      uom_id: prod.base_uom_id || prod.base_uom?.id || res.uom_id || null,
+      unit_price: Number(res.unit_price ?? res.price ?? prod.default_price ?? 0),
     })
     barcodeInput.value = ''
   } catch (e: any) {
@@ -260,10 +262,10 @@ const addFavorite = (fav: FavoriteItem) => {
   if (!fav.product) return
   addToCart({
     product_id: fav.product_id,
-    code: fav.product.code,
+    code: fav.product.code || fav.product.sku || '',
     name: fav.product.name,
     uom_id: fav.product.base_uom?.id,
-    unit_price: Number(fav.product.default_price || 0),
+    unit_price: Number(fav.product.default_price || (fav.product as any).unit_price || 0),
   })
 }
 
@@ -523,7 +525,7 @@ const resumeParkedOrder = async (order: TxnHdr) => {
                   :alt="fav.product.name"
                   class="mb-2 h-20 w-full rounded-md object-contain bg-white/80 p-1.5 border border-surface-200"
                 />
-                <p class="text-xs font-medium text-ink-500">{{ fav.product?.code }}</p>
+                <p class="text-xs font-medium text-ink-500">{{ fav.product?.code || fav.product?.sku }}</p>
                 <h4 class="line-clamp-2 text-sm font-semibold text-ink-900">{{ fav.product?.name }}</h4>
               </div>
               <p class="mt-2 font-mono text-sm font-bold text-primary-700">

@@ -14,7 +14,7 @@ const typeConfig = computed(() => {
       return {
         icon: CheckCircle2,
         iconBgClass: 'bg-emerald-500/10 text-emerald-500 ring-8 ring-emerald-500/10',
-        buttonClass: 'bg-accent hover:bg-accent/90 text-white focus-visible:outline-accent',
+        buttonClass: 'bg-accent hover:bg-accent/90 text-accent-text focus-visible:outline-accent',
       }
     case 'error':
       return {
@@ -33,7 +33,7 @@ const typeConfig = computed(() => {
       return {
         icon: Info,
         iconBgClass: 'bg-signal-info/10 text-signal-info ring-8 ring-signal-info/10',
-        buttonClass: 'bg-accent hover:bg-accent/90 text-white focus-visible:outline-accent',
+        buttonClass: 'bg-accent hover:bg-accent/90 text-accent-text focus-visible:outline-accent',
       }
   }
 })
