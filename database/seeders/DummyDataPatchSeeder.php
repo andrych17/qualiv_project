@@ -319,21 +319,36 @@ class DummyDataPatchSeeder extends Seeder
             $locationId = $loc->id;
         }
 
-        // Seed stock balance
+        // Seed stock balance across all warehouses
+        $allWarehouses = DB::table('INVENTORY.warehouses')->get();
         $allProducts = DB::table('INVENTORY.products')->get();
-        foreach ($allProducts as $prod) {
-            DB::table('INVENTORY.stock_balances')->updateOrInsert(
-                [
-                    'product_id' => $prod->id,
-                    'warehouse_id' => $warehouseId,
-                    'location_id' => $locationId,
-                ],
-                [
-                    'qty_on_hand' => 100.0,
-                    'updated_at' => now(),
+        foreach ($allWarehouses as $wh) {
+            $loc = DB::table('INVENTORY.locations')->where('warehouse_id', $wh->id)->first();
+            $locId = $loc?->id;
+            if (!$locId) {
+                $locId = DB::table('INVENTORY.locations')->insertGetId([
+                    'warehouse_id' => $wh->id,
+                    'code' => 'LOC-' . $wh->id . '-FRONT',
+                    'type' => 'bin',
+                    'is_active' => true,
                     'created_at' => now(),
-                ]
-            );
+                    'updated_at' => now(),
+                ]);
+            }
+            foreach ($allProducts as $prod) {
+                DB::table('INVENTORY.stock_balances')->updateOrInsert(
+                    [
+                        'product_id' => $prod->id,
+                        'warehouse_id' => $wh->id,
+                    ],
+                    [
+                        'location_id' => $locId,
+                        'qty_on_hand' => 100.0,
+                        'updated_at' => now(),
+                        'created_at' => now(),
+                    ]
+                );
+            }
         }
     }
 
