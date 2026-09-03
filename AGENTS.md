@@ -17,9 +17,20 @@ A **multi-tenant SaaS ERP platform**, architected as a **modular monolith** (Odo
 ## 2. Multi-Tenancy & Database Architecture
 
 - **Isolation Strategy:** Mode B — **one PostgreSQL database per tenant** (`tenant_{id}`) managed via `stancl/tenancy`.
-- **Central DB (`nusaevo`):** Holds tenant registry, user lookup (`tenant_user_lookups`), and tenant plan entitlement (`tenants.plan`).
+- **Central DB (`nusaevo` / VPS `ErpApp1`):** Holds tenant registry, user lookup (`tenant_user_lookups`), and tenant plan entitlement (`tenants.plan`).
 - **Tenant DB Schemas:** Modules have isolated schemas inside each tenant database:
   `SYSCONFIG`, `WNE`, `DMS`, `CRM`, `SCHEDULE`, `INVENTORY`, `ACCOUNTING`, `SALES`, `PURCHASE`, `HCM`, `PAYROLL`, `PERF`, `PROJECTS`, `AIINSIGHT`, `CUSTOMFIELDS`.
+
+### ⚠️ CRITICAL: Database Differentiation from `netapp1` (VPS `netadm`)
+- **NEVER CONFUSE WITH `netapp1`**: The VPS server `netadm` (`213.210.21.204`) hosts both `netapp1` (`app.nusaevo.com`) and `erp-nusaevo` (`erp.nusaevo.com`). Their databases and codebases are **completely separate**.
+- **Nusaevo ERP Databases (`nusaevo-erp`)**:
+  - **Production:** `ErpApp1` (User: `netpgprd1`, Path: `/var/www/erp.nusaevo.com`)
+  - **Staging:** `ErpApp1_stg` (User: `netpgdev1`, Path: `/var/www/staging-erp.nusaevo.com`)
+  - **Redis:** Port `6380` (prod), Port `6379` (staging)
+- **NetApp1 Databases (DO NOT TOUCH / OFF LIMITS)**:
+  - `SysConfig1` / `SysConfig1_stg`, `TrdJewel1*`, `TrdRetail1*`, `TrdTire1*`, `TrdTire2*`, etc. (located under `/var/www/nusaevo` and `/var/www/staging.nusaevo`).
+- **Safety Rule:** NEVER run migrations, seeders, or database mutations against `SysConfig1` or any `Trd*` / `netapp1` database when working on `nusaevo-erp`. Always ensure target database is `ErpApp1` (or `ErpApp1_stg`).
+
 - **Customization Ladder (No `tenant_id` branches):**
   1. Constants (`SYSCONFIG.config_consts`)
   2. Serials (`SYSCONFIG.config_snums`)
