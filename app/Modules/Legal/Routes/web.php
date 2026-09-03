@@ -50,12 +50,14 @@ Route::middleware(['auth', 'verified', 'module:LEGAL', 'menu.perm:LEGAL'])
         Route::put('deeds/{deed}/parties/{party}', [DeedPartyController::class, 'update'])->name('deeds.parties.update');
         Route::delete('deeds/{deed}/parties/{party}', [DeedPartyController::class, 'destroy'])->name('deeds.parties.destroy');
 
+        Route::get('taxes', [DeedTaxController::class, 'index'])->name('taxes.index');
         Route::post('deeds/{deed}/taxes/generate', [DeedTaxController::class, 'generate'])->name('deeds.taxes.generate');
         Route::patch('deeds/{deed}/taxes/{tax}/amounts', [DeedTaxController::class, 'updateAmounts'])->name('deeds.taxes.updateAmounts');
         Route::patch('deeds/{deed}/taxes/{tax}/billing-code', [DeedTaxController::class, 'issueBillingCode'])->name('deeds.taxes.issueBillingCode');
         Route::patch('deeds/{deed}/taxes/{tax}/paid', [DeedTaxController::class, 'markPaid'])->name('deeds.taxes.markPaid');
         Route::patch('deeds/{deed}/taxes/{tax}/validated', [DeedTaxController::class, 'markValidated'])->name('deeds.taxes.markValidated');
 
+        Route::get('bpn-submissions', [BpnSubmissionController::class, 'index'])->name('bpnSubmissions.index');
         Route::patch('deeds/{deed}/bpn-submissions/{bpnSubmission}/submit', [BpnSubmissionController::class, 'submit'])->name('deeds.bpnSubmissions.submit');
         Route::patch('deeds/{deed}/bpn-submissions/{bpnSubmission}/in-process', [BpnSubmissionController::class, 'markInProcess'])->name('deeds.bpnSubmissions.markInProcess');
         Route::patch('deeds/{deed}/bpn-submissions/{bpnSubmission}/complete', [BpnSubmissionController::class, 'complete'])->name('deeds.bpnSubmissions.complete');

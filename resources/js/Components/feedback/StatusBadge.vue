@@ -91,6 +91,23 @@ const badgeClass = computed(() => {
     // Projects §3A/§3B Project status ('active'/'completed'/'cancelled' reuse the keys above)
     planning: 'bg-signal-info/10 text-signal-info border-signal-info/25',
     on_hold: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
+    // PP §3D/§3C Planned Order status ('released'/'cancelled' reuse the keys above)
+    planned: 'bg-signal-info/10 text-signal-info border-signal-info/25',
+    firmed: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
+    // PP §3M Exception status ('open'/'resolved' reuse the keys above)
+    acknowledged: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
+    // PP §3M Exception severity
+    critical: 'bg-signal-danger/10 text-signal-danger border-signal-danger/25',
+    high: 'bg-signal-danger/10 text-signal-danger border-signal-danger/25',
+    medium: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
+    low: 'bg-signal-info/10 text-signal-info border-signal-info/25',
+    // PP §3H Schedule Op status ('draft'/'released' reuse the keys above)
+    committed: 'bg-signal-info/10 text-signal-info border-signal-info/25',
+    // MES §3D Machine status ('idle'/'down'/'maintenance' reuse the keys above)
+    running: 'bg-signal-success/10 text-signal-success border-signal-success/25',
+    waiting_material: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
+    waiting_operator: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
+    waiting_qc: 'bg-signal-warning/10 text-signal-warning border-signal-warning/25',
   }
 
   return map[normalizedStatus.value] ?? 'bg-surface-50 text-ink-600 border-border'

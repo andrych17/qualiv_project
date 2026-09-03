@@ -1,10 +1,19 @@
 <!-- ponytail: Sidebar from shared navMenus supporting up to 3 levels of nested accordion submenus & direct link navigation -->
 <script setup lang="ts">
-import { computed, inject, ref, watch, type Component, type Ref } from 'vue'
+import { computed, inject, nextTick, onMounted, ref, watch, type Component, type Ref } from 'vue'
 import { Link, usePage } from '@inertiajs/vue3'
 import { ChevronRight, HelpCircle, X } from 'lucide-vue-next'
 import TenantSwitcher from './TenantSwitcher.vue'
 import * as LucideIcons from 'lucide-vue-next'
+import { getSavedOpenMenus, getSavedScroll, setSavedOpenMenus, setSavedScroll } from '@/State/sidebarNav'
+
+// AppLayout is wrapped inline per-page (not an Inertia persistent layout), so every visit
+// destroys and recreates this component. Note: state can't live in a `let` here even though
+// this looks like module scope — everything in a `<script setup>` block compiles into the
+// component's setup() function body, so it re-initializes on every mount just like a `ref`
+// would. @/State/sidebarNav.ts is a real, separately-evaluated module, so state kept there
+// genuinely persists across remounts — that's what makes the sidebar's scroll position and
+// manually-expanded accordions carry over across navigations instead of resetting.
 
 type Level3MenuItem = {
   code: string
@@ -39,7 +48,8 @@ type MenuSection = {
 }
 
 const page = usePage()
-const openMenus = ref<Record<string, boolean>>({})
+const openMenus = ref<Record<string, boolean>>({ ...getSavedOpenMenus() })
+const navRef = ref<HTMLElement | null>(null)
 
 const mobileSidebar = inject<{
   isOpen: Ref<boolean>
@@ -134,6 +144,23 @@ watch(
   { immediate: true },
 )
 
+// Persist accordion state across the remounts every Inertia navigation causes — a menu the
+// user expanded by hand stays expanded on the next page.
+watch(openMenus, (value) => { setSavedOpenMenus(value) }, { deep: true })
+
+// Restore scroll position after the remount. openMenus is already correct by mount time (the
+// `immediate` watch above runs during setup(), before this), so the nav's scrollHeight is
+// final and one nextTick is enough — no need to wait a frame further.
+onMounted(() => {
+  nextTick(() => {
+    if (navRef.value) navRef.value.scrollTop = getSavedScroll()
+  })
+})
+
+const onNavScroll = (e: Event) => {
+  setSavedScroll((e.target as HTMLElement).scrollTop)
+}
+
 const getIcon = (name: string | null): Component => {
   if (!name) return HelpCircle
 
@@ -150,7 +177,7 @@ const getIcon = (name: string | null): Component => {
 
 <template>
   <!-- Desktop Sidebar -->
-  <aside class="hidden md:flex flex-col w-64 border-r border-border bg-surface-0 h-screen sticky top-0 shrink-0 select-none">
+  <aside class="hidden md:flex flex-col w-64 border-r border-border bg-surface-0 h-full min-h-0 shrink-0 select-none">
     <div class="border-b border-border px-4 py-3 space-y-2">
       <div class="px-1 text-xs font-semibold uppercase tracking-wider text-ink-500">
         NusaEvo ERP
@@ -158,7 +185,7 @@ const getIcon = (name: string | null): Component => {
       <TenantSwitcher />
     </div>
 
-    <nav class="flex-1 overflow-y-auto p-3 space-y-4">
+    <nav ref="navRef" class="min-h-0 flex-1 overflow-y-auto p-3 space-y-4" @scroll.passive="onNavScroll">
       <div v-for="section in menuSections" :key="section.header" class="space-y-1">
         <p class="px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-ink-500">
           {{ section.header }}
@@ -327,7 +354,7 @@ const getIcon = (name: string | null): Component => {
 
       <!-- Drawer Panel -->
       <aside
-        class="relative flex flex-col w-72 max-w-[85vw] h-full bg-surface-0 border-r border-border shadow-2xl z-10 select-none"
+        class="relative flex h-full min-h-0 w-72 max-w-[85vw] flex-col bg-surface-0 border-r border-border shadow-2xl z-10 select-none"
       >
         <div class="border-b border-border px-4 py-3 flex items-center justify-between">
           <div class="px-1 text-xs font-semibold uppercase tracking-wider text-ink-500">
@@ -347,7 +374,7 @@ const getIcon = (name: string | null): Component => {
           <TenantSwitcher />
         </div>
 
-        <nav class="flex-1 overflow-y-auto p-3 space-y-4">
+        <nav class="min-h-0 flex-1 overflow-y-auto p-3 space-y-4">
           <div v-for="section in menuSections" :key="section.header" class="space-y-1">
             <p class="px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-ink-500">
               {{ section.header }}

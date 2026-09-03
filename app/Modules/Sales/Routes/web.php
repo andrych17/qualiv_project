@@ -13,6 +13,7 @@ use App\Modules\Sales\Controllers\PromoCodeController;
 use App\Modules\Sales\Controllers\QuotationController;
 use App\Modules\Sales\Controllers\ReturnController;
 use App\Modules\Sales\Controllers\SalesDashboardController;
+use App\Modules\Sales\Controllers\SalesInvoiceController;
 use App\Modules\Sales\Controllers\SalesOrderController;
 use App\Modules\Sales\Controllers\SalesTeamController;
 use App\Modules\Sales\Controllers\TerritoryController;
@@ -56,9 +57,13 @@ Route::middleware(['auth', 'module:SALES', 'menu.perm:SALES'])->prefix('sales')-
     Route::get('/orders/{order}/edit', [SalesOrderController::class, 'edit'])->name('orders.edit');
     Route::put('/orders/{order}', [SalesOrderController::class, 'update'])->name('orders.update');
     Route::post('/orders/{order}/confirm', [SalesOrderController::class, 'confirm'])->name('orders.confirm');
+    Route::post('/orders/{order}/confirm-override', [SalesOrderController::class, 'confirmOverride'])->name('orders.confirm-override');
     Route::post('/orders/{order}/cancel', [SalesOrderController::class, 'cancel'])->name('orders.cancel');
     Route::post('/orders/{order}/invoice', [SalesOrderController::class, 'requestInvoice'])->name('orders.invoice');
     Route::delete('/orders/{order}', [SalesOrderController::class, 'destroy'])->name('orders.destroy');
+
+    // §3I Invoices (read-only view over Accounting's ar_invoices, scoped to Sales-originated ones)
+    Route::get('/invoices', [SalesInvoiceController::class, 'index'])->name('invoices.index');
 
     // §3H Deliveries
     Route::get('/deliveries', [DeliveryController::class, 'index'])->name('deliveries.index');

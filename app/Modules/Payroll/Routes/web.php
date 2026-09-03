@@ -29,6 +29,7 @@ Route::middleware(['auth', 'verified', 'module:PAYROLL', 'menu.perm:PAYROLL'])
         Route::post('/runs/{run}/lock', [PayrollRunController::class, 'lock'])->name('runs.lock');
 
         // Payslips
+        Route::get('/payslips', [PayslipController::class, 'index'])->name('payslips.index');
         Route::get('/payslips/{line}', [PayslipController::class, 'show'])->name('payslips.show');
 
         // Employee Payroll Profiles

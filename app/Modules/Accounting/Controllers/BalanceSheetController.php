@@ -26,16 +26,18 @@ class BalanceSheetController extends BaseReportController
     {
         $companies = Company::query()->where('is_active', true)->orderBy('legal_name')->get(['id', 'legal_name']);
         $companyId = (int) $this->companyContext->resolve($request, $companies);
-        $company = Company::query()->findOrFail($companyId);
+        $company = $companyId ? Company::query()->find($companyId) : null;
         $combined = $request->boolean('combined');
 
-        $periods = $this->periodOptions($companyId);
+        $periods = $companyId ? $this->periodOptions($companyId) : collect();
         $periodId = $request->integer('fiscal_period_id') ?: $periods->first()['value'] ?? null;
 
         $report = null;
-        if ($periodId) {
-            $period = FiscalPeriod::query()->findOrFail($periodId);
-            $report = $combined ? $this->combinedReport($companies, $period) : $this->service->generate($company, $period);
+        if ($company && $periodId) {
+            $period = FiscalPeriod::query()->find($periodId);
+            if ($period) {
+                $report = $combined ? $this->combinedReport($companies, $period) : $this->service->generate($company, $period);
+            }
         }
 
         return Inertia::render('Accounting/Reports/BalanceSheet', [

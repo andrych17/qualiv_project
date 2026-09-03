@@ -85,7 +85,20 @@ unsolved centrally, this repeats the exact anti-pattern the WNE module was built
 
 > Every Form and Engine (Entry, View, Report, Service) — layout, logic, business rules, DB design.
 
-## 3A. Main Dashboard (Document Library)
+## 3A. Main Dashboard, and Document Library
+
+DMS_DASHBOARD and DMS_DOCUMENTS are two separate pages (DmsDashboardController and
+DocumentController respectively) — same "dashboard summarizes, list page does the work"
+split every other module's Main Dashboard uses (see e.g. WNE_SPECS.md §3A). They used to
+alias to the same DocumentController::index() page/content; kept split out here since this
+heading originally described only the Library half.
+
+**Main Dashboard** (`/dms/dashboard`, `DmsDashboardController`)
+- Summary cards: total documents, active, expiring soon, on legal hold.
+- Tabbed recent-activity preview (Recent Uploads | Expiring Soon | On Legal Hold), capped —
+  each row and the "View all in Documents" link out to the Library below.
+
+**Document Library** (`/dms/documents`, `DocumentController::index()`)
 
 **Function / features**
 - Folder tree + list/grid of documents. Filters: owning module, doc type, tag, status, date

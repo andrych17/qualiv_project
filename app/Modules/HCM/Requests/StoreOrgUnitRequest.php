@@ -4,6 +4,7 @@ namespace App\Modules\HCM\Requests;
 
 use App\Modules\HCM\Models\OrgUnit;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
 class StoreOrgUnitRequest extends FormRequest
@@ -17,6 +18,7 @@ class StoreOrgUnitRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:150'],
+            'unit_type' => ['required', 'string', Rule::in(OrgUnit::TYPES)],
             'parent_org_unit_id' => ['nullable', 'integer'],
             'accounting_cost_center_id' => ['nullable', 'integer'],
             'is_active' => ['nullable', 'boolean'],

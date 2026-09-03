@@ -8,6 +8,7 @@ use App\Modules\SysConfig\Models\ConfigGroup;
 use App\Modules\SysConfig\Models\ConfigGroupUser;
 use App\Modules\SysConfig\Models\ConfigMenu;
 use App\Modules\SysConfig\Models\ConfigRight;
+use App\Modules\SysConfig\Models\ConfigSnum;
 use Illuminate\Database\Seeder;
 
 /**
@@ -49,6 +50,7 @@ class SysConfigSeeder extends Seeder
         $this->seedRights($groups, $menus);
         $this->seedGroupUsers($groups);
         $this->seedConsts();
+        $this->seedSnums();
     }
 
     /** @return array<string, ConfigGroup> */
@@ -106,6 +108,10 @@ class SysConfigSeeder extends Seeder
             // (no §3A dashboard yet), same "point straight at the built page" convention
             // WNE/DMS/Accounting used before their own dashboards existed.
             ['code' => 'PERFORMANCE', 'menu_header' => 'People', 'menu_caption' => 'Performance', 'menu_link' => '/performance/kpi-definitions', 'icon' => 'Target', 'seq' => 150, 'status_code' => 'A'],
+            // PP_SPECS.md §3O ships (Dashboard) — full plan only (config/tenant_modules.php).
+            ['code' => 'PP', 'menu_header' => 'Operations', 'menu_caption' => 'Production Planning', 'menu_link' => '/pp/dashboard', 'icon' => 'CalendarRange', 'seq' => 160, 'status_code' => 'A'],
+            // MES_SPECS.md — full plan only (config/tenant_modules.php).
+            ['code' => 'MES', 'menu_header' => 'Operations', 'menu_caption' => 'Manufacturing Execution', 'menu_link' => '/mes/work-centers', 'icon' => 'Factory', 'seq' => 230, 'status_code' => 'A'],
         ];
 
         $submenus = [
@@ -118,8 +124,7 @@ class SysConfigSeeder extends Seeder
             'CRM' => [
                 ['code' => 'CRM_DASHBOARD', 'caption' => 'Dashboard', 'link' => '/crm/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 21],
                 ['code' => 'CRM_LEADS', 'caption' => 'Leads', 'link' => '/crm/leads', 'icon' => 'UserPlus', 'seq' => 22],
-                ['code' => 'CRM_OPPORTUNITIES', 'caption' => 'Opportunities', 'link' => '/crm/opportunities', 'icon' => 'Target', 'seq' => 23],
-                ['code' => 'CRM_CUSTOMERS', 'caption' => 'Customers', 'link' => '/crm/customers', 'icon' => 'Building', 'seq' => 24],
+                ['code' => 'CRM_COMPANIES', 'caption' => 'Companies', 'link' => '/crm/companies', 'icon' => 'Building', 'seq' => 24],
                 ['code' => 'CRM_CONTACTS', 'caption' => 'Contacts', 'link' => '/crm/contacts', 'icon' => 'Contact', 'seq' => 25],
                 ['code' => 'CRM_TICKETS', 'caption' => 'Tickets', 'link' => '/crm/tickets', 'icon' => 'LifeBuoy', 'seq' => 26],
                 ['code' => 'CRM_CASES', 'caption' => 'Service Cases', 'link' => '/crm/service-cases', 'icon' => 'Briefcase', 'seq' => 27],
@@ -135,13 +140,13 @@ class SysConfigSeeder extends Seeder
             'HCM' => [
                 ['code' => 'HCM_DASHBOARD', 'caption' => 'Dashboard', 'link' => '/hcm/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 131],
                 ['code' => 'HCM_EMPLOYEES', 'caption' => 'Employees', 'link' => '/hcm/employees', 'icon' => 'Users', 'seq' => 132],
-                ['code' => 'HCM_DEPARTMENTS', 'caption' => 'Departments', 'link' => '/hcm/departments', 'icon' => 'Network', 'seq' => 133],
-                ['code' => 'HCM_DESIGNATIONS', 'caption' => 'Designations', 'link' => '/hcm/designations', 'icon' => 'Award', 'seq' => 134],
-                ['code' => 'HCM_BRANCHES', 'caption' => 'Branches', 'link' => '/hcm/branches', 'icon' => 'Building2', 'seq' => 135],
+                ['code' => 'HCM_DEPARTMENTS', 'caption' => 'Departments', 'link' => '/hcm/org-units?unit_type=department', 'icon' => 'Network', 'seq' => 133],
+                ['code' => 'HCM_DESIGNATIONS', 'caption' => 'Designations', 'link' => '/hcm/jobs', 'icon' => 'Award', 'seq' => 134],
+                ['code' => 'HCM_BRANCHES', 'caption' => 'Branches', 'link' => '/hcm/org-units?unit_type=branch', 'icon' => 'Building2', 'seq' => 135],
             ],
             'PAYROLL' => [
                 ['code' => 'PAYROLL_DASHBOARD', 'caption' => 'Dashboard', 'link' => '/payroll/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 141],
-                ['code' => 'PAYROLL_STRUCTURES', 'caption' => 'Salary Structures', 'link' => '/payroll/salary-structures', 'icon' => 'Sliders', 'seq' => 142],
+                ['code' => 'PAYROLL_STRUCTURES', 'caption' => 'Salary Structures', 'link' => '/payroll/structures', 'icon' => 'Sliders', 'seq' => 142],
                 ['code' => 'PAYROLL_RUNS', 'caption' => 'Payroll Runs', 'link' => '/payroll/runs', 'icon' => 'PlayCircle', 'seq' => 143],
                 ['code' => 'PAYROLL_PAYSLIPS', 'caption' => 'Payslips', 'link' => '/payroll/payslips', 'icon' => 'FileSpreadsheet', 'seq' => 144],
             ],
@@ -160,11 +165,12 @@ class SysConfigSeeder extends Seeder
             ],
             'SALES' => [
                 ['code' => 'SALES_DASHBOARD', 'caption' => 'Dashboard', 'link' => '/sales/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 81],
-                ['code' => 'SALES_QUOTATIONS', 'caption' => 'Quotations', 'link' => '/sales/quotations', 'icon' => 'FileText', 'seq' => 82],
-                ['code' => 'SALES_ORDERS', 'caption' => 'Sales Orders', 'link' => '/sales/orders', 'icon' => 'ShoppingBag', 'seq' => 83],
-                ['code' => 'SALES_DELIVERIES', 'caption' => 'Deliveries', 'link' => '/sales/deliveries', 'icon' => 'Truck', 'seq' => 84],
-                ['code' => 'SALES_INVOICES', 'caption' => 'Invoices', 'link' => '/sales/invoices', 'icon' => 'Receipt', 'seq' => 85],
-                ['code' => 'SALES_PROFILES', 'caption' => 'Customer Profiles', 'link' => '/sales/customer-profiles', 'icon' => 'UserCheck', 'seq' => 86],
+                ['code' => 'SALES_OPPORTUNITIES', 'caption' => 'Opportunity Management', 'link' => '/sales/opportunities', 'icon' => 'Target', 'seq' => 82],
+                ['code' => 'SALES_QUOTATIONS', 'caption' => 'Quotations', 'link' => '/sales/quotations', 'icon' => 'FileText', 'seq' => 83],
+                ['code' => 'SALES_ORDERS', 'caption' => 'Sales Orders', 'link' => '/sales/orders', 'icon' => 'ShoppingBag', 'seq' => 84],
+                ['code' => 'SALES_DELIVERIES', 'caption' => 'Deliveries', 'link' => '/sales/deliveries', 'icon' => 'Truck', 'seq' => 85],
+                ['code' => 'SALES_INVOICES', 'caption' => 'Invoices', 'link' => '/sales/invoices', 'icon' => 'Receipt', 'seq' => 86],
+                ['code' => 'SALES_PROFILES', 'caption' => 'Customer Profiles', 'link' => '/sales/master/customers', 'icon' => 'UserCheck', 'seq' => 87],
             ],
             'PURCHASE' => [
                 ['code' => 'PURCHASE_DASHBOARD', 'caption' => 'Dashboard', 'link' => '/purchase/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 91],
@@ -172,17 +178,17 @@ class SysConfigSeeder extends Seeder
                 ['code' => 'PURCHASE_ORDERS', 'caption' => 'Purchase Orders', 'link' => '/purchase/orders', 'icon' => 'ShoppingCart', 'seq' => 93],
                 ['code' => 'PURCHASE_RECEIPTS', 'caption' => 'Receipts', 'link' => '/purchase/receipts', 'icon' => 'PackageCheck', 'seq' => 94],
                 ['code' => 'PURCHASE_INVOICES', 'caption' => 'Vendor Bills', 'link' => '/purchase/invoices', 'icon' => 'Receipt', 'seq' => 95],
-                ['code' => 'PURCHASE_SPEND', 'caption' => 'Spend Analytics', 'link' => '/purchase/spend-analytics', 'icon' => 'PieChart', 'seq' => 96],
-                ['code' => 'PURCHASE_ESG', 'caption' => 'ESG Scorecard', 'link' => '/purchase/esg', 'icon' => 'Leaf', 'seq' => 97],
+                ['code' => 'PURCHASE_SPEND', 'caption' => 'Spend Analytics', 'link' => '/purchase/analytics/spend', 'icon' => 'PieChart', 'seq' => 96],
+                ['code' => 'PURCHASE_ESG', 'caption' => 'ESG Scorecard', 'link' => '/purchase/analytics/esg', 'icon' => 'Leaf', 'seq' => 97],
             ],
             'ACCOUNTING' => [
                 ['code' => 'ACCOUNTING_ACCOUNTS', 'caption' => 'Chart of Accounts', 'link' => '/accounting/accounts', 'icon' => 'BookOpen', 'seq' => 121],
                 ['code' => 'ACCOUNTING_JOURNALS', 'caption' => 'Journal Entries', 'link' => '/accounting/journals', 'icon' => 'BookMarked', 'seq' => 122],
                 ['code' => 'ACCOUNTING_GL', 'caption' => 'General Ledger', 'link' => '/accounting/general-ledger', 'icon' => 'FileSpreadsheet', 'seq' => 123],
-                ['code' => 'ACCOUNTING_TRIAL_BALANCE', 'caption' => 'Trial Balance', 'link' => '/accounting/trial-balance', 'icon' => 'Scale', 'seq' => 124],
-                ['code' => 'ACCOUNTING_BALANCE_SHEET', 'caption' => 'Balance Sheet', 'link' => '/accounting/balance-sheet', 'icon' => 'Table', 'seq' => 125],
-                ['code' => 'ACCOUNTING_INCOME_STMT', 'caption' => 'Income Statement', 'link' => '/accounting/income-statement', 'icon' => 'LineChart', 'seq' => 126],
-                ['code' => 'ACCOUNTING_CASH_FLOW', 'caption' => 'Cash Flow', 'link' => '/accounting/cash-flow', 'icon' => 'Activity', 'seq' => 127],
+                ['code' => 'ACCOUNTING_TRIAL_BALANCE', 'caption' => 'Trial Balance', 'link' => '/accounting/reports/trial-balance', 'icon' => 'Scale', 'seq' => 124],
+                ['code' => 'ACCOUNTING_BALANCE_SHEET', 'caption' => 'Balance Sheet', 'link' => '/accounting/reports/balance-sheet', 'icon' => 'Table', 'seq' => 125],
+                ['code' => 'ACCOUNTING_INCOME_STMT', 'caption' => 'Income Statement', 'link' => '/accounting/reports/profit-loss', 'icon' => 'LineChart', 'seq' => 126],
+                ['code' => 'ACCOUNTING_CASH_FLOW', 'caption' => 'Cash Flow', 'link' => '/accounting/reports/cash-flow', 'icon' => 'Activity', 'seq' => 127],
                 ['code' => 'ACCOUNTING_TAX_PERIODS', 'caption' => 'Tax Periods', 'link' => '/accounting/tax-periods', 'icon' => 'CalendarCheck', 'seq' => 128],
             ],
             'WNE' => [
@@ -196,13 +202,50 @@ class SysConfigSeeder extends Seeder
             'DMS' => [
                 ['code' => 'DMS_DASHBOARD', 'caption' => 'Dashboard', 'link' => '/dms/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 47],
                 ['code' => 'DMS_DOCUMENTS', 'caption' => 'Documents', 'link' => '/dms/documents', 'icon' => 'FileText', 'seq' => 48],
-                ['code' => 'DMS_CATEGORIES', 'caption' => 'Categories', 'link' => '/dms/categories', 'icon' => 'FolderOpen', 'seq' => 49],
+                ['code' => 'DMS_CATEGORIES', 'caption' => 'Categories', 'link' => '/dms/folders', 'icon' => 'FolderOpen', 'seq' => 49],
             ],
             'PERFORMANCE' => [
+                ['code' => 'PERFORMANCE_DASHBOARD', 'caption' => 'Dashboard', 'link' => '/performance/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 150],
                 ['code' => 'PERFORMANCE_KPIS', 'caption' => 'KPIs', 'link' => '/performance/kpi-definitions', 'icon' => 'Target', 'seq' => 151],
                 ['code' => 'PERFORMANCE_OKRS', 'caption' => 'OKRs', 'link' => '/performance/okr-objectives', 'icon' => 'Compass', 'seq' => 152],
                 ['code' => 'PERFORMANCE_BUDGETS', 'caption' => 'Budgets', 'link' => '/performance/budgets', 'icon' => 'PieChart', 'seq' => 153],
                 ['code' => 'PERFORMANCE_SCORECARDS', 'caption' => 'Scorecards', 'link' => '/performance/scorecards', 'icon' => 'Award', 'seq' => 154],
+            ],
+            'PP' => [
+                ['code' => 'PP_DASHBOARD', 'caption' => 'Dashboard', 'link' => '/pp/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 160],
+                ['code' => 'PP_ITEM_PARAMS', 'caption' => 'Item Planning Parameters', 'link' => '/pp/item-planning-params', 'icon' => 'SlidersHorizontal', 'seq' => 161],
+                ['code' => 'PP_DEMAND', 'caption' => 'Demand Aggregation', 'link' => '/pp/demand', 'icon' => 'TrendingUp', 'seq' => 162],
+                ['code' => 'PP_DEMAND_FORECASTS', 'caption' => 'Demand Forecasts', 'link' => '/pp/demand-forecasts', 'icon' => 'LineChart', 'seq' => 163],
+                ['code' => 'PP_BOMS', 'caption' => 'Bills of Material', 'link' => '/pp/boms', 'icon' => 'Layers3', 'seq' => 164],
+                ['code' => 'PP_RECIPES', 'caption' => 'Recipes', 'link' => '/pp/recipes', 'icon' => 'FlaskConical', 'seq' => 165],
+                ['code' => 'PP_PLANNED_ORDERS', 'caption' => 'Planned Orders', 'link' => '/pp/planned-orders', 'icon' => 'ClipboardList', 'seq' => 166],
+                ['code' => 'PP_MPS', 'caption' => 'Master Production Schedule', 'link' => '/pp/mps', 'icon' => 'Grid3x3', 'seq' => 167],
+                ['code' => 'PP_RESOURCES', 'caption' => 'Resources', 'link' => '/pp/resources', 'icon' => 'Wrench', 'seq' => 168],
+                ['code' => 'PP_RESOURCE_GROUPS', 'caption' => 'Resource Groups', 'link' => '/pp/resource-groups', 'icon' => 'Group', 'seq' => 169],
+                ['code' => 'PP_CAPACITY', 'caption' => 'Capacity Planning (RCCP)', 'link' => '/pp/capacity-plans', 'icon' => 'Gauge', 'seq' => 170],
+                ['code' => 'PP_EXCEPTIONS', 'caption' => 'Planning Exceptions', 'link' => '/pp/exceptions', 'icon' => 'AlertTriangle', 'seq' => 171],
+                ['code' => 'PP_SCHEDULE_OPS', 'caption' => 'Detailed Scheduling', 'link' => '/pp/schedule-ops', 'icon' => 'GanttChart', 'seq' => 172],
+                ['code' => 'PP_CHANGEOVER_MATRIX', 'caption' => 'Changeover Matrix', 'link' => '/pp/changeover-matrix', 'icon' => 'Shuffle', 'seq' => 173],
+            ],
+            'MES' => [
+                ['code' => 'MES_WORK_CENTERS', 'caption' => 'Work Centers', 'link' => '/mes/work-centers', 'icon' => 'Boxes', 'seq' => 231],
+                ['code' => 'MES_MACHINES', 'caption' => 'Machines', 'link' => '/mes/machines', 'icon' => 'Cog', 'seq' => 232],
+                ['code' => 'MES_STATIONS', 'caption' => 'Stations', 'link' => '/mes/stations', 'icon' => 'MapPin', 'seq' => 233],
+                ['code' => 'MES_ROUTINGS', 'caption' => 'Routings', 'link' => '/mes/routings', 'icon' => 'Route', 'seq' => 234],
+                ['code' => 'MES_PROCESS_PHASES', 'caption' => 'Process Phases', 'link' => '/mes/process-phases', 'icon' => 'Thermometer', 'seq' => 235],
+                ['code' => 'MES_PROD_ORDERS', 'caption' => 'Production Orders', 'link' => '/mes/prod-orders', 'icon' => 'ClipboardList', 'seq' => 236],
+                ['code' => 'MES_PROD_EVENTS', 'caption' => 'Production Events', 'link' => '/mes/prod-events', 'icon' => 'History', 'seq' => 237],
+                ['code' => 'MES_QC_PLANS', 'caption' => 'QC Inspection Plans', 'link' => '/mes/qc-plans', 'icon' => 'ClipboardCheck', 'seq' => 238],
+                ['code' => 'MES_TRACEABILITY', 'caption' => 'Traceability', 'link' => '/mes/traceability', 'icon' => 'GitBranch', 'seq' => 239],
+                ['code' => 'MES_AUDIT_LOGS', 'caption' => 'Audit Trail', 'link' => '/mes/audit-logs', 'icon' => 'FileClock', 'seq' => 240],
+                ['code' => 'MES_DOWNTIME', 'caption' => 'Equipment Downtime', 'link' => '/mes/downtime-events', 'icon' => 'AlertOctagon', 'seq' => 241],
+                ['code' => 'MES_OEE', 'caption' => 'OEE & Process KPIs', 'link' => '/mes/oee', 'icon' => 'Gauge', 'seq' => 242],
+                ['code' => 'MES_SHIFT_HANDOVERS', 'caption' => 'Shift Handover', 'link' => '/mes/shift-handovers', 'icon' => 'ArrowLeftRight', 'seq' => 243],
+                ['code' => 'MES_DISPATCH_QUEUE', 'caption' => 'Dispatch Queue', 'link' => '/mes/dispatch-queue', 'icon' => 'ListOrdered', 'seq' => 244],
+                ['code' => 'MES_ANDON', 'caption' => 'Andon Board', 'link' => '/mes/andon', 'icon' => 'AlarmClockCheck', 'seq' => 245],
+                ['code' => 'MES_DASHBOARD_PLANT', 'caption' => 'Plant Dashboard', 'link' => '/mes/dashboards/plant', 'icon' => 'LayoutDashboard', 'seq' => 246],
+                ['code' => 'MES_DASHBOARD_LINE', 'caption' => 'Line Dashboard', 'link' => '/mes/dashboards/line', 'icon' => 'BarChart3', 'seq' => 247],
+                ['code' => 'MES_DASHBOARD_PROCESS', 'caption' => 'Process Area Dashboard', 'link' => '/mes/dashboards/process-area', 'icon' => 'FlaskConical', 'seq' => 248],
             ],
         ];
 
@@ -275,6 +318,8 @@ class SysConfigSeeder extends Seeder
                 'PERFORMANCE' => 'CRUD',
                 'PURCHASE' => 'CRUD',
                 'SALES' => 'CRUD',
+                'PP' => 'CRUD',
+                'MES' => 'CRUD',
                 'DESIGN_SYSTEM' => 'R',
             ],
             'VIEWER' => [
@@ -292,6 +337,8 @@ class SysConfigSeeder extends Seeder
                 'PERFORMANCE' => 'R',
                 'PURCHASE' => 'R',
                 'SALES' => 'R',
+                'PP' => 'R',
+                'MES' => 'R',
                 'DESIGN_SYSTEM' => 'R',
             ],
         ];
@@ -380,6 +427,13 @@ class SysConfigSeeder extends Seeder
             ['const_group' => 'STATUS', 'group_code' => 'INACTIVE', 'seq' => 2, 'str1' => 'I', 'str2' => 'Inactive'],
             ['const_group' => 'TRUSTEE', 'group_code' => 'CRUD', 'seq' => 1, 'str1' => 'CRUD', 'note1' => 'Full menu trustee'],
             ['const_group' => 'TRUSTEE', 'group_code' => 'R', 'seq' => 2, 'str1' => 'R', 'note1' => 'Read-only trustee'],
+            // PP §3C — MPS grid period bucket size and horizon, customization ladder rung 1
+            // (CLAUDE.md §2), never hardcoded since tenants plan on different cadences.
+            ['const_group' => 'PP', 'group_code' => 'MPS_PERIOD_TYPE', 'seq' => 1, 'str1' => 'week', 'note1' => 'week | month — MPS grid period bucket size'],
+            ['const_group' => 'PP', 'group_code' => 'MPS_HORIZON_PERIODS', 'seq' => 2, 'num1' => 8, 'note1' => 'Number of periods the MPS grid shows ahead'],
+            // §3F — RCCP overload threshold, tenant-editable since what counts as "overloaded"
+            // varies (e.g. a tenant running lean shifts may flag at 90%, not 100%).
+            ['const_group' => 'PP', 'group_code' => 'CAPACITY_OVERLOAD_THRESHOLD_PCT', 'seq' => 3, 'num1' => 100, 'note1' => 'Load % beyond which an RCCP row is flagged overloaded'],
         ];
 
         foreach ($consts as $c) {
@@ -397,5 +451,21 @@ class SysConfigSeeder extends Seeder
                 ],
             );
         }
+    }
+
+    /** PP_SPECS.md §3D/§5 — auto-seeded (unlike Legal's LEGAL_MATTER_LASTID) so a fresh 'full'-plan tenant can create a planned order without an extra manual Config > Serials setup step. */
+    private function seedSnums(): void
+    {
+        ConfigSnum::query()->updateOrCreate(
+            ['code' => 'PP_PLAN_LASTID'],
+            [
+                'last_cnt' => 0,
+                'wrap_low' => 1,
+                'wrap_high' => 999999,
+                'step_cnt' => 1,
+                'descr' => 'PP planned order running number',
+                'status_code' => 'A',
+            ],
+        );
     }
 }

@@ -649,11 +649,69 @@ pun (file import forecast, export scenario) lewat **DMS** (`DMS/PP/...`) dengan 
       sebagai satu urutan linear modul-demi-modul — format satu-baris-per-modul `CLAUDE.md` §5
       tidak bisa mengekspresikan nuansa itu, jadi ia menyatakan penempatan kasar "PP sebelum MES"
       dan catatan ini adalah caveat-nya.
-- [ ] **Kontrak `PpService::getActiveBom`/`getActiveRecipe`/`scaleRecipe` dan
-      `MesService::listResources`/`createProductionOrder`** — dinamai di sini dan
-      disilang-referensikan di `MES_SPECS.md` §3B/§3E/§3F, tapi belum satu pun diimplementasikan.
+- [x] **`PpService::getActiveBom`/`getActiveRecipe`/`scaleRecipe` — sudah diimplementasikan.**
+      Dibangun sebagai bagian dari mesin MRP §3D, yang langkah eksplosinya sendiri jadi pemanggil
+      nyata pertama (bukan stub spekulatif): `getActiveBom`/`getActiveRecipe` me-resolve versi
+      aktif satu-satunya untuk sebuah produk, `scaleRecipe` membungkus `RecipeService::scale()`
+      berdasarkan id recipe untuk pemanggil MES nanti. `MesService::listResources`/
+      `createProductionOrder` masih belum diimplementasikan — MES sendiri belum dibangun
+      (`MES_SPECS.md` §7) — sehingga `PlannedOrderService::release()` mengganjal planned order
+      bertipe production dengan pesan jelas "MES belum tersedia" alih-alih memanggil stub;
+      separuh item ini tetap terbuka sampai MES dibangun.
 - [x] **Terjemahan `.id.md`** — dokumen ini sendiri; setiap spesifikasi modul kecuali MES (yang
       paling baru) punya sibling `.id.md` dan kini PP juga.
+- [x] **MPS (§3C) dibangun sebagai presentasi + aksi firm/release di atas planned order §3D yang
+      sudah ada, sesuai catatan urutan-pembangunan §6 spesifikasi ini sendiri — bukan perombakan
+      MrpService menjadi netting per-periode.** `pp_mps_lines.is_frozen` hanyalah kunci-edit pada
+      `planned_qty`; ia belum (dan tidak) memblokir MRP dari me-replan sebuah periode, karena §3D
+      men-net satu planned order per produk per *run*, bukan per periode. Mekanisme nyata untuk
+      "kecualikan dari regenerasi MRP otomatis" adalah `PlannedOrderService::firm()`/`unfirm()`
+      (nilai `status = 'firmed'` yang sudah dicadangkan SQL spesifikasi ini sendiri) —
+      `MrpService::explode()` kini membiarkan order baseline yang firmed tidak tersentuh dan
+      melewati pembuatan baris baru untuk produk itu, sambil tetap meng-explode BOM/recipe-nya
+      agar dependent demand pada komponennya tidak hilang. Konsekuensi yang perlu diingat: karena
+      §3D tidak per-periode, kontrol firm/release sebuah sel periode hanya aktif ketika
+      `need_by_date` sebuah planned order memang jatuh di dalam periode itu; rekonsiliasi
+      MPS-vs-MRP multi-periode yang sesungguhnya adalah pekerjaan masa depan jika/ketika MRP
+      sendiri menjadi per-periode. `pp_mps_lines` ada di daftar `CUSTOMFIELDS.field_defs` §4,
+      tapi UI custom-field per-sel tidak dibangun — mengedit custom field satu sel grid demi satu
+      sel adalah UX yang buruk; ditunda sampai ada kebutuhan nyata yang memintanya.
+- [x] **Resource & Resource Group Reference (§3E) dibangun sebagai master data datar —** CRUD
+      `pp_resources` (tool/tank/utility/warehouse, tanpa custom field — tidak ada di daftar §4)
+      dan CRUD `pp_resource_groups` dengan daftar `members` yang di-sync (pola sync
+      header+lines yang sama seperti `BomService`). `pp_resource_group_members.resource_ref_id`
+      benar-benar polymorphic berdasarkan `resource_type` (maknanya bergantung pada tipe),
+      sehingga tidak diberi FK database bahkan untuk kasus `pp_resource` — divalidasi di
+      `withValidator` Request, disiplin yang sama seperti `pp_planned_orders.source_type`/
+      `source_id`. Hanya tipe `pp_resource` yang bisa diperiksa hari ini;
+      `mes_work_center`/`mes_machine`/`mes_station` tetap informational/app-trusted karena MES
+      belum dibangun — UI list-input member membuat ini eksplisit (memberi label opsi tersebut
+      "informational — MES belum dibangun" dan mengganti picker dengan field ID biasa).
+      `pp_resources`/`pp_resource_groups`/`pp_resource_group_members` tidak punya kolom
+      `created_at`/`updated_at`, persis mengikuti DDL SQL spesifikasi ini sendiri, sehingga model
+      Eloquent-nya di-set `$timestamps = false` — satu hal yang gagal di percobaan pertama
+      (tertangkap oleh Feature test, bukan oleh `php -l`).
+- [x] **Capacity Planning — RCCP (§3F) dibangun sebagai CRUD datar yang diisi planner, bukan
+      pipeline otomatis yang dideskripsikan poin Function/Features §3F spesifikasi ini sendiri.**
+      Poin itu menyebut dua sumber untuk `required_hours`/`available_hours`: standard time
+      routing/recipe-phase `MesService` (MES belum dibangun — tidak ada data standard-time sama
+      sekali untuk meng-explode output MPS/MRP) dan `AvailabilityService` milik Schedule (yang
+      hanya menjawab "apakah slot persis ini kosong sekarang?" lewat `isFree()`/
+      `findConflicts()` — tidak ada agregator "berapa jam tersedia dalam rentang tanggal ini?"
+      untuk dipanggil). Membangun salah satu integrasi ini sekarang berarti menulis kode
+      terhadap data atau bentuk API yang belum ada. Karena Rules/Logic spesifikasi ini sendiri
+      sudah membingkai Fase 1 sebagai "rough-cut... load vs. available bersifat informational,"
+      pasangan `required_hours`/`available_hours` yang diisi planner per resource-atau-group/
+      periode memenuhi standar itu secara jujur — `CapacityPlanService::loadPct()`/
+      `isOverloaded()` (threshold via `SYSCONFIG.config_consts`
+      `PP.CAPACITY_OVERLOAD_THRESHOLD_PCT`, default 100) tetap nyata, hanya dihitung dari input
+      planner alih-alih diturunkan otomatis. Flag overload juga **tidak** ditulis sebagai baris
+      `pp_exceptions` — §3M belum dibangun — ia hanya badge terkomputasi di halaman Index, pilihan
+      "hitung inline, jangan fabrikasi sink-nya" yang sama seperti flag kekurangan-demand MPS
+      (§3C). `resource_group_id` diberi FK nyata (`pp_resource_groups` ada di schema yang sama);
+      `resource_ref_id` tetap tidak dikekang (polymorphic berdasarkan `resource_type`, disiplin
+      §3E); Request menegakkan aturan group-XOR-resource (tepat satu target), lebih ketat dari
+      CHECK database yang permisif "minimal satu."
 - [ ] **Constraint solver tingkat lanjut (Fase 3)** — jika beban optimasi gabungan
       material+resource+sequence+tank+quality+labor sebuah tenant nyata ternyata butuh
       library/runtime solver khusus, evaluasi ekstraksi microservice terhadap kriteria

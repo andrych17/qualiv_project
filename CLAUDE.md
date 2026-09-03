@@ -85,7 +85,7 @@ Notes:
 - Central DB (`nusaevo`) holds tenant registry + login lookup (`tenant_user_lookups`) + **plan** (`tenants.plan`), plus plan/entitlement, billing, and dunning tables — see `CENTRAL_SPECS.md` for the full schema; this is the Platform-level module described in §2. Users and module data live in the tenant DB.
 - Inside each tenant DB, modules get separate schemas (`SYSCONFIG`, `WNE`, `DMS`, `CRM`,
   `SCHEDULE`, `INVENTORY`, `ACCOUNTING`, `SALES`, `PURCHASE`, `HCM`, `PAYROLL`, `PERF`,
-  `AIINSIGHT`, `LEGAL`, `CUSTOMFIELDS`, `PROJECTS`, `PP`, `MES`). See §7A for the authoritative list. (This consolidates
+  `AIINSIGHT`, `LEGAL`, `CUSTOMFIELDS`, `PROJECTS`, `PP`, `MES`, `POS`). See §7A for the authoritative list. (This consolidates
   the old separate `NOTIFICATIONS`/`WORKFLOW` schemas into the single `WNE` schema, per
   `WNE_SPECS.md` — an earlier version of this section still had the pre-merge names.)
 - Tenant resolution is **login-bound** (session `tenant_id` after email lookup), not domain/subdomain. UI may switch among memberships via sidebar tenant dropdown.
@@ -133,6 +133,14 @@ Notes:
    - **Purchase**
    - **Sales**
    - **HCM**
+   - **POS** (Point of Sale — configurable transaction engine: one core cart/payment/session
+     engine, Retail/Convenience-Store and Restaurant handled as POS Profiles, not separate
+     modules; offline-first PWA client, the codebase's first such pattern) — specced
+     (`app/Modules/POS/POS_SPECS.md`) but not yet built; sequenced here because its hard
+     dependencies (Inventory, CRM, Sales, Accounting, WNE, DMS, HCM — cashier identity) are all
+     already built by this point, and it has none on Payroll/Performance/PP/MES/AIInsight. Wired
+     into `config/tenant_modules.php`'s `full` plan only — see `POS_SPECS.md` §7 Open Items for
+     the narrower `retail`/`fnb` plan tier still to be decided.
    - **Payroll** — hard dependency on HCM (employee identity); build immediately after it.
    - **Performance**
    - **PP** (Production Planning & Scheduling — hybrid discrete/process planning engine: Demand
@@ -202,6 +210,7 @@ tenant_001.			# Database
 ├── AIINSIGHT.
 ├── PP.
 ├── MES.
+├── POS.
 └── CUSTOMFIELDS.
 ```
 - Table naming: 
@@ -236,7 +245,7 @@ tenant_001/
 ├── PAYROLL/      # same reserved-folder convention as Purchase — see PAYROLL_SPECS.md §4
 └── INVENTORY/    # same reserved-folder convention as Purchase — see INVENTORY_SPECS.md §4
 ```
-- Modules not listed above (WNE, HCM, Sales, Performance, AIInsight) own no top-level R2
+- Modules not listed above (WNE, HCM, Sales, Performance, AIInsight, POS) own no top-level R2
   folder of their own — their files, if any, route entirely through DMS's structure with a
   `subject_type`/`subject_id` pointer back to the owning record, per each module's own spec.
 - Object file will use one Cloudflare R2 bucket. With naming convention to differentiate between tenants, modules, time, etc.

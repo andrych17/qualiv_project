@@ -24,3 +24,4 @@ Route::middleware([InitializeTenancyByHeader::class, 'auth:sanctum'])
     ->name('api.auth.logout');
 
 require app_path('Modules/Legal/Routes/api.php');
+require app_path('Modules/MES/Routes/api.php');

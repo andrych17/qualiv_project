@@ -33,6 +33,7 @@ use App\Modules\Accounting\Controllers\ExchangeRateController;
 use App\Modules\Accounting\Controllers\FakturPajakBlockController;
 use App\Modules\Accounting\Controllers\FiscalYearController;
 use App\Modules\Accounting\Controllers\FixedAssetController;
+use App\Modules\Accounting\Controllers\GeneralLedgerController;
 use App\Modules\Accounting\Controllers\InventoryGlMappingController;
 use App\Modules\Accounting\Controllers\InventoryPostingFailureController;
 use App\Modules\Accounting\Controllers\JournalController;
@@ -74,6 +75,9 @@ Route::middleware(['auth', 'verified', 'module:ACCOUNTING', 'menu.perm:ACCOUNTIN
         Route::get('accounts/{account}/edit', [AccountController::class, 'edit'])->name('accounts.edit');
         Route::put('accounts/{account}', [AccountController::class, 'update'])->name('accounts.update');
         Route::delete('accounts/{account}', [AccountController::class, 'destroy'])->name('accounts.destroy');
+
+        // General Ledger — per-company account picker into reports.account-ledger (§3N).
+        Route::get('general-ledger', [GeneralLedgerController::class, 'index'])->name('general-ledger.index');
 
         // §3B fiscal calendar — a fiscal year always ships with its 12 periods; period
         // status (§3O locking) is a row action, not its own CRUD resource.

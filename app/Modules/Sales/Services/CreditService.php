@@ -2,7 +2,7 @@
 
 namespace App\Modules\Sales\Services;
 
-use App\Modules\Accounting\Models\ArInvoice;
+use App\Modules\Accounting\Services\AccountingService;
 use App\Modules\CRM\Models\Partner;
 use App\Modules\Sales\Events\CreditBlocked;
 use App\Modules\Sales\Models\CustomerCreditProfile;
@@ -12,6 +12,10 @@ use Illuminate\Validation\ValidationException;
 
 class CreditService
 {
+    public function __construct(
+        protected AccountingService $accountingService,
+    ) {}
+
     /**
      * Get credit profile and current open AR exposure for a customer.
      */
@@ -24,13 +28,9 @@ class CreditService
 
         $openArBalance = 0.0;
 
-        // Check open AR balance from Accounting if table exists
+        // Check open AR balance from Accounting if table exists (§3K: via AccountingService)
         if (Schema::hasTable('ACCOUNTING.ar_invoices')) {
-            $openArBalance = (float) ArInvoice::query()
-                ->where('partner_id', $partnerId)
-                ->whereIn('status', [ArInvoice::STATUS_POSTED, ArInvoice::STATUS_PARTIALLY_PAID])
-                ->selectRaw('COALESCE(SUM(total_amount - paid_amount - credited_amount), 0) as balance')
-                ->value('balance');
+            $openArBalance = $this->accountingService->getOpenARBalance($partnerId);
         }
 
         $availableCredit = max(0.0, $creditLimit - $openArBalance);

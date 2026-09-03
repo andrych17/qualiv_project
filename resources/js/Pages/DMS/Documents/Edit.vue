@@ -80,7 +80,7 @@ const onDropFile = (event: DragEvent) => {
   <AppLayout>
     <PageHeader :title="document.title" description="Edit document metadata, or upload a new version.">
       <template #actions>
-        <Link :href="route('dms.dashboard')" class="text-sm font-medium text-accent hover:underline">← Back to library</Link>
+        <Link :href="route('dms.documents.index')" class="text-sm font-medium text-accent hover:underline">← Back to library</Link>
       </template>
     </PageHeader>
 

@@ -39,10 +39,15 @@ use App\Modules\Performance\Events\OkrObjectiveCompleted;
 use App\Modules\Performance\Listeners\AwardKpiAchievements;
 use App\Modules\Performance\Listeners\AwardOkrCompletionAchievements;
 use App\Modules\Performance\Listeners\EvaluateKpiValueVariance;
+use App\Modules\PP\Listeners\SyncDemandFromSalesOrder;
+use App\Modules\PP\Models\Recipe;
+use App\Modules\Sales\Events\SalesOrderConfirmed;
 use App\Modules\Sales\Events\SalesOrderRequested;
 use App\Modules\Sales\Listeners\CreateSalesOrderFromRequested;
 use App\Modules\Sales\Listeners\ProcessCommissionOnPaymentRecorded;
 use App\Modules\Sales\Listeners\UpdateSalesOrderOnInvoicePosted;
+use App\Modules\Sales\Models\CustomerCreditProfile;
+use App\Modules\Sales\Models\CustomerSalesProfile;
 use App\Modules\WNE\Events\NotificationRequested;
 use App\Modules\WNE\Listeners\DeliverRequestedNotification;
 use App\Services\AsyncSearchRegistry;
@@ -100,6 +105,17 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(InvoicePosted::class, UpdateSalesOrderOnInvoicePosted::class);
         Event::listen(PaymentRecorded::class, ProcessCommissionOnPaymentRecorded::class);
         Event::listen(SalesOrderRequested::class, CreateSalesOrderFromRequested::class);
+
+        // PP_SPECS.md §3B — a confirmed Sales order becomes real demand for MRP netting.
+        Event::listen(SalesOrderConfirmed::class, SyncDemandFromSalesOrder::class);
+
+        // SALES_SPECS.md §3B/§5: Sales FKs into CRM.partners, never the reverse — CRM's own
+        // Partner model must stay ignorant of Sales. Registering these relations here (Sales
+        // attaching onto Core, not Core declaring Sales) is what lets CustomerProfileController
+        // eager-load Partner::with(['salesProfile', 'creditProfile']) without a `salesProfile()`
+        // method ever appearing in app/Modules/CRM/Models/Partner.php.
+        Partner::resolveRelationUsing('salesProfile', fn (Partner $partner) => $partner->hasOne(CustomerSalesProfile::class, 'partner_id'));
+        Partner::resolveRelationUsing('creditProfile', fn (Partner $partner) => $partner->hasOne(CustomerCreditProfile::class, 'partner_id'));
 
         // §3D/§3G — closes the gap KpiValueService's docblock flagged: the Variance Engine
         // now re-evaluates status on every recorded actual and routes a WNE notification when
@@ -268,6 +284,24 @@ class AppServiceProvider extends ServiceProvider
                 })),
             filterable: [],
             menuCode: 'HCM',
+        );
+
+        // MES_SPECS.md §3F Process Phases picker — active recipe only, since a phase set is
+        // built against the recipe version currently in force (§3B boundary note).
+        AsyncSearchRegistry::register(
+            'pp_recipe',
+            Recipe::class,
+            ['id'],
+            fn (Recipe $r) => $r->product ? "{$r->product->sku} — {$r->product->name} (v{$r->version})" : "Recipe #{$r->id}",
+            fn (Recipe $r) => "Batch size {$r->batch_size} {$r->uom_code}",
+            queryCallback: fn ($query, $search, $extraFilters) => $query
+                ->with('product:id,sku,name')
+                ->active()
+                ->whereHas('product', fn ($q) => $q
+                    ->when($search !== '', fn ($q) => $q->where('sku', 'ilike', '%'.$search.'%')
+                        ->orWhere('name', 'ilike', '%'.$search.'%'))),
+            filterable: [],
+            menuCode: 'PP',
         );
     }
 }
