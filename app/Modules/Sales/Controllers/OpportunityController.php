@@ -42,7 +42,7 @@ class OpportunityController extends Controller
         return Inertia::render('Sales/Opportunities/Create', [
             'stages' => Opportunity::STAGES,
             'customers' => Partner::query()->where('is_active', true)->select(['id', 'name'])->orderBy('name')->get(),
-            'leads' => Lead::query()->select(['id', 'title'])->orderBy('title')->get(),
+            'leads' => Lead::query()->select(['id', 'name as title', 'name'])->orderBy('name')->get(),
             'users' => User::query()->select(['id', 'name'])->get(),
             'teams' => SalesTeam::query()->where('is_active', true)->select(['id', 'name'])->get(),
         ]);
@@ -62,7 +62,7 @@ class OpportunityController extends Controller
             'opportunity' => $opportunity->load(['customer', 'lead', 'owner', 'salesTeam']),
             'stages' => Opportunity::STAGES,
             'customers' => Partner::query()->where('is_active', true)->select(['id', 'name'])->orderBy('name')->get(),
-            'leads' => Lead::query()->select(['id', 'title'])->orderBy('title')->get(),
+            'leads' => Lead::query()->select(['id', 'name as title', 'name'])->orderBy('name')->get(),
             'users' => User::query()->select(['id', 'name'])->get(),
             'teams' => SalesTeam::query()->where('is_active', true)->select(['id', 'name'])->get(),
         ]);

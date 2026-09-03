@@ -30,6 +30,8 @@ class CreateModuleSchemas
         'PERF',
         'AIINSIGHT',
         'PP',
+        'MES',
+        'POS',
     ];
 
     public function __construct(
