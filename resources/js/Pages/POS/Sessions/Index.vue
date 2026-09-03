@@ -112,7 +112,10 @@ const openingCashAmount = ref(100000)
 const isSubmitting = ref(false)
 
 const handleOpenSession = () => {
-  if (!selectedTerminal.value) return
+  if (!selectedTerminal.value) {
+    alert('Silakan pilih terminal kasir terlebih dahulu.')
+    return
+  }
   isSubmitting.value = true
   router.post(
     route('pos.sessions.open'),
@@ -125,8 +128,10 @@ const handleOpenSession = () => {
         showOpenModal.value = false
         isSubmitting.value = false
       },
-      onError: () => {
+      onError: (errs) => {
         isSubmitting.value = false
+        const msg = Object.values(errs).flat().join('\n') || 'Gagal membuka shift.'
+        alert(msg)
       },
     },
   )
@@ -159,8 +164,10 @@ const handleCloseSession = () => {
         showCloseModal.value = false
         isClosing.value = false
       },
-      onError: () => {
+      onError: (errs) => {
         isClosing.value = false
+        const msg = Object.values(errs).flat().join('\n') || 'Gagal menutup shift.'
+        alert(msg)
       },
     },
   )
@@ -255,10 +262,15 @@ const handleCloseSession = () => {
         <div class="mt-4 space-y-4">
           <div>
             <label class="block text-sm font-medium text-ink-700">Terminal</label>
+            <div v-if="!terminals || terminals.length === 0" class="mt-1 rounded-md bg-amber-50 p-2 text-xs text-amber-700">
+              Belum ada terminal kasir. Daftarkan terminal kasir terlebih dahulu di menu Terminals & Devices.
+            </div>
             <select
+              v-else
               v-model="selectedTerminal"
               class="mt-1 block w-full rounded-md border-surface-300 text-sm focus:border-primary-500 focus:ring-primary-500"
             >
+              <option value="" disabled>-- Pilih Terminal --</option>
               <option v-for="t in terminals" :key="t.id" :value="t.id">
                 {{ t.name }} ({{ t.code }})
               </option>

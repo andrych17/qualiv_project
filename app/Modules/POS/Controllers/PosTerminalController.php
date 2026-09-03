@@ -44,7 +44,7 @@ class PosTerminalController extends Controller
         ]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(Request $request): mixed
     {
         $validated = $request->validate([
             'branch_id' => ['nullable', 'integer'],
@@ -59,6 +59,10 @@ class PosTerminalController extends Controller
         ]);
 
         $terminal = PosTerminal::query()->create($validated);
+
+        if ($request->header('X-Inertia')) {
+            return redirect()->back()->with('success', 'Terminal berhasil ditambahkan.');
+        }
 
         return response()->json($terminal->load(['branch', 'warehouse', 'profile']), 201);
     }

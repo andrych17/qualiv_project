@@ -1,6 +1,6 @@
 <!-- ponytail: POS Cashier Register shell (POS_SPECS.md §3E, §3F, §3I) -->
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { router, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
@@ -143,7 +143,12 @@ const showTableModal = ref(false)
 
 // Open session form
 const openingCash = ref<number>(100000)
+const selectedTerminalForSession = ref<number | ''>(props.selectedTerminalId || (props.terminals && props.terminals.length > 0 ? props.terminals[0].id : ''))
 const isSubmittingSession = ref(false)
+
+watch(() => props.selectedTerminalId, (newVal: number | null) => {
+  if (newVal) selectedTerminalForSession.value = newVal
+})
 
 // Payment State
 const paymentMethod = ref<'cash' | 'card' | 'qris' | 'transfer'>('cash')
@@ -177,12 +182,16 @@ const changeTerminal = (terminalId: number) => {
 }
 
 const openShift = () => {
-  if (!props.selectedTerminalId) return
+  const termId = selectedTerminalForSession.value || props.selectedTerminalId
+  if (!termId) {
+    alert('Silakan pilih terminal kasir terlebih dahulu.')
+    return
+  }
   isSubmittingSession.value = true
   router.post(
     route('pos.sessions.open'),
     {
-      terminal_id: props.selectedTerminalId,
+      terminal_id: termId,
       opening_cash: openingCash.value,
     },
     {
@@ -191,8 +200,10 @@ const openShift = () => {
         isSubmittingSession.value = false
         router.reload()
       },
-      onError: () => {
+      onError: (errs) => {
         isSubmittingSession.value = false
+        const msg = Object.values(errs).flat().join('\n') || 'Gagal membuka shift.'
+        alert(msg)
       },
     },
   )
@@ -511,8 +522,22 @@ const resumeParkedOrder = async (order: TxnHdr) => {
       </div>
     </div>
 
+    <!-- If no terminals exist at all -->
+    <div v-if="!terminals || terminals.length === 0" class="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-6 text-center shadow-sm">
+      <AlertTriangle class="mx-auto h-10 w-10 text-amber-500" />
+      <h3 class="mt-2 text-base font-semibold text-amber-900">Belum Ada Terminal Kasir</h3>
+      <p class="mt-1 text-sm text-amber-700">Daftarkan minimal satu terminal / mesin kasir terlebih dahulu untuk mulai membuka shift.</p>
+      <div class="mt-4">
+        <Link :href="route('pos.terminals.index')">
+          <PrimaryButton class="px-5 py-2.5 text-sm">
+            Tambah Terminal Kasir
+          </PrimaryButton>
+        </Link>
+      </div>
+    </div>
+
     <!-- Active Session Banner / Notice if closed -->
-    <div v-if="!activeSession" class="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-6 text-center shadow-sm">
+    <div v-else-if="!activeSession" class="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-6 text-center shadow-sm">
       <AlertTriangle class="mx-auto h-10 w-10 text-amber-500" />
       <h3 class="mt-2 text-base font-semibold text-amber-900">Shift Belum Dibuka</h3>
       <p class="mt-1 text-sm text-amber-700">Buka shift kasir terlebih dahulu untuk mulai melayani transaksi pada terminal ini.</p>
@@ -678,22 +703,37 @@ const resumeParkedOrder = async (order: TxnHdr) => {
     <Modal :show="showOpenSessionModal" @close="showOpenSessionModal = false">
       <div class="p-6">
         <h3 class="text-lg font-bold text-ink-900">Buka Shift Kasir Baru</h3>
-        <p class="mt-1 text-sm text-ink-600">Masukkan modal awal (float cash) di laci kasir saat membuka shift.</p>
+        <p class="mt-1 text-sm text-ink-600">Pilih terminal kasir dan masukkan modal awal (float cash) di laci kasir.</p>
 
-        <div class="mt-4">
-          <label class="block text-sm font-medium text-ink-700">Modal Kas Awal (IDR)</label>
-          <input
-            v-model.number="openingCash"
-            type="number"
-            min="0"
-            step="1000"
-            class="mt-1 block w-full rounded-md border-surface-300 font-mono text-base focus:border-primary-500 focus:ring-primary-500"
-          />
+        <div class="mt-4 space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-ink-700">Terminal Kasir</label>
+            <select
+              v-model="selectedTerminalForSession"
+              class="mt-1 block w-full rounded-md border-surface-300 text-sm focus:border-primary-500 focus:ring-primary-500"
+            >
+              <option value="" disabled>-- Pilih Terminal --</option>
+              <option v-for="t in terminals" :key="t.id" :value="t.id">
+                {{ t.name }} ({{ t.code }})
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-ink-700">Modal Kas Awal (IDR)</label>
+            <input
+              v-model.number="openingCash"
+              type="number"
+              min="0"
+              step="1000"
+              class="mt-1 block w-full rounded-md border-surface-300 font-mono text-base focus:border-primary-500 focus:ring-primary-500"
+            />
+          </div>
         </div>
 
         <div class="mt-6 flex justify-end gap-3">
           <SecondaryButton @click="showOpenSessionModal = false">Batal</SecondaryButton>
-          <PrimaryButton :disabled="isSubmittingSession" @click="openShift">
+          <PrimaryButton :disabled="isSubmittingSession || !selectedTerminalForSession" @click="openShift">
             {{ isSubmittingSession ? 'Membuka...' : 'Buka Shift' }}
           </PrimaryButton>
         </div>
