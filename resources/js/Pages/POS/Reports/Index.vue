@@ -73,24 +73,24 @@ const props = defineProps<{
       <!-- Payment Mix -->
       <Panel title="Bauran Metode Pembayaran" subtitle="Rincian penerimaan kas berdasarkan metode pembayaran hari ini">
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-surface-200">
-            <thead class="bg-surface-50 text-left text-xs font-semibold text-ink-700">
+          <table class="min-w-full divide-y divide-border">
+            <thead class="bg-surface-50 text-left text-xs font-semibold text-ink-900">
               <tr>
                 <th class="py-3 pl-4 pr-3">Metode</th>
                 <th class="py-3 pl-3 pr-4 text-right">Total Nominal</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-surface-200 bg-white text-sm">
-              <tr v-for="p in payments" :key="p.method" class="hover:bg-surface-50/60">
+            <tbody class="divide-y divide-border bg-surface-0 text-sm">
+              <tr v-for="p in payments" :key="p.method" class="hover:bg-surface-50">
                 <td class="py-3 pl-4 pr-3 font-semibold uppercase text-ink-900">
                   {{ p.method }}
                 </td>
-                <td class="py-3 pl-3 pr-4 text-right font-mono font-bold text-primary-700">
+                <td class="py-3 pl-3 pr-4 text-right font-mono font-bold text-accent">
                   {{ formatCurrency(p.total) }}
                 </td>
               </tr>
               <tr v-if="!payments || payments.length === 0">
-                <td colspan="2" class="py-6 text-center text-xs text-ink-400">
+                <td colspan="2" class="py-6 text-center text-xs text-ink-600">
                   Belum ada pembayaran yang masuk hari ini.
                 </td>
               </tr>
@@ -102,28 +102,28 @@ const props = defineProps<{
       <!-- Top Selling Products -->
       <Panel title="10 Produk Terlaris Hari Ini" subtitle="Item dengan kuantitas dan nominal penjualan tertinggi">
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-surface-200">
-            <thead class="bg-surface-50 text-left text-xs font-semibold text-ink-700">
+          <table class="min-w-full divide-y divide-border">
+            <thead class="bg-surface-50 text-left text-xs font-semibold text-ink-900">
               <tr>
                 <th class="py-3 pl-4 pr-3">Nama Produk</th>
                 <th class="px-3 py-3 text-right">Qty Terjual</th>
                 <th class="py-3 pl-3 pr-4 text-right">Total Penjualan</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-surface-200 bg-white text-sm">
-              <tr v-for="item in top_products" :key="item.description" class="hover:bg-surface-50/60">
+            <tbody class="divide-y divide-border bg-surface-0 text-sm">
+              <tr v-for="item in top_products" :key="item.description" class="hover:bg-surface-50">
                 <td class="py-3 pl-4 pr-3 font-medium text-ink-900">
                   {{ item.description }}
                 </td>
-                <td class="px-3 py-3 text-right font-mono font-semibold text-ink-800">
+                <td class="px-3 py-3 text-right font-mono font-semibold text-ink-900">
                   {{ formatNumber(item.total_qty) }}
                 </td>
-                <td class="py-3 pl-3 pr-4 text-right font-mono font-bold text-primary-700">
+                <td class="py-3 pl-3 pr-4 text-right font-mono font-bold text-accent">
                   {{ formatCurrency(item.total_amount) }}
                 </td>
               </tr>
               <tr v-if="!top_products || top_products.length === 0">
-                <td colspan="3" class="py-6 text-center text-xs text-ink-400">
+                <td colspan="3" class="py-6 text-center text-xs text-ink-600">
                   Belum ada transaksi produk hari ini.
                 </td>
               </tr>
