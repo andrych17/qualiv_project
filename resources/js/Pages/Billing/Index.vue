@@ -116,7 +116,7 @@ const canSubmit = (invoice: Invoice) => invoice.status === 'issued' || invoice.s
             <button
               type="submit"
               :disabled="paymentForm(invoice).processing"
-              class="rounded-md bg-ink-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-ink-800 disabled:opacity-50"
+              class="rounded-md bg-ink-900 px-3 py-2 text-sm font-semibold text-surface-0 shadow-sm hover:opacity-90 disabled:opacity-50"
             >
               Submit payment
             </button>

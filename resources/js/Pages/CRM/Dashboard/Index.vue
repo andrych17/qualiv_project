@@ -215,7 +215,7 @@ const changeStatus = () => {
               </select>
               <button
                 type="button"
-                class="rounded-md bg-ink-900 px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
+                class="rounded-md bg-ink-900 px-3 py-1.5 text-sm font-semibold text-surface-0 disabled:opacity-50"
                 :disabled="!statusForm.status || statusForm.processing"
                 @click="changeStatus"
               >

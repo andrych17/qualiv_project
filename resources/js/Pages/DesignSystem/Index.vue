@@ -228,13 +228,13 @@ const triggerConfirmDemo = (variant: 'default' | 'destructive') => {
       <!-- Navigasi Ringkas Seksi Komponen -->
       <div class="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-surface-0 p-3 shadow-sm text-xs font-medium">
         <span class="text-ink-600 font-semibold px-2">Lompat ke Seksi:</span>
-        <a href="#tokens" class="rounded bg-surface-50 px-2.5 py-1 text-ink-900 hover:bg-accent/10 hover:text-accent transition">Tokens & Warna</a>
-        <a href="#buttons" class="rounded bg-surface-50 px-2.5 py-1 text-ink-900 hover:bg-accent/10 hover:text-accent transition">Tombol & Aksi</a>
-        <a href="#inputs" class="rounded bg-surface-50 px-2.5 py-1 text-ink-900 hover:bg-accent/10 hover:text-accent transition">Input & Form</a>
-        <a href="#feedback" class="rounded bg-surface-50 px-2.5 py-1 text-ink-900 hover:bg-accent/10 hover:text-accent transition">Status & Feedback</a>
-        <a href="#cards" class="rounded bg-surface-50 px-2.5 py-1 text-ink-900 hover:bg-accent/10 hover:text-accent transition">Kartu & Panel</a>
-        <a href="#tables" class="rounded bg-surface-50 px-2.5 py-1 text-ink-900 hover:bg-accent/10 hover:text-accent transition">Tabel Data</a>
-        <a href="#layout" class="rounded bg-surface-50 px-2.5 py-1 text-ink-900 hover:bg-accent/10 hover:text-accent transition">Layout & Merek</a>
+        <a href="#tokens" class="rounded bg-surface-50 border border-transparent px-2.5 py-1 text-ink-900 hover:border-border hover:bg-surface-0 hover:text-accent transition">Tokens & Warna</a>
+        <a href="#buttons" class="rounded bg-surface-50 border border-transparent px-2.5 py-1 text-ink-900 hover:border-border hover:bg-surface-0 hover:text-accent transition">Tombol & Aksi</a>
+        <a href="#inputs" class="rounded bg-surface-50 border border-transparent px-2.5 py-1 text-ink-900 hover:border-border hover:bg-surface-0 hover:text-accent transition">Input & Form</a>
+        <a href="#feedback" class="rounded bg-surface-50 border border-transparent px-2.5 py-1 text-ink-900 hover:border-border hover:bg-surface-0 hover:text-accent transition">Status & Feedback</a>
+        <a href="#cards" class="rounded bg-surface-50 border border-transparent px-2.5 py-1 text-ink-900 hover:border-border hover:bg-surface-0 hover:text-accent transition">Kartu & Panel</a>
+        <a href="#tables" class="rounded bg-surface-50 border border-transparent px-2.5 py-1 text-ink-900 hover:border-border hover:bg-surface-0 hover:text-accent transition">Tabel Data</a>
+        <a href="#layout" class="rounded bg-surface-50 border border-transparent px-2.5 py-1 text-ink-900 hover:border-border hover:bg-surface-0 hover:text-accent transition">Layout & Merek</a>
       </div>
 
       <!-- SEKSI 1: DESIGN TOKENS & MOTIF -->
@@ -344,11 +344,11 @@ const triggerConfirmDemo = (variant: 'default' | 'destructive') => {
                 type="button"
                 @click="setTheme(t.id, false)"
                 class="flex items-center justify-between rounded-md border p-2.5 text-left text-xs transition-all"
-                :class="activeTheme === t.id ? 'border-accent bg-accent/5 ring-1 ring-accent font-semibold' : 'border-border bg-surface-0 hover:bg-surface-50'"
+                :class="activeTheme === t.id ? 'border-accent bg-surface-50 ring-1 ring-accent font-semibold' : 'border-border bg-surface-0 hover:bg-surface-50'"
               >
                 <div class="flex items-center gap-2">
                   <span
-                    class="h-4 w-4 rounded-full ring-1 ring-white shadow-xs"
+                    class="h-4 w-4 rounded-full ring-1 ring-border shadow-xs"
                     :style="{ backgroundColor: t.primary_color }"
                   />
                   <div>

@@ -138,7 +138,7 @@ const updateStatus = async (item: KdsItem, nextStatus: 'preparing' | 'ready' | '
               </button>
               <button
                 v-else-if="item.kds_status === 'ready'"
-                class="col-span-2 rounded-lg bg-ink-800 py-2 text-xs font-bold text-white shadow-sm hover:bg-black active:scale-95"
+                class="col-span-2 rounded-lg bg-gray-800 py-2 text-xs font-bold text-white shadow-sm hover:bg-gray-900 active:scale-95"
                 @click="updateStatus(item, 'served')"
               >
                 Telah Diantar

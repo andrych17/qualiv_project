@@ -103,7 +103,7 @@ const activeTab = ref<'orders' | 'quotes' | 'deliveries' | 'invoices'>('orders')
           type="button"
           @click="activeTab = 'orders'"
           class="px-4 py-2 text-sm font-semibold rounded-md transition"
-          :class="activeTab === 'orders' ? 'bg-ink-900 text-white' : 'text-ink-600 hover:bg-surface-200'"
+          :class="activeTab === 'orders' ? 'bg-ink-900 text-surface-0' : 'text-ink-600 hover:bg-surface-50'"
         >
           My Orders ({{ props.orders.length }})
         </button>
@@ -111,7 +111,7 @@ const activeTab = ref<'orders' | 'quotes' | 'deliveries' | 'invoices'>('orders')
           type="button"
           @click="activeTab = 'quotes'"
           class="px-4 py-2 text-sm font-semibold rounded-md transition"
-          :class="activeTab === 'quotes' ? 'bg-ink-900 text-white' : 'text-ink-600 hover:bg-surface-200'"
+          :class="activeTab === 'quotes' ? 'bg-ink-900 text-surface-0' : 'text-ink-600 hover:bg-surface-50'"
         >
           Quotations ({{ props.quotes.length }})
         </button>
@@ -119,7 +119,7 @@ const activeTab = ref<'orders' | 'quotes' | 'deliveries' | 'invoices'>('orders')
           type="button"
           @click="activeTab = 'deliveries'"
           class="px-4 py-2 text-sm font-semibold rounded-md transition"
-          :class="activeTab === 'deliveries' ? 'bg-ink-900 text-white' : 'text-ink-600 hover:bg-surface-200'"
+          :class="activeTab === 'deliveries' ? 'bg-ink-900 text-surface-0' : 'text-ink-600 hover:bg-surface-50'"
         >
           Shipments & Deliveries ({{ props.deliveries.length }})
         </button>
@@ -127,7 +127,7 @@ const activeTab = ref<'orders' | 'quotes' | 'deliveries' | 'invoices'>('orders')
           type="button"
           @click="activeTab = 'invoices'"
           class="px-4 py-2 text-sm font-semibold rounded-md transition"
-          :class="activeTab === 'invoices' ? 'bg-ink-900 text-white' : 'text-ink-600 hover:bg-surface-200'"
+          :class="activeTab === 'invoices' ? 'bg-ink-900 text-surface-0' : 'text-ink-600 hover:bg-surface-50'"
         >
           Invoices & Statements ({{ props.invoices.length }})
         </button>

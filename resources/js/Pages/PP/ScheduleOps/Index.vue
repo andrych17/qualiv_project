@@ -175,7 +175,7 @@ const submitApplyRule = () => {
         :key="s"
         type="button"
         class="px-3 py-1.5 text-xs font-medium rounded-md transition"
-        :class="(filters.status ?? 'all') === s ? 'bg-accent text-white' : 'bg-surface border border-border text-ink-700 hover:bg-surface-elevated'"
+        :class="(filters.status ?? 'all') === s ? 'bg-accent text-accent-text font-semibold' : 'bg-surface-0 border border-border text-ink-600 hover:bg-surface-50'"
         @click="filterStatus(s)"
       >
         {{ s.charAt(0).toUpperCase() + s.slice(1) }}
