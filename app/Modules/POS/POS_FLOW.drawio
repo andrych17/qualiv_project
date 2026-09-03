@@ -1,0 +1,118 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.6.6 Chrome/144.0.7559.236 Electron/40.8.4 Safari/537.36" version="29.6.6">
+  <diagram id="pos-flow" name="POS - How a Sale Becomes a Posted Transaction (plain language)">
+    <mxGraphModel dx="1252" dy="757" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1560" pageHeight="2000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ftitle" parent="1" style="text;html=1;fontSize=24;fontStyle=1;fontColor=#12181F;align=left;" value="How a POS Sale Becomes a Posted Transaction (Offline-First)" vertex="1">
+          <mxGeometry height="36" width="1200" x="40" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="fsub" parent="1" style="text;html=1;fontSize=14;fontColor=#4A5563;align=left;" value="Plain-language walkthrough of one basket riding the register from scan to posted revenue — the same engine handles a retail counter and a restaurant table, connected or not" vertex="1">
+          <mxGeometry height="24" width="1300" x="40" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="f1" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#EFEDFC;strokeColor=#5B4FCF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="Cashier or Waiter Opens the Terminal (an Open POS Session with a Counted Opening Cash Float)" vertex="1">
+          <mxGeometry height="70" width="360" x="700" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="f2" parent="1" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="Items Are Scanned, PLU-Entered, or Touch-Selected Into the Cart — Always Against the Terminal’s Own Locally Cached Catalog" vertex="1">
+          <mxGeometry height="70" width="360" x="700" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="f3" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;" value="Restaurant Table Order, or Retail Basket?" vertex="1">
+          <mxGeometry height="100" width="260" x="750" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="f4" parent="1" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="A Table Is Opened, Modifiers Are Chosen (e.g. Spice Level), and the Line Fires a Kitchen Display Ticket" vertex="1">
+          <mxGeometry height="90" width="340" x="310" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="f5" parent="1" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="Pricing and Any Basket Promotions Resolve Automatically From the Cached Price List and Promotion Rules — No Server Round-Trip" vertex="1">
+          <mxGeometry height="70" width="360" x="700" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="f6" parent="1" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="The Cashier Takes Payment — Cash, Card, QRIS, a Split Across Several Tenders, or (Only for a Named Customer) Partly on Account" vertex="1">
+          <mxGeometry height="80" width="360" x="700" y="680" as="geometry" />
+        </mxCell>
+        <mxCell id="f7" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;" value="Is the Terminal Online Right Now?" vertex="1">
+          <mxGeometry height="100" width="260" x="750" y="830" as="geometry" />
+        </mxCell>
+        <mxCell id="f8" parent="1" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#FBF1E1;strokeColor=#B5760A;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="The Sale Is Captured Locally With a Client-Generated Transaction ID and Queued — the Cashier Never Sees a Difference" vertex="1">
+          <mxGeometry height="90" width="340" x="300" y="940" as="geometry" />
+        </mxCell>
+        <mxCell id="f9" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#12181F;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#12181F;" value="Walk-In, Fully Paid — or a Named Customer Buying on Account?" vertex="1">
+          <mxGeometry height="120" width="280" x="740" y="1040" as="geometry" />
+        </mxCell>
+        <mxCell id="f10" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#EFEDFC;strokeColor=#5B4FCF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="No Receivable Is Created. Revenue, Tax, and Discount Post as One Summarized Journal Entry the Next Time the Register’s Session Closes" vertex="1">
+          <mxGeometry height="100" width="360" x="250" y="1200" as="geometry" />
+        </mxCell>
+        <mxCell id="f11" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#EFEDFC;strokeColor=#5B4FCF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="Sales Creates a Real Sales Order and Invoices the Unpaid Balance — the Only Path That Ever Touches Accounts Receivable" vertex="1">
+          <mxGeometry height="100" width="360" x="1070" y="1200" as="geometry" />
+        </mxCell>
+        <mxCell id="f12" parent="1" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="Stock Is Issued From the Terminal’s Own Warehouse; an Oversell Policy Decides What Happens if the Shelf Already Reads Zero" vertex="1">
+          <mxGeometry height="80" width="360" x="690" y="1350" as="geometry" />
+        </mxCell>
+        <mxCell id="f13" parent="1" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;dashed=1;" value="If a Prepared Dish Was Sold, Its Ingredients Are Consumed Through PP’s Recipe — POS Never Keeps a Second Recipe Book" vertex="1">
+          <mxGeometry height="70" width="360" x="690" y="1460" as="geometry" />
+        </mxCell>
+        <mxCell id="f14" parent="1" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#EAF1FC;strokeColor=#1F5FBF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="A Receipt Prints, Numbered From the Terminal’s Own Local Sequence — Never the Tenant-Wide Serial Engine, Which Cannot Be Reached Offline" vertex="1">
+          <mxGeometry height="70" width="360" x="690" y="1560" as="geometry" />
+        </mxCell>
+        <mxCell id="f15" parent="1" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#FBF1E1;strokeColor=#B5760A;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="Whenever Connectivity Returns, Every Queued Offline Sale Syncs Using Its Transaction ID — Retrying a Sync Never Double-Posts Stock or Revenue" vertex="1">
+          <mxGeometry height="80" width="360" x="690" y="1660" as="geometry" />
+        </mxCell>
+        <mxCell id="f16" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#EFEDFC;strokeColor=#5B4FCF;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#12181F;" value="The Cashier Closes the Session: Cash Is Counted, Any Variance Is Flagged for a Supervisor, and the Session’s Journal Posts" vertex="1">
+          <mxGeometry height="90" width="360" x="690" y="1770" as="geometry" />
+        </mxCell>
+        <mxCell id="f17" edge="1" parent="1" source="f1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endSize=10;strokeColor=#12181F;strokeWidth=2;fontSize=11;fontColor=#12181F;jettySize=auto;" target="f2" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f18" edge="1" parent="1" source="f2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endSize=10;strokeColor=#12181F;strokeWidth=2;fontSize=11;fontColor=#12181F;jettySize=auto;" target="f3" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f19" edge="1" parent="1" source="f3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endSize=10;strokeColor=#12181F;strokeWidth=2;fontSize=11;fontColor=#12181F;jettySize=auto;" target="f4" value="Restaurant">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f20" edge="1" parent="1" source="f3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endSize=10;strokeColor=#12181F;strokeWidth=2;fontSize=11;fontColor=#12181F;jettySize=auto;" target="f5" value="Retail">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f21" edge="1" parent="1" source="f4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endSize=10;strokeColor=#12181F;strokeWidth=2;fontSize=11;fontColor=#12181F;jettySize=auto;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="f5" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f22" edge="1" parent="1" source="f5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endSize=10;strokeColor=#12181F;strokeWidth=2;fontSize=11;fontColor=#12181F;jettySize=auto;" target="f6" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f23" edge="1" parent="1" source="f6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endSize=10;strokeColor=#12181F;strokeWidth=2;fontSize=11;fontColor=#12181F;jettySize=auto;" target="f7" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f24" edge="1" parent="1" source="f7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endSize=10;strokeColor=#12181F;strokeWidth=2;fontSize=11;fontColor=#12181F;jettySize=auto;" target="f8" value="Offline">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f25" edge="1" parent="1" source="f7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endSize=10;strokeColor=#12181F;strokeWidth=2;fontSize=11;fontColor=#12181F;jettySize=auto;" target="f9" value="Online">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f26" edge="1" parent="1" source="f8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endSize=10;strokeColor=#12181F;strokeWidth=2;fontSize=11;fontColor=#12181F;jettySize=auto;entryX=0;entryY=0;entryDx=0;entryDy=0;" target="f9" value="once queued">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f27" edge="1" parent="1" source="f9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endSize=10;strokeColor=#12181F;strokeWidth=2;fontSize=11;fontColor=#12181F;jettySize=auto;" target="f10" value="Walk-in">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f28" edge="1" parent="1" source="f9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endSize=10;strokeColor=#12181F;strokeWidth=2;fontSize=11;fontColor=#12181F;jettySize=auto;" target="f11" value="On account">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f29" edge="1" parent="1" source="f10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endSize=10;strokeColor=#12181F;strokeWidth=2;fontSize=11;fontColor=#12181F;jettySize=auto;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" target="f12" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f30" edge="1" parent="1" source="f11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endSize=10;strokeColor=#12181F;strokeWidth=2;fontSize=11;fontColor=#12181F;jettySize=auto;entryX=0.75;entryY=0;entryDx=0;entryDy=0;" target="f12" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f31" edge="1" parent="1" source="f12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endSize=10;strokeColor=#12181F;strokeWidth=2;fontSize=11;fontColor=#12181F;jettySize=auto;" target="f13" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f32" edge="1" parent="1" source="f13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endSize=10;strokeColor=#12181F;strokeWidth=2;fontSize=11;fontColor=#12181F;jettySize=auto;" target="f14" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f33" edge="1" parent="1" source="f14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endSize=10;strokeColor=#12181F;strokeWidth=2;fontSize=11;fontColor=#12181F;jettySize=auto;" target="f15" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f34" edge="1" parent="1" source="f15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;endSize=10;strokeColor=#12181F;strokeWidth=2;fontSize=11;fontColor=#12181F;jettySize=auto;" target="f16" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

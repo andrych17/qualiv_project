@@ -41,6 +41,7 @@ return [
             'PROJECTS',
             'PP',
             'MES',
+            'POS',
             'DESIGN_SYSTEM',
         ],
         'internal' => [
