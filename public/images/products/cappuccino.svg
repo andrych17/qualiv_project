@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <rect width="120" height="120" rx="24" fill="#4E342E"/>
+  <circle cx="60" cy="60" r="42" fill="#6D4C41"/>
+  <ellipse cx="60" cy="64" rx="28" ry="18" fill="#EFEBE9"/>
+  <!-- Latte Art Heart -->
+  <path d="M 60 68 C 60 68 50 62 50 56 C 50 51 55 49 60 54 C 65 49 70 51 70 56 C 70 62 60 68 60 68 Z" fill="#8D6E63"/>
+  <path d="M 85 54 C 95 54 95 72 85 72" fill="none" stroke="#BCAAA4" stroke-width="4" stroke-linecap="round"/>
+  <path d="M 56 38 C 54 30 60 26 58 18" fill="none" stroke="#EFEBE9" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+  <path d="M 66 38 C 64 30 70 26 68 18" fill="none" stroke="#EFEBE9" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+</svg>

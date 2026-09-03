@@ -52,6 +52,7 @@ class ProductController extends Controller
                 'costing_method' => $p->costing_method,
                 'reorder_point' => (float) $p->reorder_point,
                 'is_active' => $p->is_active,
+                'image_url' => $p->image_url,
                 'created_at_formatted' => $p->created_at?->format('d M Y'),
             ]);
 

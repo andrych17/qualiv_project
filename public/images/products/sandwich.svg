@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <rect width="120" height="120" rx="24" fill="#FFFDE7"/>
+  <!-- Bread Top -->
+  <path d="M 25 65 L 60 30 L 95 65 Z" fill="#D7CCC8" stroke="#8D6E63" stroke-width="2"/>
+  <!-- Fillings -->
+  <path d="M 28 66 Q 40 72 60 66 Q 80 72 92 66" fill="none" stroke="#4CAF50" stroke-width="5" stroke-linecap="round"/>
+  <path d="M 30 70 L 90 70" stroke="#F44336" stroke-width="4" stroke-linecap="round"/>
+  <path d="M 32 74 L 88 74" stroke="#FFEB3B" stroke-width="4" stroke-linecap="round"/>
+  <!-- Bread Bottom -->
+  <path d="M 28 78 L 60 92 L 92 78 Z" fill="#A1887F"/>
+</svg>

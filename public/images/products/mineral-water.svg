@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <rect width="120" height="120" rx="24" fill="#E1F5FE"/>
+  <!-- Bottle Cap -->
+  <rect x="54" y="20" width="12" height="8" rx="2" fill="#0288D1"/>
+  <!-- Bottle Neck & Body -->
+  <path d="M 56 28 L 56 36 L 46 48 L 46 95 Q 60 98 74 95 L 74 48 L 64 36 L 64 28 Z" fill="#B3E5FC" opacity="0.7" stroke="#0288D1" stroke-width="2"/>
+  <!-- Water Level -->
+  <path d="M 48 55 L 48 93 Q 60 96 72 93 L 72 55 Q 60 52 48 55 Z" fill="#4FC3F7" opacity="0.6"/>
+  <!-- Label -->
+  <rect x="46" y="62" width="28" height="16" fill="#0288D1" opacity="0.85"/>
+  <line x1="50" y1="70" x2="70" y2="70" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+</svg>
