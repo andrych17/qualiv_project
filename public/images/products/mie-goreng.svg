@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <rect width="120" height="120" rx="24" fill="#FBE9E7"/>
+  <ellipse cx="60" cy="68" rx="45" ry="26" fill="#CFD8DC"/>
+  <ellipse cx="60" cy="65" rx="40" ry="22" fill="#ECEFF1"/>
+  <!-- Noodles Pile -->
+  <path d="M 35 62 Q 45 50 60 58 Q 75 66 85 58 Q 80 70 60 68 Q 40 68 35 62 Z" fill="#E65100" opacity="0.8"/>
+  <path d="M 38 65 Q 50 55 62 62 Q 74 69 82 62" fill="none" stroke="#FFB74D" stroke-width="4" stroke-linecap="round"/>
+  <path d="M 42 60 Q 55 68 68 58 Q 78 62 80 65" fill="none" stroke="#FFA726" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- Chili & Spring Onion -->
+  <circle cx="55" cy="54" r="3" fill="#E53935"/>
+  <circle cx="68" cy="56" r="2.5" fill="#43A047"/>
+</svg>

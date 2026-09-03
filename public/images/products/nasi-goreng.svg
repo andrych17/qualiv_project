@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <rect width="120" height="120" rx="24" fill="#FFF3E0"/>
+  <!-- Plate -->
+  <ellipse cx="60" cy="68" rx="45" ry="26" fill="#CFD8DC"/>
+  <ellipse cx="60" cy="65" rx="40" ry="22" fill="#ECEFF1"/>
+  <!-- Rice Mound -->
+  <ellipse cx="60" cy="62" rx="30" ry="16" fill="#D87A22"/>
+  <ellipse cx="60" cy="58" rx="26" ry="12" fill="#E68A2E"/>
+  <!-- Sunny Side Up Egg -->
+  <ellipse cx="55" cy="56" rx="14" ry="9" fill="#FFFFFF"/>
+  <circle cx="55" cy="56" r="5" fill="#FFB300"/>
+  <!-- Garnish Cucumber -->
+  <ellipse cx="75" cy="60" rx="6" ry="4" fill="#4CAF50" transform="rotate(15 75 60)"/>
+</svg>

@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
+import axios from 'axios'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
@@ -40,20 +41,15 @@ const filterStation = (stationId: number) => {
 
 const updateStatus = async (item: KdsItem, nextStatus: 'preparing' | 'ready' | 'served') => {
   try {
-    await fetch(route('pos.kds.updateStatus', { line: item.id }), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '',
-      },
-      body: JSON.stringify({ status: nextStatus }),
+    await axios.post(route('pos.kds.updateStatus', { line: item.id }), {
+      status: nextStatus,
     })
     item.kds_status = nextStatus
     if (nextStatus === 'served') {
       items.value = items.value.filter((i) => i.id !== item.id)
     }
   } catch (e: any) {
-    alert('Failed to update status: ' + e?.message)
+    alert(e.response?.data?.message || e?.message || 'Failed to update status')
   }
 }
 </script>

@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { router, Link } from '@inertiajs/vue3'
+import axios from 'axios'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
@@ -65,6 +66,7 @@ interface FavoriteItem {
     code: string
     name: string
     default_price: number
+    image_url?: string | null
     base_uom?: {
       id: number
       code: string
@@ -217,25 +219,11 @@ const handleBarcodeScan = async () => {
   scanError.value = ''
 
   try {
-    const res = await fetch(route('pos.sale.scan'), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '',
-      },
-      body: JSON.stringify({
-        barcode: code,
-        terminal_id: props.selectedTerminalId,
-      }),
+    const { data: product } = await axios.post(route('pos.sale.scan'), {
+      barcode: code,
+      terminal_id: props.selectedTerminalId,
     })
 
-    if (!res.ok) {
-      const err = await res.json()
-      scanError.value = err.message || 'Product not found'
-      return
-    }
-
-    const product = await res.json()
     addToCart({
       product_id: product.id || product.product_id,
       code: product.code,
@@ -245,7 +233,7 @@ const handleBarcodeScan = async () => {
     })
     barcodeInput.value = ''
   } catch (e: any) {
-    scanError.value = e?.message || 'Error scanning barcode'
+    scanError.value = e.response?.data?.message || e?.message || 'Error scanning barcode'
   } finally {
     isScanning.value = false
   }
@@ -314,75 +302,41 @@ const processPayment = async () => {
 
   try {
     // 1. Create draft txn
-    const draftRes = await fetch(route('pos.sale.draft'), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '',
-      },
-      body: JSON.stringify({
-        session_id: props.activeSession.id,
-        table_id: selectedTableId.value,
-        customer_id: selectedCustomerId.value,
-      }),
+    const { data: txn } = await axios.post(route('pos.sale.draft'), {
+      session_id: props.activeSession.id,
+      table_id: selectedTableId.value,
+      customer_id: selectedCustomerId.value,
     })
-
-    if (!draftRes.ok) throw new Error('Failed to create draft transaction')
-    const txn = await draftRes.json()
 
     // 2. Add lines
     for (const item of cart.value) {
-      await fetch(route('pos.sale.lines.add', { txn: txn.id }), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '',
-        },
-        body: JSON.stringify({
-          product_id: item.product_id,
-          uom_id: item.uom_id,
-          qty: item.qty,
-          unit_price: item.unit_price,
-          discount_amount: item.discount_amount,
-          note: '',
-          modifier_ids: [],
-        }),
+      await axios.post(route('pos.sale.lines.add', { txn: txn.id }), {
+        product_id: item.product_id,
+        uom_id: item.uom_id,
+        qty: item.qty,
+        unit_price: item.unit_price,
+        discount_amount: item.discount_amount,
+        note: '',
+        modifier_ids: [],
       })
     }
 
     // 3. Process payment
-    const payRes = await fetch(route('pos.sale.pay', { txn: txn.id }), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '',
-      },
-      body: JSON.stringify({
-        tender_type: paymentMethod.value,
-        amount: tenderAmount.value,
-        tender_reference: tenderReference.value,
-      }),
+    await axios.post(route('pos.sale.pay', { txn: txn.id }), {
+      tender_type: paymentMethod.value,
+      amount: tenderAmount.value,
+      tender_reference: tenderReference.value,
     })
-
-    if (!payRes.ok) throw new Error('Payment processing failed')
 
     // 4. Complete txn
-    const compRes = await fetch(route('pos.sale.complete', { txn: txn.id }), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '',
-      },
-    })
-
-    if (!compRes.ok) throw new Error('Failed to complete sale')
+    await axios.post(route('pos.sale.complete', { txn: txn.id }))
 
     lastChange.value = changeDue.value
     paymentSuccess.value = true
     cart.value = []
     selectedTableId.value = null
   } catch (e: any) {
-    alert(e?.message || 'Transaction error')
+    alert(e.response?.data?.message || e?.message || 'Transaction error')
   } finally {
     isProcessingPayment.value = false
   }
@@ -400,49 +354,27 @@ const parkCurrentOrder = async () => {
   const note = prompt('Enter note for parked order:', 'Hold Order') || 'Held Order'
 
   try {
-    const draftRes = await fetch(route('pos.sale.draft'), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '',
-      },
-      body: JSON.stringify({
-        session_id: props.activeSession.id,
-        table_id: selectedTableId.value,
-      }),
+    const { data: txn } = await axios.post(route('pos.sale.draft'), {
+      session_id: props.activeSession.id,
+      table_id: selectedTableId.value,
     })
-    const txn = await draftRes.json()
 
     for (const item of cart.value) {
-      await fetch(route('pos.sale.lines.add', { txn: txn.id }), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '',
-        },
-        body: JSON.stringify({
-          product_id: item.product_id,
-          uom_id: item.uom_id,
-          qty: item.qty,
-          unit_price: item.unit_price,
-          discount_amount: item.discount_amount,
-        }),
+      await axios.post(route('pos.sale.lines.add', { txn: txn.id }), {
+        product_id: item.product_id,
+        uom_id: item.uom_id,
+        qty: item.qty,
+        unit_price: item.unit_price,
+        discount_amount: item.discount_amount,
       })
     }
 
-    await fetch(route('pos.sale.park', { txn: txn.id }), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '',
-      },
-      body: JSON.stringify({ note }),
-    })
+    await axios.post(route('pos.sale.park', { txn: txn.id }), { note })
 
     cart.value = []
     router.reload({ only: ['parkedOrders'] })
   } catch (e: any) {
-    alert('Failed to park order: ' + e?.message)
+    alert(e.response?.data?.message || e?.message || 'Failed to park order')
   }
 }
 
@@ -584,7 +516,13 @@ const resumeParkedOrder = async (order: TxnHdr) => {
               class="flex flex-col justify-between rounded-lg border border-surface-200 bg-surface-50 p-3 text-left transition hover:border-primary-500 hover:bg-primary-50/30 active:scale-95"
               @click="addFavorite(fav)"
             >
-              <div>
+              <div class="w-full">
+                <img
+                  v-if="fav.product?.image_url"
+                  :src="fav.product.image_url"
+                  :alt="fav.product.name"
+                  class="mb-2 h-20 w-full rounded-md object-contain bg-white/80 p-1.5 border border-surface-200"
+                />
                 <p class="text-xs font-medium text-ink-500">{{ fav.product?.code }}</p>
                 <h4 class="line-clamp-2 text-sm font-semibold text-ink-900">{{ fav.product?.name }}</h4>
               </div>
