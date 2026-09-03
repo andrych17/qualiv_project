@@ -275,19 +275,19 @@ const getIcon = (name: string | null): Component => {
                       :href="grandchild.href"
                       class="flex items-center gap-2 px-2 py-1 text-[11px] font-medium rounded-md transition-all duration-150"
                       :class="isItemActive(grandchild.href)
-                        ? 'bg-accent text-white font-semibold shadow-xs'
+                        ? 'bg-accent text-accent-text font-semibold shadow-xs'
                         : 'text-ink-600 hover:bg-surface-100 hover:text-ink-900'"
                     >
                       <component
                         :is="getIcon(grandchild.icon)"
                         v-if="grandchild.icon"
                         class="h-3 w-3 shrink-0"
-                        :class="isItemActive(grandchild.href) ? 'text-white' : 'text-ink-400'"
+                        :class="isItemActive(grandchild.href) ? 'text-accent-text' : 'text-ink-400'"
                       />
                       <span
                         v-else
                         class="w-1 h-1 rounded-full shrink-0"
-                        :class="isItemActive(grandchild.href) ? 'bg-white' : 'bg-ink-400'"
+                        :class="isItemActive(grandchild.href) ? 'bg-accent-text' : 'bg-ink-400'"
                       />
                       <span class="truncate">{{ grandchild.label }}</span>
                     </Link>
@@ -300,19 +300,19 @@ const getIcon = (name: string | null): Component => {
                   :href="child.href"
                   class="flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all duration-150"
                   :class="isItemActive(child.href)
-                    ? 'bg-accent text-white font-semibold shadow-xs'
+                    ? 'bg-accent text-accent-text font-semibold shadow-xs'
                     : 'text-ink-600 hover:bg-surface-100 hover:text-ink-900'"
                 >
                   <component
                     :is="getIcon(child.icon)"
                     v-if="child.icon"
                     class="h-3.5 w-3.5 shrink-0"
-                    :class="isItemActive(child.href) ? 'text-white' : 'text-ink-400'"
+                    :class="isItemActive(child.href) ? 'text-accent-text' : 'text-ink-400'"
                   />
                   <span
                     v-else
                     class="w-1.5 h-1.5 rounded-full shrink-0"
-                    :class="isItemActive(child.href) ? 'bg-white' : 'bg-ink-400'"
+                    :class="isItemActive(child.href) ? 'bg-accent-text' : 'bg-ink-400'"
                   />
                   <span class="truncate">{{ child.label }}</span>
                 </Link>
@@ -464,7 +464,7 @@ const getIcon = (name: string | null): Component => {
                           :href="grandchild.href"
                           class="flex items-center gap-2 px-2 py-1 text-[11px] font-medium rounded-md transition-all duration-150"
                           :class="isItemActive(grandchild.href)
-                            ? 'bg-accent text-white font-semibold shadow-xs'
+                            ? 'bg-accent text-accent-text font-semibold shadow-xs'
                             : 'text-ink-600 hover:bg-surface-100 hover:text-ink-900'"
                           @click="mobileSidebar?.close()"
                         >
@@ -472,12 +472,12 @@ const getIcon = (name: string | null): Component => {
                             :is="getIcon(grandchild.icon)"
                             v-if="grandchild.icon"
                             class="h-3 w-3 shrink-0"
-                            :class="isItemActive(grandchild.href) ? 'text-white' : 'text-ink-400'"
+                            :class="isItemActive(grandchild.href) ? 'text-accent-text' : 'text-ink-400'"
                           />
                           <span
                             v-else
                             class="w-1 h-1 rounded-full shrink-0"
-                            :class="isItemActive(grandchild.href) ? 'bg-white' : 'bg-ink-400'"
+                            :class="isItemActive(grandchild.href) ? 'bg-accent-text' : 'bg-ink-400'"
                           />
                           <span class="truncate">{{ grandchild.label }}</span>
                         </Link>
@@ -490,7 +490,7 @@ const getIcon = (name: string | null): Component => {
                       :href="child.href"
                       class="flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all duration-150"
                       :class="isItemActive(child.href)
-                        ? 'bg-accent text-white font-semibold shadow-xs'
+                        ? 'bg-accent text-accent-text font-semibold shadow-xs'
                         : 'text-ink-600 hover:bg-surface-100 hover:text-ink-900'"
                       @click="mobileSidebar?.close()"
                     >
@@ -498,12 +498,12 @@ const getIcon = (name: string | null): Component => {
                         :is="getIcon(child.icon)"
                         v-if="child.icon"
                         class="h-3.5 w-3.5 shrink-0"
-                        :class="isItemActive(child.href) ? 'text-white' : 'text-ink-400'"
+                        :class="isItemActive(child.href) ? 'text-accent-text' : 'text-ink-400'"
                       />
                       <span
                         v-else
                         class="w-1.5 h-1.5 rounded-full shrink-0"
-                        :class="isItemActive(child.href) ? 'bg-white' : 'bg-ink-400'"
+                        :class="isItemActive(child.href) ? 'bg-accent-text' : 'bg-ink-400'"
                       />
                       <span class="truncate">{{ child.label }}</span>
                     </Link>

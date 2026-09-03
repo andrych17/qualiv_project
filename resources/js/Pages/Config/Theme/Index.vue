@@ -83,7 +83,7 @@ const handleApplyTheme = (themeId: string) => {
 
               <span
                 v-if="activeTheme === theme.id"
-                class="inline-flex items-center gap-1 rounded-full bg-accent px-2.5 py-0.5 text-xs font-semibold text-white shadow-xs"
+                class="inline-flex items-center gap-1 rounded-full bg-accent px-2.5 py-0.5 text-xs font-semibold text-accent-text shadow-xs"
               >
                 <Check class="h-3.5 w-3.5" />
                 <span>Aktif</span>
@@ -107,8 +107,8 @@ const handleApplyTheme = (themeId: string) => {
               <div class="flex items-center gap-2">
                 <button
                   type="button"
-                  class="inline-flex items-center justify-center rounded-sm px-2.5 py-1 text-xs font-semibold text-white shadow-xs"
-                  :style="{ backgroundColor: theme.primary_color }"
+                  class="inline-flex items-center justify-center rounded-sm px-2.5 py-1 text-xs font-semibold shadow-xs"
+                  :style="{ backgroundColor: theme.primary_color, color: theme.contrast_text ?? '#ffffff' }"
                 >
                   Primary CTA
                 </button>
@@ -116,8 +116,8 @@ const handleApplyTheme = (themeId: string) => {
                   Secondary
                 </span>
                 <span
-                  class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold text-white shadow-2xs"
-                  :style="{ backgroundColor: theme.primary_color }"
+                  class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold shadow-2xs"
+                  :style="{ backgroundColor: theme.primary_color, color: theme.contrast_text ?? '#ffffff' }"
                 >
                   Status
                 </span>

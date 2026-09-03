@@ -355,8 +355,21 @@ class PosCartService
                 ->where('product_id', $productId)
                 ->first();
 
-            if ($line) {
-                return (float) $line->price;
+            if ($line && isset($line->unit_price)) {
+                return (float) $line->unit_price;
+            }
+        }
+
+        // Fallback to tenant default price list if not already checked
+        $defaultPl = DB::table('SALES.price_lists')->where('is_tenant_default', true)->first();
+        if ($defaultPl && $defaultPl->id !== $priceListId) {
+            $line = DB::table('SALES.price_list_lines')
+                ->where('price_list_id', $defaultPl->id)
+                ->where('product_id', $productId)
+                ->first();
+
+            if ($line && isset($line->unit_price)) {
+                return (float) $line->unit_price;
             }
         }
 

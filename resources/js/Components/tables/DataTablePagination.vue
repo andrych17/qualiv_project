@@ -46,7 +46,7 @@ defineProps<{
             class="relative inline-flex items-center px-4 py-2 text-sm font-semibold focus:z-10 border transition-colors"
             :class="[
               link.active 
-                ? 'z-10 bg-accent text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent border-accent' 
+                ? 'z-10 bg-accent text-accent-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent border-accent' 
                 : 'text-ink-900 bg-surface-0 border-border hover:bg-surface-50 focus:outline-offset-0',
               !link.url ? 'pointer-events-none opacity-50' : ''
             ]"

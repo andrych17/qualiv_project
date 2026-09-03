@@ -668,6 +668,10 @@ journal-posting problem.
 - **Cache refresh**: catalog/price/promotion/customer caches refresh opportunistically whenever
   online (background, non-blocking) and on session-open — a terminal that's been offline for days
   sells against a stale cache rather than not selling at all, which is the entire point.
+- **Storage persistence**: the client calls `navigator.storage.persist()` at checkin/session-open
+  to request the browser's "persistent" storage bucket, so the IndexedDB cache and outbound sync
+  queue aren't silently evicted under disk pressure the way "best-effort" storage can be — a POS
+  terminal cannot afford to lose queued, unsynced transactions to browser storage cleanup.
 
 **Rules / Logic — idempotency is the load-bearing rule of this whole section**
 - Every offline-created transaction carries a **client-generated UUID**

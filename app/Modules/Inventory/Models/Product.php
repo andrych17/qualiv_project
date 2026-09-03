@@ -37,6 +37,13 @@ class Product extends Model
         'reorder_quantity' => 'decimal:4',
     ];
 
+    protected $appends = ['code'];
+
+    public function getCodeAttribute(): ?string
+    {
+        return $this->sku;
+    }
+
     protected static function booted(): void
     {
         static::creating(function (Product $product) {
