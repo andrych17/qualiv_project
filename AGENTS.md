@@ -51,13 +51,13 @@ Every UI view in `resources/js/Pages/` **must strictly compose from shared compo
 - **MUST** use `@/Components/Modal.vue`:
   ```vue
   <Modal :show="showModal" max-width="md" @close="showModal = false">
-    <div class="p-6 bg-white rounded-lg">
-      <!-- Content here -->
+    <div class="p-6">
+      <!-- Content here (Modal.vue already applies bg-surface-0, border-border, and text-ink-900) -->
     </div>
   </Modal>
   ```
 - **NEVER** write inline overlays like `<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50...">`.
-- **Modal Inner Card:** Must always have an opaque background (`bg-white` or `bg-surface rounded-lg p-6`). Never leave the modal card transparent.
+- **Modal Background:** `Modal.vue` is already styled with `bg-surface-0 border-border text-ink-900`. **NEVER** add `bg-white` inside modal slots, as it completely breaks dark themes.
 - **Confirmation Prompts:** For delete/confirmation dialogs, **MUST** use `@/Components/modals/ConfirmDialog.vue` triggered via `useConfirm()` composable:
   ```ts
   import { useConfirm } from '@/Composables/useConfirmDialog'
@@ -72,12 +72,16 @@ Every UI view in `resources/js/Pages/` **must strictly compose from shared compo
   ```
   **NEVER** use browser-native `window.confirm()` or alert popups.
 
-### B. Form Controls & Inputs (`@/Components/forms/`)
+### B. Form Controls & Inputs (`@/Components/forms/`) — STRICT BAN ON RAW INPUTS
+⚠️ **CRITICAL ENFORCEMENT: NEVER use raw HTML `<input>`, `<select>`, or `<textarea>` elements in pages or modals.**
+Raw form elements bypass design system theme tokens (`bg-surface-0`, `border-border`, `text-ink-900`, `focus:ring-accent/20`), causing blinding white boxes and illegible text in dark mode.
+
 - **Text, Email, Date:** `FormInput.vue` (includes label, required asterisk, and error message).
 - **Currency & Monetary Amounts:** `FormCurrencyInput.vue` (supports thousand separator, optional decimal precision, prefix `Rp`/`$`, live terbilang preview, and cursor preservation).
 - **Numeric & Quantity Amounts:** `FormNumberInput.vue` (supports thousand separator, decimals, customizable suffix e.g. `pcs`, `unit`).
 - **Multi-line Text:** `FormTextarea.vue`.
 - **Standard Select:** `FormSelect.vue`.
+- **Checkboxes:** `Checkbox.vue` (`@/Components/Checkbox.vue` with theme-reactive accent).
 - **Single Searchable Select (In-memory):** `FormSearchableSelect.vue`.
 - **Async Remote Searchable Select:** `FormAsyncSearchableSelect.vue` (for large datasets: partners, products, users).
 - **Multi-Select Tags/Pills:** `FormMultiSelect.vue`:

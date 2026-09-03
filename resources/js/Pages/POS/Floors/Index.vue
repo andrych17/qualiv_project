@@ -8,6 +8,7 @@ import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 import Modal from '@/Components/Modal.vue'
+import FormInput from '@/Components/forms/FormInput.vue'
 import { formatCurrency } from '@/Utils/formatters'
 import { Utensils, Plus, Users, CheckCircle2, Clock } from 'lucide-vue-next'
 
@@ -223,26 +224,20 @@ const viewTable = (table: Table) => {
         <p class="mt-1 text-sm text-ink-600">Daftarkan nomor meja dan kapasitas kursi pada lantai aktif.</p>
 
         <div class="mt-4 space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-ink-900">Nomor / Nama Meja</label>
-            <input
-              v-model="tableForm.table_no"
-              type="text"
-              placeholder="Contoh: 01, VIP-A"
-              class="mt-1 block w-full rounded-md border-border bg-surface-50 text-ink-900 font-mono text-sm focus:border-accent focus:ring-accent"
-            />
-          </div>
+          <FormInput
+            v-model="tableForm.table_no"
+            label="Nomor / Nama Meja"
+            placeholder="Contoh: 01, VIP-A"
+            required
+          />
 
-          <div>
-            <label class="block text-sm font-medium text-ink-900">Kapasitas Kursi</label>
-            <input
-              v-model.number="tableForm.capacity"
-              type="number"
-              min="1"
-              max="50"
-              class="mt-1 block w-full rounded-md border-border bg-surface-50 text-ink-900 font-mono text-sm focus:border-accent focus:ring-accent"
-            />
-          </div>
+          <FormInput
+            v-model.number="tableForm.capacity"
+            type="number"
+            label="Kapasitas Kursi"
+            placeholder="4"
+            required
+          />
         </div>
 
         <div class="mt-6 flex justify-end gap-3">

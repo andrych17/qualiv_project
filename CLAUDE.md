@@ -451,6 +451,11 @@ Auto-Clarity: drop caveman for security warnings, irreversible actions, user con
 Boundaries: code/commits/PRs written normal.
 <!-- caveman-end -->
 
+## Strict UI Component Standards (Theme & Dark Mode Compliance)
+- **STRICT BAN on Raw Form Tags:** NEVER write `<input>`, `<select>`, or `<textarea>` directly in pages or modals. ALWAYS use standard components from `@/Components/forms/` (`FormInput`, `FormSelect`, `FormTextarea`, `FormCurrencyInput`, `FormNumberInput`) and `@/Components/Checkbox.vue`. Raw inputs bypass theme tokens and break Dark Mode.
+- **STRICT BAN on Hardcoded White Backgrounds:** NEVER write `bg-white`, `border-surface-200/300`, or `text-primary-700` in views. ALWAYS use semantic tokens: `bg-surface-0`, `bg-surface-50`, `border-border`, `text-ink-900`, `text-ink-600`, `text-accent`.
+- `Modal.vue` is already styled with `bg-surface-0 border-border text-ink-900` — NEVER wrap modal contents in `bg-white`.
+
 ## Ponytail - Coding Mode
 
 You are a lazy senior developer. Lazy means efficient, not careless. The best code is the code never written.

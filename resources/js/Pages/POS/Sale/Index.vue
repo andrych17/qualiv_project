@@ -10,6 +10,8 @@ import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 import DangerButton from '@/Components/DangerButton.vue'
 import Modal from '@/Components/Modal.vue'
+import FormInput from '@/Components/forms/FormInput.vue'
+import FormSelect from '@/Components/forms/FormSelect.vue'
 import { formatCurrency, formatNumber } from '@/Utils/formatters'
 import {
   Barcode,
@@ -650,29 +652,21 @@ const resumeParkedOrder = async (order: TxnHdr) => {
         <p class="mt-1 text-sm text-ink-600">Pilih terminal kasir dan masukkan modal awal (float cash) di laci kasir.</p>
 
         <div class="mt-4 space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-ink-900">Terminal Kasir</label>
-            <select
-              v-model="selectedTerminalForSession"
-              class="mt-1 block w-full rounded-md border-border bg-surface-50 text-ink-900 text-sm focus:border-accent focus:ring-accent"
-            >
-              <option value="" disabled>-- Pilih Terminal --</option>
-              <option v-for="t in terminals" :key="t.id" :value="t.id" class="bg-surface-0 text-ink-900">
-                {{ t.name }} ({{ t.code }})
-              </option>
-            </select>
-          </div>
+          <FormSelect
+            v-model="selectedTerminalForSession"
+            label="Terminal Kasir"
+            :options="terminals.map(t => ({ label: `${t.name} (${t.code})`, value: t.id }))"
+            placeholder="-- Pilih Terminal --"
+            required
+          />
 
-          <div>
-            <label class="block text-sm font-medium text-ink-900">Modal Kas Awal (IDR)</label>
-            <input
-              v-model.number="openingCash"
-              type="number"
-              min="0"
-              step="1000"
-              class="mt-1 block w-full rounded-md border-border bg-surface-50 text-ink-900 font-mono text-base focus:border-accent focus:ring-accent"
-            />
-          </div>
+          <FormInput
+            v-model.number="openingCash"
+            type="number"
+            label="Modal Kas Awal (IDR)"
+            placeholder="0"
+            required
+          />
         </div>
 
         <div class="mt-6 flex justify-end gap-3">
@@ -763,16 +757,13 @@ const resumeParkedOrder = async (order: TxnHdr) => {
 
           <!-- Cash Input -->
           <div v-if="paymentMethod === 'cash'" class="mt-4 space-y-3">
-            <div>
-              <label class="block text-xs font-semibold text-ink-900">Uang Diterima</label>
-              <input
-                v-model.number="tenderAmount"
-                type="number"
-                min="0"
-                step="1000"
-                class="mt-1 block w-full rounded-md border-border bg-surface-50 text-ink-900 font-mono text-lg font-bold focus:border-accent focus:ring-accent"
-              />
-            </div>
+            <FormInput
+              v-model.number="tenderAmount"
+              type="number"
+              label="Uang Diterima"
+              placeholder="0"
+              required
+            />
 
             <!-- Quick Cash Chips -->
             <div class="flex flex-wrap gap-2">
@@ -814,12 +805,10 @@ const resumeParkedOrder = async (order: TxnHdr) => {
 
           <!-- Non-Cash Ref -->
           <div v-else class="mt-4">
-            <label class="block text-xs font-semibold text-ink-900">Nomor Referensi / Trace / Approval Code</label>
-            <input
+            <FormInput
               v-model="tenderReference"
-              type="text"
+              label="Nomor Referensi / Trace / Approval Code"
               placeholder="Contoh: TRACE-892182"
-              class="mt-1 block w-full rounded-md border-border bg-surface-50 text-ink-900 text-sm focus:border-accent focus:ring-accent"
             />
           </div>
 

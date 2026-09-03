@@ -9,6 +9,9 @@ import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 import Modal from '@/Components/Modal.vue'
+import FormInput from '@/Components/forms/FormInput.vue'
+import FormSelect from '@/Components/forms/FormSelect.vue'
+import Checkbox from '@/Components/Checkbox.vue'
 import { debounce } from '@/Composables/debounce'
 import { Plus, Check } from 'lucide-vue-next'
 
@@ -220,58 +223,51 @@ const handleCreateProfile = () => {
         <p class="mt-1 text-sm text-ink-600">Tetapkan kemampuan modul kasir untuk tipe operasional tertentu.</p>
 
         <div class="mt-4 space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-ink-700">Kode Profil</label>
-            <input
-              v-model="form.code"
-              type="text"
-              placeholder="Contoh: RETAIL-STD"
-              class="mt-1 block w-full rounded-md border-surface-300 font-mono text-sm focus:border-primary-500 focus:ring-primary-500"
-            />
-          </div>
+          <FormInput
+            v-model="form.code"
+            label="Kode Profil"
+            placeholder="Contoh: RETAIL-STD"
+            required
+          />
 
-          <div>
-            <label class="block text-sm font-medium text-ink-700">Nama Profil</label>
-            <input
-              v-model="form.name"
-              type="text"
-              placeholder="Contoh: Retail Supermarket Standar"
-              class="mt-1 block w-full rounded-md border-surface-300 text-sm focus:border-primary-500 focus:ring-primary-500"
-            />
-          </div>
+          <FormInput
+            v-model="form.name"
+            label="Nama Profil"
+            placeholder="Contoh: Retail Supermarket Standar"
+            required
+          />
 
-          <div>
-            <label class="block text-sm font-medium text-ink-700">Tipe Bisnis Dasar</label>
-            <select
-              v-model="form.base_type"
-              class="mt-1 block w-full rounded-md border-surface-300 text-sm focus:border-primary-500 focus:ring-primary-500"
-            >
-              <option value="retail">Retail / Minimarket</option>
-              <option value="restaurant">Restaurant / Kafe / F&B</option>
-              <option value="service">Jasa / Salon / Bengkel</option>
-            </select>
-          </div>
+          <FormSelect
+            v-model="form.base_type"
+            label="Tipe Bisnis Dasar"
+            :options="[
+              { label: 'Retail / Minimarket', value: 'retail' },
+              { label: 'Restaurant / Kafe / F&B', value: 'restaurant' },
+              { label: 'Jasa / Salon / Bengkel', value: 'service' },
+            ]"
+            required
+          />
 
-          <div class="space-y-2 pt-2 border-t border-surface-200">
-            <span class="block text-xs font-semibold text-ink-700 uppercase tracking-wider">Fitur & Kemampuan</span>
-            <label class="flex items-center gap-2 text-sm text-ink-700">
-              <input v-model="form.requires_barcode" type="checkbox" class="rounded border-surface-300 text-primary-600" />
+          <div class="space-y-2.5 pt-2 border-t border-border">
+            <span class="block text-xs font-semibold text-ink-900 uppercase tracking-wider">Fitur & Kemampuan</span>
+            <label class="flex items-center gap-2 text-sm text-ink-900 cursor-pointer">
+              <Checkbox :checked="form.requires_barcode" @update:checked="form.requires_barcode = $event" />
               Wajib Barcode Scanner
             </label>
-            <label class="flex items-center gap-2 text-sm text-ink-700">
-              <input v-model="form.touch_menu" type="checkbox" class="rounded border-surface-300 text-primary-600" />
+            <label class="flex items-center gap-2 text-sm text-ink-900 cursor-pointer">
+              <Checkbox :checked="form.touch_menu" @update:checked="form.touch_menu = $event" />
               Menu Tombol Layar Sentuh (Touch Grid)
             </label>
-            <label class="flex items-center gap-2 text-sm text-ink-700">
-              <input v-model="form.table_management" type="checkbox" class="rounded border-surface-300 text-primary-600" />
+            <label class="flex items-center gap-2 text-sm text-ink-900 cursor-pointer">
+              <Checkbox :checked="form.table_management" @update:checked="form.table_management = $event" />
               Manajemen Meja & Dine-In
             </label>
-            <label class="flex items-center gap-2 text-sm text-ink-700">
-              <input v-model="form.kds_enabled" type="checkbox" class="rounded border-surface-300 text-primary-600" />
+            <label class="flex items-center gap-2 text-sm text-ink-900 cursor-pointer">
+              <Checkbox :checked="form.kds_enabled" @update:checked="form.kds_enabled = $event" />
               Integrasi Kitchen Display (KDS)
             </label>
-            <label class="flex items-center gap-2 text-sm text-ink-700">
-              <input v-model="form.offline_enabled" type="checkbox" class="rounded border-surface-300 text-primary-600" />
+            <label class="flex items-center gap-2 text-sm text-ink-900 cursor-pointer">
+              <Checkbox :checked="form.offline_enabled" @update:checked="form.offline_enabled = $event" />
               Dukungan Offline-First (PWA)
             </label>
           </div>
