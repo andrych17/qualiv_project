@@ -63,13 +63,13 @@ const updateStatus = async (item: KdsItem, nextStatus: 'preparing' | 'ready' | '
       </div>
 
       <div class="flex items-center gap-2">
-        <label class="text-xs font-semibold text-ink-700">Stasiun Dapur:</label>
+        <label class="text-xs font-semibold text-ink-900">Stasiun Dapur:</label>
         <select
           :value="selectedStationId"
-          class="rounded-md border-surface-300 bg-white py-1 pl-3 pr-8 text-xs focus:border-primary-500 focus:ring-primary-500"
+          class="rounded-md border-border bg-surface-50 text-ink-900 py-1 pl-3 pr-8 text-xs focus:border-accent focus:ring-accent"
           @change="filterStation(Number(($event.target as HTMLSelectElement).value))"
         >
-          <option v-for="s in stations" :key="s.id" :value="s.id">
+          <option v-for="s in stations" :key="s.id" :value="s.id" class="bg-surface-0 text-ink-900">
             {{ s.name }} ({{ s.code }})
           </option>
         </select>
@@ -85,16 +85,16 @@ const updateStatus = async (item: KdsItem, nextStatus: 'preparing' | 'ready' | '
           :class="[
             'flex flex-col justify-between rounded-xl border p-4 shadow-sm transition',
             item.kds_status === 'ready'
-              ? 'border-emerald-300 bg-emerald-50/50'
+              ? 'border-signal-success/40 bg-signal-success/10'
               : item.kds_status === 'preparing'
-              ? 'border-amber-300 bg-amber-50/50'
-              : 'border-surface-200 bg-white'
+              ? 'border-signal-warning/40 bg-signal-warning/10'
+              : 'border-border bg-surface-0'
           ]"
         >
           <div>
-            <div class="flex items-center justify-between border-b border-surface-100 pb-2">
+            <div class="flex items-center justify-between border-b border-border pb-2">
               <span class="font-mono text-sm font-bold text-ink-900">#{{ item.txn_no }}</span>
-              <span class="rounded bg-surface-100 px-2 py-0.5 font-mono text-xs font-semibold text-ink-800">
+              <span class="rounded border border-border bg-surface-50 px-2 py-0.5 font-mono text-xs font-semibold text-ink-900">
                 {{ item.table_no ? `Meja ${item.table_no}` : 'Takeaway' }}
               </span>
             </div>
@@ -102,18 +102,18 @@ const updateStatus = async (item: KdsItem, nextStatus: 'preparing' | 'ready' | '
             <div class="mt-3">
               <div class="flex items-baseline justify-between">
                 <h4 class="text-base font-bold text-ink-900">{{ item.description }}</h4>
-                <span class="rounded-full bg-primary-100 px-2 py-0.5 font-mono text-xs font-extrabold text-primary-800">
+                <span class="rounded-full border border-accent/30 bg-accent/15 px-2 py-0.5 font-mono text-xs font-extrabold text-accent">
                   {{ item.qty }}x
                 </span>
               </div>
-              <p v-if="item.note" class="mt-1 text-xs italic text-amber-700">
+              <p v-if="item.note" class="mt-1 text-xs italic text-signal-warning">
                 Catatan: {{ item.note }}
               </p>
             </div>
           </div>
 
-          <div class="mt-4 pt-3 border-t border-surface-100">
-            <div class="mb-3 flex items-center justify-between text-xs text-ink-500">
+          <div class="mt-4 pt-3 border-t border-border">
+            <div class="mb-3 flex items-center justify-between text-xs text-ink-600">
               <span class="capitalize font-semibold">Status: {{ item.kds_status }}</span>
               <span class="flex items-center gap-1">
                 <Clock class="h-3 w-3" />
