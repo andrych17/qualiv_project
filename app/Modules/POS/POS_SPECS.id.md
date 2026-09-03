@@ -709,6 +709,11 @@ bulk-journal-posting.
   pun online (background, non-blocking) dan saat session-open — terminal yang sudah offline
   berhari-hari tetap berjualan terhadap cache yang basi alih-alih tidak berjualan sama sekali,
   yang justru itulah intinya.
+- **Persistensi penyimpanan**: klien memanggil `navigator.storage.persist()` saat checkin/
+  session-open untuk meminta bucket penyimpanan "persistent" milik browser, supaya cache
+  IndexedDB dan antrean sync keluar tidak diam-diam dihapus akibat tekanan disk sebagaimana
+  bisa terjadi pada penyimpanan "best-effort" — terminal POS tidak boleh sampai kehilangan
+  transaksi yang sudah diantrekan namun belum ter-sync akibat pembersihan storage browser.
 
 **Aturan / Logika — idempotency adalah aturan penopang seluruh bagian ini**
 - Setiap transaksi yang dibuat offline membawa **UUID yang dibuat-klien**
