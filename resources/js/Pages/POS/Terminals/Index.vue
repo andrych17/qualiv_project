@@ -9,6 +9,8 @@ import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 import Modal from '@/Components/Modal.vue'
+import FormInput from '@/Components/forms/FormInput.vue'
+import FormSelect from '@/Components/forms/FormSelect.vue'
 import { debounce } from '@/Composables/debounce'
 import { Plus, Check } from 'lucide-vue-next'
 
@@ -205,59 +207,41 @@ const handleCreateTerminal = () => {
         <p class="mt-1 text-sm text-ink-600">Daftarkan register atau mesin kasir baru ke sistem.</p>
 
         <div class="mt-4 space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-ink-700">Kode Terminal</label>
-            <input
-              v-model="form.code"
-              type="text"
-              placeholder="Contoh: POS-01"
-              class="mt-1 block w-full rounded-md border-surface-300 font-mono text-sm focus:border-primary-500 focus:ring-primary-500"
-            />
-          </div>
+          <FormInput
+            v-model="form.code"
+            label="Kode Terminal"
+            placeholder="Contoh: POS-01"
+            required
+          />
 
-          <div>
-            <label class="block text-sm font-medium text-ink-700">Nama Terminal</label>
-            <input
-              v-model="form.name"
-              type="text"
-              placeholder="Contoh: Kasir Utama Lantai 1"
-              class="mt-1 block w-full rounded-md border-surface-300 text-sm focus:border-primary-500 focus:ring-primary-500"
-            />
-          </div>
+          <FormInput
+            v-model="form.name"
+            label="Nama Terminal"
+            placeholder="Contoh: Kasir Utama Lantai 1"
+            required
+          />
 
-          <div>
-            <label class="block text-sm font-medium text-ink-700">Profil POS</label>
-            <select
-              v-model="form.profile_id"
-              class="mt-1 block w-full rounded-md border-surface-300 text-sm focus:border-primary-500 focus:ring-primary-500"
-            >
-              <option v-for="p in profiles" :key="p.id" :value="p.id">
-                {{ p.name }} ({{ p.base_type }})
-              </option>
-            </select>
-          </div>
+          <FormSelect
+            v-model="form.profile_id"
+            label="Profil POS"
+            :options="profiles.map(p => ({ label: `${p.name} (${p.base_type})`, value: p.id }))"
+            placeholder="Pilih Profil POS..."
+            required
+          />
 
-          <div>
-            <label class="block text-sm font-medium text-ink-700">Gudang / Sumber Stok</label>
-            <select
-              v-model="form.warehouse_id"
-              class="mt-1 block w-full rounded-md border-surface-300 text-sm focus:border-primary-500 focus:ring-primary-500"
-            >
-              <option v-for="w in warehouses" :key="w.id" :value="w.id">
-                {{ w.name }}
-              </option>
-            </select>
-          </div>
+          <FormSelect
+            v-model="form.warehouse_id"
+            label="Gudang / Sumber Stok"
+            :options="warehouses.map(w => ({ label: w.name, value: w.id }))"
+            placeholder="Pilih Gudang..."
+            required
+          />
 
-          <div>
-            <label class="block text-sm font-medium text-ink-700">Prefix Struk</label>
-            <input
-              v-model="form.receipt_prefix"
-              type="text"
-              maxlength="10"
-              class="mt-1 block w-full rounded-md border-surface-300 font-mono text-sm focus:border-primary-500 focus:ring-primary-500"
-            />
-          </div>
+          <FormInput
+            v-model="form.receipt_prefix"
+            label="Prefix Struk"
+            placeholder="POS-"
+          />
         </div>
 
         <div class="mt-6 flex justify-end gap-3">

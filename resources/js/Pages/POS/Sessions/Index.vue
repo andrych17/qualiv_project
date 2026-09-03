@@ -9,6 +9,9 @@ import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 import Modal from '@/Components/Modal.vue'
+import FormInput from '@/Components/forms/FormInput.vue'
+import FormSelect from '@/Components/forms/FormSelect.vue'
+import FormTextarea from '@/Components/forms/FormTextarea.vue'
 import { formatCurrency, formatDate } from '@/Utils/formatters'
 import { debounce } from '@/Composables/debounce'
 import { Plus } from 'lucide-vue-next'
@@ -260,33 +263,25 @@ const handleCloseSession = () => {
         <p class="mt-1 text-sm text-ink-600">Pilih terminal kasir dan tetapkan modal kas awal (float cash).</p>
 
         <div class="mt-4 space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-ink-700">Terminal</label>
-            <div v-if="!terminals || terminals.length === 0" class="mt-1 rounded-md bg-amber-50 p-2 text-xs text-amber-700">
-              Belum ada terminal kasir. Daftarkan terminal kasir terlebih dahulu di menu Terminals & Devices.
-            </div>
-            <select
-              v-else
-              v-model="selectedTerminal"
-              class="mt-1 block w-full rounded-md border-surface-300 text-sm focus:border-primary-500 focus:ring-primary-500"
-            >
-              <option value="" disabled>-- Pilih Terminal --</option>
-              <option v-for="t in terminals" :key="t.id" :value="t.id">
-                {{ t.name }} ({{ t.code }})
-              </option>
-            </select>
+          <div v-if="!terminals || terminals.length === 0" class="rounded-md border border-signal-warning/30 bg-signal-warning/10 p-3 text-xs text-signal-warning">
+            Belum ada terminal kasir. Daftarkan terminal kasir terlebih dahulu di menu Terminals & Devices.
           </div>
+          <FormSelect
+            v-else
+            v-model="selectedTerminal"
+            label="Terminal"
+            :options="terminals.map(t => ({ label: `${t.name} (${t.code})`, value: t.id }))"
+            placeholder="-- Pilih Terminal --"
+            required
+          />
 
-          <div>
-            <label class="block text-sm font-medium text-ink-700">Modal Kas Awal (IDR)</label>
-            <input
-              v-model.number="openingCashAmount"
-              type="number"
-              min="0"
-              step="1000"
-              class="mt-1 block w-full rounded-md border-surface-300 font-mono text-base focus:border-primary-500 focus:ring-primary-500"
-            />
-          </div>
+          <FormInput
+            v-model.number="openingCashAmount"
+            type="number"
+            label="Modal Kas Awal (IDR)"
+            placeholder="0"
+            required
+          />
         </div>
 
         <div class="mt-6 flex justify-end gap-3">
@@ -305,26 +300,21 @@ const handleCloseSession = () => {
         <p class="mt-1 text-sm text-ink-600">Hitung uang fisik di laci kasir dan masukkan total kas akhir.</p>
 
         <div class="mt-4 space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-ink-700">Total Kas Akhir Fisik (IDR)</label>
-            <input
-              v-model.number="closingCashAmount"
-              type="number"
-              min="0"
-              step="1000"
-              class="mt-1 block w-full rounded-md border-surface-300 font-mono text-base font-bold text-primary-700 focus:border-primary-500 focus:ring-primary-500"
-            />
-          </div>
+          <FormInput
+            v-model.number="closingCashAmount"
+            type="number"
+            label="Total Kas Akhir Fisik (IDR)"
+            placeholder="0"
+            required
+          />
 
-          <div>
-            <label class="block text-sm font-medium text-ink-700">Catatan Rekonsiliasi / Shift</label>
-            <textarea
-              v-model="closingNotes"
-              rows="3"
-              placeholder="Keterangan bila ada selisih kas atau kendala shift..."
-              class="mt-1 block w-full rounded-md border-surface-300 text-sm focus:border-primary-500 focus:ring-primary-500"
-            ></textarea>
-          </div>
+          <FormTextarea
+            v-model="closingNotes"
+            name="closing_notes"
+            label="Catatan Rekonsiliasi / Shift"
+            placeholder="Keterangan bila ada selisih kas atau kendala shift..."
+            :rows="3"
+          />
         </div>
 
         <div class="mt-6 flex justify-end gap-3">

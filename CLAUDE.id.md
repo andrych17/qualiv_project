@@ -443,6 +443,11 @@ STRICT:
 8. Pengecualian: path eksplisit user; non-codebase (git/SQL/MCP-DB/build/config); graphify CLI/MCP error total (laporkan + fallback).
 
 
+## Standar Ketat Komponen UI (Kepatuhan Tema & Dark Mode)
+- **LARANGAN KERAS Tag Form Mentah:** DILARANG menulis `<input>`, `<select>`, atau `<textarea>` langsung di template halaman/modal. SELALU gunakan komponen standar dari `@/Components/forms/` (`FormInput`, `FormSelect`, `FormTextarea`, `FormCurrencyInput`, `FormNumberInput`) serta `@/Components/Checkbox.vue`. Tag mentah mengabaikan tema dan merusak Dark Mode.
+- **LARANGAN KERAS Background Putih Hardcoded:** DILARANG menulis `bg-white`, `border-surface-200/300`, atau `text-primary-700`. SELALU gunakan token semantik: `bg-surface-0`, `bg-surface-50`, `border-border`, `text-ink-900`, `text-ink-600`, `text-accent`.
+- `Modal.vue` sudah memiliki style `bg-surface-0 border-border text-ink-900` — JANGAN bungkus konten modal dengan `bg-white`.
+
 ---
 
 ## Caveman - Mode Respons Chat
