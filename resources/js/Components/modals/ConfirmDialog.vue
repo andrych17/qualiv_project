@@ -33,11 +33,11 @@ const handleConfirm = () => {
       <div class="flex flex-row-reverse gap-2 border-t border-border bg-surface-50 px-6 py-3">
         <button
           type="button"
-          class="inline-flex items-center justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent cursor-pointer"
+          class="inline-flex items-center justify-center rounded-md px-3 py-2 text-sm font-semibold shadow-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent cursor-pointer"
           :class="
             confirmState?.variant === 'destructive'
-              ? 'bg-signal-danger hover:bg-signal-danger/90'
-              : 'bg-accent hover:bg-accent/90'
+              ? 'bg-signal-danger hover:bg-signal-danger/90 text-white'
+              : 'bg-accent hover:bg-accent/90 text-accent-text'
           "
           @click="handleConfirm"
         >

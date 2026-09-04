@@ -78,10 +78,10 @@ Catatan:
 ## 4. Multi-Tenancy
 
 - Mode B: **satu database PostgreSQL per tenant** (`tenant_{id}`), lewat `stancl/tenancy`. Data aplikasi tenant **tidak** memakai kolom `tenant_id` — isolasi adalah batas DB.
-- DB Pusat (`nusaevo`) menyimpan registry tenant + login lookup (`tenant_user_lookups`) + **plan** (`tenants.plan`). User dan data modul ada di DB tenant.
+- DB Pusat (`nusaevo` / di VPS `ErpApp1`): menyimpan registry tenant + login lookup (`tenant_user_lookups`) + **plan** (`tenants.plan`). User dan data modul ada di DB tenant.
 - Di dalam setiap DB tenant, modul mendapat schema terpisah (`SYSCONFIG`, `WNE`, `DMS`, `CRM`,
   `SCHEDULE`, `INVENTORY`, `ACCOUNTING`, `SALES`, `PURCHASE`, `HCM`, `PAYROLL`, `PERF`,
-  `AIINSIGHT`, `LEGAL`, `CUSTOMFIELDS`, `PROJECTS`). Lihat §7A untuk daftar otoritatifnya. (Ini
+  `AIINSIGHT`, `LEGAL`, `CUSTOMFIELDS`, `PROJECTS`, `PP`, `MES`, `POS`). Lihat §7A untuk daftar otoritatifnya. (Ini
   menyatukan schema `NOTIFICATIONS`/`WORKFLOW` lama yang terpisah menjadi satu schema `WNE`,
   sesuai `WNE_SPECS.md` — versi lebih lama dari section ini masih memakai nama pra-merger.)
 - Resolusi tenant **terikat-login** (session `tenant_id` setelah lookup email), bukan
@@ -92,6 +92,16 @@ Catatan:
   middleware `module:CODE`. Menu sidebar juga menyembunyikan modul yang tidak ada di plan.
 - Otorisasi di dalam tenant: trustee SYSCONFIG (C/R/U/D) lewat middleware `menu.perm:MENU_CODE`
   (bukan pengganti isolasi DB).
+
+### ⚠️ KRUSIAL: Pembeda Database dengan `netapp1` (VPS `netadm`)
+- **JANGAN SAMPAI SALAH / TERTUKAR DENGAN `netapp1`**: Server VPS `netadm` (`213.210.21.204`) menampung beberapa project sekaligus. Nusaevo ERP **sepenuhnya terpisah** dari `netapp1` (`app.nusaevo.com`).
+- **Database Nusaevo ERP (`nusaevo-erp`)**:
+  - **Production:** `ErpApp1` (User: `netpgprd1`, Lokasi: `/var/www/erp.nusaevo.com`)
+  - **Staging:** `ErpApp1_stg` (User: `netpgdev1`, Lokasi: `/var/www/staging-erp.nusaevo.com`)
+  - **Redis:** Port `6380` (prod), Port `6379` (staging)
+- **Database NetApp1 (DILARANG KERAS DISENTUH UNTUK ERP)**:
+  - `SysConfig1` / `SysConfig1_stg`, `TrdJewel1*`, `TrdRetail1*`, `TrdTire1*`, `TrdTire2*`, dll. (Milik `/var/www/nusaevo` dan `/var/www/staging.nusaevo`).
+- **Aturan Keamanan:** Jangan pernah menjalankan migrasi, seeding, atau manipulasi data apa pun ke `SysConfig1` atau database `Trd*` / `netapp1` saat bekerja pada project `nusaevo-erp`. Selalu pastikan target database adalah `ErpApp1` (atau `ErpApp1_stg`).
 
 ## 5. Urutan Build
 
@@ -432,6 +442,11 @@ STRICT:
 7. Subagent ikut aturan ini.
 8. Pengecualian: path eksplisit user; non-codebase (git/SQL/MCP-DB/build/config); graphify CLI/MCP error total (laporkan + fallback).
 
+
+## Standar Ketat Komponen UI (Kepatuhan Tema & Dark Mode)
+- **LARANGAN KERAS Tag Form Mentah:** DILARANG menulis `<input>`, `<select>`, atau `<textarea>` langsung di template halaman/modal. SELALU gunakan komponen standar dari `@/Components/forms/` (`FormInput`, `FormSelect`, `FormTextarea`, `FormCurrencyInput`, `FormNumberInput`) serta `@/Components/Checkbox.vue`. Tag mentah mengabaikan tema dan merusak Dark Mode.
+- **LARANGAN KERAS Background Putih Hardcoded:** DILARANG menulis `bg-white`, `border-surface-200/300`, atau `text-primary-700`. SELALU gunakan token semantik: `bg-surface-0`, `bg-surface-50`, `border-border`, `text-ink-900`, `text-ink-600`, `text-accent`.
+- `Modal.vue` sudah memiliki style `bg-surface-0 border-border text-ink-900` — JANGAN bungkus konten modal dengan `bg-white`.
 
 ---
 

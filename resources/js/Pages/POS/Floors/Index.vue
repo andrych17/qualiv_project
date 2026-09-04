@@ -8,6 +8,7 @@ import Panel from '@/Components/cards/Panel.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
 import Modal from '@/Components/Modal.vue'
+import FormInput from '@/Components/forms/FormInput.vue'
 import { formatCurrency } from '@/Utils/formatters'
 import { Utensils, Plus, Users, CheckCircle2, Clock } from 'lucide-vue-next'
 
@@ -106,15 +107,15 @@ const viewTable = (table: Table) => {
     </PageHeader>
 
     <!-- Floor Tabs -->
-    <div v-if="floors.length > 0" class="mt-6 flex border-b border-surface-200">
+    <div v-if="floors.length > 0" class="mt-6 flex border-b border-border">
       <button
         v-for="floor in floors"
         :key="floor.id"
         :class="[
           'border-b-2 px-4 py-2.5 text-sm font-semibold transition',
           activeFloorId === floor.id
-            ? 'border-primary-600 text-primary-700'
-            : 'border-transparent text-ink-500 hover:border-surface-300 hover:text-ink-700'
+            ? 'border-accent text-accent'
+            : 'border-transparent text-ink-600 hover:border-border hover:text-ink-900'
         ]"
         @click="activeFloorId = floor.id"
       >
@@ -131,10 +132,10 @@ const viewTable = (table: Table) => {
           :class="[
             'relative flex flex-col justify-between rounded-xl border p-4 shadow-sm transition hover:shadow cursor-pointer',
             table.status === 'occupied'
-              ? 'border-rose-300 bg-rose-50/60'
+              ? 'border-signal-danger/40 bg-signal-danger/10 hover:bg-signal-danger/15'
               : table.status === 'reserved'
-              ? 'border-amber-300 bg-amber-50/60'
-              : 'border-surface-200 bg-white'
+              ? 'border-signal-warning/40 bg-signal-warning/10 hover:bg-signal-warning/15'
+              : 'border-border bg-surface-0 hover:border-accent hover:bg-surface-50'
           ]"
           @click="viewTable(table)"
         >
@@ -144,12 +145,12 @@ const viewTable = (table: Table) => {
             </span>
             <span
               :class="[
-                'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase',
+                'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase border',
                 table.status === 'occupied'
-                  ? 'bg-rose-100 text-rose-800'
+                  ? 'border-signal-danger/30 bg-signal-danger/20 text-signal-danger'
                   : table.status === 'reserved'
-                  ? 'bg-amber-100 text-amber-800'
-                  : 'bg-emerald-100 text-emerald-800'
+                  ? 'border-signal-warning/30 bg-signal-warning/20 text-signal-warning'
+                  : 'border-signal-success/30 bg-signal-success/20 text-signal-success'
               ]"
             >
               {{ table.status }}
@@ -157,23 +158,23 @@ const viewTable = (table: Table) => {
           </div>
 
           <div class="mt-3">
-            <div class="flex items-center gap-1 text-xs text-ink-500">
+            <div class="flex items-center gap-1 text-xs text-ink-600">
               <Users class="h-3.5 w-3.5" />
               <span>{{ table.capacity }} Kursi</span>
             </div>
 
-            <div v-if="table.active_transaction" class="mt-2 border-t border-surface-200 pt-2 font-mono text-xs font-bold text-rose-700">
+            <div v-if="table.active_transaction" class="mt-2 border-t border-border pt-2 font-mono text-xs font-bold text-signal-danger">
               {{ formatCurrency(table.active_transaction.grand_total) }}
             </div>
-            <div v-else class="mt-2 border-t border-transparent pt-2 text-xs text-ink-400">
+            <div v-else class="mt-2 border-t border-transparent pt-2 text-xs text-ink-600">
               Kosong
             </div>
           </div>
         </div>
       </div>
 
-      <div v-else class="rounded-lg border border-dashed border-surface-300 bg-surface-50 p-12 text-center text-ink-500">
-        <Utensils class="mx-auto h-8 w-8 text-ink-400" />
+      <div v-else class="rounded-lg border border-dashed border-border bg-surface-0 p-12 text-center text-ink-600">
+        <Utensils class="mx-auto h-8 w-8 text-ink-600" />
         <p class="mt-2 text-sm font-medium">Belum ada meja yang terdaftar di lantai ini.</p>
       </div>
     </div>
@@ -181,32 +182,32 @@ const viewTable = (table: Table) => {
     <!-- Modal Detail Meja -->
     <Modal :show="showDetailModal" @close="showDetailModal = false">
       <div v-if="selectedTable" class="p-6">
-        <div class="flex items-center justify-between border-b border-surface-200 pb-3">
+        <div class="flex items-center justify-between border-b border-border pb-3">
           <h3 class="text-lg font-bold text-ink-900">Meja #{{ selectedTable.table_no }}</h3>
-          <span class="rounded-full bg-surface-100 px-2.5 py-1 text-xs font-semibold capitalize text-ink-800">
+          <span class="rounded-full border border-border bg-surface-50 px-2.5 py-1 text-xs font-semibold capitalize text-ink-900">
             {{ selectedTable.status }}
           </span>
         </div>
 
         <div v-if="selectedTable.active_transaction" class="mt-4">
-          <p class="text-xs text-ink-500">No. Tagihan: {{ selectedTable.active_transaction.txn_no }}</p>
+          <p class="text-xs text-ink-600">No. Tagihan: {{ selectedTable.active_transaction.txn_no }}</p>
           <div class="mt-2 max-h-48 space-y-2 overflow-y-auto pr-1 text-sm">
             <div
               v-for="item in selectedTable.active_transaction.lines"
               :key="item.id"
-              class="flex justify-between border-b border-surface-100 pb-1"
+              class="flex justify-between border-b border-border pb-1 text-ink-900"
             >
               <span>{{ item.qty }}x {{ item.description }}</span>
               <span class="font-mono font-medium">{{ formatCurrency(item.line_total) }}</span>
             </div>
           </div>
 
-          <div class="mt-4 flex justify-between border-t border-surface-200 pt-2 font-bold">
+          <div class="mt-4 flex justify-between border-t border-border pt-2 font-bold text-ink-900">
             <span>Total Tagihan</span>
-            <span class="font-mono text-rose-700">{{ formatCurrency(selectedTable.active_transaction.grand_total) }}</span>
+            <span class="font-mono text-signal-danger">{{ formatCurrency(selectedTable.active_transaction.grand_total) }}</span>
           </div>
         </div>
-        <div v-else class="py-8 text-center text-sm text-ink-400">
+        <div v-else class="py-8 text-center text-sm text-ink-600">
           Meja ini sedang tidak memiliki pesanan aktif.
         </div>
 
@@ -223,26 +224,20 @@ const viewTable = (table: Table) => {
         <p class="mt-1 text-sm text-ink-600">Daftarkan nomor meja dan kapasitas kursi pada lantai aktif.</p>
 
         <div class="mt-4 space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-ink-700">Nomor / Nama Meja</label>
-            <input
-              v-model="tableForm.table_no"
-              type="text"
-              placeholder="Contoh: 01, VIP-A"
-              class="mt-1 block w-full rounded-md border-surface-300 font-mono text-sm focus:border-primary-500 focus:ring-primary-500"
-            />
-          </div>
+          <FormInput
+            v-model="tableForm.table_no"
+            label="Nomor / Nama Meja"
+            placeholder="Contoh: 01, VIP-A"
+            required
+          />
 
-          <div>
-            <label class="block text-sm font-medium text-ink-700">Kapasitas Kursi</label>
-            <input
-              v-model.number="tableForm.capacity"
-              type="number"
-              min="1"
-              max="50"
-              class="mt-1 block w-full rounded-md border-surface-300 font-mono text-sm focus:border-primary-500 focus:ring-primary-500"
-            />
-          </div>
+          <FormInput
+            v-model.number="tableForm.capacity"
+            type="number"
+            label="Kapasitas Kursi"
+            placeholder="4"
+            required
+          />
         </div>
 
         <div class="mt-6 flex justify-end gap-3">

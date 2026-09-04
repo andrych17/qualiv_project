@@ -82,7 +82,7 @@ const submitSaveView = () => {
       >
         <SlidersHorizontal class="h-3.5 w-3.5" />
         Filters
-        <span v-if="activeFilterCount > 0" class="ml-0.5 rounded-full bg-accent px-1.5 text-[10px] font-semibold text-white">
+        <span v-if="activeFilterCount > 0" class="ml-0.5 rounded-full bg-accent px-1.5 text-[10px] font-semibold text-accent-text">
           {{ activeFilterCount }}
         </span>
       </button>

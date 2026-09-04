@@ -122,7 +122,7 @@ const updateStage = (oppId: number, newStage: string) => {
           type="button"
           @click="viewMode = 'board'"
           class="px-3 py-1.5 text-xs font-medium rounded transition"
-          :class="viewMode === 'board' ? 'bg-ink-900 text-white font-semibold' : 'text-ink-600 hover:text-ink-900'"
+          :class="viewMode === 'board' ? 'bg-ink-900 text-surface-0 font-semibold' : 'text-ink-600 hover:text-ink-900'"
         >
           Kanban Board
         </button>
@@ -130,7 +130,7 @@ const updateStage = (oppId: number, newStage: string) => {
           type="button"
           @click="viewMode = 'list'"
           class="px-3 py-1.5 text-xs font-medium rounded transition"
-          :class="viewMode === 'list' ? 'bg-ink-900 text-white font-semibold' : 'text-ink-600 hover:text-ink-900'"
+          :class="viewMode === 'list' ? 'bg-ink-900 text-surface-0 font-semibold' : 'text-ink-600 hover:text-ink-900'"
         >
           List View
         </button>

@@ -180,7 +180,7 @@ const activeQueueTab = ref<'opportunities' | 'quotes' | 'orders' | 'overdue'>('o
             type="button"
             @click="activeQueueTab = 'opportunities'"
             class="px-3 py-1.5 text-xs font-medium rounded-md transition"
-            :class="activeQueueTab === 'opportunities' ? 'bg-ink-900 text-white' : 'text-ink-600 hover:bg-surface-100'"
+            :class="activeQueueTab === 'opportunities' ? 'bg-ink-900 text-surface-0 font-semibold' : 'text-ink-600 hover:bg-surface-50'"
           >
             My Opportunities ({{ props.myOpportunities.length }})
           </button>
@@ -188,7 +188,7 @@ const activeQueueTab = ref<'opportunities' | 'quotes' | 'orders' | 'overdue'>('o
             type="button"
             @click="activeQueueTab = 'quotes'"
             class="px-3 py-1.5 text-xs font-medium rounded-md transition"
-            :class="activeQueueTab === 'quotes' ? 'bg-ink-900 text-white' : 'text-ink-600 hover:bg-surface-100'"
+            :class="activeQueueTab === 'quotes' ? 'bg-ink-900 text-surface-0 font-semibold' : 'text-ink-600 hover:bg-surface-50'"
           >
             My Quotes ({{ props.myQuotes.length }})
           </button>
@@ -196,7 +196,7 @@ const activeQueueTab = ref<'opportunities' | 'quotes' | 'orders' | 'overdue'>('o
             type="button"
             @click="activeQueueTab = 'orders'"
             class="px-3 py-1.5 text-xs font-medium rounded-md transition"
-            :class="activeQueueTab === 'orders' ? 'bg-ink-900 text-white' : 'text-ink-600 hover:bg-surface-100'"
+            :class="activeQueueTab === 'orders' ? 'bg-ink-900 text-surface-0 font-semibold' : 'text-ink-600 hover:bg-surface-50'"
           >
             My Orders ({{ props.myOrders.length }})
           </button>
@@ -204,7 +204,7 @@ const activeQueueTab = ref<'opportunities' | 'quotes' | 'orders' | 'overdue'>('o
             type="button"
             @click="activeQueueTab = 'overdue'"
             class="px-3 py-1.5 text-xs font-medium rounded-md transition"
-            :class="activeQueueTab === 'overdue' ? 'bg-rose-700 text-white' : 'text-ink-600 hover:bg-surface-100'"
+            :class="activeQueueTab === 'overdue' ? 'bg-signal-danger text-white font-semibold' : 'text-ink-600 hover:bg-surface-50'"
           >
             Overdue Invoices ({{ props.overdueInvoices.length }})
           </button>

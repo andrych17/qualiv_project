@@ -92,7 +92,7 @@ const filteredExceptions = computed(() => {
         <button
           type="button"
           class="px-3 py-1.5 text-xs font-medium rounded-md transition"
-          :class="currentStatus === 'open' ? 'bg-accent text-white' : 'bg-surface border border-border text-ink-700 hover:bg-surface-elevated'"
+          :class="currentStatus === 'open' ? 'bg-accent text-accent-text font-semibold' : 'bg-surface-0 border border-border text-ink-600 hover:bg-surface-50'"
           @click="filterStatus('open')"
         >
           Open Exceptions
@@ -100,7 +100,7 @@ const filteredExceptions = computed(() => {
         <button
           type="button"
           class="px-3 py-1.5 text-xs font-medium rounded-md transition"
-          :class="currentStatus === 'resolved' ? 'bg-accent text-white' : 'bg-surface border border-border text-ink-700 hover:bg-surface-elevated'"
+          :class="currentStatus === 'resolved' ? 'bg-accent text-accent-text font-semibold' : 'bg-surface-0 border border-border text-ink-600 hover:bg-surface-50'"
           @click="filterStatus('resolved')"
         >
           Resolved
@@ -108,7 +108,7 @@ const filteredExceptions = computed(() => {
         <button
           type="button"
           class="px-3 py-1.5 text-xs font-medium rounded-md transition"
-          :class="currentStatus === 'all' ? 'bg-accent text-white' : 'bg-surface border border-border text-ink-700 hover:bg-surface-elevated'"
+          :class="currentStatus === 'all' ? 'bg-accent text-accent-text font-semibold' : 'bg-surface-0 border border-border text-ink-600 hover:bg-surface-50'"
           @click="filterStatus('all')"
         >
           All Exceptions

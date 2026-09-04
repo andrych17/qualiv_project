@@ -17,9 +17,20 @@ A **multi-tenant SaaS ERP platform**, architected as a **modular monolith** (Odo
 ## 2. Multi-Tenancy & Database Architecture
 
 - **Isolation Strategy:** Mode B — **one PostgreSQL database per tenant** (`tenant_{id}`) managed via `stancl/tenancy`.
-- **Central DB (`nusaevo`):** Holds tenant registry, user lookup (`tenant_user_lookups`), and tenant plan entitlement (`tenants.plan`).
+- **Central DB (`nusaevo` / VPS `ErpApp1`):** Holds tenant registry, user lookup (`tenant_user_lookups`), and tenant plan entitlement (`tenants.plan`).
 - **Tenant DB Schemas:** Modules have isolated schemas inside each tenant database:
   `SYSCONFIG`, `WNE`, `DMS`, `CRM`, `SCHEDULE`, `INVENTORY`, `ACCOUNTING`, `SALES`, `PURCHASE`, `HCM`, `PAYROLL`, `PERF`, `PROJECTS`, `AIINSIGHT`, `CUSTOMFIELDS`.
+
+### ⚠️ CRITICAL: Database Differentiation from `netapp1` (VPS `netadm`)
+- **NEVER CONFUSE WITH `netapp1`**: The VPS server `netadm` (`213.210.21.204`) hosts both `netapp1` (`app.nusaevo.com`) and `erp-nusaevo` (`erp.nusaevo.com`). Their databases and codebases are **completely separate**.
+- **Nusaevo ERP Databases (`nusaevo-erp`)**:
+  - **Production:** `ErpApp1` (User: `netpgprd1`, Path: `/var/www/erp.nusaevo.com`)
+  - **Staging:** `ErpApp1_stg` (User: `netpgdev1`, Path: `/var/www/staging-erp.nusaevo.com`)
+  - **Redis:** Port `6380` (prod), Port `6379` (staging)
+- **NetApp1 Databases (DO NOT TOUCH / OFF LIMITS)**:
+  - `SysConfig1` / `SysConfig1_stg`, `TrdJewel1*`, `TrdRetail1*`, `TrdTire1*`, `TrdTire2*`, etc. (located under `/var/www/nusaevo` and `/var/www/staging.nusaevo`).
+- **Safety Rule:** NEVER run migrations, seeders, or database mutations against `SysConfig1` or any `Trd*` / `netapp1` database when working on `nusaevo-erp`. Always ensure target database is `ErpApp1` (or `ErpApp1_stg`).
+
 - **Customization Ladder (No `tenant_id` branches):**
   1. Constants (`SYSCONFIG.config_consts`)
   2. Serials (`SYSCONFIG.config_snums`)
@@ -40,13 +51,13 @@ Every UI view in `resources/js/Pages/` **must strictly compose from shared compo
 - **MUST** use `@/Components/Modal.vue`:
   ```vue
   <Modal :show="showModal" max-width="md" @close="showModal = false">
-    <div class="p-6 bg-white rounded-lg">
-      <!-- Content here -->
+    <div class="p-6">
+      <!-- Content here (Modal.vue already applies bg-surface-0, border-border, and text-ink-900) -->
     </div>
   </Modal>
   ```
 - **NEVER** write inline overlays like `<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50...">`.
-- **Modal Inner Card:** Must always have an opaque background (`bg-white` or `bg-surface rounded-lg p-6`). Never leave the modal card transparent.
+- **Modal Background:** `Modal.vue` is already styled with `bg-surface-0 border-border text-ink-900`. **NEVER** add `bg-white` inside modal slots, as it completely breaks dark themes.
 - **Confirmation Prompts:** For delete/confirmation dialogs, **MUST** use `@/Components/modals/ConfirmDialog.vue` triggered via `useConfirm()` composable:
   ```ts
   import { useConfirm } from '@/Composables/useConfirmDialog'
@@ -61,12 +72,16 @@ Every UI view in `resources/js/Pages/` **must strictly compose from shared compo
   ```
   **NEVER** use browser-native `window.confirm()` or alert popups.
 
-### B. Form Controls & Inputs (`@/Components/forms/`)
+### B. Form Controls & Inputs (`@/Components/forms/`) — STRICT BAN ON RAW INPUTS
+⚠️ **CRITICAL ENFORCEMENT: NEVER use raw HTML `<input>`, `<select>`, or `<textarea>` elements in pages or modals.**
+Raw form elements bypass design system theme tokens (`bg-surface-0`, `border-border`, `text-ink-900`, `focus:ring-accent/20`), causing blinding white boxes and illegible text in dark mode.
+
 - **Text, Email, Date:** `FormInput.vue` (includes label, required asterisk, and error message).
 - **Currency & Monetary Amounts:** `FormCurrencyInput.vue` (supports thousand separator, optional decimal precision, prefix `Rp`/`$`, live terbilang preview, and cursor preservation).
 - **Numeric & Quantity Amounts:** `FormNumberInput.vue` (supports thousand separator, decimals, customizable suffix e.g. `pcs`, `unit`).
 - **Multi-line Text:** `FormTextarea.vue`.
 - **Standard Select:** `FormSelect.vue`.
+- **Checkboxes:** `Checkbox.vue` (`@/Components/Checkbox.vue` with theme-reactive accent).
 - **Single Searchable Select (In-memory):** `FormSearchableSelect.vue`.
 - **Async Remote Searchable Select:** `FormAsyncSearchableSelect.vue` (for large datasets: partners, products, users).
 - **Multi-Select Tags/Pills:** `FormMultiSelect.vue`:

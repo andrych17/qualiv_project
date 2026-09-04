@@ -82,7 +82,7 @@ Notes:
 ## 4. Multi-Tenancy
 
 - Mode B: **one PostgreSQL database per tenant** (`tenant_{id}`), via `stancl/tenancy`. Tenant app data does **not** use a `tenant_id` column — isolation is the DB boundary.
-- Central DB (`nusaevo`) holds tenant registry + login lookup (`tenant_user_lookups`) + **plan** (`tenants.plan`), plus plan/entitlement, billing, and dunning tables — see `CENTRAL_SPECS.md` for the full schema; this is the Platform-level module described in §2. Users and module data live in the tenant DB.
+- Central DB (`nusaevo` / on VPS `ErpApp1`): holds tenant registry + login lookup (`tenant_user_lookups`) + **plan** (`tenants.plan`), plus plan/entitlement, billing, and dunning tables — see `CENTRAL_SPECS.md` for the full schema; this is the Platform-level module described in §2. Users and module data live in the tenant DB.
 - Inside each tenant DB, modules get separate schemas (`SYSCONFIG`, `WNE`, `DMS`, `CRM`,
   `SCHEDULE`, `INVENTORY`, `ACCOUNTING`, `SALES`, `PURCHASE`, `HCM`, `PAYROLL`, `PERF`,
   `AIINSIGHT`, `LEGAL`, `CUSTOMFIELDS`, `PROJECTS`, `PP`, `MES`, `POS`). See §7A for the authoritative list. (This consolidates
@@ -92,6 +92,16 @@ Notes:
 - Queue/cache/filesystem are tenant-aware via stancl bootstrappers. Do **not** use PostgreSQL RLS.
 - Plan/feature-flagging: `config/tenant_modules.php` + `TenantFeatureService` + middleware `module:CODE`. Sidebar menus also hide modules not on the plan.
 - Authorization inside a tenant: SYSCONFIG trustee (C/R/U/D) via middleware `menu.perm:MENU_CODE` (not a substitute for DB isolation).
+
+### ⚠️ CRITICAL: Database Differentiation from `netapp1` (VPS `netadm`)
+- **NEVER CONFUSE WITH `netapp1`**: The VPS server `netadm` (`213.210.21.204`) hosts both `netapp1` (`app.nusaevo.com`) and `erp-nusaevo` (`erp.nusaevo.com`). Their databases and codebases are **completely separate**.
+- **Nusaevo ERP Databases (`nusaevo-erp`)**:
+  - **Production:** `ErpApp1` (User: `netpgprd1`, Path: `/var/www/erp.nusaevo.com`)
+  - **Staging:** `ErpApp1_stg` (User: `netpgdev1`, Path: `/var/www/staging-erp.nusaevo.com`)
+  - **Redis:** Port `6380` (prod), Port `6379` (staging)
+- **NetApp1 Databases (STRICTLY OFF LIMITS FOR ERP)**:
+  - `SysConfig1` / `SysConfig1_stg`, `TrdJewel1*`, `TrdRetail1*`, `TrdTire1*`, `TrdTire2*`, etc. (located under `/var/www/nusaevo` and `/var/www/staging.nusaevo`).
+- **Safety Rule:** NEVER run migrations, seeders, or database mutations against `SysConfig1` or any `Trd*` / `netapp1` database when working on `nusaevo-erp`. Always ensure target database is `ErpApp1` (or `ErpApp1_stg`).
 
 ## 5. Build Order
 
@@ -440,6 +450,11 @@ Rules:
 Auto-Clarity: drop caveman for security warnings, irreversible actions, user confused. Resume after.
 Boundaries: code/commits/PRs written normal.
 <!-- caveman-end -->
+
+## Strict UI Component Standards (Theme & Dark Mode Compliance)
+- **STRICT BAN on Raw Form Tags:** NEVER write `<input>`, `<select>`, or `<textarea>` directly in pages or modals. ALWAYS use standard components from `@/Components/forms/` (`FormInput`, `FormSelect`, `FormTextarea`, `FormCurrencyInput`, `FormNumberInput`) and `@/Components/Checkbox.vue`. Raw inputs bypass theme tokens and break Dark Mode.
+- **STRICT BAN on Hardcoded White Backgrounds:** NEVER write `bg-white`, `border-surface-200/300`, or `text-primary-700` in views. ALWAYS use semantic tokens: `bg-surface-0`, `bg-surface-50`, `border-border`, `text-ink-900`, `text-ink-600`, `text-accent`.
+- `Modal.vue` is already styled with `bg-surface-0 border-border text-ink-900` — NEVER wrap modal contents in `bg-white`.
 
 ## Ponytail - Coding Mode
 
