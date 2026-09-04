@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\HCM\Models\Position;
 use App\Modules\HCM\Requests\StorePositionRequest;
 use App\Modules\HCM\Services\OrgStructureService;
+use App\Shared\Helpers\TableQuery;
 use App\Shared\Traits\BulkDeletable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

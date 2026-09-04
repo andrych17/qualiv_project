@@ -2,6 +2,8 @@
 
 namespace App\Modules\HCM\Services;
 
+use App\Modules\HCM\Models\Employee;
+use App\Modules\HCM\Models\EmploymentContract;
 use App\Modules\HCM\Models\LeaveBalance;
 use App\Modules\HCM\Models\LeavePolicy;
 use App\Modules\HCM\Models\LeaveRequest;
