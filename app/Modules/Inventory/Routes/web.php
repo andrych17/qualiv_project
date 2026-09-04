@@ -138,5 +138,5 @@ Route::middleware(['auth', 'verified', 'module:INVENTORY', 'menu.perm:INVENTORY'
         // INVENTORY.* schema; kept reachable during the transition, not linked from the
         // sidebar (see SysConfigSeeder's INVENTORY menu_link).
         Route::delete('items/bulk-destroy', [InventoryItemController::class, 'bulkDestroy'])->name('items.bulkDestroy');
-        Route::resource('items', InventoryItemController::class);
+        Route::resource('items', InventoryItemController::class)->except(['show']);
     });

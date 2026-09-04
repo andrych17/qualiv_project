@@ -74,23 +74,23 @@ class CycleCountController extends Controller
         return redirect()->route('inventory.cycleCounts.show', $count)->with('success', 'Cycle count generated.');
     }
 
-    public function show(CycleCount $count): Response
+    public function show(CycleCount $cycleCount): Response
     {
-        $lines = $count->lines()
+        $lines = $cycleCount->lines()
             ->with(['product:id,sku,name', 'batch:id,batch_number', 'location:id,code'])
             ->get()
             ->sortBy(fn (CycleCountLine $l) => $l->location?->code);
 
         return Inertia::render('Inventory/CycleCounts/Show', [
             'count' => [
-                'id' => $count->id,
-                'warehouse_id' => $count->warehouse_id,
-                'warehouse_name' => $count->warehouse?->name,
-                'scope' => $count->location ? "Location {$count->location->code}" : ($count->category ? "Category {$count->category->name}" : "ABC class {$count->abc_class}"),
-                'status' => $count->status,
-                'assigned_to' => $count->assigned_to,
-                'scheduled_date_formatted' => $count->scheduled_date?->format('d M Y'),
-                'completed_at_formatted' => $count->completed_at?->format('d M Y H:i'),
+                'id' => $cycleCount->id,
+                'warehouse_id' => $cycleCount->warehouse_id,
+                'warehouse_name' => $cycleCount->warehouse?->name,
+                'scope' => $cycleCount->location ? "Location {$cycleCount->location->code}" : ($cycleCount->category ? "Category {$cycleCount->category->name}" : "ABC class {$cycleCount->abc_class}"),
+                'status' => $cycleCount->status,
+                'assigned_to' => $cycleCount->assigned_to,
+                'scheduled_date_formatted' => $cycleCount->scheduled_date?->format('d M Y'),
+                'completed_at_formatted' => $cycleCount->completed_at?->format('d M Y H:i'),
             ],
             'lines' => $lines->map(fn (CycleCountLine $l) => [
                 'id' => $l->id,
@@ -109,16 +109,16 @@ class CycleCountController extends Controller
         ]);
     }
 
-    public function assign(Request $request, CycleCount $count)
+    public function assign(Request $request, CycleCount $cycleCount)
     {
         $data = $request->validate(['assigned_to' => 'nullable|integer']);
 
-        $this->service->assign($count, $data['assigned_to'] ?? null);
+        $this->service->assign($cycleCount, $data['assigned_to'] ?? null);
 
         return back()->with('success', 'Cycle count assignment updated.');
     }
 
-    public function countLine(Request $request, CycleCount $count, CycleCountLine $line)
+    public function countLine(Request $request, CycleCount $cycleCount, CycleCountLine $line)
     {
         $data = $request->validate(['counted_qty' => 'required|numeric|min:0']);
 
@@ -127,18 +127,18 @@ class CycleCountController extends Controller
         return back()->with('success', 'Line counted.');
     }
 
-    public function complete(CycleCount $count)
+    public function complete(CycleCount $cycleCount)
     {
-        $result = $this->service->complete($count);
+        $result = $this->service->complete($cycleCount);
 
         $ids = $result['adjustments']->pluck('id')->map(fn ($id) => "#{$id}")->implode(', ');
 
-        return redirect()->route('inventory.cycleCounts.show', $count)->with('success', "Count completed — drafted adjustment(s) {$ids} for review.");
+        return redirect()->route('inventory.cycleCounts.show', $cycleCount)->with('success', "Count completed — drafted adjustment(s) {$ids} for review.");
     }
 
-    public function destroy(CycleCount $count)
+    public function destroy(CycleCount $cycleCount)
     {
-        $this->service->delete($count);
+        $this->service->delete($cycleCount);
 
         return redirect()->route('inventory.cycleCounts.index')->with('success', 'Cycle count deleted.');
     }

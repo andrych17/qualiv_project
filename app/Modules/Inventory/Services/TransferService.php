@@ -7,6 +7,7 @@ use App\Modules\Inventory\Models\Product;
 use App\Modules\Inventory\Models\StockLedger;
 use App\Modules\Inventory\Models\Transfer;
 use App\Modules\Inventory\Models\TransferLine;
+use App\Modules\Inventory\Models\Warehouse;
 use App\Modules\Inventory\Services\Costing\CostingService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
