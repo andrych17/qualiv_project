@@ -92,7 +92,7 @@ class SysConfigSeeder extends Seeder
             ['code' => 'WNE', 'menu_header' => 'Core', 'menu_caption' => 'Workflow & Notifications', 'menu_link' => '/wne/dashboard', 'icon' => 'Workflow', 'seq' => 40, 'status_code' => 'A'],
             ['code' => 'DMS', 'menu_header' => 'Core', 'menu_caption' => 'Documents', 'menu_link' => '/dms/dashboard', 'icon' => 'FolderOpen', 'seq' => 45, 'status_code' => 'A'],
             ['code' => 'LEGAL', 'menu_header' => 'Vertical', 'menu_caption' => 'Legal', 'menu_link' => '/legal/dashboard', 'icon' => 'Scale', 'seq' => 60, 'status_code' => 'A'],
-            ['code' => 'PROJECTS', 'menu_header' => 'Internal', 'menu_caption' => 'Projects', 'menu_link' => '/projects/1', 'icon' => 'Kanban', 'seq' => 65, 'status_code' => 'A'],
+            ['code' => 'PROJECTS', 'menu_header' => 'Operations', 'menu_caption' => 'Projects', 'menu_link' => '/projects/1', 'icon' => 'Kanban', 'seq' => 65, 'status_code' => 'A'],
             ['code' => 'SALES', 'menu_header' => 'Operations', 'menu_caption' => 'Sales', 'menu_link' => '/sales/dashboard', 'icon' => 'ShoppingCart', 'seq' => 80, 'status_code' => 'A'],
             ['code' => 'PURCHASE', 'menu_header' => 'Operations', 'menu_caption' => 'Purchase', 'menu_link' => '/purchase/dashboard', 'icon' => 'Truck', 'seq' => 90, 'status_code' => 'A'],
             ['code' => 'ACCOUNTING', 'menu_header' => 'Operations', 'menu_caption' => 'Accounting', 'menu_link' => '/accounting/accounts', 'icon' => 'Calculator', 'seq' => 120, 'status_code' => 'A'],
@@ -109,6 +109,11 @@ class SysConfigSeeder extends Seeder
         ];
 
         $submenus = [
+            'PROJECTS' => [
+                ['code' => 'PROJECTS_BOARD', 'caption' => 'Kanban Board (QLV)', 'link' => '/projects/1', 'icon' => 'Kanban', 'seq' => 66],
+                ['code' => 'PROJECTS_ALL', 'caption' => 'Daftar Project', 'link' => '/projects', 'icon' => 'FolderKanban', 'seq' => 67],
+                ['code' => 'PROJECTS_NEW', 'caption' => 'Buat Project', 'link' => '/projects/create', 'icon' => 'PlusCircle', 'seq' => 68],
+            ],
             'SCHEDULE' => [
                 ['code' => 'SCHEDULE_DASHBOARD', 'caption' => 'Dashboard', 'link' => '/schedule/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 31],
                 ['code' => 'SCHEDULE_TASKS', 'caption' => 'Tasks', 'link' => '/schedule/tasks', 'icon' => 'CheckSquare', 'seq' => 32],

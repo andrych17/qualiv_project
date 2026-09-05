@@ -55,18 +55,6 @@ return [
             'POS',
             'DESIGN_SYSTEM',
         ],
-        'enterprise' => [
-            'PROJECTS',
-            'ACCOUNTING',
-            'CRM',
-            'SALES',
-        ],
-        'qualiv' => [
-            'PROJECTS',
-            'ACCOUNTING',
-            'CRM',
-            'SALES',
-        ],
         'internal' => [
             'PROJECTS',
             'HCM',
