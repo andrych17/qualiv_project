@@ -55,6 +55,12 @@ class Partner extends Model
             });
         })->when(($filters['status'] ?? null) !== null && $filters['status'] !== '', function ($query) use ($filters) {
             $query->where('is_active', $filters['status'] === 'active');
+        })->when($filters['role'] ?? null, function ($query, $role) {
+            if ($role === 'customer' || $role === 'vendor') {
+                $query->whereHas('roles.roleType', function ($q) use ($role) {
+                    $q->where('code', $role);
+                });
+            }
         });
     }
 

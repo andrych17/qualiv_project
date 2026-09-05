@@ -11,12 +11,18 @@ import { ref, watch } from 'vue'
 import { debounce } from '@/Composables/debounce'
 import { useConfirm } from '@/Composables/useConfirmDialog'
 
+interface RoleInfo {
+  code: string
+  name: string
+}
+
 interface CompanyRow {
   id: number
   uuid: string
   name: string
   trade_name: string | null
   industry_name: string | null
+  roles?: RoleInfo[]
   is_active: boolean
   created_at_formatted: string | null
 }
@@ -32,11 +38,14 @@ interface PaginatedData<T> {
 
 const props = defineProps<{
   companies: PaginatedData<CompanyRow>
-  filters: { search?: string; status?: string; sort?: string; direction?: string; per_page?: string }
+  filters: { search?: string; status?: string; role?: string; sort?: string; direction?: string; per_page?: string }
 }>()
 
 const search = ref(props.filters.search ?? '')
-const filters = ref({ status: props.filters.status ?? '' })
+const filters = ref({
+  status: props.filters.status ?? '',
+  role: props.filters.role ?? '',
+})
 const sort = ref<SortState>(
   props.filters.sort ? { key: props.filters.sort, direction: props.filters.direction === 'desc' ? 'desc' : 'asc' } : null,
 )
@@ -44,6 +53,16 @@ const selected = ref<Array<string | number>>([])
 const perPage = ref(Number(props.filters.per_page) || props.companies.per_page)
 
 const filterFields: FilterFieldDef[] = [
+  {
+    key: 'role',
+    label: 'Kategori Partner',
+    type: 'select',
+    options: [
+      { label: 'Semua Kategori', value: '' },
+      { label: 'Customer (Klien)', value: 'customer' },
+      { label: 'Vendor (Pemasok / Tech)', value: 'vendor' },
+    ],
+  },
   {
     key: 'status',
     label: 'Status',
@@ -58,11 +77,16 @@ const filterFields: FilterFieldDef[] = [
 const columns = [
   { key: 'name', label: 'Legal name', sortable: true },
   { key: 'trade_name', label: 'Trade name' },
+  { key: 'roles', label: 'Role / Kategori' },
   { key: 'industry_name', label: 'Industry' },
   { key: 'is_active', label: 'Status' },
   { key: 'created_at_formatted', label: 'Added', sortable: true, sortKey: 'created_at' },
   { key: 'actions', label: 'Actions', align: 'right' as const },
 ]
+
+const setRoleFilter = (roleValue: string) => {
+  filters.value.role = roleValue
+}
 
 watch([search, filters, sort, perPage], debounce(() => {
   selected.value = []
@@ -114,7 +138,37 @@ const confirmBulkDeactivate = () => {
 
     <CrmSubNav active="companies" class="mt-6" />
 
-    <div class="mt-6 space-y-4">
+    <!-- Role Filter Tabs (UI/UX Pro Max) -->
+    <div class="mt-6 flex flex-wrap items-center gap-2 border-b border-border pb-3">
+      <button
+        type="button"
+        @click="setRoleFilter('')"
+        class="inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors"
+        :class="!filters.role ? 'bg-primary text-on-primary shadow-xs' : 'bg-surface-100 text-ink-600 hover:bg-surface-200 hover:text-ink-900'"
+      >
+        <span>Semua Organisasi</span>
+      </button>
+      <button
+        type="button"
+        @click="setRoleFilter('customer')"
+        class="inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors"
+        :class="filters.role === 'customer' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100'"
+      >
+        <span class="inline-block h-2 w-2 rounded-full bg-indigo-400"></span>
+        <span>Klien / Customers</span>
+      </button>
+      <button
+        type="button"
+        @click="setRoleFilter('vendor')"
+        class="inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors"
+        :class="filters.role === 'vendor' ? 'bg-purple-600 text-white shadow-xs' : 'bg-purple-50 text-purple-700 hover:bg-purple-100'"
+      >
+        <span class="inline-block h-2 w-2 rounded-full bg-purple-400"></span>
+        <span>Pemasok / Tech Vendors</span>
+      </button>
+    </div>
+
+    <div class="mt-4 space-y-4">
       <DataTable
         :columns="columns"
         :items="companies.data"
@@ -133,8 +187,8 @@ const confirmBulkDeactivate = () => {
         :from="companies.from"
         :to="companies.to"
         :links="companies.links"
-        empty-title="No companies yet"
-        empty-description="Add your first company to start building the partner registry."
+        empty-title="No companies found"
+        empty-description="Tidak ada data perusahaan untuk filter yang dipilih."
       >
         <template #bulk-actions>
           <button
@@ -144,6 +198,25 @@ const confirmBulkDeactivate = () => {
           >
             Deactivate selected
           </button>
+        </template>
+        <template #cell-roles="{ item }">
+          <div class="flex flex-wrap gap-1">
+            <template v-if="(item as CompanyRow).roles && (item as CompanyRow).roles!.length > 0">
+              <span
+                v-for="r in (item as CompanyRow).roles"
+                :key="r.code"
+                class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium"
+                :class="{
+                  'bg-indigo-50 text-indigo-700 ring-1 ring-inset ring-indigo-700/10': r.code === 'customer',
+                  'bg-purple-50 text-purple-700 ring-1 ring-inset ring-purple-700/10': r.code === 'vendor',
+                  'bg-surface-100 text-ink-600': r.code !== 'customer' && r.code !== 'vendor'
+                }"
+              >
+                {{ r.name || r.code }}
+              </span>
+            </template>
+            <span v-else class="text-xs text-ink-400 italic">Partner</span>
+          </div>
         </template>
         <template #cell-is_active="{ item }">
           <StatusBadge :status="(item as CompanyRow).is_active ? 'active' : 'inactive'" />

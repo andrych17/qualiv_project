@@ -9,6 +9,7 @@ use App\Modules\Accounting\Models\Account;
 use App\Modules\Accounting\Models\ApBill;
 use App\Modules\Accounting\Models\Company;
 use App\Modules\Accounting\Models\FiscalPeriod;
+use App\Modules\Accounting\Models\RecurringJournalTemplate;
 use App\Modules\CRM\Models\ContactPoint;
 use App\Modules\CRM\Models\Partner;
 use App\Modules\CRM\Models\PartnerRole;

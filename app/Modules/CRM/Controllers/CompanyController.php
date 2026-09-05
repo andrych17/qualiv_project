@@ -30,11 +30,11 @@ class CompanyController extends Controller
 
     public function index(Request $request): Response
     {
-        $filters = $request->only('search', 'status', 'sort', 'direction', 'per_page');
+        $filters = $request->only('search', 'status', 'role', 'sort', 'direction', 'per_page');
 
         $companies = Partner::query()
             ->companies()
-            ->with('industry:id,name')
+            ->with(['industry:id,name', 'roles.roleType:id,code,name'])
             ->filter($filters)
             ->when(
                 $filters['sort'] ?? null,
@@ -49,6 +49,10 @@ class CompanyController extends Controller
                 'name' => $p->name,
                 'trade_name' => $p->trade_name,
                 'industry_name' => $p->industry?->name,
+                'roles' => $p->roles->map(fn ($r) => [
+                    'code' => $r->roleType?->code,
+                    'name' => $r->roleType?->name,
+                ])->values()->all(),
                 'is_active' => $p->is_active,
                 'created_at_formatted' => $p->created_at?->format('d M Y'),
             ]);
