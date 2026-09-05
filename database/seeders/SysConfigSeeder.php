@@ -81,15 +81,7 @@ class SysConfigSeeder extends Seeder
             // Live
             ['code' => 'DASHBOARD', 'menu_header' => 'Main', 'menu_caption' => 'Dashboard', 'menu_link' => '/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 10, 'status_code' => 'A'],
             ['code' => 'INVENTORY', 'menu_header' => 'Operations', 'menu_caption' => 'Inventory', 'menu_link' => '/inventory/products', 'icon' => 'Boxes', 'seq' => 70, 'status_code' => 'A'],
-            ['code' => 'CONFIG_MENUS', 'menu_header' => 'System', 'menu_caption' => 'Menus', 'menu_link' => '/config/menus', 'icon' => 'Menu', 'seq' => 200, 'status_code' => 'A'],
-            ['code' => 'CONFIG_GROUPS', 'menu_header' => 'System', 'menu_caption' => 'Groups', 'menu_link' => '/config/groups', 'icon' => 'Shield', 'seq' => 210, 'status_code' => 'A'],
-            ['code' => 'CONFIG_USERS', 'menu_header' => 'System', 'menu_caption' => 'Users', 'menu_link' => '/config/users', 'icon' => 'UserRoundCog', 'seq' => 215, 'status_code' => 'A'],
-            ['code' => 'CONFIG_MODULES', 'menu_header' => 'System', 'menu_caption' => 'Modules', 'menu_link' => '/config/modules', 'icon' => 'AppWindow', 'seq' => 218, 'status_code' => 'A'],
-            ['code' => 'CONFIG_CONSTS', 'menu_header' => 'System', 'menu_caption' => 'Constants', 'menu_link' => '/config/consts', 'icon' => 'SlidersHorizontal', 'seq' => 220, 'status_code' => 'A'],
-            ['code' => 'CONFIG_FIELDS', 'menu_header' => 'System', 'menu_caption' => 'Custom Fields', 'menu_link' => '/config/fields', 'icon' => 'ListPlus', 'seq' => 222, 'status_code' => 'A'],
-            ['code' => 'CONFIG_SERIALS', 'menu_header' => 'System', 'menu_caption' => 'Serials', 'menu_link' => '/config/serials', 'icon' => 'Hash', 'seq' => 225, 'status_code' => 'A'],
-            ['code' => 'CONFIG_THEME', 'menu_header' => 'System', 'menu_caption' => 'Theme', 'menu_link' => '/config/theme', 'icon' => 'Palette', 'seq' => 228, 'status_code' => 'A'],
-            ['code' => 'DESIGN_SYSTEM', 'menu_header' => 'System', 'menu_caption' => 'Komponen UI', 'menu_link' => '/design-system', 'icon' => 'Layers', 'seq' => 230, 'status_code' => 'A'],
+            ['code' => 'SYSCONFIG', 'menu_header' => 'System', 'menu_caption' => 'Config', 'menu_link' => '/config/users', 'icon' => 'Settings', 'seq' => 200, 'status_code' => 'A'],
 
             // Core & Vertical Modules
             ['code' => 'CRM', 'menu_header' => 'Core', 'menu_caption' => 'CRM', 'menu_link' => '/crm/dashboard', 'icon' => 'Users', 'seq' => 20, 'status_code' => 'A'],
@@ -247,6 +239,17 @@ class SysConfigSeeder extends Seeder
                 ['code' => 'MES_DASHBOARD_LINE', 'caption' => 'Line Dashboard', 'link' => '/mes/dashboards/line', 'icon' => 'BarChart3', 'seq' => 247],
                 ['code' => 'MES_DASHBOARD_PROCESS', 'caption' => 'Process Area Dashboard', 'link' => '/mes/dashboards/process-area', 'icon' => 'FlaskConical', 'seq' => 248],
             ],
+            'SYSCONFIG' => [
+                ['code' => 'CONFIG_USERS', 'caption' => 'Users', 'link' => '/config/users', 'icon' => 'UserRoundCog', 'seq' => 201],
+                ['code' => 'CONFIG_GROUPS', 'caption' => 'Groups & Roles', 'link' => '/config/groups', 'icon' => 'Shield', 'seq' => 202],
+                ['code' => 'CONFIG_MENUS', 'caption' => 'Menus', 'link' => '/config/menus', 'icon' => 'Menu', 'seq' => 203],
+                ['code' => 'CONFIG_MODULES', 'caption' => 'Modules', 'link' => '/config/modules', 'icon' => 'AppWindow', 'seq' => 204],
+                ['code' => 'CONFIG_SERIALS', 'caption' => 'Serials', 'link' => '/config/serials', 'icon' => 'Hash', 'seq' => 205],
+                ['code' => 'CONFIG_THEME', 'caption' => 'Theme', 'link' => '/config/theme', 'icon' => 'Palette', 'seq' => 206],
+                ['code' => 'CONFIG_CONSTS', 'caption' => 'Constants', 'link' => '/config/consts', 'icon' => 'SlidersHorizontal', 'seq' => 207],
+                ['code' => 'CONFIG_FIELDS', 'caption' => 'Custom Fields', 'link' => '/config/fields', 'icon' => 'ListPlus', 'seq' => 208],
+                ['code' => 'DESIGN_SYSTEM', 'caption' => 'Komponen UI', 'link' => '/design-system', 'icon' => 'Layers', 'seq' => 209],
+            ],
         ];
 
         $map = [];
@@ -261,7 +264,7 @@ class SysConfigSeeder extends Seeder
                     'icon' => $row['icon'],
                     'seq' => $row['seq'],
                     'status_code' => $row['status_code'],
-                    'module_code' => (str_starts_with($row['code'], 'CONFIG_') || in_array($row['code'], ['DASHBOARD', 'DESIGN_SYSTEM'], true))
+                    'module_code' => (str_starts_with($row['code'], 'CONFIG_') || $row['code'] === 'DASHBOARD' || $row['code'] === 'SYSCONFIG')
                         ? null
                         : $row['code'],
                 ],
