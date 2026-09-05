@@ -1,4 +1,5 @@
-<!-- ponytail: Nusaevo brand logo (SysConfig1 from netapp1). Callers pass sizing classes. -->
+<!-- ponytail: Qualiv brand logo. Callers pass sizing classes. -->
 <template>
-    <img src="/logos/SysConfig1.webp" alt="Nusaevo" />
+    <img src="/logos/qualiv-logo.webp" alt="Qualiv" class="object-contain" />
 </template>
+

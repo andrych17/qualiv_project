@@ -5,9 +5,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title inertia>{{ config('app.name', 'Nusaevo') }}</title>
+        <title inertia>{{ config('app.name', 'Qualiv Project') }}</title>
 
-        <link rel="icon" type="image/webp" href="/logos/SysConfig1.webp" />
+        <link rel="icon" type="image/webp" href="/logos/qualiv-logo-icon.webp" />
 
         <!-- Fonts — DESIGN.md: Source Serif 4 (display), Inter (UI), IBM Plex Mono (data) -->
         <link rel="preconnect" href="https://fonts.bunny.net">

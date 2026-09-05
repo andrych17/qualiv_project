@@ -29,7 +29,7 @@ const mobileSidebar = inject<{
 
       <!-- Mobile brand indicator -->
       <div class="block sm:hidden text-xs font-bold uppercase tracking-wider text-ink-900 truncate">
-        NusaEvo
+        Qualiv
       </div>
 
       <div class="hidden sm:block truncate">

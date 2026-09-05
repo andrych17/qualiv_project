@@ -78,7 +78,7 @@ const logout = () => {
       <!-- Sidebar Header with Central Platform Indicator -->
       <div class="border-b border-border px-4 py-3 space-y-2">
         <div class="flex items-center justify-between px-1">
-          <span class="text-xs font-semibold uppercase tracking-wide text-ink-600">NusaEvo ERP</span>
+          <span class="text-xs font-semibold uppercase tracking-wide text-ink-600">Qualiv ERP</span>
           <span class="inline-flex items-center rounded-md bg-accent/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent ring-1 ring-inset ring-accent/20">
             Central
           </span>
@@ -136,7 +136,7 @@ const logout = () => {
         <aside class="relative flex w-72 max-w-[85vw] flex-col bg-surface-0 border-r border-border shadow-2xl z-10">
           <div class="flex items-center justify-between border-b border-border px-4 py-3">
             <div class="flex items-center gap-2">
-              <span class="text-xs font-semibold uppercase tracking-wide text-ink-600">NusaEvo</span>
+              <span class="text-xs font-semibold uppercase tracking-wide text-ink-600">Qualiv</span>
               <span class="inline-flex items-center rounded-md bg-accent/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent">
                 Central
               </span>

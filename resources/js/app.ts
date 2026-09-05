@@ -6,7 +6,7 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createApp, DefineComponent, h } from 'vue';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Nusaevo';
+const appName = import.meta.env.VITE_APP_NAME || 'Qualiv Project';
 
 // ponytail: auto-reload when dynamic import fails due to stale chunk after deployment
 if (typeof window !== 'undefined') {

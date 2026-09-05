@@ -182,7 +182,7 @@ const getIcon = (name: string | null): Component => {
   <aside class="hidden md:flex flex-col w-64 border-r border-border bg-surface-0 h-full min-h-0 shrink-0 select-none">
     <div class="border-b border-border px-4 py-3 space-y-2">
       <div class="px-1 text-xs font-semibold uppercase tracking-wider text-ink-500">
-        NusaEvo ERP
+        Qualiv ERP
       </div>
       <TenantSwitcher />
     </div>
@@ -360,7 +360,7 @@ const getIcon = (name: string | null): Component => {
       >
         <div class="border-b border-border px-4 py-3 flex items-center justify-between">
           <div class="px-1 text-xs font-semibold uppercase tracking-wider text-ink-500">
-            NusaEvo ERP
+            Qualiv ERP
           </div>
           <button
             type="button"
