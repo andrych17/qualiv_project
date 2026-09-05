@@ -1,98 +1,34 @@
 pipeline {
     agent any
 
-    // Runs on every checkin to staging (via SCM webhook/polling job config) plus a
-    // nightly build, per Simon's request — covers both readings of "nightly build
-    // di staging setiap kali ada checkin."
     triggers {
-        cron('0 3 * * *') // 03:00 server time
         githubPush()
     }
 
-    environment {
-        SHARED_INFRA_NETWORK = 'shared-infra'
-        TEST_DB = 'nusaevo_testing'
-    }
-
     stages {
-        stage('Start shared-infra (postgres + redis)') {
+        stage('Deploy to Production') {
             steps {
                 sh '''
-                    docker network create ${SHARED_INFRA_NETWORK} || true
-                    docker rm -f ci-postgres ci-redis || true
-                    docker run -d --name ci-postgres --network ${SHARED_INFRA_NETWORK} --network-alias postgres \
-                        -e POSTGRES_USER=nusaevo -e POSTGRES_PASSWORD=secret -e POSTGRES_DB=nusaevo \
-                        postgres:16
-                    docker run -d --name ci-redis --network ${SHARED_INFRA_NETWORK} --network-alias redis redis:7
-                    for i in $(seq 1 30); do
-                        docker exec ci-postgres pg_isready -U nusaevo && break
-                        sleep 1
-                    done
-                    docker exec ci-postgres psql -U nusaevo -d nusaevo -c "CREATE DATABASE ${TEST_DB};"
+                    echo "===> Deploying qualiv_project to Production (/opt/qualiv-erp)..."
+                    nsenter -t 1 -m -u -n -i bash -c "
+                        set -e
+                        cd /opt/qualiv-erp
+                        if [ ! -d .git ]; then
+                            git init
+                            git remote add origin https://github.com/andrych17/qualiv_project.git
+                        fi
+                        git fetch origin main
+                        git reset --hard origin/main
+                        docker compose run --rm app composer install --no-interaction --prefer-dist --optimize-autoloader
+                        npm ci
+                        npm run build
+                        docker compose run --rm app php artisan migrate --force
+                        docker compose restart app queue
+                    "
+                    echo "===> Deployment completed successfully!"
                 '''
             }
-        }
-
-        stage('Build app image') {
-            steps {
-                sh 'docker compose build app'
-            }
-        }
-
-        stage('Install dependencies') {
-            steps {
-                sh '''
-                    docker compose run --rm app composer install --no-interaction --prefer-dist
-                    npm ci
-                    npm run build
-                '''
-            }
-        }
-
-        stage('Prepare env') {
-            steps {
-                sh '''
-                    docker compose run --rm app cp .env.example .env
-                    docker compose run --rm app php artisan key:generate
-                '''
-            }
-        }
-
-        stage('Migrate test database') {
-            steps {
-                sh "docker compose run --rm -e DB_DATABASE=${TEST_DB} app php artisan migrate --force"
-            }
-        }
-
-        stage('Run tests') {
-            steps {
-                sh 'docker compose run --rm app php artisan test --exclude-group nightly'
-            }
-        }
-
-        // Heavier cross-module integration scenarios (Order-to-Cash, etc.) — tagged
-        // #[Group('nightly')] and run only on the 03:00 cron trigger, not on every
-        // push, since they spin up a full Company/COA/fiscal-year fixture per test.
-        stage('Run nightly integration tests') {
-            when {
-                triggeredBy 'TimerTrigger'
-            }
-            steps {
-                sh 'docker compose run --rm app php artisan test --group nightly --log-junit storage/logs/nightly-junit.xml'
-            }
-            post {
-                always {
-                    // `.:/var/www/html` is bind-mounted (docker-compose.yml), so the file
-                    // written inside the container is already on the Jenkins workspace.
-                    junit allowEmptyResults: true, testResults: 'storage/logs/nightly-junit.xml'
-                }
-            }
-        }
-    }
-
-    post {
-        always {
-            sh 'docker rm -f ci-postgres ci-redis || true'
         }
     }
 }
+

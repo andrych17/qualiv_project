@@ -54,12 +54,11 @@ return new class extends Migration
         ConfigConst::query()->firstOrCreate(
             ['const_group' => 'THEME', 'group_code' => 'active_theme'],
             [
-                'const_val' => 'classic-navy',
-                'descr' => 'Tenant active UI theme token palette',
+                'value' => 'classic-navy',
+                'str1' => 'classic-navy',
+                'note1' => 'Tenant active UI theme token palette',
                 'is_active' => true,
                 'value_type' => 'text',
-                'status_code' => 'A',
-                'app_code' => 'NUSAEVO',
             ],
         );
     }
