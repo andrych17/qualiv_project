@@ -394,5 +394,106 @@ class QualivMigrateExcelSeeder extends Seeder
                 ]
             );
         }
+
+        // 3. Hostinger Server & Tech Infrastructure Bills
+        $serverExp = Account::query()->where('account_code', '61300')->first() ?? $expenseAccount;
+        $aiExp = Account::query()->where('account_code', '61100')->first() ?? $expenseAccount;
+        $adsExp = Account::query()->where('account_code', '61200')->first() ?? $expenseAccount;
+        $toolsExp = Account::query()->where('account_code', '61400')->first() ?? $expenseAccount;
+        $bankAcc = Account::query()->where('account_code', '10200')->first() ?? Account::first();
+        $user = User::query()->where('email', 'andry@qualiv.id')->first();
+
+        // Recurring Template for Hostinger Server KVM4
+        if ($serverExp && $bankAcc) {
+            $hostingerTemplate = RecurringJournalTemplate::query()->updateOrCreate(
+                ['company_id' => $company->id, 'name' => 'Langganan Server Hostinger KVM4 (VPS Production)'],
+                [
+                    'uuid' => (string) Str::uuid(),
+                    'memo' => 'Biaya bulanan VPS Hostinger KVM4 untuk hosting & database Qualiv.id',
+                    'currency_code' => 'IDR',
+                    'recurrence_rule' => 'FREQ=MONTHLY;INTERVAL=1',
+                    'anchor_date' => '2026-05-01',
+                    'next_run_date' => '2026-10-01',
+                    'last_run_date' => '2026-09-01',
+                    'is_active' => true,
+                    'created_by' => $user?->id,
+                ]
+            );
+
+            $hostingerTemplate->lines()->delete();
+            $hostingerTemplate->lines()->create([
+                'line_no' => 1,
+                'account_id' => $serverExp->id,
+                'debit' => 266667.00,
+                'credit' => 0.00,
+                'description' => 'Beban Server Hostinger KVM4',
+            ]);
+            $hostingerTemplate->lines()->create([
+                'line_no' => 2,
+                'account_id' => $bankAcc->id,
+                'debit' => 0.00,
+                'credit' => 266667.00,
+                'description' => 'Pembayaran Rekening Bank / Kartu',
+            ]);
+        }
+
+        // Tech Startup Bills
+        $hostinger = Partner::query()->where('trade_name', 'Hostinger')->first();
+        $do = Partner::query()->where('trade_name', 'DigitalOcean')->first();
+        $openai = Partner::query()->where('trade_name', 'like', '%OpenAI%')->first();
+        $anthropic = Partner::query()->where('trade_name', 'like', '%Anthropic%')->first();
+        $github = Partner::query()->where('trade_name', 'GitHub')->first();
+        $meta = Partner::query()->where('trade_name', 'like', '%Meta%')->first();
+
+        $billsData = [
+            ['vendor' => $hostinger, 'bill_no' => 'BILL-HST-2026-05', 'date' => '2026-05-01', 'desc' => 'Hostinger KVM4 VPS (Mei 2026)', 'amount' => 266667.00, 'acc' => $serverExp],
+            ['vendor' => $hostinger, 'bill_no' => 'BILL-HST-2026-06', 'date' => '2026-06-01', 'desc' => 'Hostinger KVM4 VPS (Juni 2026)', 'amount' => 266667.00, 'acc' => $serverExp],
+            ['vendor' => $hostinger, 'bill_no' => 'BILL-HST-2026-07', 'date' => '2026-07-01', 'desc' => 'Hostinger KVM4 VPS (Juli 2026)', 'amount' => 266667.00, 'acc' => $serverExp],
+            ['vendor' => $hostinger, 'bill_no' => 'BILL-HST-2026-08', 'date' => '2026-08-01', 'desc' => 'Hostinger KVM4 VPS (Agustus 2026)', 'amount' => 266667.00, 'acc' => $serverExp],
+            ['vendor' => $hostinger, 'bill_no' => 'BILL-HST-2026-09', 'date' => '2026-09-01', 'desc' => 'Hostinger KVM4 VPS (September 2026)', 'amount' => 266667.00, 'acc' => $serverExp],
+            ['vendor' => $do, 'bill_no' => 'BILL-DO-2026-08', 'date' => '2026-08-01', 'desc' => 'DigitalOcean Droplets & Backup (Agustus 2026)', 'amount' => 160000.00, 'acc' => $serverExp],
+            ['vendor' => $do, 'bill_no' => 'BILL-DO-2026-09', 'date' => '2026-09-01', 'desc' => 'DigitalOcean Droplets & Backup (September 2026)', 'amount' => 160000.00, 'acc' => $serverExp],
+            ['vendor' => $openai, 'bill_no' => 'BILL-OAI-2026-07', 'date' => '2026-07-31', 'desc' => 'OpenAI API Usage (GPT-4o & Whisper) Juli 2026', 'amount' => 250000.00, 'acc' => $aiExp],
+            ['vendor' => $openai, 'bill_no' => 'BILL-OAI-2026-08', 'date' => '2026-08-31', 'desc' => 'OpenAI API Usage (GPT-4o & Whisper) Agustus 2026', 'amount' => 350000.00, 'acc' => $aiExp],
+            ['vendor' => $anthropic, 'bill_no' => 'BILL-ANT-2026-08', 'date' => '2026-08-31', 'desc' => 'Anthropic Claude 3.7 API Usage Agustus 2026', 'amount' => 200000.00, 'acc' => $aiExp],
+            ['vendor' => $github, 'bill_no' => 'BILL-GH-2026-08', 'date' => '2026-08-15', 'desc' => 'GitHub Pro & CI Actions (Agustus 2026)', 'amount' => 75000.00, 'acc' => $toolsExp],
+            ['vendor' => $meta, 'bill_no' => 'BILL-META-2026-08', 'date' => '2026-08-25', 'desc' => 'Meta Instagram & FB Ads Campaign', 'amount' => 300000.00, 'acc' => $adsExp],
+        ];
+
+        foreach ($billsData as $b) {
+            if (! $b['vendor'] || ! $b['acc']) {
+                continue;
+            }
+
+            $bill = ApBill::query()->updateOrCreate(
+                ['company_id' => $company->id, 'bill_no' => $b['bill_no']],
+                [
+                    'uuid' => (string) Str::uuid(),
+                    'partner_id' => $b['vendor']->id,
+                    'currency_code' => 'IDR',
+                    'fx_rate' => 1.0,
+                    'issue_date' => $b['date'],
+                    'due_date' => $b['date'],
+                    'status' => ApBill::STATUS_PAID,
+                    'subtotal' => $b['amount'],
+                    'tax_amount' => 0.00,
+                    'total_amount' => $b['amount'],
+                    'paid_amount' => $b['amount'],
+                    'created_by' => $user?->id,
+                ]
+            );
+
+            $bill->lines()->delete();
+            $bill->lines()->create([
+                'line_no' => 1,
+                'description' => $b['desc'],
+                'qty' => 1,
+                'unit_price' => $b['amount'],
+                'discount_amount' => 0.00,
+                'expense_account_id' => $b['acc']->id,
+                'line_amount' => $b['amount'],
+                'tax_amount' => 0.00,
+            ]);
+        }
     }
 }
