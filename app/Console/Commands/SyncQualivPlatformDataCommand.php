@@ -81,6 +81,7 @@ class SyncQualivPlatformDataCommand extends Command
                 ]
             );
 
+            $this->syncTenants($isDryRun);
             $this->syncPayments($company, $revAccount, $isDryRun, $specificDate, $days);
             $this->syncAiCosts($company, $expAccount, $aiVendor, $usdRate, $isDryRun, $specificDate, $days);
 
@@ -89,9 +90,49 @@ class SyncQualivPlatformDataCommand extends Command
         });
     }
 
+    protected function syncTenants(bool $isDryRun): void
+    {
+        $this->line('<comment>1. Checking and synchronizing platform customer tenants into CRM Partners...</comment>');
+
+        try {
+            $tenants = DB::connection('qualiv_platform')
+                ->table('tenants')
+                ->select(['id', 'name', 'email', 'createdAt'])
+                ->get();
+        } catch (\Throwable $e) {
+            $this->warn('Could not read from qualiv_platform tenants: ' . $e->getMessage());
+            return;
+        }
+
+        $count = 0;
+        foreach ($tenants as $t) {
+            $name = trim($t->name ?: ($t->email ?: 'Customer ' . substr($t->id, 0, 6)));
+            $partner = Partner::query()->firstOrCreate(
+                ['name' => $name],
+                [
+                    'type' => Partner::TYPE_ORGANIZATION,
+                    'trade_name' => $name,
+                    'source' => 'qualiv_platform',
+                    'tags' => ['platform_tenant'],
+                    'is_active' => true,
+                ]
+            );
+
+            if ($t->email && !$isDryRun) {
+                \App\Modules\CRM\Models\ContactPoint::query()->firstOrCreate(
+                    ['partner_id' => $partner->id, 'type' => 'email', 'value' => trim($t->email)],
+                    ['is_primary' => true, 'opt_out' => false]
+                );
+            }
+            $count++;
+        }
+
+        $this->info("Synced {$count} platform customer tenant(s) to CRM Partners.");
+    }
+
     protected function syncPayments(Company $company, Account $revAccount, bool $isDryRun, ?string $specificDate, int $days): void
     {
-        $this->line('<comment>1. Checking and synchronizing subscription revenue / payments...</comment>');
+        $this->line('<comment>2. Checking and synchronizing subscription revenue / payments...</comment>');
 
         try {
             $query = DB::connection('qualiv_platform')
