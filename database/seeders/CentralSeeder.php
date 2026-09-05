@@ -28,6 +28,8 @@ class CentralSeeder extends Seeder
 
         $plans = [
             ['code' => 'internal', 'name' => 'Internal', 'price_monthly' => 0, 'description' => "Nusaevo's own tenant — not sold."],
+            ['code' => 'enterprise', 'name' => 'Enterprise', 'price_monthly' => 0, 'description' => 'Qualiv Enterprise Custom Plan.'],
+            ['code' => 'qualiv', 'name' => 'Qualiv Plan', 'price_monthly' => 0, 'description' => 'Qualiv Projects, Accounting, CRM, Sales.'],
             ['code' => 'starter', 'name' => 'Starter', 'price_monthly' => 500000],
             ['code' => 'legal', 'name' => 'Legal', 'price_monthly' => 1500000],
             ['code' => 'full', 'name' => 'Full', 'price_monthly' => 3000000],
