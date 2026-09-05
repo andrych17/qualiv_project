@@ -45,9 +45,7 @@ class QualivMigrateExcelSeeder extends Seeder
 
         // Central User Lookups
         $userAccounts = [
-            ['email' => 'andryhuang@qualiv.id', 'name' => 'Andry Huang'],
             ['email' => 'andry@qualiv.id', 'name' => 'Andry Huang'],
-            ['email' => 'henry.sebastian@qualiv.id', 'name' => 'Henry Sebastian'],
             ['email' => 'henry@qualiv.id', 'name' => 'Henry Sebastian'],
         ];
 
