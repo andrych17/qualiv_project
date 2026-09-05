@@ -231,41 +231,33 @@ const getIcon = (name: string | null): Component => {
         <div v-for="item in section.items" :key="item.code" class="space-y-0.5">
           <!-- Level 1: Accordion Menu with Children -->
           <div v-if="item.children && item.children.length > 0">
-            <div
-              class="w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-150 select-none group"
+            <button
+              type="button"
+              class="w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-150 select-none group text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               :class="isParentActive(item)
                 ? 'bg-accent/10 text-accent font-semibold'
                 : 'text-ink-700 hover:bg-surface-50 hover:text-ink-900'"
+              :aria-expanded="isSubmenuOpen(item.code)"
+              :title="isSubmenuOpen(item.code) ? 'Tutup ' + item.label : 'Buka ' + item.label"
+              @click="toggleSubmenu(item.code)"
             >
-              <Link
-                :href="item.href && item.href !== '#' ? item.href : (item.children[0]?.href || '#')"
-                class="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer"
-                @click="openMenus[item.code] = true"
-              >
+              <div class="flex items-center gap-2.5 min-w-0 flex-1">
                 <component
                   :is="getIcon(item.icon)"
                   class="h-4 w-4 shrink-0 transition-colors"
                   :class="isParentActive(item) ? 'text-accent' : 'text-ink-500 group-hover:text-ink-700'"
                 />
                 <span class="truncate">{{ item.label }}</span>
-              </Link>
+              </div>
 
-              <button
-                type="button"
-                class="p-1 -mr-1 rounded hover:bg-surface-200/60 text-ink-400 hover:text-ink-700 cursor-pointer focus:outline-none transition-colors"
-                :aria-expanded="isSubmenuOpen(item.code)"
-                :title="isSubmenuOpen(item.code) ? 'Tutup submenu' : 'Buka submenu'"
-                @click.stop="toggleSubmenu(item.code)"
-              >
-                <ChevronRight
-                  class="h-4 w-4 shrink-0 transition-transform duration-200"
-                  :class="{
-                    'rotate-90 text-accent': isSubmenuOpen(item.code),
-                    'text-ink-400': !isSubmenuOpen(item.code),
-                  }"
-                />
-              </button>
-            </div>
+              <ChevronRight
+                class="h-4 w-4 shrink-0 transition-transform duration-200 ml-1"
+                :class="{
+                  'rotate-90 text-accent': isSubmenuOpen(item.code),
+                  'text-ink-400 group-hover:text-ink-600': !isSubmenuOpen(item.code),
+                }"
+              />
+            </button>
 
             <!-- Level 2 Submenu List -->
             <div
@@ -275,17 +267,17 @@ const getIcon = (name: string | null): Component => {
               <div v-for="child in item.children" :key="child.code" class="space-y-0.5">
                 <!-- Level 2 Accordion with Level 3 Children -->
                 <div v-if="child.children && child.children.length > 0">
-                  <div
-                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors duration-150 select-none group"
+                  <button
+                    type="button"
+                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors duration-150 select-none group text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                     :class="isLevel2Active(child)
                       ? 'bg-accent/15 text-accent font-semibold'
                       : 'text-ink-600 hover:bg-surface-100 hover:text-ink-900'"
+                    :aria-expanded="isSubmenuOpen(child.code)"
+                    :title="isSubmenuOpen(child.code) ? 'Tutup ' + child.label : 'Buka ' + child.label"
+                    @click="toggleSubmenu(child.code)"
                   >
-                    <Link
-                      :href="child.href && child.href !== '#' ? child.href : (child.children[0]?.href || '#')"
-                      class="flex items-center gap-2 min-w-0 flex-1 cursor-pointer"
-                      @click="openMenus[child.code] = true"
-                    >
+                    <div class="flex items-center gap-2 min-w-0 flex-1">
                       <component
                         :is="getIcon(child.icon)"
                         v-if="child.icon"
@@ -298,24 +290,16 @@ const getIcon = (name: string | null): Component => {
                         :class="isLevel2Active(child) ? 'bg-accent' : 'bg-ink-400'"
                       />
                       <span class="truncate">{{ child.label }}</span>
-                    </Link>
+                    </div>
 
-                    <button
-                      type="button"
-                      class="p-0.5 rounded hover:bg-surface-200/60 text-ink-400 hover:text-ink-700 cursor-pointer focus:outline-none transition-colors"
-                      :aria-expanded="isSubmenuOpen(child.code)"
-                      :title="isSubmenuOpen(child.code) ? 'Tutup submenu' : 'Buka submenu'"
-                      @click.stop="toggleSubmenu(child.code)"
-                    >
-                      <ChevronRight
-                        class="h-3.5 w-3.5 shrink-0 transition-transform duration-200"
-                        :class="{
-                          'rotate-90 text-accent': isSubmenuOpen(child.code),
-                          'text-ink-400': !isSubmenuOpen(child.code),
-                        }"
-                      />
-                    </button>
-                  </div>
+                    <ChevronRight
+                      class="h-3.5 w-3.5 shrink-0 transition-transform duration-200 ml-1"
+                      :class="{
+                        'rotate-90 text-accent': isSubmenuOpen(child.code),
+                        'text-ink-400 group-hover:text-ink-600': !isSubmenuOpen(child.code),
+                      }"
+                    />
+                  </button>
 
                   <!-- Level 3 Sub-item List -->
                   <div
@@ -438,41 +422,33 @@ const getIcon = (name: string | null): Component => {
             <div v-for="item in section.items" :key="item.code" class="space-y-0.5">
               <!-- Level 1: Accordion Menu with Children -->
               <div v-if="item.children && item.children.length > 0">
-                <div
-                  class="w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-150 select-none group"
+                <button
+                  type="button"
+                  class="w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-150 select-none group text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                   :class="isParentActive(item)
                     ? 'bg-accent/10 text-accent font-semibold'
                     : 'text-ink-700 hover:bg-surface-50 hover:text-ink-900'"
+                  :aria-expanded="isSubmenuOpen(item.code)"
+                  :title="isSubmenuOpen(item.code) ? 'Tutup ' + item.label : 'Buka ' + item.label"
+                  @click="toggleSubmenu(item.code)"
                 >
-                  <Link
-                    :href="item.href && item.href !== '#' ? item.href : (item.children[0]?.href || '#')"
-                    class="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer"
-                    @click="mobileSidebar?.close(); openMenus[item.code] = true"
-                  >
+                  <div class="flex items-center gap-2.5 min-w-0 flex-1">
                     <component
                       :is="getIcon(item.icon)"
                       class="h-4 w-4 shrink-0 transition-colors"
                       :class="isParentActive(item) ? 'text-accent' : 'text-ink-500 group-hover:text-ink-700'"
                     />
                     <span class="truncate">{{ item.label }}</span>
-                  </Link>
+                  </div>
 
-                  <button
-                    type="button"
-                    class="p-1 -mr-1 rounded hover:bg-surface-200/60 text-ink-400 hover:text-ink-700 cursor-pointer focus:outline-none transition-colors"
-                    :aria-expanded="isSubmenuOpen(item.code)"
-                    :title="isSubmenuOpen(item.code) ? 'Tutup submenu' : 'Buka submenu'"
-                    @click.stop="toggleSubmenu(item.code)"
-                  >
-                    <ChevronRight
-                      class="h-4 w-4 shrink-0 transition-transform duration-200"
-                      :class="{
-                        'rotate-90 text-accent': isSubmenuOpen(item.code),
-                        'text-ink-400': !isSubmenuOpen(item.code),
-                      }"
-                    />
-                  </button>
-                </div>
+                  <ChevronRight
+                    class="h-4 w-4 shrink-0 transition-transform duration-200 ml-1"
+                    :class="{
+                      'rotate-90 text-accent': isSubmenuOpen(item.code),
+                      'text-ink-400 group-hover:text-ink-600': !isSubmenuOpen(item.code),
+                    }"
+                  />
+                </button>
 
                 <!-- Level 2 Submenu List -->
                 <div
@@ -482,17 +458,17 @@ const getIcon = (name: string | null): Component => {
                   <div v-for="child in item.children" :key="child.code" class="space-y-0.5">
                     <!-- Level 2 Accordion with Level 3 Children -->
                     <div v-if="child.children && child.children.length > 0">
-                      <div
-                        class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors duration-150 select-none group"
+                      <button
+                        type="button"
+                        class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors duration-150 select-none group text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                         :class="isLevel2Active(child)
                           ? 'bg-accent/15 text-accent font-semibold'
                           : 'text-ink-600 hover:bg-surface-100 hover:text-ink-900'"
+                        :aria-expanded="isSubmenuOpen(child.code)"
+                        :title="isSubmenuOpen(child.code) ? 'Tutup ' + child.label : 'Buka ' + child.label"
+                        @click="toggleSubmenu(child.code)"
                       >
-                        <Link
-                          :href="child.href && child.href !== '#' ? child.href : (child.children[0]?.href || '#')"
-                          class="flex items-center gap-2 min-w-0 flex-1 cursor-pointer"
-                          @click="mobileSidebar?.close(); openMenus[child.code] = true"
-                        >
+                        <div class="flex items-center gap-2 min-w-0 flex-1">
                           <component
                             :is="getIcon(child.icon)"
                             v-if="child.icon"
@@ -505,24 +481,16 @@ const getIcon = (name: string | null): Component => {
                             :class="isLevel2Active(child) ? 'bg-accent' : 'bg-ink-400'"
                           />
                           <span class="truncate">{{ child.label }}</span>
-                        </Link>
+                        </div>
 
-                        <button
-                          type="button"
-                          class="p-0.5 rounded hover:bg-surface-200/60 text-ink-400 hover:text-ink-700 cursor-pointer focus:outline-none transition-colors"
-                          :aria-expanded="isSubmenuOpen(child.code)"
-                          :title="isSubmenuOpen(child.code) ? 'Tutup submenu' : 'Buka submenu'"
-                          @click.stop="toggleSubmenu(child.code)"
-                        >
-                          <ChevronRight
-                            class="h-3.5 w-3.5 shrink-0 transition-transform duration-200"
-                            :class="{
-                              'rotate-90 text-accent': isSubmenuOpen(child.code),
-                              'text-ink-400': !isSubmenuOpen(child.code),
-                            }"
-                          />
-                        </button>
-                      </div>
+                        <ChevronRight
+                          class="h-3.5 w-3.5 shrink-0 transition-transform duration-200 ml-1"
+                          :class="{
+                            'rotate-90 text-accent': isSubmenuOpen(child.code),
+                            'text-ink-400 group-hover:text-ink-600': !isSubmenuOpen(child.code),
+                          }"
+                        />
+                      </button>
 
                       <!-- Level 3 Sub-item List -->
                       <div
