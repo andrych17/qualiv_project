@@ -186,6 +186,38 @@ class QualivMigrateExcelSeeder extends Seeder
             'partner_id' => $indosmm->id,
             'role_type_id' => $vendorRoleType->id,
         ], ['assigned_at' => now(), 'is_active' => true]);
+
+        // Tech Startup Vendors (Hosting, Cloud, AI APIs, Dev Tools, Ads)
+        $techVendors = [
+            ['name' => 'Hostinger International Ltd.', 'trade_name' => 'Hostinger', 'tags' => ['vendor', 'hosting', 'vps', 'server']],
+            ['name' => 'DigitalOcean, LLC', 'trade_name' => 'DigitalOcean', 'tags' => ['vendor', 'cloud', 'vps', 'droplet']],
+            ['name' => 'Amazon Web Services, Inc.', 'trade_name' => 'AWS', 'tags' => ['vendor', 'cloud', 'infrastructure', 's3']],
+            ['name' => 'Google Asia Pacific Pte. Ltd.', 'trade_name' => 'Google Cloud / Google Ads', 'tags' => ['vendor', 'cloud', 'gcp', 'ads', 'ai']],
+            ['name' => 'Cloudflare, Inc.', 'trade_name' => 'Cloudflare', 'tags' => ['vendor', 'dns', 'cdn', 'security']],
+            ['name' => 'Vercel Inc.', 'trade_name' => 'Vercel', 'tags' => ['vendor', 'frontend', 'hosting', 'serverless']],
+            ['name' => 'OpenAI, LLC', 'trade_name' => 'OpenAI (ChatGPT & API)', 'tags' => ['vendor', 'ai-api', 'gpt-4o', 'llm']],
+            ['name' => 'Anthropic, PBC', 'trade_name' => 'Anthropic (Claude API)', 'tags' => ['vendor', 'ai-api', 'claude-3-7', 'llm']],
+            ['name' => 'GitHub, Inc.', 'trade_name' => 'GitHub', 'tags' => ['vendor', 'dev-tools', 'ci-cd', 'repo']],
+            ['name' => 'Meta Platforms Ireland Limited', 'trade_name' => 'Meta Ads (FB & Instagram)', 'tags' => ['vendor', 'marketing', 'meta-ads', 'ads']],
+            ['name' => 'Supabase Pte. Ltd.', 'trade_name' => 'Supabase', 'tags' => ['vendor', 'database', 'auth', 'backend']],
+        ];
+
+        foreach ($techVendors as $tv) {
+            $p = Partner::query()->updateOrCreate(
+                ['trade_name' => $tv['trade_name']],
+                [
+                    'type' => Partner::TYPE_ORGANIZATION,
+                    'name' => $tv['name'],
+                    'tags' => $tv['tags'],
+                    'source' => 'Tech Infrastructure',
+                    'is_active' => true,
+                ]
+            );
+            PartnerRole::query()->updateOrCreate([
+                'partner_id' => $p->id,
+                'role_type_id' => $vendorRoleType->id,
+            ], ['assigned_at' => now(), 'is_active' => true]);
+        }
     }
 
     private function seedProjectsAndIssues(array $users): void
