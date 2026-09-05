@@ -42,7 +42,7 @@ class DocumentController extends Controller
     public function index(Request $request): Response
     {
         $userId = $request->user()->id;
-        $filters = $request->only('search', 'folder_id', 'doc_type_id', 'status', 'flag', 'sort', 'direction', 'per_page');
+        $filters = $request->only('search', 'folder_id', 'doc_type_id', 'status', 'flag', 'tag', 'subject_type', 'sort', 'direction', 'per_page');
         $searchTerm = $filters['search'] ?? null;
 
         $documents = Document::query()
