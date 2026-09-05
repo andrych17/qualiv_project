@@ -83,7 +83,7 @@ class QualivMigrateExcelSeeder extends Seeder
                 ['email' => $acc['email']],
                 [
                     'name' => $acc['name'],
-                    'password' => Hash::make('password123'),
+                    'password' => 'password123',
                     'email_verified_at' => now(),
                     'is_active' => true,
                 ]
