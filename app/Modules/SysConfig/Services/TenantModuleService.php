@@ -8,10 +8,18 @@ use Illuminate\Validation\ValidationException;
 
 class TenantModuleService
 {
+    /** @var array<string, bool>|null */
+    protected ?array $memoIsActive = null;
+
     public function __construct(
         protected ConfigAuditLogger $audit,
         protected TenantFeatureService $features,
     ) {}
+
+    public function clearCache(): void
+    {
+        $this->memoIsActive = null;
+    }
 
     public function isActive(string $moduleCode): bool
     {
@@ -20,10 +28,15 @@ class TenantModuleService
             return true;
         }
 
-        $row = TenantModule::query()->where('module_code', $code)->first();
+        if ($this->memoIsActive === null) {
+            $this->memoIsActive = TenantModule::query()
+                ->pluck('is_active', 'module_code')
+                ->mapWithKeys(fn ($active, $modCode) => [strtoupper((string) $modCode) => (bool) $active])
+                ->all();
+        }
 
         // ponytail: absence of a row = active (opt-out, SYSCONFIG_SPECS.md §3A)
-        return $row === null || $row->is_active;
+        return $this->memoIsActive[$code] ?? true;
     }
 
     /**
@@ -79,6 +92,7 @@ class TenantModuleService
         }
 
         $row = TenantModule::query()->updateOrCreate(['module_code' => $code], $attrs);
+        $this->clearCache();
         $action = $isActive ? ($before ? 'updated' : 'created') : 'deactivated';
         $this->audit->log('tenant_modules', $row->id, $action, $before, $row->only(['module_code', 'is_active', 'notes', 'activated_at']));
 

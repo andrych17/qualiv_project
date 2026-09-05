@@ -13,6 +13,14 @@ use Illuminate\Support\Facades\Config;
  */
 class TenantFeatureService
 {
+    /** @var list<string>|null */
+    protected ?array $memoEnabled = null;
+
+    public function clearCache(): void
+    {
+        $this->memoEnabled = null;
+    }
+
     public function plan(): string
     {
         if (! tenancy()->initialized) {
@@ -35,25 +43,29 @@ class TenantFeatureService
      */
     public function enabledModules(): array
     {
+        if ($this->memoEnabled !== null) {
+            return $this->memoEnabled;
+        }
+
         if (tenancy()->initialized) {
             $tenantId = (string) tenant()->getTenantKey();
             $plan = $this->plan();
 
             if (CentralPlanModule::query()->where('plan_code', $plan)->exists()) {
-                return app(CentralEntitlementService::class)->entitledModules($tenantId);
+                return $this->memoEnabled = app(CentralEntitlementService::class)->entitledModules($tenantId);
             }
 
             $plans = Config::get('tenant_modules.plans', []);
             $planModules = $plans[$plan] ?? $plans['starter'] ?? [];
             $addons = app(CentralEntitlementService::class)->addonsForTenant($tenantId);
 
-            return array_values(array_unique([...$planModules, ...$addons]));
+            return $this->memoEnabled = array_values(array_unique([...$planModules, ...$addons]));
         }
 
         $plans = Config::get('tenant_modules.plans', []);
         $plan = $this->plan();
 
-        return array_values($plans[$plan] ?? $plans['starter'] ?? []);
+        return $this->memoEnabled = array_values($plans[$plan] ?? $plans['starter'] ?? []);
     }
 
     public function entitled(string $moduleCode): bool
