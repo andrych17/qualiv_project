@@ -112,7 +112,7 @@ const confirmBulkDelete = () => {
   <AppLayout>
     <PageHeader
       title="Projects"
-      description="Internal project & issue tracking for the Nusaevo team."
+      description="Internal project & issue tracking for the Qualiv team."
     >
       <template #actions>
         <PrimaryButton :href="route('projects.create')">New project</PrimaryButton>

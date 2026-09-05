@@ -5,6 +5,7 @@ import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
+import SecondaryButton from '@/Components/SecondaryButton.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import DataTable, { type SortState } from '@/Components/tables/DataTable.vue'
 import { useConfirm } from '@/Composables/useConfirmDialog'
@@ -67,9 +68,14 @@ const confirmDelete = (bankAccount: BankAccountRow) => {
   <AppLayout>
     <PageHeader title="Cash & Bank Accounts" description="Each account reconciles to one GL cash/bank control account — its cash book is derived from the ledger, not a separate record.">
       <template #actions>
-        <PrimaryButton :href="route('accounting.bank-accounts.create', { company_id: selectedCompanyId })">
-          New Bank Account
-        </PrimaryButton>
+        <div class="flex items-center gap-2">
+          <SecondaryButton :href="route('accounting.cash-transfers.create', { company_id: selectedCompanyId })">
+            Settlement / Transfer Kas
+          </SecondaryButton>
+          <PrimaryButton :href="route('accounting.bank-accounts.create', { company_id: selectedCompanyId })">
+            New Bank Account
+          </PrimaryButton>
+        </div>
       </template>
     </PageHeader>
 

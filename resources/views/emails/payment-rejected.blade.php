@@ -18,6 +18,6 @@
         If you believe this was a mistake, please reply to this email.
     </p>
 
-    <p>Thanks,<br>Nusaevo</p>
+    <p>Thanks,<br>Qualiv</p>
 </body>
 </html>
