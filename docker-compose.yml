@@ -1,51 +1,31 @@
 services:
-  # Postgres & Redis are provided by the shared-infra stack (shared-postgres /
-  # shared-redis containers, host port 5432 / 6379). This project joins the external
-  # shared-infra network below and reaches them via the "postgres" / "redis" aliases,
-  # so DB_HOST/REDIS_HOST below are unchanged. Start shared-infra before this stack.
-  # Pre-migration dump: ~/db-backups/nusaevo.sql
   app:
     build:
       context: ./docker/php
+    container_name: ${APP_CONTAINER_NAME:-qualiv_erp_app}
+    restart: unless-stopped
     ports:
-      - "8001:8000"
+      - "${APP_PORT:-127.0.0.1:8085}:8000"
     volumes:
       - .:/var/www/html
-      # Object file storage (CLAUDE.md §7B) — host folder bound to the shared path so
-      # the app can write/read files there; on the production VPS the path is the real
-      # server filesystem.
       - ./storage/objects:/var/www/storage/nusaevo-erp
-    environment: &laravel-env
-      APP_ENV: local
-      APP_DEBUG: "true"
-      APP_URL: http://localhost:8000
-      DB_CONNECTION: pgsql
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_DATABASE: nusaevo
-      DB_USERNAME: nusaevo
-      DB_PASSWORD: secret
-      REDIS_CLIENT: phpredis
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      CACHE_STORE: redis
-      QUEUE_CONNECTION: redis
-      SESSION_DRIVER: redis
+    env_file:
+      - .env
     networks:
       - shared-infra
-    command: php artisan serve --host=0.0.0.0 --port=8000
 
   queue:
     build:
       context: ./docker/php
+    container_name: ${QUEUE_CONTAINER_NAME:-qualiv_erp_queue}
+    restart: unless-stopped
     volumes:
       - .:/var/www/html
-    environment:
-      <<: *laravel-env
+    env_file:
+      - .env
     networks:
       - shared-infra
-    command: php artisan queue:work --sleep=1 --tries=1 --timeout=0
-    restart: unless-stopped
+    command: php artisan queue:work --sleep=1 --tries=3 --timeout=0
 
 networks:
   shared-infra:
