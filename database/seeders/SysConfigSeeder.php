@@ -41,6 +41,8 @@ class SysConfigSeeder extends Seeder
         'andry@nusaevo.com' => ['ADMIN'],
         'tirta@nusaevo.com' => ['ADMIN'],
         'simon@nusaevo.com' => ['ADMIN'],
+        'andry@qualiv.id' => ['ADMIN'],
+        'henry@qualiv.id' => ['ADMIN'],
     ];
 
     public function run(): void
@@ -168,7 +170,6 @@ class SysConfigSeeder extends Seeder
                 ['code' => 'SALES_OPPORTUNITIES', 'caption' => 'Opportunity Management', 'link' => '/sales/opportunities', 'icon' => 'Target', 'seq' => 82],
                 ['code' => 'SALES_QUOTATIONS', 'caption' => 'Quotations', 'link' => '/sales/quotations', 'icon' => 'FileText', 'seq' => 83],
                 ['code' => 'SALES_ORDERS', 'caption' => 'Sales Orders', 'link' => '/sales/orders', 'icon' => 'ShoppingBag', 'seq' => 84],
-                ['code' => 'SALES_DELIVERIES', 'caption' => 'Deliveries', 'link' => '/sales/deliveries', 'icon' => 'Truck', 'seq' => 85],
                 ['code' => 'SALES_INVOICES', 'caption' => 'Invoices', 'link' => '/sales/invoices', 'icon' => 'Receipt', 'seq' => 86],
                 ['code' => 'SALES_PROFILES', 'caption' => 'Customer Profiles', 'link' => '/sales/master/customers', 'icon' => 'UserCheck', 'seq' => 87],
             ],
