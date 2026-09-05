@@ -10,6 +10,17 @@ return [
             'INVENTORY',
             'DESIGN_SYSTEM',
         ],
+        'enterprise' => [
+            'PROJECTS',
+            'ACCOUNTING',
+            'CRM',
+            'SALES',
+            'PURCHASE',
+            'INVENTORY',
+            'DMS',
+            'SCHEDULE',
+            'DESIGN_SYSTEM',
+        ],
         'legal' => [
             'INVENTORY',
             'LEGAL',
