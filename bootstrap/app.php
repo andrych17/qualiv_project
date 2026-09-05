@@ -61,7 +61,17 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->respond(function (Response $response, Throwable $e, Request $request) {
             $status = $response->getStatusCode();
-            if (in_array($status, [403, 404, 500, 503]) && ! $request->is('api/*')) {
+            if (in_array($status, [401, 403, 404, 419, 500, 503]) && ! $request->is('api/*')) {
+                if ($status === 419) {
+                    return back()->with([
+                        'error' => 'Sesi telah kedaluwarsa, silakan coba lagi.',
+                    ]);
+                }
+
+                if (config('app.debug') && $status === 500) {
+                    return $response;
+                }
+
                 return inertia('Errors/Error', [
                     'status' => $status,
                     'message' => $e->getMessage() ?: null,

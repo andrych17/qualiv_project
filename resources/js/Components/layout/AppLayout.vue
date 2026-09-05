@@ -4,12 +4,15 @@ import { ref, provide } from 'vue'
 import AppSidebar from './AppSidebar.vue'
 import AppHeader from './AppHeader.vue'
 import AppContent from './AppContent.vue'
+import MenuSearchModal from './MenuSearchModal.vue'
 import Toast from '@/Components/feedback/Toast.vue'
 import ConfirmDialog from '@/Components/modals/ConfirmDialog.vue'
 import AlertDialog from '@/Components/modals/AlertDialog.vue'
 import { useFlashToast } from '@/Composables/useFlashToast'
+import { useMenuSearchShortcut } from '@/Composables/useMenuSearch'
 
 useFlashToast()
+useMenuSearchShortcut()
 
 const mobileSidebarOpen = ref(false)
 const toggleMobileSidebar = () => {
@@ -36,6 +39,7 @@ provide('mobileSidebar', {
       </AppContent>
     </div>
 
+    <MenuSearchModal />
     <Toast />
     <AlertDialog />
     <ConfirmDialog />
