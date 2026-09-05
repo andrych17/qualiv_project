@@ -133,13 +133,9 @@ class SyncQualivPlatformDataCommand extends Command
             $paymentIdShort = substr(str_replace('-', '', $payment->id), 0, 8);
             $invoiceNo = 'INV-QLV-' . strtoupper($paymentIdShort);
 
-            // Check if already synced
+            // Check if already synced by invoice_no
             $exists = ArInvoice::query()
                 ->where('invoice_no', $invoiceNo)
-                ->orWhere(function ($q) use ($payment) {
-                    $q->where('subject_type', 'qualiv_platform_payment')
-                      ->where('subject_id', (string) $payment->id);
-                })
                 ->exists();
 
             if ($exists) {
@@ -172,8 +168,6 @@ class SyncQualivPlatformDataCommand extends Command
                     'currency_code' => 'IDR',
                     'issue_date' => $paidDate,
                     'due_date' => $paidDate,
-                    'subject_type' => 'qualiv_platform_payment',
-                    'subject_id' => (string) $payment->id,
                     'status' => ArInvoice::STATUS_PAID,
                     'subtotal' => $amount,
                     'tax_amount' => 0,
@@ -303,13 +297,9 @@ class SyncQualivPlatformDataCommand extends Command
         foreach ($dailyStats as $date => $stat) {
             $billNo = 'AI-COST-' . str_replace('-', '', $date);
 
-            // Check if already synced
+            // Check if already synced by bill_no
             $exists = ApBill::query()
                 ->where('bill_no', $billNo)
-                ->orWhere(function ($q) use ($date) {
-                    $q->where('subject_type', 'qualiv_ai_cost')
-                      ->where('subject_id', (string) $date);
-                })
                 ->exists();
 
             if ($exists) {
@@ -338,8 +328,6 @@ class SyncQualivPlatformDataCommand extends Command
                     'currency_code' => 'IDR',
                     'issue_date' => $date,
                     'due_date' => $date,
-                    'subject_type' => 'qualiv_ai_cost',
-                    'subject_id' => (string) $date,
                     'status' => ApBill::STATUS_POSTED,
                     'subtotal' => $idrAmount,
                     'tax_amount' => 0,
