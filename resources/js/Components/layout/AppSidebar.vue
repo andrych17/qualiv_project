@@ -67,6 +67,24 @@ const normalizePath = (url: string) => {
   }
 }
 
+const allNavTargets = computed(() => {
+  const items = (page.props.navMenus as MenuItem[] | undefined) ?? []
+  const targets: string[] = []
+  const extract = (menuList: Array<{ href?: string; children?: any[] }>) => {
+    for (const m of menuList) {
+      if (m.href && m.href !== '#') {
+        const norm = normalizePath(m.href)
+        if (norm) targets.push(norm)
+      }
+      if (m.children && m.children.length > 0) {
+        extract(m.children)
+      }
+    }
+  }
+  extract(items)
+  return targets
+})
+
 const isItemActive = (href: string) => {
   const target = normalizePath(href)
   if (!target) return false
@@ -75,7 +93,24 @@ const isItemActive = (href: string) => {
   if (target === '/dashboard') {
     return current === '/dashboard'
   }
-  return current === target || current.startsWith(target + '/')
+
+  // Exact match
+  if (current === target) {
+    return true
+  }
+
+  // Prefix match: only if no other more specific nav target matches current
+  if (current.startsWith(target + '/')) {
+    const hasMoreSpecificMatch = allNavTargets.value.some(
+      (otherTarget) =>
+        otherTarget !== target &&
+        otherTarget.length > target.length &&
+        (current === otherTarget || current.startsWith(otherTarget + '/'))
+    )
+    return !hasMoreSpecificMatch
+  }
+
+  return false
 }
 
 const isLevel2Active = (item: Level2MenuItem) => {
