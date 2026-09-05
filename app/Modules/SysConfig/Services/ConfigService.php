@@ -6,6 +6,7 @@ use App\Modules\SysConfig\Models\ConfigConst;
 use App\Modules\SysConfig\Models\ConfigGroupUser;
 use App\Modules\SysConfig\Models\ConfigMenu;
 use App\Modules\SysConfig\Models\ConfigRight;
+use App\Modules\SysConfig\Models\TenantModule;
 use App\Services\TenantFeatureService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -62,61 +63,74 @@ class ConfigService
             return self::$memoMenus[$memoKey] = [];
         }
 
-        $menuIds = ConfigRight::query()
+        $directMenuIds = ConfigRight::query()
             ->whereIn('group_id', $groupIds)
             ->where('app_code', $appCode)
             ->where('trustee', 'like', '%R%')
             ->pluck('menu_id')
-            ->unique();
+            ->all();
 
-        // Recursively resolve all ancestor parent IDs (up to 3 levels: level 3 -> level 2 -> level 1)
-        $allMenuIds = collect($menuIds);
-        $currentIds = $menuIds;
-        while ($currentIds->isNotEmpty()) {
-            $parentIds = ConfigMenu::query()
-                ->whereIn('id', $currentIds)
-                ->whereNotNull('parent_id')
-                ->pluck('parent_id')
-                ->unique();
-            $newParents = $parentIds->diff($allMenuIds);
-            if ($newParents->isEmpty()) {
-                break;
-            }
-            $allMenuIds = $allMenuIds->merge($newParents)->unique();
-            $currentIds = $newParents;
-        }
+        $directMenuMap = array_flip($directMenuIds);
 
+        // Fetch all active menus for this app once
         $allMenus = ConfigMenu::query()
-            ->whereIn('id', $allMenuIds)
             ->where('app_code', $appCode)
             ->where('status_code', 'A')
             ->orderBy('seq')
-            ->get()
-            ->filter(function (ConfigMenu $m) {
-                // module_code is the §3A gate. Null = always-on (SYSCONFIG/dashboard).
-                if ($m->module_code === null || $m->module_code === '') {
-                    return true;
+            ->get();
+
+        $menusById = $allMenus->keyBy('id');
+
+        // Resolve all ancestor parent IDs in memory without DB queries
+        $allowedMenuIds = $directMenuMap;
+        foreach ($directMenuIds as $mid) {
+            $curr = $menusById->get($mid);
+            while ($curr && $curr->parent_id) {
+                $allowedMenuIds[$curr->parent_id] = true;
+                $curr = $menusById->get($curr->parent_id);
+            }
+        }
+
+        // Module enablement resolution in-memory
+        $enabledModules = array_flip(array_map('strtoupper', app(TenantFeatureService::class)->enabledModules()));
+        $inactiveModules = array_flip(
+            TenantModule::query()
+                ->where('is_active', false)
+                ->pluck('module_code')
+                ->map(fn ($c) => strtoupper((string) $c))
+                ->all()
+        );
+
+        $visibleMenus = $allMenus->filter(function (ConfigMenu $m) use ($allowedMenuIds, $enabledModules, $inactiveModules) {
+            if (! isset($allowedMenuIds[$m->id])) {
+                return false;
+            }
+            if ($m->module_code !== null && $m->module_code !== '') {
+                $code = strtoupper($m->module_code);
+                if (! isset($enabledModules[$code]) || isset($inactiveModules[$code])) {
+                    return false;
                 }
+            }
 
-                return app(TenantFeatureService::class)->enabled($m->module_code);
-            });
+            return true;
+        });
 
-        $childrenByParent = $allMenus->whereNotNull('parent_id')->groupBy('parent_id');
-        $parents = $allMenus->whereNull('parent_id');
+        $childrenByParent = $visibleMenus->whereNotNull('parent_id')->groupBy('parent_id');
+        $parents = $visibleMenus->whereNull('parent_id');
 
-        $result = $parents->map(function (ConfigMenu $parent) use ($childrenByParent, $menuIds) {
+        $result = $parents->map(function (ConfigMenu $parent) use ($childrenByParent, $directMenuMap) {
             $level2Items = ($childrenByParent->get($parent->id) ?? collect())
-                ->filter(function (ConfigMenu $l2) use ($childrenByParent, $menuIds, $parent) {
-                    if ($menuIds->contains($l2->id) || $menuIds->contains($parent->id)) {
+                ->filter(function (ConfigMenu $l2) use ($childrenByParent, $directMenuMap, $parent) {
+                    if (isset($directMenuMap[$l2->id]) || isset($directMenuMap[$parent->id])) {
                         return true;
                     }
                     $l3Children = $childrenByParent->get($l2->id) ?? collect();
 
-                    return $l3Children->contains(fn ($l3) => $menuIds->contains($l3->id));
+                    return $l3Children->contains(fn ($l3) => isset($directMenuMap[$l3->id]));
                 })
-                ->map(function (ConfigMenu $l2) use ($childrenByParent, $menuIds, $parent) {
+                ->map(function (ConfigMenu $l2) use ($childrenByParent, $directMenuMap, $parent) {
                     $level3Items = ($childrenByParent->get($l2->id) ?? collect())
-                        ->filter(fn (ConfigMenu $l3) => $menuIds->contains($l3->id) || $menuIds->contains($l2->id) || $menuIds->contains($parent->id))
+                        ->filter(fn (ConfigMenu $l3) => isset($directMenuMap[$l3->id]) || isset($directMenuMap[$l2->id]) || isset($directMenuMap[$parent->id]))
                         ->map(fn (ConfigMenu $l3) => [
                             'code' => $l3->code,
                             'label' => $l3->menu_caption,
