@@ -68,3 +68,7 @@ Schedule::command('tenants:run "mes:check-downtime-thresholds"')->everyFiveMinut
 // MES_SPECS.md §3R Andon alert sweep — same posture, five conditions computed fresh each run,
 // idempotent via mes_andon_alerts' open-row uniqueness.
 Schedule::command('tenants:run "mes:check-andon-alerts"')->everyFiveMinutes();
+
+// QUALIV Platform: Automated daily sync for subscription payments & AI token costs
+Schedule::command('qualiv:sync-platform-data')->dailyAt('00:05')->withoutOverlapping();
+
