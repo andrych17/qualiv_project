@@ -54,18 +54,6 @@ class ConfigService
             return self::$memoMenus[$memoKey];
         }
 
-        $sessionKey = "sysconfig_menus_{$memoKey}";
-        try {
-            if (request()->hasSession() && request()->session()->has($sessionKey)) {
-                $cached = request()->session()->get($sessionKey);
-                if (is_array($cached)) {
-                    return self::$memoMenus[$memoKey] = $cached;
-                }
-            }
-        } catch (\Throwable) {
-            // CLI fallback
-        }
-
         $groupIds = ConfigGroupUser::query()
             ->where('user_id', $userId)
             ->pluck('group_id');
@@ -162,14 +150,6 @@ class ConfigService
             ];
         })->values()->all();
 
-        try {
-            if (request()->hasSession()) {
-                request()->session()->put($sessionKey, $result);
-            }
-        } catch (\Throwable) {
-            // CLI fallback
-        }
-
         return self::$memoMenus[$memoKey] = $result;
     }
 
@@ -181,18 +161,6 @@ class ConfigService
 
         if (isset(self::$memoPerms[$memoKey])) {
             return self::$memoPerms[$memoKey];
-        }
-
-        $sessionKey = "sysconfig_perms_{$memoKey}";
-        try {
-            if (request()->hasSession() && request()->session()->has($sessionKey)) {
-                $cached = request()->session()->get($sessionKey);
-                if (is_array($cached)) {
-                    return self::$memoPerms[$memoKey] = $cached;
-                }
-            }
-        } catch (\Throwable) {
-            // CLI fallback
         }
 
         $groupIds = ConfigGroupUser::query()
@@ -237,14 +205,6 @@ class ConfigService
         }
 
         $result = ConfigRight::parseTrustee($merged);
-
-        try {
-            if (request()->hasSession()) {
-                request()->session()->put($sessionKey, $result);
-            }
-        } catch (\Throwable) {
-            // CLI fallback
-        }
 
         return self::$memoPerms[$memoKey] = $result;
     }
