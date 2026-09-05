@@ -261,7 +261,7 @@ class SysConfigSeeder extends Seeder
                     'icon' => $row['icon'],
                     'seq' => $row['seq'],
                     'status_code' => $row['status_code'],
-                    'module_code' => (str_starts_with($row['code'], 'CONFIG_') || in_array($row['code'], ['DASHBOARD', 'DESIGN_SYSTEM'], true))
+                    'module_code' => (str_starts_with($row['code'], 'CONFIG_') || $row['code'] === 'DASHBOARD')
                         ? null
                         : $row['code'],
                 ],

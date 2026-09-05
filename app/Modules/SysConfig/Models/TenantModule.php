@@ -9,6 +9,7 @@ class TenantModule extends Model
     public const TOGGLEABLE = [
         'WNE', 'DMS', 'CRM', 'SCHEDULE', 'INVENTORY', 'ACCOUNTING',
         'PURCHASE', 'SALES', 'HCM', 'PAYROLL', 'PERFORMANCE', 'AIINSIGHT', 'LEGAL',
+        'PROJECTS', 'MES', 'PP', 'POS',
     ];
 
     protected $table = 'SYSCONFIG.tenant_modules';
