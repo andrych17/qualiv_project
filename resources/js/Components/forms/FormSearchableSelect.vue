@@ -175,10 +175,10 @@ onUnmounted(() => {
           disabled ? 'bg-surface-50 cursor-not-allowed text-ink-600' : 'cursor-pointer'
         ]"
       >
-        <span v-if="selectedOption" class="font-medium text-ink-900 truncate">
+        <span v-if="selectedOption" class="font-medium text-ink-900 truncate flex-1 min-w-0 pr-2">
           {{ selectedOption.label }}
         </span>
-        <span v-else class="text-ink-600">
+        <span v-else class="text-ink-600 truncate flex-1 min-w-0 pr-2">
           {{ placeholder }}
         </span>
 
@@ -194,7 +194,7 @@ onUnmounted(() => {
             <X class="h-3.5 w-3.5" />
           </button>
           <ChevronDown
-            class="h-4 w-4 text-ink-600 transition-transform duration-200"
+            class="h-4 w-4 text-ink-600 transition-transform duration-200 shrink-0"
             :class="{ 'rotate-180': isOpen }"
           />
         </div>
@@ -250,9 +250,9 @@ onUnmounted(() => {
               class="w-full flex items-center justify-between px-3 py-2 text-left text-sm transition-colors hover:bg-surface-50"
               :class="opt.value === modelValue ? 'bg-surface-50 font-semibold text-accent' : 'text-ink-900'"
             >
-              <div>
-                <div class="leading-tight">{{ opt.label }}</div>
-                <div v-if="opt.description" class="text-xs text-ink-600 mt-0.5 font-normal">
+              <div class="flex-1 min-w-0 pr-2">
+                <div class="leading-tight truncate">{{ opt.label }}</div>
+                <div v-if="opt.description" class="text-xs text-ink-600 mt-0.5 font-normal truncate">
                   {{ opt.description }}
                 </div>
               </div>

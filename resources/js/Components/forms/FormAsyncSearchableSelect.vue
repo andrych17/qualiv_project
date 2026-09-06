@@ -310,7 +310,7 @@ onUnmounted(() => {
       >
         <!-- Custom selected slot or default layout -->
         <slot name="selected" :option="selectedOption">
-          <div v-if="selectedOption" class="flex items-center gap-2 min-w-0 pr-2">
+          <div v-if="selectedOption" class="flex items-center gap-2 flex-1 min-w-0 pr-2">
             <div
               v-if="selectedOption.avatar"
               class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent font-semibold text-[10px] text-accent-text"
@@ -325,11 +325,11 @@ onUnmounted(() => {
             </span>
           </div>
 
-          <span v-else-if="isHydrating" class="text-xs text-ink-600 flex items-center gap-1.5">
-            <Loader2 class="h-3.5 w-3.5 animate-spin" /> Memuat detail...
+          <span v-else-if="isHydrating" class="text-xs text-ink-600 flex items-center gap-1.5 flex-1 min-w-0 pr-2 truncate">
+            <Loader2 class="h-3.5 w-3.5 animate-spin shrink-0" /> Memuat detail...
           </span>
 
-          <span v-else class="text-ink-600">
+          <span v-else class="text-ink-600 flex-1 min-w-0 pr-2 truncate">
             {{ placeholder }}
           </span>
         </slot>
@@ -345,7 +345,7 @@ onUnmounted(() => {
             <X class="h-3.5 w-3.5" />
           </button>
           <ChevronDown
-            class="h-4 w-4 text-ink-600 transition-transform duration-200"
+            class="h-4 w-4 text-ink-600 transition-transform duration-200 shrink-0"
             :class="{ 'rotate-180': isOpen }"
           />
         </div>
@@ -420,14 +420,14 @@ onUnmounted(() => {
               :class="String(getItemValue(opt)) === String(modelValue) ? 'bg-surface-50 font-semibold text-accent' : 'text-ink-900'"
             >
               <slot name="option" :option="opt">
-                <div class="flex items-center gap-3 min-w-0 pr-2">
+                <div class="flex items-center gap-3 flex-1 min-w-0 pr-2">
                   <div
                     v-if="opt.avatar"
                     class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent font-bold text-xs text-accent-text shadow-sm"
                   >
                     {{ opt.avatar }}
                   </div>
-                  <div class="min-w-0">
+                  <div class="min-w-0 flex-1">
                     <div class="leading-snug truncate">{{ getItemLabel(opt) }}</div>
                     <div v-if="getItemDescription(opt)" class="text-xs text-ink-600 mt-0.5 truncate font-normal">
                       {{ getItemDescription(opt) }}

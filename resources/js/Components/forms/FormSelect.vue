@@ -38,7 +38,7 @@ const selectId = computed(() => props.name ? `select-${props.name}` : undefined)
       :name="name"
       :value="modelValue ?? ''"
       :disabled="disabled"
-      class="w-full rounded-md border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-xs outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+      class="w-full rounded-md border border-border bg-surface-0 pl-3 pr-10 py-2 text-sm text-ink-900 shadow-xs outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20 truncate"
       :class="[
         error ? 'border-signal-danger focus:border-signal-danger focus:ring-signal-danger/20' : '',
         disabled ? 'bg-surface-50 cursor-not-allowed text-ink-600' : '',
