@@ -82,33 +82,53 @@ class SysConfigSeeder extends Seeder
         $rows = [
             // Live
             ['code' => 'DASHBOARD', 'menu_header' => 'Main', 'menu_caption' => 'Dashboard', 'menu_link' => '/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 10, 'status_code' => 'A'],
-            ['code' => 'INVENTORY', 'menu_header' => 'Operations', 'menu_caption' => 'Inventory', 'menu_link' => '/inventory/products', 'icon' => 'Boxes', 'seq' => 70, 'status_code' => 'A'],
+            ['code' => 'TRANSACTIONS', 'menu_header' => 'Keuangan', 'menu_caption' => 'Pemasukan & Pengeluaran', 'menu_link' => '/accounting/ap-bills', 'icon' => 'Receipt', 'seq' => 20, 'status_code' => 'A'],
+            ['code' => 'BOOKKEEPING', 'menu_header' => 'Keuangan', 'menu_caption' => 'Pembukuan', 'menu_link' => '/accounting/accounts', 'icon' => 'BookOpen', 'seq' => 30, 'status_code' => 'A'],
+            ['code' => 'REPORTS', 'menu_header' => 'Keuangan', 'menu_caption' => 'Report', 'menu_link' => '/accounting/reports', 'icon' => 'LineChart', 'seq' => 40, 'status_code' => 'A'],
             ['code' => 'SYSCONFIG', 'menu_header' => 'System', 'menu_caption' => 'Config', 'menu_link' => '/config/users', 'icon' => 'Settings', 'seq' => 200, 'status_code' => 'A'],
 
-            // Core & Vertical Modules
-            ['code' => 'CRM', 'menu_header' => 'Core', 'menu_caption' => 'CRM', 'menu_link' => '/crm/dashboard', 'icon' => 'Users', 'seq' => 20, 'status_code' => 'A'],
-            ['code' => 'CRM_MERGE', 'menu_header' => 'Core', 'menu_caption' => 'CRM — Merge', 'menu_link' => '/crm/merge', 'icon' => 'Merge', 'seq' => 21, 'status_code' => 'I'],
-            ['code' => 'SCHEDULE', 'menu_header' => 'Core', 'menu_caption' => 'Schedule', 'menu_link' => '/schedule/dashboard', 'icon' => 'CalendarDays', 'seq' => 30, 'status_code' => 'A'],
-            ['code' => 'WNE', 'menu_header' => 'Core', 'menu_caption' => 'Workflow & Notifications', 'menu_link' => '/wne/dashboard', 'icon' => 'Workflow', 'seq' => 40, 'status_code' => 'A'],
-            ['code' => 'DMS', 'menu_header' => 'Core', 'menu_caption' => 'Documents', 'menu_link' => '/dms/dashboard', 'icon' => 'FolderOpen', 'seq' => 45, 'status_code' => 'A'],
-            ['code' => 'LEGAL', 'menu_header' => 'Vertical', 'menu_caption' => 'Legal', 'menu_link' => '/legal/dashboard', 'icon' => 'Scale', 'seq' => 60, 'status_code' => 'A'],
-            ['code' => 'PROJECTS', 'menu_header' => 'Operations', 'menu_caption' => 'Projects', 'menu_link' => '/projects/1', 'icon' => 'Kanban', 'seq' => 65, 'status_code' => 'A'],
-            ['code' => 'SALES', 'menu_header' => 'Operations', 'menu_caption' => 'Sales', 'menu_link' => '/sales/dashboard', 'icon' => 'ShoppingCart', 'seq' => 80, 'status_code' => 'A'],
-            ['code' => 'PURCHASE', 'menu_header' => 'Operations', 'menu_caption' => 'Purchase', 'menu_link' => '/purchase/dashboard', 'icon' => 'Truck', 'seq' => 90, 'status_code' => 'A'],
-            ['code' => 'ACCOUNTING', 'menu_header' => 'Operations', 'menu_caption' => 'Accounting', 'menu_link' => '/accounting/accounts', 'icon' => 'Calculator', 'seq' => 120, 'status_code' => 'A'],
-            ['code' => 'HCM', 'menu_header' => 'People', 'menu_caption' => 'HCM', 'menu_link' => '/hcm/dashboard', 'icon' => 'UserCog', 'seq' => 130, 'status_code' => 'A'],
-            ['code' => 'PAYROLL', 'menu_header' => 'People', 'menu_caption' => 'Payroll', 'menu_link' => '/payroll/dashboard', 'icon' => 'Wallet', 'seq' => 140, 'status_code' => 'A'],
-            // §3C ships (Targets & KPI Setup) — KPI Definitions is the landing page for now
-            // (no §3A dashboard yet), same "point straight at the built page" convention
-            // WNE/DMS/Accounting used before their own dashboards existed.
-            ['code' => 'PERFORMANCE', 'menu_header' => 'People', 'menu_caption' => 'Performance', 'menu_link' => '/performance/kpi-definitions', 'icon' => 'Target', 'seq' => 150, 'status_code' => 'A'],
-            // PP_SPECS.md §3O ships (Dashboard) — full plan only (config/tenant_modules.php).
-            ['code' => 'PP', 'menu_header' => 'Operations', 'menu_caption' => 'Production Planning', 'menu_link' => '/pp/dashboard', 'icon' => 'CalendarRange', 'seq' => 160, 'status_code' => 'A'],
-            // MES_SPECS.md — full plan only (config/tenant_modules.php).
-            ['code' => 'MES', 'menu_header' => 'Operations', 'menu_caption' => 'Manufacturing Execution', 'menu_link' => '/mes/work-centers', 'icon' => 'Factory', 'seq' => 230, 'status_code' => 'A'],
+            // Inactive Modules (hidden)
+            ['code' => 'ACCOUNTING', 'menu_header' => 'Operations', 'menu_caption' => 'Accounting', 'menu_link' => '/accounting/accounts', 'icon' => 'Calculator', 'seq' => 120, 'status_code' => 'I'],
+            ['code' => 'INVENTORY', 'menu_header' => 'Operations', 'menu_caption' => 'Inventory', 'menu_link' => '/inventory/products', 'icon' => 'Boxes', 'seq' => 70, 'status_code' => 'I'],
+            ['code' => 'CRM', 'menu_header' => 'Core', 'menu_caption' => 'CRM', 'menu_link' => '/crm/dashboard', 'icon' => 'Users', 'seq' => 50, 'status_code' => 'I'],
+            ['code' => 'CRM_MERGE', 'menu_header' => 'Core', 'menu_caption' => 'CRM — Merge', 'menu_link' => '/crm/merge', 'icon' => 'Merge', 'seq' => 51, 'status_code' => 'I'],
+            ['code' => 'SCHEDULE', 'menu_header' => 'Core', 'menu_caption' => 'Schedule', 'menu_link' => '/schedule/dashboard', 'icon' => 'CalendarDays', 'seq' => 52, 'status_code' => 'I'],
+            ['code' => 'WNE', 'menu_header' => 'Core', 'menu_caption' => 'Workflow & Notifications', 'menu_link' => '/wne/dashboard', 'icon' => 'Workflow', 'seq' => 53, 'status_code' => 'I'],
+            ['code' => 'DMS', 'menu_header' => 'Core', 'menu_caption' => 'Documents', 'menu_link' => '/dms/dashboard', 'icon' => 'FolderOpen', 'seq' => 54, 'status_code' => 'I'],
+            ['code' => 'LEGAL', 'menu_header' => 'Vertical', 'menu_caption' => 'Legal', 'menu_link' => '/legal/dashboard', 'icon' => 'Scale', 'seq' => 60, 'status_code' => 'I'],
+            ['code' => 'PROJECTS', 'menu_header' => 'Operations', 'menu_caption' => 'Projects', 'menu_link' => '/projects/1', 'icon' => 'Kanban', 'seq' => 65, 'status_code' => 'I'],
+            ['code' => 'SALES', 'menu_header' => 'Operations', 'menu_caption' => 'Sales', 'menu_link' => '/sales/dashboard', 'icon' => 'ShoppingCart', 'seq' => 80, 'status_code' => 'I'],
+            ['code' => 'PURCHASE', 'menu_header' => 'Operations', 'menu_caption' => 'Purchase', 'menu_link' => '/purchase/dashboard', 'icon' => 'Truck', 'seq' => 90, 'status_code' => 'I'],
+            ['code' => 'HCM', 'menu_header' => 'People', 'menu_caption' => 'HCM', 'menu_link' => '/hcm/dashboard', 'icon' => 'UserCog', 'seq' => 130, 'status_code' => 'I'],
+            ['code' => 'PAYROLL', 'menu_header' => 'People', 'menu_caption' => 'Payroll', 'menu_link' => '/payroll/dashboard', 'icon' => 'Wallet', 'seq' => 140, 'status_code' => 'I'],
+            ['code' => 'PERFORMANCE', 'menu_header' => 'People', 'menu_caption' => 'Performance', 'menu_link' => '/performance/kpi-definitions', 'icon' => 'Target', 'seq' => 150, 'status_code' => 'I'],
+            ['code' => 'PP', 'menu_header' => 'Operations', 'menu_caption' => 'Production Planning', 'menu_link' => '/pp/dashboard', 'icon' => 'CalendarRange', 'seq' => 160, 'status_code' => 'I'],
+            ['code' => 'MES', 'menu_header' => 'Operations', 'menu_caption' => 'Manufacturing Execution', 'menu_link' => '/mes/work-centers', 'icon' => 'Factory', 'seq' => 230, 'status_code' => 'I'],
         ];
 
         $submenus = [
+            'TRANSACTIONS' => [
+                ['code' => 'ACCOUNTING_AR_INVOICES', 'caption' => 'Pemasukan (Invoices)', 'link' => '/accounting/ar-invoices', 'icon' => 'FileText', 'seq' => 21],
+                ['code' => 'ACCOUNTING_AR_PAYMENTS', 'caption' => 'Penerimaan Pembayaran', 'link' => '/accounting/ar-payments', 'icon' => 'Banknote', 'seq' => 22],
+                ['code' => 'ACCOUNTING_AP_BILLS', 'caption' => 'Pengeluaran (Bills)', 'link' => '/accounting/ap-bills', 'icon' => 'Receipt', 'seq' => 23],
+                ['code' => 'ACCOUNTING_AP_PAYMENTS', 'caption' => 'Pembayaran Pengeluaran', 'link' => '/accounting/ap-payments', 'icon' => 'CreditCard', 'seq' => 24],
+                ['code' => 'ACCOUNTING_BANK_ACCOUNTS', 'caption' => 'Kas & Bank', 'link' => '/accounting/bank-accounts', 'icon' => 'Landmark', 'seq' => 25],
+                ['code' => 'ACCOUNTING_CASH_TRANSFERS', 'caption' => 'Transfer Kas & Settlement', 'link' => '/accounting/cash-transfers/create', 'icon' => 'ArrowLeftRight', 'seq' => 26],
+                ['code' => 'ACCOUNTING_RECURRING', 'caption' => 'Pengeluaran Rutin', 'link' => '/accounting/recurring-journal-templates', 'icon' => 'Repeat', 'seq' => 27],
+            ],
+            'BOOKKEEPING' => [
+                ['code' => 'ACCOUNTING_ACCOUNTS', 'caption' => 'Bagan Akun (COA)', 'link' => '/accounting/accounts', 'icon' => 'BookOpen', 'seq' => 31],
+                ['code' => 'ACCOUNTING_JOURNALS', 'caption' => 'Jurnal Umum (Journals)', 'link' => '/accounting/journals', 'icon' => 'BookMarked', 'seq' => 32],
+                ['code' => 'ACCOUNTING_GL', 'caption' => 'Buku Besar (General Ledger)', 'link' => '/accounting/general-ledger', 'icon' => 'FileSpreadsheet', 'seq' => 33],
+                ['code' => 'ACCOUNTING_TAX_PERIODS', 'caption' => 'Periode Pajak & Tutup Buku', 'link' => '/accounting/tax-periods', 'icon' => 'CalendarCheck', 'seq' => 34],
+            ],
+            'REPORTS' => [
+                ['code' => 'ACCOUNTING_REPORTS', 'caption' => 'Pusat Laporan Keuangan', 'link' => '/accounting/reports', 'icon' => 'LineChart', 'seq' => 41],
+                ['code' => 'REPORT_PL', 'caption' => 'Laba Rugi (Profit & Loss)', 'link' => '/accounting/reports/profit-loss', 'icon' => 'TrendingUp', 'seq' => 42],
+                ['code' => 'REPORT_BS', 'caption' => 'Neraca (Balance Sheet)', 'link' => '/accounting/reports/balance-sheet', 'icon' => 'Scale', 'seq' => 43],
+                ['code' => 'REPORT_CF', 'caption' => 'Arus Kas (Cash Flow)', 'link' => '/accounting/reports/cash-flow', 'icon' => 'Coins', 'seq' => 44],
+                ['code' => 'REPORT_TB', 'caption' => 'Neraca Saldo (Trial Balance)', 'link' => '/accounting/reports/trial-balance', 'icon' => 'BarChart3', 'seq' => 45],
+            ],
             'PROJECTS' => [
                 ['code' => 'PROJECTS_BOARD', 'caption' => 'Kanban Board (QLV)', 'link' => '/projects/1', 'icon' => 'Kanban', 'seq' => 66],
                 ['code' => 'PROJECTS_ALL', 'caption' => 'Daftar Project', 'link' => '/projects', 'icon' => 'FolderKanban', 'seq' => 67],
@@ -179,20 +199,6 @@ class SysConfigSeeder extends Seeder
                 ['code' => 'PURCHASE_INVOICES', 'caption' => 'Vendor Bills', 'link' => '/purchase/invoices', 'icon' => 'Receipt', 'seq' => 96],
                 ['code' => 'PURCHASE_SPEND', 'caption' => 'Spend Analytics', 'link' => '/purchase/analytics/spend', 'icon' => 'PieChart', 'seq' => 97],
                 ['code' => 'PURCHASE_ESG', 'caption' => 'ESG Scorecard', 'link' => '/purchase/analytics/esg', 'icon' => 'Leaf', 'seq' => 98],
-            ],
-            'ACCOUNTING' => [
-                ['code' => 'ACCOUNTING_AP_BILLS', 'caption' => 'Bills (Pengeluaran & Ads)', 'link' => '/accounting/ap-bills', 'icon' => 'Receipt', 'seq' => 121],
-                ['code' => 'ACCOUNTING_AP_PAYMENTS', 'caption' => 'Bill Payments', 'link' => '/accounting/ap-payments', 'icon' => 'CreditCard', 'seq' => 122],
-                ['code' => 'ACCOUNTING_AR_INVOICES', 'caption' => 'Customer Invoices', 'link' => '/accounting/ar-invoices', 'icon' => 'FileText', 'seq' => 123],
-                ['code' => 'ACCOUNTING_AR_PAYMENTS', 'caption' => 'Customer Payments', 'link' => '/accounting/ar-payments', 'icon' => 'Banknote', 'seq' => 124],
-                ['code' => 'ACCOUNTING_BANK_ACCOUNTS', 'caption' => 'Bank & Cash', 'link' => '/accounting/bank-accounts', 'icon' => 'Landmark', 'seq' => 125],
-                ['code' => 'ACCOUNTING_CASH_TRANSFERS', 'caption' => 'Transfer & Settlement', 'link' => '/accounting/cash-transfers/create', 'icon' => 'ArrowLeftRight', 'seq' => 126],
-                ['code' => 'ACCOUNTING_RECURRING', 'caption' => 'Pengeluaran Rutin (Recurring)', 'link' => '/accounting/recurring-journal-templates', 'icon' => 'Repeat', 'seq' => 127],
-                ['code' => 'ACCOUNTING_ACCOUNTS', 'caption' => 'Chart of Accounts', 'link' => '/accounting/accounts', 'icon' => 'BookOpen', 'seq' => 128],
-                ['code' => 'ACCOUNTING_JOURNALS', 'caption' => 'Journal Entries', 'link' => '/accounting/journals', 'icon' => 'BookMarked', 'seq' => 129],
-                ['code' => 'ACCOUNTING_GL', 'caption' => 'General Ledger', 'link' => '/accounting/general-ledger', 'icon' => 'FileSpreadsheet', 'seq' => 130],
-                ['code' => 'ACCOUNTING_REPORTS', 'caption' => 'Financial Reports', 'link' => '/accounting/reports', 'icon' => 'LineChart', 'seq' => 131],
-                ['code' => 'ACCOUNTING_TAX_PERIODS', 'caption' => 'Tax Periods', 'link' => '/accounting/tax-periods', 'icon' => 'CalendarCheck', 'seq' => 132],
             ],
             'WNE' => [
                 ['code' => 'WNE_DASHBOARD', 'caption' => 'Dashboard', 'link' => '/wne/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 41],
@@ -265,6 +271,10 @@ class SysConfigSeeder extends Seeder
 
         $map = [];
         foreach ($rows as $row) {
+            $moduleCode = in_array($row['code'], ['TRANSACTIONS', 'BOOKKEEPING', 'REPORTS', 'ACCOUNTING'])
+                ? 'ACCOUNTING'
+                : ((str_starts_with($row['code'], 'CONFIG_') || in_array($row['code'], ['DASHBOARD', 'SYSCONFIG'])) ? null : $row['code']);
+
             $map[$row['code']] = ConfigMenu::query()->updateOrCreate(
                 ['app_code' => self::APP, 'code' => $row['code']],
                 [
@@ -275,9 +285,7 @@ class SysConfigSeeder extends Seeder
                     'icon' => $row['icon'],
                     'seq' => $row['seq'],
                     'status_code' => $row['status_code'],
-                    'module_code' => (str_starts_with($row['code'], 'CONFIG_') || $row['code'] === 'DASHBOARD' || $row['code'] === 'SYSCONFIG')
-                        ? null
-                        : $row['code'],
+                    'module_code' => $moduleCode,
                 ],
             );
         }
@@ -319,6 +327,10 @@ class SysConfigSeeder extends Seeder
             'ADMIN' => array_fill_keys(array_keys($menus), 'CRUD'),
             'STAFF' => [
                 'DASHBOARD' => 'R',
+                'TRANSACTIONS' => 'CRUD',
+                'BOOKKEEPING' => 'CRUD',
+                'REPORTS' => 'R',
+                'ACCOUNTING' => 'CRUD',
                 'INVENTORY' => 'CRUD',
                 'LEGAL' => 'CRUD',
                 'CRM' => 'CRUD',
@@ -326,7 +338,6 @@ class SysConfigSeeder extends Seeder
                 'WNE' => 'CRUD',
                 'DMS' => 'CRUD',
                 'PROJECTS' => 'CRUD',
-                'ACCOUNTING' => 'CRUD',
                 'HCM' => 'CRUD',
                 'PAYROLL' => 'CRUD',
                 'PERFORMANCE' => 'CRUD',
@@ -338,6 +349,10 @@ class SysConfigSeeder extends Seeder
             ],
             'VIEWER' => [
                 'DASHBOARD' => 'R',
+                'TRANSACTIONS' => 'R',
+                'BOOKKEEPING' => 'R',
+                'REPORTS' => 'R',
+                'ACCOUNTING' => 'R',
                 'INVENTORY' => 'R',
                 'LEGAL' => 'R',
                 'CRM' => 'R',
@@ -345,7 +360,6 @@ class SysConfigSeeder extends Seeder
                 'WNE' => 'R',
                 'DMS' => 'R',
                 'PROJECTS' => 'R',
-                'ACCOUNTING' => 'R',
                 'HCM' => 'R',
                 'PAYROLL' => 'R',
                 'PERFORMANCE' => 'R',
