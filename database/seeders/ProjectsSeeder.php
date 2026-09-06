@@ -88,7 +88,7 @@ class ProjectsSeeder extends Seeder
                     'code' => 'QLV-'.$seq,
                     'description' => $item['desc'],
                     'type' => $item['type'],
-                    'status' => $item['status'],
+                    'status' => 'done',
                     'priority' => $item['prio'],
                     'assignee_id' => $item['assignee'],
                     'reporter_id' => $andry->id,
