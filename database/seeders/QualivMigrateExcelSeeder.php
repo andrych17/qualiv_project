@@ -159,41 +159,7 @@ class QualivMigrateExcelSeeder extends Seeder
             'role_type_id' => $customerRoleType->id,
         ], ['assigned_at' => now(), 'is_active' => true]);
 
-        // PT Mitra Digital Solusindo (Customer)
-        $mitra = Partner::query()->updateOrCreate(
-            ['name' => 'PT Mitra Digital Solusindo'],
-            [
-                'type' => Partner::TYPE_ORGANIZATION,
-                'trade_name' => 'Mitra Digital',
-                'is_active' => true,
-                'source' => 'Inbound Sales',
-            ]
-        );
-        ContactPoint::query()->updateOrCreate(
-            ['partner_id' => $mitra->id, 'value' => 'finance@mitradigital.co.id'],
-            ['type' => 'email', 'is_primary' => true]
-        );
-        PartnerRole::query()->updateOrCreate([
-            'partner_id' => $mitra->id,
-            'role_type_id' => $customerRoleType->id,
-        ], ['assigned_at' => now(), 'is_active' => true]);
-
-        // PT Sumber Rezeki Logistik (Customer)
-        $sumber = Partner::query()->updateOrCreate(
-            ['name' => 'PT Sumber Rezeki Logistik'],
-            [
-                'type' => Partner::TYPE_ORGANIZATION,
-                'trade_name' => 'Sumber Rezeki',
-                'is_active' => true,
-                'source' => 'Website Signup',
-            ]
-        );
-        PartnerRole::query()->updateOrCreate([
-            'partner_id' => $sumber->id,
-            'role_type_id' => $customerRoleType->id,
-        ], ['assigned_at' => now(), 'is_active' => true]);
-
-        // Spectrum Darmo (Vendor)
+        // Spectrum Darmo (Vendor Percetakan)
         $spectrum = Partner::query()->updateOrCreate(
             ['name' => 'Spectrum Darmo'],
             [
@@ -208,12 +174,12 @@ class QualivMigrateExcelSeeder extends Seeder
             'role_type_id' => $vendorRoleType->id,
         ], ['assigned_at' => now(), 'is_active' => true]);
 
-        // IndoSMM (Vendor)
+        // IndoSMM (Vendor Social Media)
         $indosmm = Partner::query()->updateOrCreate(
             ['name' => 'IndoSMM'],
             [
                 'type' => Partner::TYPE_ORGANIZATION,
-                'trade_name' => 'IndoSMM Platform',
+                'trade_name' => 'IndoSMM',
                 'is_active' => true,
                 'source' => 'Vendor Marketing',
             ]
@@ -223,37 +189,37 @@ class QualivMigrateExcelSeeder extends Seeder
             'role_type_id' => $vendorRoleType->id,
         ], ['assigned_at' => now(), 'is_active' => true]);
 
-        // Tech Startup Vendors (Hosting, Cloud, AI APIs, Dev Tools, Ads)
-        $techVendors = [
-            ['name' => 'Hostinger International Ltd.', 'trade_name' => 'Hostinger', 'tags' => ['vendor', 'hosting', 'vps', 'server']],
-            ['name' => 'DigitalOcean, LLC', 'trade_name' => 'DigitalOcean', 'tags' => ['vendor', 'cloud', 'vps', 'droplet']],
-            ['name' => 'Amazon Web Services, Inc.', 'trade_name' => 'AWS', 'tags' => ['vendor', 'cloud', 'infrastructure', 's3']],
-            ['name' => 'Google Asia Pacific Pte. Ltd.', 'trade_name' => 'Google Cloud / Google Ads', 'tags' => ['vendor', 'cloud', 'gcp', 'ads', 'ai']],
-            ['name' => 'Cloudflare, Inc.', 'trade_name' => 'Cloudflare', 'tags' => ['vendor', 'dns', 'cdn', 'security']],
-            ['name' => 'Vercel Inc.', 'trade_name' => 'Vercel', 'tags' => ['vendor', 'frontend', 'hosting', 'serverless']],
-            ['name' => 'OpenAI, LLC', 'trade_name' => 'OpenAI (ChatGPT & API)', 'tags' => ['vendor', 'ai-api', 'gpt-4o', 'llm']],
-            ['name' => 'Anthropic, PBC', 'trade_name' => 'Anthropic (Claude API)', 'tags' => ['vendor', 'ai-api', 'claude-3-7', 'llm']],
-            ['name' => 'GitHub, Inc.', 'trade_name' => 'GitHub', 'tags' => ['vendor', 'dev-tools', 'ci-cd', 'repo']],
-            ['name' => 'Meta Platforms Ireland Limited', 'trade_name' => 'Meta Ads (FB & Instagram)', 'tags' => ['vendor', 'marketing', 'meta-ads', 'ads']],
-            ['name' => 'Supabase Pte. Ltd.', 'trade_name' => 'Supabase', 'tags' => ['vendor', 'database', 'auth', 'backend']],
-        ];
+        // Hostinger (Vendor Hosting & Domain)
+        $hostinger = Partner::query()->updateOrCreate(
+            ['trade_name' => 'Hostinger'],
+            [
+                'type' => Partner::TYPE_ORGANIZATION,
+                'name' => 'Hostinger International Ltd.',
+                'tags' => ['vendor', 'hosting', 'vps', 'domain'],
+                'source' => 'Server & Infra',
+                'is_active' => true,
+            ]
+        );
+        PartnerRole::query()->updateOrCreate([
+            'partner_id' => $hostinger->id,
+            'role_type_id' => $vendorRoleType->id,
+        ], ['assigned_at' => now(), 'is_active' => true]);
 
-        foreach ($techVendors as $tv) {
-            $p = Partner::query()->updateOrCreate(
-                ['trade_name' => $tv['trade_name']],
-                [
-                    'type' => Partner::TYPE_ORGANIZATION,
-                    'name' => $tv['name'],
-                    'tags' => $tv['tags'],
-                    'source' => 'Tech Infrastructure',
-                    'is_active' => true,
-                ]
-            );
-            PartnerRole::query()->updateOrCreate([
-                'partner_id' => $p->id,
-                'role_type_id' => $vendorRoleType->id,
-            ], ['assigned_at' => now(), 'is_active' => true]);
-        }
+        // Meta Platforms (Vendor Ads & Subscription)
+        $meta = Partner::query()->updateOrCreate(
+            ['trade_name' => 'Meta Platforms'],
+            [
+                'type' => Partner::TYPE_ORGANIZATION,
+                'name' => 'Meta Platforms Ireland Limited',
+                'tags' => ['vendor', 'marketing', 'meta-ads', 'subscription'],
+                'source' => 'Marketing & Ads',
+                'is_active' => true,
+            ]
+        );
+        PartnerRole::query()->updateOrCreate([
+            'partner_id' => $meta->id,
+            'role_type_id' => $vendorRoleType->id,
+        ], ['assigned_at' => now(), 'is_active' => true]);
     }
 
     private function seedProjectsAndIssues(array $users): void
@@ -275,6 +241,9 @@ class QualivMigrateExcelSeeder extends Seeder
         );
 
         $issues = [
+            // Settlement & Finance
+            ['title' => 'Settlement Talangan Operasional: Henry vs Andry (Selisih Rp22.000)', 'desc' => 'Rekonsiliasi pengeluaran: Follower IG (Andry ditalangi Rp100.000) & Cetak Kartu Nama (Henry ditalangi Rp56.000). Total pengeluaran bersama = Rp156.000 (Beban 50:50 = Rp78.000/orang). Selisih: Henry transfer ke Andry sebesar Rp22.000.', 'type' => 'task', 'status' => 'in_progress', 'prio' => 'urgent', 'assignee' => $henry->id],
+
             // Timeline Production Tasks
             ['title' => 'Flow CV screening di AI interview chat', 'desc' => 'Perbaiki alur CV screening dan integrasi dengan chat interview.', 'type' => 'task', 'status' => 'in_progress', 'prio' => 'urgent', 'assignee' => $andry->id],
             ['title' => 'Testing logic test', 'desc' => 'Testing komprehensif logic test scoring dan transisi soal.', 'type' => 'task', 'status' => 'done', 'prio' => 'high', 'assignee' => $andry->id],
@@ -392,14 +361,36 @@ class QualivMigrateExcelSeeder extends Seeder
         }
 
         $spectrum = Partner::query()->where('name', 'Spectrum Darmo')->first();
-        $indosmm = Partner::query()->where('name', 'IndoSMM')->first();
+        $indosmm = Partner::query()->where('trade_name', 'IndoSMM')->first();
+        $hostinger = Partner::query()->where('trade_name', 'Hostinger')->first();
+        $meta = Partner::query()->where('trade_name', 'Meta Platforms')->first();
         $expenseAccount = Account::query()->where('company_id', $company->id)->where('account_type', Account::TYPE_EXPENSE)->first();
 
+        // Ensure no dummy sales/income (Qualiv hasn't launched yet)
+        ArInvoice::query()->where('company_id', $company->id)->delete();
+
         // Specific expense accounts
-        $serverExp = Account::query()->where('company_id', $company->id)->where('account_code', '61300')->first() ?? $expenseAccount;
-        $aiExp = Account::query()->where('company_id', $company->id)->where('account_code', '61100')->first() ?? $expenseAccount;
-        $adsExp = Account::query()->where('company_id', $company->id)->where('account_code', '61200')->first() ?? $expenseAccount;
-        $toolsExp = Account::query()->where('company_id', $company->id)->where('account_code', '61400')->first() ?? $expenseAccount;
+        $serverExp = Account::query()->firstOrCreate(
+            ['company_id' => $company->id, 'account_code' => '61300'],
+            ['account_name' => 'Beban Server VPS (Hostinger)', 'account_type' => Account::TYPE_EXPENSE, 'normal_balance' => Account::BALANCE_DEBIT, 'is_active' => true]
+        );
+        $toolsExp = Account::query()->firstOrCreate(
+            ['company_id' => $company->id, 'account_code' => '61400'],
+            ['account_name' => 'Beban Domain & Software Tools', 'account_type' => Account::TYPE_EXPENSE, 'normal_balance' => Account::BALANCE_DEBIT, 'is_active' => true]
+        );
+        $adsExp = Account::query()->firstOrCreate(
+            ['company_id' => $company->id, 'account_code' => '61200'],
+            ['account_name' => 'Beban Iklan & Social Media', 'account_type' => Account::TYPE_EXPENSE, 'normal_balance' => Account::BALANCE_DEBIT, 'is_active' => true]
+        );
+        $printExp = Account::query()->firstOrCreate(
+            ['company_id' => $company->id, 'account_code' => '62100'],
+            ['account_name' => 'Beban Cetak & Promosi Kantor', 'account_type' => Account::TYPE_EXPENSE, 'normal_balance' => Account::BALANCE_DEBIT, 'is_active' => true]
+        );
+        $founderPayable = Account::query()->firstOrCreate(
+            ['company_id' => $company->id, 'account_code' => '21200'],
+            ['account_name' => 'Utang Talangan Pendiri (Henry & Andry)', 'account_type' => Account::TYPE_LIABILITY, 'normal_balance' => Account::BALANCE_CREDIT, 'is_active' => true]
+        );
+
         $bankAcc = Account::query()->where('company_id', $company->id)->where('account_code', '10200')->first() ?? Account::first();
         $user = $users['andry@qualiv.id'] ?? User::first();
 
@@ -418,61 +409,19 @@ class QualivMigrateExcelSeeder extends Seeder
             );
         }
 
-        // Recurring Template for Hostinger Server KVM4
-        if ($serverExp && $bankAcc) {
-            $hostingerTemplate = RecurringJournalTemplate::query()->updateOrCreate(
-                ['company_id' => $company->id, 'name' => 'Langganan Server Hostinger KVM4 (VPS Production)'],
-                [
-                    'uuid' => (string) Str::uuid(),
-                    'memo' => 'Biaya bulanan VPS Hostinger KVM4 untuk hosting & database Qualiv.id',
-                    'currency_code' => 'IDR',
-                    'recurrence_rule' => 'FREQ=MONTHLY;INTERVAL=1',
-                    'anchor_date' => '2026-05-01',
-                    'next_run_date' => '2026-10-01',
-                    'last_run_date' => '2026-09-01',
-                    'is_active' => true,
-                    'created_by' => $user?->id,
-                ]
-            );
-
-            $hostingerTemplate->lines()->delete();
-            $hostingerTemplate->lines()->create([
-                'line_no' => 1,
-                'account_id' => $serverExp->id,
-                'debit' => 266667.00,
-                'credit' => 0.00,
-                'description' => 'Beban Server Hostinger KVM4',
-            ]);
-            $hostingerTemplate->lines()->create([
-                'line_no' => 2,
-                'account_id' => $bankAcc->id,
-                'debit' => 0.00,
-                'credit' => 266667.00,
-                'description' => 'Pembayaran Rekening Bank / Kartu',
-            ]);
-        }
-
-        // Tech Startup Bills
-        $hostinger = Partner::query()->where('trade_name', 'Hostinger')->first();
-        $do = Partner::query()->where('trade_name', 'DigitalOcean')->first();
-        $openai = Partner::query()->where('trade_name', 'like', '%OpenAI%')->first();
-        $anthropic = Partner::query()->where('trade_name', 'like', '%Anthropic%')->first();
-        $github = Partner::query()->where('trade_name', 'GitHub')->first();
-        $meta = Partner::query()->where('trade_name', 'like', '%Meta%')->first();
-
         $billsData = [
-            ['vendor' => $spectrum, 'bill_no' => 'BILL-2026-08-001', 'date' => '2026-08-03', 'desc' => 'Cetak Kartu Nama Qualiv (Spectrum Darmo - Talangan Henry)', 'amount' => 56000.00, 'acc' => $expenseAccount],
-            ['vendor' => $indosmm, 'bill_no' => 'BILL-2026-08-002', 'date' => '2026-08-10', 'desc' => 'Top Up Followers Instagram Qualiv (IndoSMM - Talangan Andry)', 'amount' => 100000.00, 'acc' => $adsExp],
-            ['vendor' => $hostinger, 'bill_no' => 'H_43289679', 'date' => '2026-05-15', 'desc' => 'Domain qualiv.id (.ID Domain Registration 1 Tahun)', 'amount' => 234099.00, 'acc' => $toolsExp],
-            ['vendor' => $hostinger, 'bill_no' => 'H_43289639', 'date' => '2026-05-15', 'desc' => 'Hostinger KVM 4 VPS Server (srv1673152.hstgr.cloud) 1 Tahun', 'amount' => 3262068.00, 'acc' => $serverExp],
-            ['vendor' => $do, 'bill_no' => 'BILL-DO-2026-08', 'date' => '2026-08-01', 'desc' => 'DigitalOcean Droplets & Backup (Agustus 2026)', 'amount' => 160000.00, 'acc' => $serverExp],
-            ['vendor' => $openai, 'bill_no' => 'BILL-OAI-2026-08', 'date' => '2026-08-31', 'desc' => 'OpenAI API Usage (GPT-4o & Whisper) Agustus 2026', 'amount' => 350000.00, 'acc' => $aiExp],
-            ['vendor' => $anthropic, 'bill_no' => 'BILL-ANT-2026-08', 'date' => '2026-08-31', 'desc' => 'Anthropic Claude 3.7 API Usage Agustus 2026', 'amount' => 200000.00, 'acc' => $aiExp],
-            ['vendor' => $github, 'bill_no' => 'BILL-GH-2026-08', 'date' => '2026-08-15', 'desc' => 'GitHub Pro & CI Actions (Agustus 2026)', 'amount' => 75000.00, 'acc' => $toolsExp],
-            ['vendor' => $meta, 'bill_no' => 'BILL-META-2026-09', 'date' => '2026-09-29', 'desc' => 'Meta Instagram & FB Ads / Subscription (Start 29 Sep)', 'amount' => 300000.00, 'acc' => $adsExp],
+            ['vendor' => $spectrum, 'bill_no' => 'BILL-2026-08-001', 'date' => '2026-08-03', 'desc' => 'Cetak Kartu Nama Qualiv (Spectrum Darmo - Talangan Henry)', 'amount' => 56000.00, 'acc' => $printExp, 'credit_acc' => $founderPayable],
+            ['vendor' => $indosmm, 'bill_no' => 'BILL-2026-08-002', 'date' => '2026-08-10', 'desc' => 'Top Up Followers Instagram Qualiv (IndoSMM - Talangan Andry)', 'amount' => 100000.00, 'acc' => $adsExp, 'credit_acc' => $founderPayable],
+            ['vendor' => $hostinger, 'bill_no' => 'H_43289679', 'date' => '2026-05-15', 'desc' => 'Domain qualiv.id (.ID Domain Registration 1 Tahun)', 'amount' => 234099.00, 'acc' => $toolsExp, 'credit_acc' => $bankAcc],
+            ['vendor' => $hostinger, 'bill_no' => 'H_43289639', 'date' => '2026-05-15', 'desc' => 'Hostinger KVM 4 VPS Server (srv1673152.hstgr.cloud) 1 Tahun', 'amount' => 3262068.00, 'acc' => $serverExp, 'credit_acc' => $bankAcc],
+            ['vendor' => $meta, 'bill_no' => 'BILL-META-2026-09', 'date' => '2026-09-29', 'desc' => 'Meta Instagram & FB Ads / Subscription (Start 29 Sep)', 'amount' => 300000.00, 'acc' => $adsExp, 'credit_acc' => $bankAcc],
         ];
 
-        foreach ($billsData as $b) {
+        // Delete any dummy bills outside real list
+        $realBillNos = array_column($billsData, 'bill_no');
+        ApBill::query()->where('company_id', $company->id)->whereNotIn('bill_no', $realBillNos)->delete();
+
+        foreach ($billsData as $index => $b) {
             if (! $b['vendor'] || ! $b['acc']) {
                 continue;
             }
@@ -506,6 +455,51 @@ class QualivMigrateExcelSeeder extends Seeder
                 'line_amount' => $b['amount'],
                 'tax_amount' => 0.00,
             ]);
+
+            // Post into GL Journals so Profit & Loss, Balance Sheet & GL Reports are fully populated
+            $period = \App\Modules\Accounting\Models\FiscalPeriod::query()
+                ->where('company_id', $company->id)
+                ->where('start_date', '<=', $b['date'])
+                ->where('end_date', '>=', $b['date'])
+                ->first();
+
+            if ($period && $bankAcc) {
+                $journal = \App\Modules\Accounting\Models\GlJournal::query()->updateOrCreate(
+                    ['company_id' => $company->id, 'memo' => $b['desc']],
+                    [
+                        'uuid' => (string) Str::uuid(),
+                        'fiscal_period_id' => $period->id,
+                        'journal_date' => $b['date'],
+                        'currency_code' => 'IDR',
+                        'memo' => $b['desc'],
+                        'source' => 'ap',
+                        'subject_type' => 'accounting.ap_bills',
+                        'subject_id' => (string) $bill->id,
+                        'status' => \App\Modules\Accounting\Models\GlJournal::STATUS_POSTED,
+                        'posted_at' => now(),
+                        'posted_by' => $user?->id,
+                        'created_by' => $user?->id,
+                    ]
+                );
+
+                $journal->lines()->delete();
+                // Debit Expense Account
+                $journal->lines()->create([
+                    'line_no' => 1,
+                    'account_id' => $b['acc']->id,
+                    'debit' => $b['amount'],
+                    'credit' => 0.00,
+                    'description' => $b['desc'],
+                ]);
+                // Credit Cash / Bank / Talangan Account
+                $journal->lines()->create([
+                    'line_no' => 2,
+                    'account_id' => $b['credit_acc']->id ?? $bankAcc->id,
+                    'debit' => 0.00,
+                    'credit' => $b['amount'],
+                    'description' => 'Pembayaran Kas / Talangan Pendiri',
+                ]);
+            }
         }
     }
 }

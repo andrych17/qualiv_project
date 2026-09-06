@@ -29,7 +29,7 @@ const switchCompany = (e: Event) => {
     <Building2 class="h-4 w-4 shrink-0 text-ink-600 hidden xs:block" />
     <select
       :value="context.currentCompanyId"
-      class="max-w-[100px] xs:max-w-[130px] sm:max-w-[200px] md:max-w-none truncate rounded-md border border-border bg-surface-0 px-2 py-1.5 text-xs sm:text-sm text-ink-900 shadow-xs outline-none transition hover:bg-surface-50 focus:border-accent focus:ring-2 focus:ring-accent/20 cursor-pointer"
+      class="min-w-[120px] max-w-[160px] xs:max-w-[200px] sm:max-w-[240px] truncate rounded-md border border-border bg-surface-0 pl-2.5 pr-8 py-1.5 text-xs sm:text-sm text-ink-900 shadow-xs outline-none transition hover:bg-surface-50 focus:border-accent focus:ring-2 focus:ring-accent/20 cursor-pointer"
       @change="switchCompany"
     >
       <option v-for="c in context.companies" :key="c.id" :value="c.id" class="bg-surface-0 text-ink-900">{{ c.legal_name }}</option>

@@ -112,13 +112,13 @@ const hasGrid = computed(() => local.accounts.length > 0 && local.periods.length
 
     <Panel class="mt-6 p-4">
       <div class="flex flex-wrap items-center gap-3">
-        <select :value="selectedCompanyId" class="rounded-md border border-border bg-surface-0 px-3 py-1.5 text-sm font-medium text-ink-900 shadow-xs focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" @change="switchCompany">
+        <select :value="selectedCompanyId" class="rounded-md border border-border bg-surface-0 pl-3 pr-8 py-1.5 text-sm font-medium text-ink-900 shadow-xs focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 cursor-pointer" @change="switchCompany">
           <option v-for="c in companies" :key="c.id" :value="c.id">{{ c.legal_name }}</option>
         </select>
-        <select :value="selectedFiscalYearId" class="rounded-md border border-border bg-surface-0 px-3 py-1.5 text-sm font-medium text-ink-900 shadow-xs focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" @change="switchFiscalYear">
+        <select :value="selectedFiscalYearId" class="rounded-md border border-border bg-surface-0 pl-3 pr-8 py-1.5 text-sm font-medium text-ink-900 shadow-xs focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 cursor-pointer" @change="switchFiscalYear">
           <option v-for="y in fiscalYears" :key="y.value" :value="y.value">{{ y.label }}</option>
         </select>
-        <select :value="selectedCostCenterId ?? ''" class="rounded-md border border-border bg-surface-0 px-3 py-1.5 text-sm font-medium text-ink-900 shadow-xs focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" @change="switchCostCenter">
+        <select :value="selectedCostCenterId ?? ''" class="rounded-md border border-border bg-surface-0 pl-3 pr-8 py-1.5 text-sm font-medium text-ink-900 shadow-xs focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 cursor-pointer" @change="switchCostCenter">
           <option value="">Unassigned (no cost center)</option>
           <option v-for="c in costCenters" :key="c.value" :value="c.value">{{ c.label }}</option>
         </select>

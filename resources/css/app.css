@@ -203,6 +203,11 @@
   body {
     @apply bg-surface-50 text-ink-900 antialiased transition-colors duration-150;
   }
+
+  select:not([multiple]):not([size]) {
+    padding-right: 2.25rem !important;
+    background-position: right 0.625rem center;
+  }
 }
 
 /* tailwindcss-animate is not installed and these are the only three entrance animations

@@ -297,7 +297,7 @@ const confirmBulkDelete = () => {
             <!-- Header Filter Select -->
             <select
               v-model="filters.header"
-              class="py-2 px-3 rounded-lg border border-border bg-surface-0 text-xs font-medium text-ink-800 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent cursor-pointer"
+              class="py-2 pl-3 pr-8 rounded-lg border border-border bg-surface-0 text-xs font-medium text-ink-800 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent cursor-pointer"
             >
               <option value="">All Headers</option>
               <option v-for="h in headers" :key="h.value" :value="h.value">{{ h.label }}</option>
@@ -306,7 +306,7 @@ const confirmBulkDelete = () => {
             <!-- Status Filter Select -->
             <select
               v-model="filters.status"
-              class="py-2 px-3 rounded-lg border border-border bg-surface-0 text-xs font-medium text-ink-800 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent cursor-pointer"
+              class="py-2 pl-3 pr-8 rounded-lg border border-border bg-surface-0 text-xs font-medium text-ink-800 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent cursor-pointer"
             >
               <option value="">All Statuses</option>
               <option value="A">Active</option>

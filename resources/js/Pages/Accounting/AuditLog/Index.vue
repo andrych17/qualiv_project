@@ -86,7 +86,7 @@ watch([search, filters, sort, perPage], debounce(() => {
     <PageHeader title="Audit Trail" description="Every logged action for this company — journal postings, period locking, invoice/bill/payment posting, tax document issuance, and master-data changes. Append-only." />
 
     <div class="mt-6 flex flex-wrap items-center gap-4">
-      <select :value="selectedCompanyId" class="rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" @change="switchCompany">
+      <select :value="selectedCompanyId" class="rounded-sm border border-border bg-surface-0 pl-3 pr-8 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 cursor-pointer" @change="switchCompany">
         <option v-for="c in companies" :key="c.id" :value="c.id">{{ c.legal_name }}</option>
       </select>
     </div>
