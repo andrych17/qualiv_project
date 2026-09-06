@@ -1,6 +1,6 @@
-<!-- ponytail: Reusable Searchable Dropdown / Combobox component -->
+<!-- ponytail: Reusable Searchable Dropdown / Combobox component with Teleport positioning -->
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { Search, ChevronDown, Check, X } from 'lucide-vue-next'
 
 export type SelectOption = {
@@ -40,6 +40,9 @@ const isOpen = ref(false)
 const searchQuery = ref('')
 const searchInput = ref<HTMLInputElement | null>(null)
 const containerRef = ref<HTMLDivElement | null>(null)
+const buttonRef = ref<HTMLButtonElement | null>(null)
+const dropdownRef = ref<HTMLDivElement | null>(null)
+const dropdownStyle = ref<Record<string, string>>({})
 
 const selectedOption = computed(() => {
   return props.options.find((opt) => opt.value === props.modelValue) ?? null
@@ -55,12 +58,44 @@ const filteredOptions = computed(() => {
   )
 })
 
-const toggleDropdown = (e?: Event) => {
+const updatePosition = () => {
+  if (!isOpen.value || !buttonRef.value) return
+  const rect = buttonRef.value.getBoundingClientRect()
+  if (rect.width === 0 && rect.height === 0) return
+
+  const spaceBelow = window.innerHeight - rect.bottom
+  const spaceAbove = rect.top
+  const dropdownHeight = 240
+  const openUpwards = spaceBelow < dropdownHeight && spaceAbove > spaceBelow
+
+  const maxHeight = openUpwards ? Math.min(spaceAbove - 16, dropdownHeight) : Math.min(spaceBelow - 16, dropdownHeight)
+  const top = openUpwards ? Math.max(8, rect.top - maxHeight - 4) : rect.bottom + 4
+
+  let left = rect.left
+  const width = Math.max(rect.width, 240)
+  if (left + width > window.innerWidth - 12) {
+    left = Math.max(12, window.innerWidth - width - 12)
+  }
+
+  dropdownStyle.value = {
+    position: 'fixed',
+    top: `${top}px`,
+    left: `${left}px`,
+    width: `${width}px`,
+    maxHeight: `${maxHeight}px`,
+    zIndex: '99999',
+  }
+}
+
+const toggleDropdown = async (e?: Event) => {
   e?.stopPropagation()
   if (props.disabled) return
   isOpen.value = !isOpen.value
   if (isOpen.value) {
     searchQuery.value = ''
+    updatePosition()
+    await nextTick()
+    updatePosition()
     setTimeout(() => {
       searchInput.value?.focus()
     }, 50)
@@ -81,9 +116,14 @@ const clearSelection = (e: MouseEvent) => {
 }
 
 const handleClickOutside = (e: MouseEvent) => {
-  if (containerRef.value && !containerRef.value.contains(e.target as Node)) {
-    isOpen.value = false
+  const target = e.target as Node
+  if (
+    (containerRef.value && containerRef.value.contains(target)) ||
+    (dropdownRef.value && dropdownRef.value.contains(target))
+  ) {
+    return
   }
+  isOpen.value = false
 }
 
 const handleKeyDown = (e: KeyboardEvent) => {
@@ -91,6 +131,16 @@ const handleKeyDown = (e: KeyboardEvent) => {
     isOpen.value = false
   }
 }
+
+watch(isOpen, (val) => {
+  if (val) {
+    window.addEventListener('scroll', updatePosition, true)
+    window.addEventListener('resize', updatePosition)
+  } else {
+    window.removeEventListener('scroll', updatePosition, true)
+    window.removeEventListener('resize', updatePosition)
+  }
+})
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
@@ -100,6 +150,8 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
   document.removeEventListener('keydown', handleKeyDown)
+  window.removeEventListener('scroll', updatePosition, true)
+  window.removeEventListener('resize', updatePosition)
 })
 </script>
 
@@ -112,6 +164,7 @@ onUnmounted(() => {
 
     <div class="relative">
       <button
+        ref="buttonRef"
         type="button"
         @click.prevent.stop="toggleDropdown"
         @mousedown.stop
@@ -147,63 +200,67 @@ onUnmounted(() => {
         </div>
       </button>
 
-      <!-- Dropdown Panel -->
-      <div
-        v-if="isOpen"
-        @click.prevent.stop
-        @mousedown.stop
-        class="absolute left-0 right-0 z-30 mt-1 max-h-60 overflow-hidden rounded-md border border-border bg-surface-0 shadow-lg ring-1 ring-black/5 flex flex-col"
-      >
-        <!-- Search Input -->
-        <div class="p-2 border-b border-border bg-surface-50 flex items-center gap-2">
-          <Search class="h-4 w-4 text-ink-600 shrink-0" />
-          <input
-            ref="searchInput"
-            v-model="searchQuery"
-            type="text"
-            :placeholder="searchPlaceholder"
-            @click.prevent.stop
-            @keydown.stop="handleKeyDown"
-            class="w-full bg-transparent text-sm outline-none text-ink-900 placeholder:text-ink-600"
-          />
-          <button
-            v-if="searchQuery"
-            type="button"
-            @click.prevent.stop="searchQuery = ''"
-            class="text-ink-600 hover:text-ink-900 p-0.5"
-          >
-            <X class="h-3.5 w-3.5" />
-          </button>
-        </div>
-
-        <!-- Options List -->
-        <div class="overflow-y-auto max-h-48 py-1">
-          <div
-            v-if="filteredOptions.length === 0"
-            class="px-4 py-3 text-center text-xs text-ink-600"
-          >
-            Tidak ada opsi yang cocok dengan "{{ searchQuery }}"
+      <!-- Dropdown Panel (Teleported to body to avoid overflow clipping) -->
+      <Teleport to="body">
+        <div
+          v-if="isOpen"
+          ref="dropdownRef"
+          :style="dropdownStyle"
+          @click.prevent.stop
+          @mousedown.stop
+          class="overflow-hidden rounded-md border border-border bg-surface-0 shadow-xl ring-1 ring-black/10 flex flex-col"
+        >
+          <!-- Search Input -->
+          <div class="p-2 border-b border-border bg-surface-50 flex items-center gap-2">
+            <Search class="h-4 w-4 text-ink-600 shrink-0" />
+            <input
+              ref="searchInput"
+              v-model="searchQuery"
+              type="text"
+              :placeholder="searchPlaceholder"
+              @click.prevent.stop
+              @keydown.stop="handleKeyDown"
+              class="w-full bg-transparent text-sm outline-none text-ink-900 placeholder:text-ink-600"
+            />
+            <button
+              v-if="searchQuery"
+              type="button"
+              @click.prevent.stop="searchQuery = ''"
+              class="text-ink-600 hover:text-ink-900 p-0.5"
+            >
+              <X class="h-3.5 w-3.5" />
+            </button>
           </div>
 
-          <button
-            v-for="opt in filteredOptions"
-            :key="opt.value"
-            type="button"
-            @click.prevent.stop="selectOption(opt, $event)"
-            @mousedown.stop
-            class="w-full flex items-center justify-between px-3 py-2 text-left text-sm transition-colors hover:bg-surface-50"
-            :class="opt.value === modelValue ? 'bg-surface-50 font-semibold text-accent' : 'text-ink-900'"
-          >
-            <div>
-              <div class="leading-tight">{{ opt.label }}</div>
-              <div v-if="opt.description" class="text-xs text-ink-600 mt-0.5 font-normal">
-                {{ opt.description }}
-              </div>
+          <!-- Options List -->
+          <div class="overflow-y-auto max-h-48 py-1">
+            <div
+              v-if="filteredOptions.length === 0"
+              class="px-4 py-3 text-center text-xs text-ink-600"
+            >
+              Tidak ada opsi yang cocok dengan "{{ searchQuery }}"
             </div>
-            <Check v-if="opt.value === modelValue" class="h-4 w-4 text-accent shrink-0 ml-2" />
-          </button>
+
+            <button
+              v-for="opt in filteredOptions"
+              :key="opt.value"
+              type="button"
+              @click.prevent.stop="selectOption(opt, $event)"
+              @mousedown.stop
+              class="w-full flex items-center justify-between px-3 py-2 text-left text-sm transition-colors hover:bg-surface-50"
+              :class="opt.value === modelValue ? 'bg-surface-50 font-semibold text-accent' : 'text-ink-900'"
+            >
+              <div>
+                <div class="leading-tight">{{ opt.label }}</div>
+                <div v-if="opt.description" class="text-xs text-ink-600 mt-0.5 font-normal">
+                  {{ opt.description }}
+                </div>
+              </div>
+              <Check v-if="opt.value === modelValue" class="h-4 w-4 text-accent shrink-0 ml-2" />
+            </button>
+          </div>
         </div>
-      </div>
+      </Teleport>
     </div>
 
     <p v-if="error" class="text-sm text-signal-danger">

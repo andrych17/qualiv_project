@@ -88,11 +88,11 @@ const submit = () => form.transform((data) => ({
             <table class="w-full text-sm">
               <thead>
                 <tr class="border-b border-border bg-surface-50 text-left text-xs uppercase tracking-wider text-ink-600 font-semibold">
-                  <th class="w-2/5 px-3 py-2.5">Account</th>
-                  <th class="px-3 py-2.5">Cost Center</th>
+                  <th class="w-2/5 min-w-[260px] px-3 py-2.5">Account</th>
+                  <th class="min-w-[160px] px-3 py-2.5">Cost Center</th>
                   <th class="px-3 py-2.5 text-right">Debit</th>
                   <th class="px-3 py-2.5 text-right">Credit</th>
-                  <th class="px-3 py-2.5">Line Description</th>
+                  <th class="min-w-[180px] px-3 py-2.5">Line Description</th>
                   <th class="px-3 py-2.5"></th>
                 </tr>
               </thead>

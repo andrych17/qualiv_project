@@ -1,6 +1,6 @@
-<!-- ponytail: Highly flexible Async Searchable Dropdown with API, JOINs, extraParams, custom key mapping, Vue Scoped Slots & Event-driven Ref methods -->
+<!-- ponytail: Highly flexible Async Searchable Dropdown with API, JOINs, extraParams, custom key mapping, Vue Scoped Slots & Event-driven Ref methods with Teleport -->
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import axios from 'axios'
 import { Search, ChevronDown, Check, X, Loader2, AlertCircle, RefreshCw } from 'lucide-vue-next'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
@@ -68,6 +68,9 @@ const selectedOption = ref<AsyncSelectOption | null>(null)
 const totalResults = ref<number>(0)
 
 const containerRef = ref<HTMLDivElement | null>(null)
+const buttonRef = ref<HTMLButtonElement | null>(null)
+const dropdownRef = ref<HTMLDivElement | null>(null)
+const dropdownStyle = ref<Record<string, string>>({})
 const searchInput = ref<HTMLInputElement | null>(null)
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
@@ -169,12 +172,44 @@ watch(() => props.modelValue, (newVal) => {
   }
 }, { immediate: true })
 
-const toggleDropdown = () => {
+const updatePosition = () => {
+  if (!isOpen.value || !buttonRef.value) return
+  const rect = buttonRef.value.getBoundingClientRect()
+  if (rect.width === 0 && rect.height === 0) return
+
+  const spaceBelow = window.innerHeight - rect.bottom
+  const spaceAbove = rect.top
+  const dropdownHeight = 280
+  const openUpwards = spaceBelow < dropdownHeight && spaceAbove > spaceBelow
+
+  const maxHeight = openUpwards ? Math.min(spaceAbove - 16, dropdownHeight) : Math.min(spaceBelow - 16, dropdownHeight)
+  const top = openUpwards ? Math.max(8, rect.top - maxHeight - 4) : rect.bottom + 4
+
+  let left = rect.left
+  const width = Math.max(rect.width, 260)
+  if (left + width > window.innerWidth - 12) {
+    left = Math.max(12, window.innerWidth - width - 12)
+  }
+
+  dropdownStyle.value = {
+    position: 'fixed',
+    top: `${top}px`,
+    left: `${left}px`,
+    width: `${width}px`,
+    maxHeight: `${maxHeight}px`,
+    zIndex: '99999',
+  }
+}
+
+const toggleDropdown = async () => {
   if (props.disabled) return
   isOpen.value = !isOpen.value
   if (isOpen.value) {
     searchQuery.value = ''
     performSearch('')
+    updatePosition()
+    await nextTick()
+    updatePosition()
     setTimeout(() => {
       searchInput.value?.focus()
     }, 50)
@@ -198,9 +233,14 @@ const clearSelection = (e?: MouseEvent) => {
 }
 
 const handleClickOutside = (e: MouseEvent) => {
-  if (containerRef.value && !containerRef.value.contains(e.target as Node)) {
-    isOpen.value = false
+  const target = e.target as Node
+  if (
+    (containerRef.value && containerRef.value.contains(target)) ||
+    (dropdownRef.value && dropdownRef.value.contains(target))
+  ) {
+    return
   }
+  isOpen.value = false
 }
 
 const handleKeyDown = (e: KeyboardEvent) => {
@@ -209,13 +249,26 @@ const handleKeyDown = (e: KeyboardEvent) => {
   }
 }
 
+watch(isOpen, (val) => {
+  if (val) {
+    window.addEventListener('scroll', updatePosition, true)
+    window.addEventListener('resize', updatePosition)
+  } else {
+    window.removeEventListener('scroll', updatePosition, true)
+    window.removeEventListener('resize', updatePosition)
+  }
+})
+
 // Expose helper methods to parent components for event-driven control
 defineExpose({
   reload: () => performSearch(searchQuery.value),
   clear: clearSelection,
-  open: () => {
+  open: async () => {
     isOpen.value = true
     performSearch('')
+    updatePosition()
+    await nextTick()
+    updatePosition()
   },
   close: () => {
     isOpen.value = false
@@ -230,6 +283,8 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
   document.removeEventListener('keydown', handleKeyDown)
+  window.removeEventListener('scroll', updatePosition, true)
+  window.removeEventListener('resize', updatePosition)
   if (debounceTimer) clearTimeout(debounceTimer)
 })
 </script>
@@ -243,6 +298,7 @@ onUnmounted(() => {
 
     <div class="relative">
       <button
+        ref="buttonRef"
         type="button"
         @click="toggleDropdown"
         :disabled="disabled"
@@ -295,103 +351,107 @@ onUnmounted(() => {
         </div>
       </button>
 
-      <!-- Dropdown Panel -->
-      <div
-        v-if="isOpen"
-        class="absolute left-0 right-0 z-30 mt-1 max-h-72 overflow-hidden rounded-md border border-border bg-surface-0 shadow-lg ring-1 ring-black/5 flex flex-col"
-      >
-        <!-- Search Input Header -->
-        <div class="p-2 border-b border-border bg-surface-50 flex items-center gap-2">
-          <Search class="h-4 w-4 text-ink-600 shrink-0 ml-1" />
-          <input
-            ref="searchInput"
-            v-model="searchQuery"
-            type="text"
-            :placeholder="searchPlaceholder"
-            class="w-full bg-transparent text-sm outline-none text-ink-900 placeholder:text-ink-600"
-          />
-          <Loader2 v-if="isLoading" class="h-4 w-4 animate-spin text-accent shrink-0" />
-          <button
-            v-else-if="searchQuery"
-            type="button"
-            @click="searchQuery = ''"
-            class="text-ink-600 hover:text-ink-900 p-0.5"
-          >
-            <X class="h-3.5 w-3.5" />
-          </button>
-        </div>
-
-        <!-- Options List -->
-        <div class="overflow-y-auto flex-1 py-1 divide-y divide-border/40">
-          <div v-if="isLoading && options.length === 0" class="p-4 space-y-2 text-center text-xs text-ink-600">
-            <div class="flex items-center justify-center gap-2">
-              <Loader2 class="h-4 w-4 animate-spin text-accent" />
-              <span>Memuat hasil pencarian (maks 50 data)...</span>
-            </div>
-          </div>
-
-          <div v-else-if="fetchError" class="p-4 text-center text-xs text-signal-danger space-y-2">
-            <div class="flex items-center justify-center gap-1.5 font-medium">
-              <AlertCircle class="h-4 w-4" />
-              <span>{{ fetchError }}</span>
-            </div>
+      <!-- Dropdown Panel (Teleported to body to avoid overflow clipping) -->
+      <Teleport to="body">
+        <div
+          v-if="isOpen"
+          ref="dropdownRef"
+          :style="dropdownStyle"
+          class="overflow-hidden rounded-md border border-border bg-surface-0 shadow-xl ring-1 ring-black/10 flex flex-col"
+        >
+          <!-- Search Input Header -->
+          <div class="p-2 border-b border-border bg-surface-50 flex items-center gap-2">
+            <Search class="h-4 w-4 text-ink-600 shrink-0 ml-1" />
+            <input
+              ref="searchInput"
+              v-model="searchQuery"
+              type="text"
+              :placeholder="searchPlaceholder"
+              class="w-full bg-transparent text-sm outline-none text-ink-900 placeholder:text-ink-600"
+            />
+            <Loader2 v-if="isLoading" class="h-4 w-4 animate-spin text-accent shrink-0" />
             <button
+              v-else-if="searchQuery"
               type="button"
-              @click="performSearch(searchQuery)"
-              class="inline-flex items-center gap-1 text-[11px] text-accent underline hover:text-accent/80"
+              @click="searchQuery = ''"
+              class="text-ink-600 hover:text-ink-900 p-0.5"
             >
-              <RefreshCw class="h-3 w-3" /> Coba Lagi
+              <X class="h-3.5 w-3.5" />
             </button>
           </div>
 
-          <!-- Empty slot or default state -->
-          <div v-else-if="options.length === 0" class="px-4 py-6 text-center text-xs text-ink-600">
-            <slot name="empty">
-              Data tidak ditemukan untuk "{{ searchQuery || 'pencarian' }}"
-            </slot>
-          </div>
+          <!-- Options List -->
+          <div class="overflow-y-auto flex-1 py-1 divide-y divide-border/40">
+            <div v-if="isLoading && options.length === 0" class="p-4 space-y-2 text-center text-xs text-ink-600">
+              <div class="flex items-center justify-center gap-2">
+                <Loader2 class="h-4 w-4 animate-spin text-accent" />
+                <span>Memuat hasil pencarian (maks 50 data)...</span>
+              </div>
+            </div>
 
-          <!-- Option items with custom slot support -->
-          <button
-            v-for="opt in options"
-            :key="getItemValue(opt)"
-            type="button"
-            @click="selectItem(opt)"
-            class="w-full flex items-center justify-between px-3 py-2.5 text-left text-sm transition-colors hover:bg-surface-50"
-            :class="String(getItemValue(opt)) === String(modelValue) ? 'bg-surface-50 font-semibold text-accent' : 'text-ink-900'"
-          >
-            <slot name="option" :option="opt">
-              <div class="flex items-center gap-3 min-w-0 pr-2">
-                <div
-                  v-if="opt.avatar"
-                  class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent font-bold text-xs text-accent-text shadow-sm"
-                >
-                  {{ opt.avatar }}
-                </div>
-                <div class="min-w-0">
-                  <div class="leading-snug truncate">{{ getItemLabel(opt) }}</div>
-                  <div v-if="getItemDescription(opt)" class="text-xs text-ink-600 mt-0.5 truncate font-normal">
-                    {{ getItemDescription(opt) }}
+            <div v-else-if="fetchError" class="p-4 text-center text-xs text-signal-danger space-y-2">
+              <div class="flex items-center justify-center gap-1.5 font-medium">
+                <AlertCircle class="h-4 w-4" />
+                <span>{{ fetchError }}</span>
+              </div>
+              <button
+                type="button"
+                @click="performSearch(searchQuery)"
+                class="inline-flex items-center gap-1 text-[11px] text-accent underline hover:text-accent/80"
+              >
+                <RefreshCw class="h-3 w-3" /> Coba Lagi
+              </button>
+            </div>
+
+            <!-- Empty slot or default state -->
+            <div v-else-if="options.length === 0" class="px-4 py-6 text-center text-xs text-ink-600">
+              <slot name="empty">
+                Data tidak ditemukan untuk "{{ searchQuery || 'pencarian' }}"
+              </slot>
+            </div>
+
+            <!-- Option items with custom slot support -->
+            <button
+              v-for="opt in options"
+              :key="getItemValue(opt)"
+              type="button"
+              @click="selectItem(opt)"
+              class="w-full flex items-center justify-between px-3 py-2.5 text-left text-sm transition-colors hover:bg-surface-50"
+              :class="String(getItemValue(opt)) === String(modelValue) ? 'bg-surface-50 font-semibold text-accent' : 'text-ink-900'"
+            >
+              <slot name="option" :option="opt">
+                <div class="flex items-center gap-3 min-w-0 pr-2">
+                  <div
+                    v-if="opt.avatar"
+                    class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent font-bold text-xs text-accent-text shadow-sm"
+                  >
+                    {{ opt.avatar }}
+                  </div>
+                  <div class="min-w-0">
+                    <div class="leading-snug truncate">{{ getItemLabel(opt) }}</div>
+                    <div v-if="getItemDescription(opt)" class="text-xs text-ink-600 mt-0.5 truncate font-normal">
+                      {{ getItemDescription(opt) }}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div class="flex items-center gap-2 shrink-0 ml-2">
-                <StatusBadge v-if="opt.badge" :status="opt.badge === 'active' || opt.badge === 'open' ? 'active' : 'pending'" :label="opt.badge" />
-                <Check v-if="String(getItemValue(opt)) === String(modelValue)" class="h-4 w-4 text-accent shrink-0" />
-              </div>
+                <div class="flex items-center gap-2 shrink-0 ml-2">
+                  <StatusBadge v-if="opt.badge" :status="opt.badge === 'active' || opt.badge === 'open' ? 'active' : 'pending'" :label="opt.badge" />
+                  <Check v-if="String(getItemValue(opt)) === String(modelValue)" class="h-4 w-4 text-accent shrink-0" />
+                </div>
+              </slot>
+            </button>
+          </div>
+
+          <!-- Footer Notice Limit 50 -->
+          <div class="border-t border-border bg-surface-50 px-3 py-1.5 text-[11px] text-ink-600 flex items-center justify-between">
+            <slot name="footer" :total="totalResults" :count="options.length">
+              <span>Dibatasi maks 50 hasil per pencarian</span>
+              <span v-if="totalResults > 0" class="font-mono text-[10px]">{{ options.length }} dari {{ totalResults }}</span>
             </slot>
-          </button>
+          </div>
         </div>
-
-        <!-- Footer Notice Limit 50 -->
-        <div class="border-t border-border bg-surface-50 px-3 py-1.5 text-[11px] text-ink-600 flex items-center justify-between">
-          <slot name="footer" :total="totalResults" :count="options.length">
-            <span>Dibatasi maks 50 hasil per pencarian</span>
-            <span v-if="totalResults > 0" class="font-mono text-[10px]">{{ options.length }} dari {{ totalResults }}</span>
-          </slot>
-        </div>
-      </div>
+      </Teleport>
     </div>
 
     <p v-if="error" class="text-sm text-signal-danger">

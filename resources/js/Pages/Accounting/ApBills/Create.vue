@@ -118,12 +118,12 @@ const submit = () => form.transform((data) => ({
             <table class="w-full text-sm">
               <thead>
                 <tr class="border-b border-border bg-surface-50 text-left text-xs uppercase tracking-wider text-ink-600 font-semibold">
-                  <th class="w-1/4 px-3 py-2.5">Description</th>
-                  <th class="px-3 py-2.5">Expense / Asset Account</th>
+                  <th class="w-1/4 min-w-[180px] px-3 py-2.5">Description</th>
+                  <th class="min-w-[260px] px-3 py-2.5">Expense / Asset Account</th>
                   <th class="px-3 py-2.5 text-right">Qty</th>
                   <th class="px-3 py-2.5 text-right">Unit Price</th>
                   <th class="px-3 py-2.5 text-right">Discount</th>
-                  <th class="px-3 py-2.5">Tax Code</th>
+                  <th class="min-w-[140px] px-3 py-2.5">Tax Code</th>
                   <th class="px-3 py-2.5 text-right">Amount</th>
                   <th class="px-3 py-2.5"></th>
                 </tr>
