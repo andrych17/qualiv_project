@@ -41,7 +41,7 @@ class QualivMigrateExcelSeeder extends Seeder
 
         $tenant = Tenant::create([
             'id' => $tenantId,
-            'name' => 'Qualiv.id',
+            'name' => 'Qualiv AI',
             'plan' => 'enterprise',
         ]);
 
@@ -379,7 +379,7 @@ class QualivMigrateExcelSeeder extends Seeder
         $company = Company::query()->first();
         if (! $company) {
             $company = Company::create([
-                'legal_name' => 'PT Qualiv Integra Indonesia',
+                'legal_name' => 'Qualiv AI',
                 'base_currency' => 'IDR',
                 'fiscal_year_start_month' => 1,
                 'is_active' => true,
@@ -407,7 +407,7 @@ class QualivMigrateExcelSeeder extends Seeder
                     'name' => 'BCA Bisnis Qualiv Operasional',
                     'bank_name' => 'Bank Central Asia (BCA)',
                     'account_number' => '8290192831',
-                    'account_holder_name' => 'PT Qualiv Integra Indonesia',
+                    'account_holder_name' => 'Qualiv AI',
                     'currency_code' => 'IDR',
                     'is_active' => true,
                 ]
