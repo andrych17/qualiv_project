@@ -1,6 +1,7 @@
 <!-- ponytail: Profile Settings page using AppLayout, PageHeader, and Panel cards -->
 <script setup lang="ts">
 import { Head, usePage } from '@inertiajs/vue3'
+import type { PageProps } from '@/types'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
@@ -15,9 +16,9 @@ defineProps<{
   status?: string
 }>()
 
-const page = usePage()
+const page = usePage<PageProps>()
 const user = page.props.auth.user
-const currentTenant = page.props.currentTenant as { id: string; name: string; plan: string } | null
+const currentTenant = (page.props as any).currentTenant as { id: string; name: string; plan: string } | null
 </script>
 
 <template>

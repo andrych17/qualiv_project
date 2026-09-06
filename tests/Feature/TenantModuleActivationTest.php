@@ -30,14 +30,14 @@ class TenantModuleActivationTest extends TestCase
         $this->patch('/config/modules/LEGAL', ['is_active' => true])
             ->assertSessionHasErrors('is_active');
 
-        $this->patch('/config/modules/INVENTORY', ['is_active' => false])
+        $this->patch('/config/modules/PROJECTS', ['is_active' => false])
             ->assertRedirect();
 
         $tenant->run(function () {
-            $row = TenantModule::query()->where('module_code', 'INVENTORY')->first();
+            $row = TenantModule::query()->where('module_code', 'PROJECTS')->first();
             $this->assertNotNull($row);
             $this->assertFalse($row->is_active);
-            $this->assertFalse(app(TenantFeatureService::class)->enabled('INVENTORY'));
+            $this->assertFalse(app(TenantFeatureService::class)->enabled('PROJECTS'));
             $this->assertTrue(
                 ConfigAuditLog::query()
                     ->where('table_name', 'tenant_modules')
@@ -46,13 +46,13 @@ class TenantModuleActivationTest extends TestCase
             );
         });
 
-        $this->get('/inventory/items')->assertForbidden();
+        $this->get('/projects')->assertForbidden();
 
-        $this->patch('/config/modules/INVENTORY', ['is_active' => true])
+        $this->patch('/config/modules/PROJECTS', ['is_active' => true])
             ->assertRedirect();
 
         $tenant->run(function () {
-            $this->assertTrue(app(TenantFeatureService::class)->enabled('INVENTORY'));
+            $this->assertTrue(app(TenantFeatureService::class)->enabled('PROJECTS'));
         });
     }
 }

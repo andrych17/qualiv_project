@@ -16,7 +16,7 @@ class NestedSubmenuAndPermissionsTest extends TestCase
     public function test_menus_for_user_returns_nested_submenus_with_children(): void
     {
         $tenant = $this->provisionTenant('101');
-        $tenant->update(['plan' => 'legal']);
+        $tenant->update(['plan' => 'qualiv']);
 
         $tenant->run(function () {
             $admin = User::query()->where('email', 'admin@nusaevo.com')->firstOrFail();
@@ -25,35 +25,33 @@ class NestedSubmenuAndPermissionsTest extends TestCase
             ConfigService::clearCache();
             $menus = $service->menusForUser((int) $admin->id);
 
-            // Schedule parent should exist
-            $scheduleMenu = collect($menus)->firstWhere('code', 'SCHEDULE');
-            $this->assertNotNull($scheduleMenu);
-            $this->assertNotEmpty($scheduleMenu['children']);
+            // Projects parent should exist with children
+            $projectsMenu = collect($menus)->firstWhere('code', 'PROJECTS');
+            $this->assertNotNull($projectsMenu);
+            $this->assertNotEmpty($projectsMenu['children']);
 
-            $childCodes = collect($scheduleMenu['children'])->pluck('code')->all();
-            $this->assertContains('SCHEDULE_DASHBOARD', $childCodes);
-            $this->assertContains('SCHEDULE_TASKS', $childCodes);
-            $this->assertContains('SCHEDULE_EVENTS', $childCodes);
-            $this->assertContains('SCHEDULE_RESOURCES', $childCodes);
+            $childCodes = collect($projectsMenu['children'])->pluck('code')->all();
+            $this->assertContains('PROJECTS_ALL', $childCodes);
+            $this->assertContains('PROJECTS_NEW', $childCodes);
 
-            // Inventory parent should also have children
-            $invMenu = collect($menus)->firstWhere('code', 'INVENTORY');
-            $this->assertNotNull($invMenu);
-            $this->assertNotEmpty($invMenu['children']);
+            // Transactions parent should also have children
+            $trxMenu = collect($menus)->firstWhere('code', 'TRANSACTIONS');
+            $this->assertNotNull($trxMenu);
+            $this->assertNotEmpty($trxMenu['children']);
         });
     }
 
     public function test_child_permissions_fallback_to_parent_right(): void
     {
         $tenant = $this->provisionTenant('102');
-        $tenant->update(['plan' => 'legal']);
+        $tenant->update(['plan' => 'qualiv']);
 
         $tenant->run(function () {
             $admin = User::query()->where('email', 'admin@nusaevo.com')->firstOrFail();
             $service = app(ConfigService::class);
 
             ConfigService::clearCache();
-            $perms = $service->permissionsForUserMenu((int) $admin->id, 'SCHEDULE_TASKS');
+            $perms = $service->permissionsForUserMenu((int) $admin->id, 'PROJECTS_ALL');
 
             $this->assertTrue($perms['read']);
             $this->assertTrue($perms['create']);

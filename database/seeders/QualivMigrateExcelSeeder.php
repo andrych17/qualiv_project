@@ -461,20 +461,15 @@ class QualivMigrateExcelSeeder extends Seeder
         $meta = Partner::query()->where('trade_name', 'like', '%Meta%')->first();
 
         $billsData = [
-            ['vendor' => $spectrum, 'bill_no' => 'BILL-2026-08-001', 'date' => '2026-08-03', 'desc' => 'Cetak Name Tag & Merchandise Promo', 'amount' => 56000.00, 'acc' => $expenseAccount],
-            ['vendor' => $indosmm, 'bill_no' => 'BILL-2026-08-002', 'date' => '2026-08-10', 'desc' => 'Campaign & Social Media Boost', 'amount' => 100000.00, 'acc' => $adsExp],
-            ['vendor' => $hostinger, 'bill_no' => 'BILL-HST-2026-05', 'date' => '2026-05-01', 'desc' => 'Hostinger KVM4 VPS (Mei 2026)', 'amount' => 266667.00, 'acc' => $serverExp],
-            ['vendor' => $hostinger, 'bill_no' => 'BILL-HST-2026-06', 'date' => '2026-06-01', 'desc' => 'Hostinger KVM4 VPS (Juni 2026)', 'amount' => 266667.00, 'acc' => $serverExp],
-            ['vendor' => $hostinger, 'bill_no' => 'BILL-HST-2026-07', 'date' => '2026-07-01', 'desc' => 'Hostinger KVM4 VPS (Juli 2026)', 'amount' => 266667.00, 'acc' => $serverExp],
-            ['vendor' => $hostinger, 'bill_no' => 'BILL-HST-2026-08', 'date' => '2026-08-01', 'desc' => 'Hostinger KVM4 VPS (Agustus 2026)', 'amount' => 266667.00, 'acc' => $serverExp],
-            ['vendor' => $hostinger, 'bill_no' => 'BILL-HST-2026-09', 'date' => '2026-09-01', 'desc' => 'Hostinger KVM4 VPS (September 2026)', 'amount' => 266667.00, 'acc' => $serverExp],
+            ['vendor' => $spectrum, 'bill_no' => 'BILL-2026-08-001', 'date' => '2026-08-03', 'desc' => 'Cetak Kartu Nama Qualiv (Spectrum Darmo - Talangan Henry)', 'amount' => 56000.00, 'acc' => $expenseAccount],
+            ['vendor' => $indosmm, 'bill_no' => 'BILL-2026-08-002', 'date' => '2026-08-10', 'desc' => 'Top Up Followers Instagram Qualiv (IndoSMM - Talangan Andry)', 'amount' => 100000.00, 'acc' => $adsExp],
+            ['vendor' => $hostinger, 'bill_no' => 'H_43289679', 'date' => '2026-05-15', 'desc' => 'Domain qualiv.id (.ID Domain Registration 1 Tahun)', 'amount' => 234099.00, 'acc' => $toolsExp],
+            ['vendor' => $hostinger, 'bill_no' => 'H_43289639', 'date' => '2026-05-15', 'desc' => 'Hostinger KVM 4 VPS Server (srv1673152.hstgr.cloud) 1 Tahun', 'amount' => 3262068.00, 'acc' => $serverExp],
             ['vendor' => $do, 'bill_no' => 'BILL-DO-2026-08', 'date' => '2026-08-01', 'desc' => 'DigitalOcean Droplets & Backup (Agustus 2026)', 'amount' => 160000.00, 'acc' => $serverExp],
-            ['vendor' => $do, 'bill_no' => 'BILL-DO-2026-09', 'date' => '2026-09-01', 'desc' => 'DigitalOcean Droplets & Backup (September 2026)', 'amount' => 160000.00, 'acc' => $serverExp],
-            ['vendor' => $openai, 'bill_no' => 'BILL-OAI-2026-07', 'date' => '2026-07-31', 'desc' => 'OpenAI API Usage (GPT-4o & Whisper) Juli 2026', 'amount' => 250000.00, 'acc' => $aiExp],
             ['vendor' => $openai, 'bill_no' => 'BILL-OAI-2026-08', 'date' => '2026-08-31', 'desc' => 'OpenAI API Usage (GPT-4o & Whisper) Agustus 2026', 'amount' => 350000.00, 'acc' => $aiExp],
             ['vendor' => $anthropic, 'bill_no' => 'BILL-ANT-2026-08', 'date' => '2026-08-31', 'desc' => 'Anthropic Claude 3.7 API Usage Agustus 2026', 'amount' => 200000.00, 'acc' => $aiExp],
             ['vendor' => $github, 'bill_no' => 'BILL-GH-2026-08', 'date' => '2026-08-15', 'desc' => 'GitHub Pro & CI Actions (Agustus 2026)', 'amount' => 75000.00, 'acc' => $toolsExp],
-            ['vendor' => $meta, 'bill_no' => 'BILL-META-2026-08', 'date' => '2026-08-25', 'desc' => 'Meta Instagram & FB Ads Campaign', 'amount' => 300000.00, 'acc' => $adsExp],
+            ['vendor' => $meta, 'bill_no' => 'BILL-META-2026-09', 'date' => '2026-09-29', 'desc' => 'Meta Instagram & FB Ads / Subscription (Start 29 Sep)', 'amount' => 300000.00, 'acc' => $adsExp],
         ];
 
         foreach ($billsData as $b) {

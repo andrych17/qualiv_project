@@ -154,7 +154,7 @@ class ConfigUserCrudTest extends TestCase
         $this->post('/login', [
             'email' => 'staff@nusaevo.com',
             'password' => 'password',
-        ])->assertSessionHasErrors('email');
+        ])->assertSessionHasErrors('password');
 
         $this->post('/login', [
             'email' => 'staff@nusaevo.com',

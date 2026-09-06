@@ -40,9 +40,9 @@ class ActiveSidebarMenuTest extends TestCase
         $routesToTest = [
             // Main
             '/dashboard' => 'Dashboard',
-            '/projects' => 'Projects/Index',
-            '/projects/create' => 'Projects/Create',
-            "/projects/{$projectId}" => 'Projects/Show',
+            '/projects' => 'Projects/Projects/Index',
+            '/projects/create' => 'Projects/Projects/Create',
+            "/projects/{$projectId}" => 'Projects/Projects/Show',
 
             // Keuangan - Pemasukan & Pengeluaran
             '/accounting/ar-invoices' => 'Accounting/ArInvoices/Index',
@@ -75,14 +75,14 @@ class ActiveSidebarMenuTest extends TestCase
             '/accounting/reports/trial-balance' => 'Accounting/Reports/TrialBalance',
 
             // System - Config
-            '/config/users' => 'SysConfig/Users/Index',
-            '/config/groups' => 'SysConfig/Groups/Index',
-            '/config/menus' => 'SysConfig/Menus/Index',
-            '/config/modules' => 'SysConfig/Modules/Index',
-            '/config/serials' => 'SysConfig/Serials/Index',
-            '/config/theme' => 'SysConfig/Theme/Index',
-            '/config/consts' => 'SysConfig/Consts/Index',
-            '/config/fields' => 'SysConfig/Fields/Index',
+            '/config/users' => 'Config/Users/Index',
+            '/config/groups' => 'Config/Groups/Index',
+            '/config/menus' => 'Config/Menus/Index',
+            '/config/modules' => 'Config/Modules/Index',
+            '/config/serials' => 'Config/Serials/Index',
+            '/config/theme' => 'Config/Theme/Index',
+            '/config/consts' => 'Config/Consts/Index',
+            '/config/fields' => 'Config/Fields/Index',
             '/design-system' => 'DesignSystem/Index',
         ];
 
