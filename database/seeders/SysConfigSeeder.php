@@ -428,7 +428,7 @@ class SysConfigSeeder extends Seeder
     private function seedConsts(): void
     {
         $consts = [
-            ['const_group' => 'APP', 'group_code' => 'NAME', 'seq' => 1, 'str1' => 'NusaEvo ERP', 'note1' => 'Product display name'],
+            ['const_group' => 'APP', 'group_code' => 'NAME', 'seq' => 1, 'str1' => 'Qualiv AI', 'note1' => 'Product display name'],
             ['const_group' => 'APP', 'group_code' => 'TZ', 'seq' => 2, 'str1' => 'Asia/Jakarta', 'note1' => 'Default timezone'],
             ['const_group' => 'INVENTORY', 'group_code' => 'LOW_STOCK', 'seq' => 1, 'num1' => 10, 'note1' => 'Default low-stock threshold'],
             // §3B: tenant default costing method, overridable per product — customization

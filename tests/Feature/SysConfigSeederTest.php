@@ -40,17 +40,15 @@ class SysConfigSeederTest extends TestCase
             $menus = app(ConfigService::class)->menusForUser($adminId);
             $this->assertNotEmpty($menus);
             $this->assertTrue(collect($menus)->contains(fn ($m) => $m['code'] === 'DASHBOARD'));
-            $this->assertTrue(collect($menus)->contains(fn ($m) => $m['code'] === 'INVENTORY'));
-            $this->assertTrue(collect($menus)->contains(fn ($m) => $m['code'] === 'CONFIG_MODULES'));
-            $this->assertTrue(collect($menus)->contains(fn ($m) => $m['code'] === 'CONFIG_FIELDS'));
+            $this->assertTrue(collect($menus)->contains(fn ($m) => $m['code'] === 'PROJECTS'));
+            $this->assertTrue(collect($menus)->contains(fn ($m) => $m['code'] === 'TRANSACTIONS'));
             $this->assertNull(ConfigMenu::query()->where('code', 'DASHBOARD')->value('module_code'));
-            $this->assertSame('INVENTORY', ConfigMenu::query()->where('code', 'INVENTORY')->value('module_code'));
-            // LEGAL menu is active in seed but hidden unless tenant plan enables LEGAL
+            $this->assertSame('PROJECTS', ConfigMenu::query()->where('code', 'PROJECTS')->value('module_code'));
             $this->assertFalse(collect($menus)->contains(fn ($m) => $m['code'] === 'CRM'));
 
             $adminRight = ConfigRight::query()
                 ->where('group_code', 'ADMIN')
-                ->where('menu_code', 'INVENTORY')
+                ->where('menu_code', 'PROJECTS')
                 ->value('trustee');
             $this->assertSame('CRUD', $adminRight);
         });
