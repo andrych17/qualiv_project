@@ -82,6 +82,7 @@ class SysConfigSeeder extends Seeder
         $rows = [
             // Live
             ['code' => 'DASHBOARD', 'menu_header' => 'Main', 'menu_caption' => 'Dashboard', 'menu_link' => '/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 10, 'status_code' => 'A'],
+            ['code' => 'PROJECTS', 'menu_header' => 'Main', 'menu_caption' => 'Project Management', 'menu_link' => '/projects', 'icon' => 'Kanban', 'seq' => 15, 'status_code' => 'A'],
             ['code' => 'TRANSACTIONS', 'menu_header' => 'Keuangan', 'menu_caption' => 'Pemasukan & Pengeluaran', 'menu_link' => '/accounting/ap-bills', 'icon' => 'Receipt', 'seq' => 20, 'status_code' => 'A'],
             ['code' => 'BOOKKEEPING', 'menu_header' => 'Keuangan', 'menu_caption' => 'Pembukuan', 'menu_link' => '/accounting/accounts', 'icon' => 'BookOpen', 'seq' => 30, 'status_code' => 'A'],
             ['code' => 'REPORTS', 'menu_header' => 'Keuangan', 'menu_caption' => 'Report', 'menu_link' => '/accounting/reports', 'icon' => 'LineChart', 'seq' => 40, 'status_code' => 'A'],
@@ -96,7 +97,6 @@ class SysConfigSeeder extends Seeder
             ['code' => 'WNE', 'menu_header' => 'Core', 'menu_caption' => 'Workflow & Notifications', 'menu_link' => '/wne/dashboard', 'icon' => 'Workflow', 'seq' => 53, 'status_code' => 'I'],
             ['code' => 'DMS', 'menu_header' => 'Core', 'menu_caption' => 'Documents', 'menu_link' => '/dms/dashboard', 'icon' => 'FolderOpen', 'seq' => 54, 'status_code' => 'I'],
             ['code' => 'LEGAL', 'menu_header' => 'Vertical', 'menu_caption' => 'Legal', 'menu_link' => '/legal/dashboard', 'icon' => 'Scale', 'seq' => 60, 'status_code' => 'I'],
-            ['code' => 'PROJECTS', 'menu_header' => 'Operations', 'menu_caption' => 'Projects', 'menu_link' => '/projects/1', 'icon' => 'Kanban', 'seq' => 65, 'status_code' => 'I'],
             ['code' => 'SALES', 'menu_header' => 'Operations', 'menu_caption' => 'Sales', 'menu_link' => '/sales/dashboard', 'icon' => 'ShoppingCart', 'seq' => 80, 'status_code' => 'I'],
             ['code' => 'PURCHASE', 'menu_header' => 'Operations', 'menu_caption' => 'Purchase', 'menu_link' => '/purchase/dashboard', 'icon' => 'Truck', 'seq' => 90, 'status_code' => 'I'],
             ['code' => 'HCM', 'menu_header' => 'People', 'menu_caption' => 'HCM', 'menu_link' => '/hcm/dashboard', 'icon' => 'UserCog', 'seq' => 130, 'status_code' => 'I'],
@@ -107,6 +107,10 @@ class SysConfigSeeder extends Seeder
         ];
 
         $submenus = [
+            'PROJECTS' => [
+                ['code' => 'PROJECTS_ALL', 'caption' => 'Daftar Project', 'link' => '/projects', 'icon' => 'FolderKanban', 'seq' => 16],
+                ['code' => 'PROJECTS_NEW', 'caption' => 'Buat Project', 'link' => '/projects/create', 'icon' => 'PlusCircle', 'seq' => 17],
+            ],
             'TRANSACTIONS' => [
                 ['code' => 'ACCOUNTING_AR_INVOICES', 'caption' => 'Pemasukan (Invoices)', 'link' => '/accounting/ar-invoices', 'icon' => 'FileText', 'seq' => 21],
                 ['code' => 'ACCOUNTING_AR_PAYMENTS', 'caption' => 'Penerimaan Pembayaran', 'link' => '/accounting/ar-payments', 'icon' => 'Banknote', 'seq' => 22],
