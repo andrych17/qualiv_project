@@ -52,6 +52,8 @@ class CentralSeeder extends Seeder
                 continue;
             }
 
+            CentralPlanModule::query()->where('plan_code', $planCode)->whereNotIn('module_code', $moduleCodes)->delete();
+
             foreach ($moduleCodes as $moduleCode) {
                 CentralPlanModule::query()->updateOrCreate([
                     'plan_code' => $planCode,

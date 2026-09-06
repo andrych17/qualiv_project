@@ -66,7 +66,6 @@ class QualivMigrateExcelSeeder extends Seeder
             $this->seedProjectsAndIssues($users);
             $this->seedSalesPricing();
             $this->seedAccountingExpenses($users);
-            $this->seedAccountingIncome($users);
         });
     }
 
@@ -508,127 +507,6 @@ class QualivMigrateExcelSeeder extends Seeder
                 'line_amount' => $b['amount'],
                 'tax_amount' => 0.00,
             ]);
-        }
-    }
-
-    private function seedAccountingIncome(array $users): void
-    {
-        $company = Company::query()->first();
-        if (! $company) {
-            return;
-        }
-
-        $revAccount = Account::query()->where('company_id', $company->id)->where('account_type', Account::TYPE_REVENUE)->first();
-        $bankAcc = Account::query()->where('company_id', $company->id)->where('account_code', '10200')->first() ?? Account::first();
-        $user = $users['andry@qualiv.id'] ?? User::first();
-
-        $sampoerna = Partner::query()->where('name', 'Bank of Sampoerna')->first();
-        $knitto = Partner::query()->where('name', 'Knitto MERR')->first();
-        $sumber = Partner::query()->where('name', 'PT Sumber Rezeki Logistik')->first();
-        $mitra = Partner::query()->where('name', 'PT Mitra Digital Solusindo')->first();
-
-        $invoicesData = [
-            [
-                'customer' => $sampoerna,
-                'inv_no' => 'INV-2026-08-001',
-                'date' => '2026-08-15',
-                'due_date' => '2026-08-30',
-                'status' => ArInvoice::STATUS_PAID,
-                'desc' => 'Pilot Implementation & Custom AI Video Interview Screening Platform',
-                'amount' => 5000000.00,
-                'paid' => 5000000.00,
-            ],
-            [
-                'customer' => $knitto,
-                'inv_no' => 'INV-2026-08-002',
-                'date' => '2026-08-20',
-                'due_date' => '2026-09-05',
-                'status' => ArInvoice::STATUS_PAID,
-                'desc' => 'Professional Package + 25 Video Interviews Add-on',
-                'amount' => 849000.00,
-                'paid' => 849000.00,
-            ],
-            [
-                'customer' => $sumber,
-                'inv_no' => 'INV-2026-09-001',
-                'date' => '2026-09-01',
-                'due_date' => '2026-09-15',
-                'status' => ArInvoice::STATUS_PAID,
-                'desc' => 'Starter Package Subscription (September 2026)',
-                'amount' => 199000.00,
-                'paid' => 199000.00,
-            ],
-            [
-                'customer' => $mitra,
-                'inv_no' => 'INV-2026-09-002',
-                'date' => '2026-09-05',
-                'due_date' => '2026-09-20',
-                'status' => ArInvoice::STATUS_POSTED,
-                'desc' => 'Enterprise Package Subscription (September 2026 - 1.200 CV)',
-                'amount' => 1999000.00,
-                'paid' => 0.00,
-            ],
-        ];
-
-        foreach ($invoicesData as $inv) {
-            if (! $inv['customer'] || ! $revAccount) {
-                continue;
-            }
-
-            $invoice = ArInvoice::query()->updateOrCreate(
-                ['company_id' => $company->id, 'invoice_no' => $inv['inv_no']],
-                [
-                    'uuid' => (string) Str::uuid(),
-                    'partner_id' => $inv['customer']->id,
-                    'invoice_type' => ArInvoice::TYPE_STANDARD,
-                    'currency_code' => 'IDR',
-                    'fx_rate' => 1.0,
-                    'issue_date' => $inv['date'],
-                    'due_date' => $inv['due_date'],
-                    'status' => $inv['status'],
-                    'subtotal' => $inv['amount'],
-                    'tax_amount' => 0.00,
-                    'total_amount' => $inv['amount'],
-                    'paid_amount' => $inv['paid'],
-                    'credited_amount' => 0.00,
-                    'created_by' => $user?->id,
-                ]
-            );
-
-            $invoice->lines()->delete();
-            $invoice->lines()->create([
-                'line_no' => 1,
-                'description' => $inv['desc'],
-                'qty' => 1,
-                'unit_price' => $inv['amount'],
-                'discount_amount' => 0.00,
-                'revenue_account_id' => $revAccount->id,
-                'line_amount' => $inv['amount'],
-                'tax_amount' => 0.00,
-            ]);
-
-            // If paid, create AR Payment record
-            if ($inv['paid'] > 0 && $bankAcc) {
-                $payment = ArPayment::query()->updateOrCreate(
-                    ['company_id' => $company->id, 'memo' => 'Penerimaan ' . $inv['inv_no']],
-                    [
-                        'uuid' => (string) Str::uuid(),
-                        'partner_id' => $inv['customer']->id,
-                        'cash_gl_account_id' => $bankAcc->id,
-                        'currency_code' => 'IDR',
-                        'payment_date' => $inv['date'],
-                        'amount' => $inv['paid'],
-                        'status' => ArPayment::STATUS_POSTED,
-                        'created_by' => $user?->id,
-                    ]
-                );
-
-                $payment->applications()->delete();
-                $payment->applications()->create([
-                    'ar_invoice_id' => $invoice->id,
-                    'applied_amount' => $inv['paid'],
-                ]);
-            }
         }
     }
 }
