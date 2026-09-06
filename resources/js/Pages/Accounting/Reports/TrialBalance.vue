@@ -102,5 +102,8 @@ const exportHref = () => route('accounting.reports.trial-balance.export', {
         </table>
       </div>
     </Panel>
+    <Panel v-else class="mt-6 p-8 text-center text-ink-500">
+      <p>Belum ada periode fiskal aktif atau transaksi yang dipilih.</p>
+    </Panel>
   </AppLayout>
 </template>

@@ -387,6 +387,10 @@ class QualivMigrateExcelSeeder extends Seeder
             app(\App\Modules\Accounting\Services\AccountService::class)->seedStarterCoa($company);
         }
 
+        if ($company && \App\Modules\Accounting\Models\FiscalYear::where('company_id', $company->id)->where('year', 2026)->doesntExist()) {
+            app(\App\Modules\Accounting\Services\FiscalYearService::class)->create($company->id, 2026, '2026-01-01');
+        }
+
         $spectrum = Partner::query()->where('name', 'Spectrum Darmo')->first();
         $indosmm = Partner::query()->where('name', 'IndoSMM')->first();
         $expenseAccount = Account::query()->where('company_id', $company->id)->where('account_type', Account::TYPE_EXPENSE)->first();
