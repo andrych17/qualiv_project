@@ -72,3 +72,16 @@ Schedule::command('tenants:run "mes:check-andon-alerts"')->everyFiveMinutes();
 // QUALIV Platform: Automated daily sync for subscription payments & AI token costs
 Schedule::command('qualiv:sync-platform-data')->dailyAt('00:05')->withoutOverlapping();
 
+Artisan::command('qualiv:seed-projects', function () {
+    $tenant = Tenant::find('qualiv');
+    if (! $tenant) {
+        $this->error('Tenant qualiv not found.');
+
+        return;
+    }
+    $tenant->run(function () {
+        $this->call(\Database\Seeders\ProjectsSeeder::class);
+    });
+    $this->info('Projects successfully seeded for tenant qualiv.');
+})->purpose('Seed dummy projects and issues for tenant qualiv');
+
