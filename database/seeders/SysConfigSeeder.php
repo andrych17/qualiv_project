@@ -133,11 +133,6 @@ class SysConfigSeeder extends Seeder
                 ['code' => 'REPORT_CF', 'caption' => 'Arus Kas (Cash Flow)', 'link' => '/accounting/reports/cash-flow', 'icon' => 'Coins', 'seq' => 44],
                 ['code' => 'REPORT_TB', 'caption' => 'Neraca Saldo (Trial Balance)', 'link' => '/accounting/reports/trial-balance', 'icon' => 'BarChart3', 'seq' => 45],
             ],
-            'PROJECTS' => [
-                ['code' => 'PROJECTS_BOARD', 'caption' => 'Kanban Board (QLV)', 'link' => '/projects/1', 'icon' => 'Kanban', 'seq' => 66],
-                ['code' => 'PROJECTS_ALL', 'caption' => 'Daftar Project', 'link' => '/projects', 'icon' => 'FolderKanban', 'seq' => 67],
-                ['code' => 'PROJECTS_NEW', 'caption' => 'Buat Project', 'link' => '/projects/create', 'icon' => 'PlusCircle', 'seq' => 68],
-            ],
             'SCHEDULE' => [
                 ['code' => 'SCHEDULE_DASHBOARD', 'caption' => 'Dashboard', 'link' => '/schedule/dashboard', 'icon' => 'LayoutDashboard', 'seq' => 31],
                 ['code' => 'SCHEDULE_TASKS', 'caption' => 'Tasks', 'link' => '/schedule/tasks', 'icon' => 'CheckSquare', 'seq' => 32],
