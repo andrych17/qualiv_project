@@ -39,7 +39,7 @@ const { activeTheme, availableThemes, setTheme } = useTheme()
 
 // Interactive state demo models
 const searchDemo = ref('')
-const inputDemo = ref('PT NusaEvo Indonesia')
+const inputDemo = ref('Qualiv AI')
 const inputErrorDemo = ref('Format email tidak valid')
 const currencyDemo = ref<number | null>(15750000)
 const numberDemo = ref<number | null>(2500)
@@ -157,7 +157,7 @@ const onTableCellEdit = (item: Record<string, any>, key: string, value: string) 
 
 const triggerToastDemo = (type: 'success' | 'error') => {
   if (type === 'success') {
-    showToast('Aksi berhasil dilakukan pada NusaEvo ERP!', 'success')
+    showToast('Aksi berhasil dilakukan pada Qualiv AI!', 'success')
   } else {
     showToast('Terjadi kesalahan pada validasi data.', 'error')
   }
@@ -214,8 +214,8 @@ const triggerConfirmDemo = (variant: 'default' | 'destructive') => {
     <div class="space-y-8 pb-16">
       <!-- Header Halaman Utama -->
       <PageHeader
-        title="Katalog Komponen UI NusaEvo ERP"
-        subtitle="Katalog dan penjelasan lengkap seluruh komponen UI standar NusaEvo ERP per pedoman DESIGN.md."
+        title="Katalog Komponen UI Qualiv AI"
+        subtitle="Katalog dan penjelasan lengkap seluruh komponen UI standar Qualiv AI per pedoman DESIGN.md."
       >
         <template #actions>
           <PrimaryButton @click="triggerToastDemo('success')">
@@ -490,7 +490,7 @@ const triggerConfirmDemo = (variant: 'default' | 'destructive') => {
                 placeholder="Cari atau pilih klien..."
                 search-placeholder="Ketik nama klien..."
                 :options="[
-                  { label: 'PT NusaEvo Indonesia', value: 'id-001', description: 'Jakarta Selatan — Perdata' },
+                  { label: 'Qualiv AI', value: 'id-001', description: 'Jakarta Selatan — Perdata' },
                   { label: 'PT Maju Bersama Tech', value: 'id-002', description: 'Bandung — Kontrak' },
                   { label: 'CV Global Perkasa Logistics', value: 'id-003', description: 'Surabaya — HAKI' },
                   { label: 'Firma Law Office Mandiri', value: 'id-004', description: 'Semarang — Arbitrase' },
@@ -580,7 +580,7 @@ const triggerConfirmDemo = (variant: 'default' | 'destructive') => {
                 <h3 class="text-sm font-semibold">StatusBadge (Pill reserved for status)</h3>
                 <span class="font-mono text-[10px] text-ink-600">feedback/StatusBadge.vue</span>
               </div>
-              <p class="text-xs text-ink-600">Satu-satunya chrome ber-bentuk pill di NusaEvo ERP, khusus untuk status visual:</p>
+              <p class="text-xs text-ink-600">Satu-satunya chrome ber-bentuk pill di Qualiv AI, khusus untuk status visual:</p>
               <div class="flex flex-wrap gap-2 pt-2">
                 <StatusBadge status="active" label="Active / Selesai" />
                 <StatusBadge status="open" label="Open / Aktif" />
@@ -697,7 +697,7 @@ const triggerConfirmDemo = (variant: 'default' | 'destructive') => {
             <!-- Brand Logo -->
             <div class="space-y-3 rounded-md border border-border p-4">
               <h3 class="text-sm font-semibold">ApplicationLogo</h3>
-              <p class="text-xs text-ink-600">Logo resmi NusaEvo ERP yang digunakan pada halaman Login, Auth shell, dan Header navigation.</p>
+              <p class="text-xs text-ink-600">Logo resmi Qualiv AI yang digunakan pada halaman Login, Auth shell, dan Header navigation.</p>
               <div class="flex items-center justify-center p-6 border border-border rounded bg-surface-50">
                 <ApplicationLogo size="lg" />
               </div>

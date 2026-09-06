@@ -29,7 +29,7 @@ const submit = () => form.transform((data) => ({
 
     <Panel class="mt-6 max-w-xl">
       <form class="space-y-4" @submit.prevent="submit">
-        <FormInput v-model="form.legal_name" name="legal_name" label="Legal Name" placeholder="e.g. PT Nusa Digital Perkasa" :error="form.errors.legal_name" required />
+        <FormInput v-model="form.legal_name" name="legal_name" label="Legal Name" placeholder="e.g. Qualiv AI" :error="form.errors.legal_name" required />
         <FormInput v-model="form.npwp" name="npwp" label="NPWP (Tax ID)" placeholder="e.g. 01.234.567.8-012.000" :error="form.errors.npwp" />
         <FormInput v-model="form.address" name="address" label="Registered Address" :error="form.errors.address" />
         <FormInput v-model="form.base_currency" name="base_currency" label="Base Functional Currency" placeholder="IDR" :error="form.errors.base_currency" required />

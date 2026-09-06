@@ -28,7 +28,7 @@ const isUserMenuOpen = ref(false)
 const isMobileSidebarOpen = ref(false)
 
 const user = computed(() => {
-  return (page.props.auth as any)?.user ?? { name: 'Admin', email: 'admin@nusaevo.com' }
+  return (page.props.auth as any)?.user ?? { name: 'Admin', email: 'admin@qualiv.id' }
 })
 
 const navItems = [

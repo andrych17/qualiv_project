@@ -176,7 +176,7 @@ const handleApplyTheme = (themeId: string) => {
             <FormInput
               name="sample_input"
               label="Contoh Input Field"
-              model-value="PT NusaEvo Digital Solusi"
+              model-value="Qualiv AI"
               placeholder="Ketik teks di sini..."
             />
           </div>
