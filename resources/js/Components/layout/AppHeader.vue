@@ -35,7 +35,7 @@ const mobileSidebar = inject<{
         :href="route('dashboard')"
         class="block sm:hidden text-xs font-bold uppercase tracking-wider text-ink-900 hover:text-accent transition-colors truncate"
       >
-        Nusaevo ERP
+        Qualiv Project
       </Link>
 
       <div class="hidden sm:block truncate">

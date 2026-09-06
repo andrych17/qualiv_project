@@ -1,8 +1,9 @@
-APP_NAME="Nusaevo ERP"
+APP_NAME="Qualiv Project"
+VITE_APP_NAME="Qualiv Project"
 APP_ENV=production
 APP_KEY=base64:eZgQ2c7A1bZ5a8d9e0f1g2h3i4j5k6l7m8n9o0p1q2r=
 APP_DEBUG=false
-APP_URL=http://erp.nusaevo.com
+APP_URL=https://project.qualiv.id
 
 LOG_CHANNEL=daily
 LOG_DEPRECATIONS_CHANNEL=null
