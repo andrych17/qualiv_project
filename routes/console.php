@@ -80,8 +80,9 @@ Artisan::command('qualiv:seed-projects', function () {
         return;
     }
     $tenant->run(function () {
+        \Illuminate\Support\Facades\DB::statement('TRUNCATE TABLE "PROJECTS".issues, "PROJECTS".projects RESTART IDENTITY CASCADE');
         $this->call(\Database\Seeders\ProjectsSeeder::class);
     });
-    $this->info('Projects successfully seeded for tenant qualiv.');
+    $this->info('Projects successfully seeded with ID 1 for tenant qualiv.');
 })->purpose('Seed dummy projects and issues for tenant qualiv');
 
