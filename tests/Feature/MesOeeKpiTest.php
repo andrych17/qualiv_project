@@ -124,6 +124,79 @@ class MesOeeKpiTest extends TestCase
             );
     }
 
+    /**
+     * operationSpans()'s "completion with no start in the lookback window" skip, and
+     * standardMinutesFor()'s fallback (an op with no standard_output_qty just returns its raw
+     * run_time_minutes, unscaled) — neither is exercised by the main OEE test above, which pairs
+     * every completion with a start and always sets standard_output_qty.
+     */
+    public function test_assembly_oee_skips_an_orphan_completion_and_falls_back_to_raw_run_time(): void
+    {
+        $tenant = $this->provisionTenant();
+        $tenant->update(['plan' => 'full']);
+        $this->post('/login', ['email' => 'admin@nusaevo.com', 'password' => 'password']);
+
+        $workCenterId = null;
+        $day = null;
+        $tenant->run(function () use (&$workCenterId, &$day) {
+            $day = now()->startOfDay();
+            $userId = User::query()->first()->id;
+
+            $uom = Uom::query()->create(['code' => 'PCS-OEE2', 'name' => 'Pieces OEE2']);
+            $product = Product::query()->create([
+                'sku' => 'OEE-FG-02', 'name' => 'OEE Test Widget 2', 'base_uom_id' => $uom->id,
+                'costing_method' => Product::COSTING_FIFO, 'tracking_mode' => Product::TRACKING_NONE,
+            ]);
+            $bom = Bom::query()->create(['product_id' => $product->id, 'version' => 1, 'is_active' => true]);
+
+            $workCenter = WorkCenter::query()->create(['code' => 'WC-OEE2', 'name' => 'OEE Line 2', 'type' => 'discrete']);
+            $workCenterId = $workCenter->id;
+
+            $routing = Routing::query()->create(['product_id' => $product->id, 'version' => 1, 'is_active' => true]);
+            // No standard_output_qty => standardMinutesFor() falls back to raw run_time_minutes.
+            $op1 = RoutingOp::query()->create([
+                'routing_id' => $routing->id, 'seq' => 1, 'op_code' => 'OP1', 'op_name' => 'Assemble',
+                'work_center_id' => $workCenter->id, 'setup_time_minutes' => 0, 'run_time_minutes' => 12,
+                'queue_time_minutes' => 0, 'standard_output_qty' => null,
+            ]);
+            // A second op whose only ledger event this day is a completion — no matching start.
+            $op2 = RoutingOp::query()->create([
+                'routing_id' => $routing->id, 'seq' => 2, 'op_code' => 'OP2', 'op_name' => 'Inspect',
+                'work_center_id' => $workCenter->id, 'setup_time_minutes' => 0, 'run_time_minutes' => 5,
+            ]);
+
+            $order = ProdOrder::query()->create([
+                'order_number' => 'MO-OEE-2', 'product_id' => $product->id, 'production_model' => ProdOrder::MODEL_ASSEMBLY,
+                'bom_id' => $bom->id, 'routing_id' => $routing->id, 'qty' => 1, 'uom_code' => 'PCS-OEE2',
+                'status' => ProdOrder::STATUS_IN_PROGRESS,
+            ]);
+
+            ProdEvent::query()->create([
+                'order_id' => $order->id, 'operation_ref' => $op1->id, 'event_type' => ProdEvent::TYPE_OPERATION_STARTED,
+                'payload' => ['op_code' => 'OP1'], 'occurred_at' => $day->copy()->addHours(8), 'user_id' => $userId,
+            ]);
+            ProdEvent::query()->create([
+                'order_id' => $order->id, 'operation_ref' => $op1->id, 'event_type' => ProdEvent::TYPE_OPERATION_COMPLETED,
+                'payload' => ['op_code' => 'OP1', 'qty_completed' => 1, 'qty_rejected' => 0], 'occurred_at' => $day->copy()->addHours(8)->addMinutes(12), 'user_id' => $userId,
+            ]);
+
+            // Orphan completion for op2 — no preceding "started" event anywhere in the lookback window.
+            ProdEvent::query()->create([
+                'order_id' => $order->id, 'operation_ref' => $op2->id, 'event_type' => ProdEvent::TYPE_OPERATION_COMPLETED,
+                'payload' => ['op_code' => 'OP2', 'qty_completed' => 1, 'qty_rejected' => 0], 'occurred_at' => $day->copy()->addHours(9), 'user_id' => $userId,
+            ]);
+        });
+
+        // Operating time is op1's 12 minutes only — the orphan op2 completion contributes nothing.
+        // Standard minutes = op1's raw run_time_minutes (12, unscaled) since it has no standard_output_qty.
+        $this->get("/mes/oee?work_center_id={$workCenterId}&date={$day->toDateString()}")
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page->component('MES/Oee/Index')
+                ->where('assembly.operating_minutes', 12)
+                ->where('assembly.performance_pct', 100)
+            );
+    }
+
     public function test_process_kpis_yield_parameter_in_spec_and_open_qc_hold_count(): void
     {
         $tenant = $this->provisionTenant();
@@ -163,9 +236,10 @@ class MesOeeKpiTest extends TestCase
             $batch = MesBatch::query()->create(['order_id' => $order->id, 'batch_number' => 'BATCH-OEE-1', 'recipe_id' => $recipe->id, 'status' => MesBatch::STATUS_RUNNING, 'planned_qty' => 100]);
             $batchPhase = BatchPhase::query()->create(['batch_id' => $batch->id, 'process_phase_id' => $phase->id, 'seq' => 1, 'status' => BatchPhase::STATUS_RUNNING]);
 
-            // One in-spec (15, within [10,20]), one out-of-spec (25) => Parameter In-Spec = 50%.
+            // One in-spec (15, within [10,20]), one above max (25), one below min (5).
             BatchParameterReading::query()->create(['batch_phase_id' => $batchPhase->id, 'process_parameter_id' => $parameter->id, 'value' => 15, 'recorded_at' => $day->copy()->addHours(9)]);
             BatchParameterReading::query()->create(['batch_phase_id' => $batchPhase->id, 'process_parameter_id' => $parameter->id, 'value' => 25, 'recorded_at' => $day->copy()->addHours(10)]);
+            BatchParameterReading::query()->create(['batch_phase_id' => $batchPhase->id, 'process_parameter_id' => $parameter->id, 'value' => 5, 'recorded_at' => $day->copy()->addHours(11)]);
 
             QcHold::query()->create(['subject_type' => 'inventory.stock_batches', 'subject_id' => 1, 'reason' => 'test', 'status' => QcHold::STATUS_OPEN, 'created_at' => now()]);
         });
@@ -174,7 +248,7 @@ class MesOeeKpiTest extends TestCase
             ->assertOk()
             ->assertInertia(fn ($page) => $page->component('MES/Oee/Index')
                 ->where('process.yield_pct', 60)
-                ->where('process.parameter_in_spec_pct', 50)
+                ->where('process.parameter_in_spec_pct', 33.3)
                 ->where('process.qc_hold_count', 1)
             );
     }

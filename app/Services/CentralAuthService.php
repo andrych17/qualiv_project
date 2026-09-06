@@ -95,6 +95,7 @@ class CentralAuthService
                         $request->session()->put('tenant_id', (string) $tenant->getTenantKey());
                     }
                     RateLimiter::clear($throttleKey);
+
                     return $user;
                 }
 

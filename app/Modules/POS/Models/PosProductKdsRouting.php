@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PosProductKdsRouting extends Model
 {
     protected $table = 'POS.pos_product_kds_routing';
+
     public $timestamps = false;
 
     protected $fillable = [

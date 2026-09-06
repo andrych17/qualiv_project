@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PosTxnLineModifier extends Model
 {
     protected $table = 'POS.pos_txn_line_modifiers';
+
     public $timestamps = false;
 
     protected $fillable = [

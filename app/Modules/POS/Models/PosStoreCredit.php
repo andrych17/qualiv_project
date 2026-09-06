@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PosStoreCredit extends Model
 {
     protected $table = 'POS.pos_store_credits';
+
     public $timestamps = false;
 
     protected $fillable = [

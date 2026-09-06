@@ -4,6 +4,7 @@ import { useForm, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
+import FormTextarea from '@/Components/forms/FormTextarea.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 
@@ -74,14 +75,13 @@ const submit = () => form.post(route('legal.fieldVisits.store'))
           :options="assignees.map((a) => ({ label: a.name, value: a.id }))"
           :error="form.errors.assigned_to"
         />
-        <div class="space-y-1.5">
-          <label class="text-sm font-medium text-ink-900">Notes</label>
-          <textarea
-            v-model="form.notes"
-            rows="3"
-            class="w-full rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-          />
-        </div>
+        <FormTextarea
+          v-model="form.notes"
+          name="notes"
+          label="Notes"
+          :rows="3"
+          :error="form.errors.notes"
+        />
         <div class="flex items-center justify-end gap-3 border-t border-border pt-4">
           <Link
             :href="route('legal.fieldVisits.index')"

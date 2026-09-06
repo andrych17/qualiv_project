@@ -1,0 +1,18 @@
+{
+  "menu.PERFORMANCE_DASHBOARD": "Performance Dashboard",
+  "menu.PERFORMANCE_KPIS": "Key Performance Indicators (KPI)",
+  "menu.PERFORMANCE_OKRS": "Objectives & Key Results (OKR)",
+
+  "performance.kpi": "Key Performance Indicator (KPI)",
+  "performance.kpis": "KPIs List",
+  "performance.target": "Target Value",
+  "performance.actual": "Actual Value",
+  "performance.variance": "Variance",
+  "performance.okr": "Objectives & Key Results (OKR)",
+  "performance.objective": "Objective",
+  "performance.key_result": "Key Result",
+  "performance.progress": "Progress",
+
+  "performance.msg.kpi_recorded": "Actual KPI value recorded.",
+  "performance.msg.okr_completed": "OKR objective marked as completed!"
+}

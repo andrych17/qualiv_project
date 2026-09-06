@@ -7,9 +7,10 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import LegalSubNav from '@/Components/legal/LegalSubNav.vue'
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { debounce } from '@/Composables/debounce'
 import { useConfirm } from '@/Composables/useConfirmDialog'
+import { useI18n } from '@/Composables/useI18n'
 
 interface MatterRow {
   id: number
@@ -39,6 +40,7 @@ const props = defineProps<{
   filters: { search?: string; status?: string; sort?: string; direction?: string; per_page?: string }
 }>()
 
+const { t } = useI18n()
 const search = ref(props.filters.search ?? '')
 const filters = ref({ status: props.filters.status ?? '' })
 const sort = ref<SortState>(
@@ -47,30 +49,30 @@ const sort = ref<SortState>(
 const selected = ref<Array<string | number>>([])
 const perPage = ref(Number(props.filters.per_page) || props.matters.per_page)
 
-const filterFields: FilterFieldDef[] = [
+const filterFields = computed<FilterFieldDef[]>(() => [
   {
     key: 'status',
-    label: 'Status',
+    label: t('common.status'),
     type: 'select',
     options: [
-      { label: 'Open', value: 'open' },
-      { label: 'In progress', value: 'in_progress' },
-      { label: 'On hold', value: 'on_hold' },
-      { label: 'Closed', value: 'closed' },
+      { label: t('legal.status_open'), value: 'open' },
+      { label: t('legal.status_in_progress'), value: 'in_progress' },
+      { label: t('legal.status_on_hold'), value: 'on_hold' },
+      { label: t('legal.status_closed'), value: 'closed' },
     ],
   },
-]
+])
 
-const columns = [
-  { key: 'code', label: 'Code', sortable: true },
-  { key: 'title', label: 'Title', sortable: true },
-  { key: 'matter_type', label: 'Type', sortable: true },
-  { key: 'partner_name', label: 'Client' },
-  { key: 'assignee_name', label: 'Assigned to' },
-  { key: 'status', label: 'Status', sortable: true },
-  { key: 'target_close_at_formatted', label: 'Target close', sortable: true, sortKey: 'target_close_at' },
-  { key: 'actions', label: 'Actions', align: 'right' as const },
-]
+const columns = computed(() => [
+  { key: 'code', label: t('legal.matter_code'), sortable: true },
+  { key: 'title', label: t('legal.matter_title'), sortable: true },
+  { key: 'matter_type', label: t('legal.matter_type'), sortable: true },
+  { key: 'partner_name', label: t('legal.client') },
+  { key: 'assignee_name', label: t('legal.assigned_to') },
+  { key: 'status', label: t('common.status'), sortable: true },
+  { key: 'target_close_at_formatted', label: t('legal.target_close'), sortable: true, sortKey: 'target_close_at' },
+  { key: 'actions', label: t('common.actions'), align: 'right' as const },
+])
 
 watch([search, filters, sort, perPage], debounce(() => {
   selected.value = []
@@ -88,18 +90,18 @@ const { confirm } = useConfirm()
 const confirmDelete = (item: MatterRow | Record<string, unknown>) => {
   const row = item as MatterRow
   confirm({
-    title: `Delete matter ${row.code}?`,
+    title: t('legal.confirm_delete_matter', { code: row.code }),
     variant: 'destructive',
-    confirmText: 'Delete',
+    confirmText: t('common.delete'),
     onConfirm: () => router.delete(route('legal.matters.destroy', row.id)),
   })
 }
 
 const confirmBulkDelete = () => {
   confirm({
-    title: `Delete ${selected.value.length} selected matter(s)?`,
+    title: t('legal.confirm_bulk_delete_matters', { count: selected.value.length }),
     variant: 'destructive',
-    confirmText: 'Delete',
+    confirmText: t('common.delete'),
     onConfirm: () =>
       router.delete(route('legal.matters.bulkDestroy'), {
         data: { ids: selected.value },
@@ -112,11 +114,11 @@ const confirmBulkDelete = () => {
 <template>
   <AppLayout>
     <PageHeader
-      title="Matters"
-      description="Every client engagement — property purchase, incorporation, estate planning."
+      :title="t('legal.matters')"
+      :description="t('legal.matters_subtitle')"
     >
       <template #actions>
-        <PrimaryButton :href="route('legal.matters.create')">Open matter</PrimaryButton>
+        <PrimaryButton :href="route('legal.matters.create')">{{ t('legal.open_matter') }}</PrimaryButton>
       </template>
     </PageHeader>
 
@@ -136,15 +138,15 @@ const confirmBulkDelete = () => {
         sticky-header
         storage-key="legal.matters"
         status-rail-key="status"
-        search-placeholder="Search code or title…"
+        :search-placeholder="t('legal.search_placeholder')"
         :filter-fields="filterFields"
         export-filename="legal-matters"
         :total="matters.total"
         :from="matters.from"
         :to="matters.to"
         :links="matters.links"
-        empty-title="No matters yet"
-        empty-description="Open your first matter to start tracking deeds for this firm."
+        :empty-title="t('legal.empty_matters_title')"
+        :empty-description="t('legal.empty_matters_desc')"
       >
         <template #bulk-actions>
           <button

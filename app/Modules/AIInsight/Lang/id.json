@@ -1,0 +1,10 @@
+{
+  "menu.AIINSIGHT_DASHBOARD": "Dashboard AI Insight",
+  "menu.AIINSIGHT_ANOMALIES": "Deteksi Anomali",
+  "menu.AIINSIGHT_FORECASTS": "Prediksi & Proyeksi",
+
+  "aiinsight.anomaly": "Anomali Terdeteksi",
+  "aiinsight.confidence": "Tingkat Keyakinan",
+  "aiinsight.recommendation": "Rekomendasi Tindakan",
+  "aiinsight.summary": "Ringkasan Eksekutif AI"
+}

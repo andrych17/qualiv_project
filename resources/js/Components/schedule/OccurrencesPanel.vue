@@ -5,6 +5,9 @@ import { router, useForm } from '@inertiajs/vue3'
 import { ref, watch } from 'vue'
 import { useConfirm } from '@/Composables/useConfirmDialog'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
+import { useI18n } from '@/Composables/useI18n'
+
+const { t } = useI18n()
 
 export interface OccurrenceRow {
   original_date: string
@@ -63,9 +66,9 @@ const saveReschedule = () => {
 
 const skip = (occ: OccurrenceRow) => {
   confirm({
-    title: `Skip the ${occ.original_date} occurrence?`,
+    title: t('schedule.skip'),
     variant: 'destructive',
-    confirmText: 'Skip',
+    confirmText: t('schedule.skip'),
     onConfirm: () => router.post(
       route(props.skipRoute, props.itemId),
       { original_occurrence_date: occ.original_date },
@@ -85,8 +88,8 @@ const restore = (occ: OccurrenceRow) => {
 
 <template>
   <div class="space-y-2">
-    <p class="text-xs font-semibold uppercase tracking-wide text-ink-600">Upcoming occurrences</p>
-    <p v-if="occurrences.length === 0" class="text-sm text-ink-600">No upcoming occurrences in the next 90 days.</p>
+    <p class="text-xs font-semibold uppercase tracking-wide text-ink-600">{{ t('schedule.upcoming_occurrences') }}</p>
+    <p v-if="occurrences.length === 0" class="text-sm text-ink-600">{{ t('schedule.no_upcoming_occurrences') }}</p>
     <ul v-else class="divide-y divide-border rounded-md border border-border">
       <li v-for="occ in occurrences" :key="occ.original_date" class="p-3 text-sm">
         <div v-if="editingDate !== occ.original_date" class="flex items-center justify-between gap-3">
@@ -102,14 +105,14 @@ const restore = (occ: OccurrenceRow) => {
               class="text-sm font-medium text-accent hover:underline"
               @click="restore(occ)"
             >
-              Restore
+              {{ t('schedule.restore') }}
             </button>
             <template v-else>
               <button type="button" class="text-sm font-medium text-accent hover:underline" @click="startEdit(occ)">
-                Reschedule
+                {{ t('schedule.reschedule') }}
               </button>
               <button type="button" class="text-sm font-medium text-signal-danger hover:underline" @click="skip(occ)">
-                Skip
+                {{ t('schedule.skip') }}
               </button>
             </template>
           </div>
@@ -122,7 +125,7 @@ const restore = (occ: OccurrenceRow) => {
               class="rounded-md border border-border bg-surface-0 text-ink-900 px-2 py-1 text-sm shadow-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
             />
             <template v-if="showEnd">
-              <span class="text-ink-600">to</span>
+              <span class="text-ink-600">–</span>
               <input
                 v-model="rescheduleForm.end_at"
                 type="datetime-local"
@@ -138,9 +141,9 @@ const restore = (occ: OccurrenceRow) => {
               :disabled="rescheduleForm.processing"
               @click="saveReschedule"
             >
-              Save
+              {{ t('common.save') }}
             </button>
-            <button type="button" class="text-sm text-ink-600 hover:underline" @click="cancelEdit">Cancel</button>
+            <button type="button" class="text-sm text-ink-600 hover:underline" @click="cancelEdit">{{ t('common.cancel') }}</button>
           </div>
         </div>
       </li>

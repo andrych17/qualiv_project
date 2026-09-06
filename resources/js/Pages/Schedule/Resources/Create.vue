@@ -10,6 +10,9 @@ import FormSelect from '@/Components/forms/FormSelect.vue'
 import WorkingHoursInput, { type WorkingHourRow } from '@/Components/schedule/WorkingHoursInput.vue'
 import ScheduleSubNav from '@/Components/schedule/ScheduleSubNav.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
+import { useI18n } from '@/Composables/useI18n'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   resourceTypes: Array<{ id: number; name: string }>
@@ -28,7 +31,7 @@ const submit = () => form.post(route('schedule.resources.store'))
 
 <template>
   <AppLayout>
-    <PageHeader title="Add resource" description="A bookable room, vehicle, piece of equipment, or staff-as-resource." />
+    <PageHeader :title="t('schedule.add_resource')" :description="t('schedule.add_resource_desc')" />
 
     <ScheduleSubNav active="resources" class="mt-6" />
 
@@ -37,19 +40,31 @@ const submit = () => form.post(route('schedule.resources.store'))
         <FormSelect
           v-model="form.resource_type_id"
           name="resource_type_id"
-          label="Type"
-          :options="resourceTypes.map((t) => ({ label: t.name, value: t.id }))"
+          :label="t('schedule.resource_type')"
+          :options="resourceTypes.map((tItem) => ({ label: tItem.name, value: tItem.id }))"
           :error="form.errors.resource_type_id"
           required
         />
-        <FormInput v-model="form.name" name="name" label="Name" placeholder="e.g. Conference Room A" :error="form.errors.name" required />
-        <FormTextarea v-model="form.location_notes" name="location_notes" label="Location / notes" :error="form.errors.location_notes" />
+        <FormInput
+          v-model="form.name"
+          name="name"
+          :label="t('schedule.resource_name')"
+          :placeholder="t('schedule.resource_name')"
+          :error="form.errors.name"
+          required
+        />
+        <FormTextarea
+          v-model="form.location_notes"
+          name="location_notes"
+          :label="t('schedule.location_notes')"
+          :error="form.errors.location_notes"
+        />
         <FormInput
           v-model="form.capacity"
           name="capacity"
           type="number"
-          label="Capacity"
-          placeholder="Optional — informational only"
+          :label="t('schedule.capacity')"
+          :placeholder="t('schedule.capacity_placeholder')"
           :error="form.errors.capacity"
         />
 
@@ -60,9 +75,9 @@ const submit = () => form.post(route('schedule.resources.store'))
             :href="route('schedule.resources.index')"
             class="inline-flex items-center justify-center rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm font-semibold text-ink-900 shadow-sm transition hover:bg-surface-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           >
-            Cancel
+            {{ t('common.cancel') }}
           </Link>
-          <PrimaryButton type="submit" :disabled="form.processing">Save resource</PrimaryButton>
+          <PrimaryButton type="submit" :disabled="form.processing">{{ t('schedule.save_resource') }}</PrimaryButton>
         </div>
       </form>
     </Panel>

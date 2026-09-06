@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use App\Modules\HCM\Models\Employee;
 use App\Modules\HCM\Models\Shift;
 use App\Modules\HCM\Models\ShiftAssignment;
@@ -12,8 +13,10 @@ use App\Modules\MES\Models\Machine;
 use App\Modules\MES\Models\ProdOrder;
 use App\Modules\MES\Models\ShiftHandoverNote;
 use App\Modules\MES\Models\WorkCenter;
+use App\Modules\MES\Services\ShiftHandoverService;
 use App\Modules\PP\Models\Bom;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Validation\ValidationException;
 use Tests\Concerns\SetsUpTenant;
 use Tests\TestCase;
 
@@ -79,6 +82,14 @@ class MesShiftHandoverTest extends TestCase
                 ->where('notes.total', 1)
                 ->where('notes.data.0.employee_name', 'Op One')
             );
+
+        $this->get("/mes/shift-handovers?shift_assignment_id={$shiftAssignmentId}")
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page->where('notes.total', 1));
+
+        $this->get('/mes/shift-handovers?work_date='.now()->toDateString())
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page->where('notes.total', 1));
     }
 
     public function test_an_invalid_shift_assignment_is_rejected(): void
@@ -91,5 +102,19 @@ class MesShiftHandoverTest extends TestCase
             'shift_assignment_id' => 999999,
             'notes' => 'x',
         ])->assertSessionHasErrors('shift_assignment_id');
+    }
+
+    /** ShiftHandoverService::create()'s own "assignment not found" guard is controller-shadowed by StoreShiftHandoverNoteRequest's own existence check — only reachable via a direct service call. */
+    public function test_service_rejects_an_unresolvable_shift_assignment_directly(): void
+    {
+        $tenant = $this->provisionTenant();
+        $tenant->update(['plan' => 'full']);
+
+        $tenant->run(function () {
+            $userId = User::query()->where('email', 'admin@nusaevo.com')->value('id');
+
+            $this->expectException(ValidationException::class);
+            app(ShiftHandoverService::class)->create(['shift_assignment_id' => 999999], $userId);
+        });
     }
 }

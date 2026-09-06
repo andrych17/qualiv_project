@@ -10,9 +10,11 @@ use Illuminate\Database\Eloquent\Model;
 class PosWeightedBarcodeTemplate extends Model
 {
     protected $table = 'POS.pos_weighted_barcode_templates';
+
     public $timestamps = false;
 
     public const VALUE_TYPE_WEIGHT = 'weight';
+
     public const VALUE_TYPE_PRICE = 'price';
 
     protected $fillable = [

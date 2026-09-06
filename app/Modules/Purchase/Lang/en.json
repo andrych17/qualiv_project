@@ -1,0 +1,54 @@
+{
+  "menu.PURCHASE_DASHBOARD": "Purchase Dashboard",
+  "menu.PURCHASE_REQS": "Purchase Requisitions (PR)",
+  "menu.PURCHASE_ORDERS": "Purchase Orders (PO)",
+  "menu.PURCHASE_BILLS": "Vendor Bills",
+  "menu.PURCHASE_VENDORS": "Vendors & Suppliers",
+  "menu.PURCHASE_RECEIPTS": "Goods Receipts (GRN)",
+  "menu.PURCHASE_CONTRACTS": "Procurement Contracts",
+  "menu.PURCHASE_CATALOG": "Procurement Catalog",
+
+  "purchase.requisition": "Purchase Requisition (PR)",
+  "purchase.requisitions": "Purchase Requisitions",
+  "purchase.requisitions_subtitle": "Internal purchase requests before procurement execution.",
+  "purchase.new_requisition": "New Purchase Requisition",
+  "purchase.empty_reqs_title": "No purchase requisitions found",
+  "purchase.empty_reqs_desc": "Submit the first purchase requisition to begin procurement.",
+
+  "purchase.order": "Purchase Order (PO)",
+  "purchase.orders": "Purchase Orders",
+  "purchase.orders_subtitle": "Manage vendor purchase orders, amendments, and delivery tracking.",
+  "purchase.new_order": "New Purchase Order",
+  "purchase.empty_orders_title": "No purchase orders yet",
+  "purchase.empty_orders_desc": "Create a purchase order or generate one directly from an approved requisition.",
+
+  "purchase.bill": "Vendor Bill",
+  "purchase.bills": "Vendor Bills",
+  "purchase.vendor": "Vendor / Supplier",
+  "purchase.vendors": "Vendors & Suppliers",
+  "purchase.vendors_subtitle": "Supplier directory, vendor evaluation, and payment terms.",
+  "purchase.new_vendor": "Add New Vendor",
+
+  "purchase.po_number": "PO Number",
+  "purchase.pr_number": "PR Number",
+  "purchase.order_date": "Order Date",
+  "purchase.expected_delivery": "Delivery Date",
+  "purchase.total_cost": "Total Cost",
+  "purchase.total_amount": "Total Amount",
+  "purchase.linked_pr": "Linked PR",
+  "purchase.acknowledgment": "Acknowledgment",
+  "purchase.revision": "Rev.",
+  "purchase.search_orders_placeholder": "Search PO number, supplier, or PR…",
+  "purchase.search_reqs_placeholder": "Search PR number or department…",
+
+  "purchase.receipts": "Goods Receipts (GRN)",
+  "purchase.receipts_subtitle": "Physical warehouse item receipts and quality inspection logs.",
+  "purchase.new_receipt": "Record Goods Receipt",
+
+  "purchase.msg.pr_approved": "Purchase requisition approved.",
+  "purchase.msg.po_sent": "Purchase order sent to vendor successfully.",
+  "purchase.msg.bill_recorded": "Vendor bill recorded successfully.",
+
+  "purchase.err.vendor_inactive": "Vendor is inactive and cannot receive new purchase orders.",
+  "purchase.err.budget_exceeded": "Purchase request exceeds allocated department budget."
+}

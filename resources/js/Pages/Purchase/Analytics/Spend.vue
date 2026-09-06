@@ -244,12 +244,12 @@ const resetFilters = () => {
     <!-- Concentration Risk Alert Banner -->
     <div
       v-if="supplier_concentration.high_risk_flag"
-      class="mt-4 p-4 rounded-lg bg-amber-50 border border-amber-300 text-amber-900 flex items-start gap-3"
+      class="mt-4 p-4 rounded-lg bg-signal-warning/10 border border-signal-warning/25 text-signal-warning flex items-start gap-3"
     >
       <span class="text-xl">⚠️</span>
       <div>
         <div class="font-bold text-sm">High Supplier Concentration Risk Detected</div>
-        <div class="text-xs text-amber-800 mt-0.5">
+        <div class="text-xs text-signal-warning mt-0.5">
           <strong>{{ supplier_concentration.top_supplier_name }}</strong> represents
           <strong>{{ supplier_concentration.top_supplier_share_pct }}%</strong> of total spend. It is recommended to diversify supply sources or negotiate multi-year framework pricing.
         </div>
@@ -267,12 +267,12 @@ const resetFilters = () => {
       <div class="p-4 bg-surface rounded-lg border border-border shadow-sm">
         <span class="text-xs font-medium text-ink-500 uppercase tracking-wider">Direct vs Indirect</span>
         <div class="mt-2 flex items-baseline justify-between text-sm">
-          <span class="font-bold text-emerald-700">Direct: {{ kpis.direct_spend_pct }}%</span>
+          <span class="font-bold text-signal-success">Direct: {{ kpis.direct_spend_pct }}%</span>
           <span class="text-ink-500">Indirect: {{ kpis.indirect_spend_pct }}%</span>
         </div>
-        <div class="mt-2 w-full bg-slate-100 rounded-full h-2 overflow-hidden flex">
-          <div class="bg-emerald-500 h-full" :style="{ width: `${kpis.direct_spend_pct}%` }"></div>
-          <div class="bg-indigo-400 h-full" :style="{ width: `${kpis.indirect_spend_pct}%` }"></div>
+        <div class="mt-2 w-full bg-surface-100 rounded-full h-2 overflow-hidden flex">
+          <div class="bg-signal-success h-full" :style="{ width: `${kpis.direct_spend_pct}%` }"></div>
+          <div class="bg-signal-info h-full" :style="{ width: `${kpis.indirect_spend_pct}%` }"></div>
         </div>
         <div class="mt-1 text-xs text-ink-500">{{ formatCurrency(kpis.direct_spend) }} direct spend</div>
       </div>
@@ -280,14 +280,14 @@ const resetFilters = () => {
       <div class="p-4 bg-surface rounded-lg border border-border shadow-sm">
         <span class="text-xs font-medium text-ink-500 uppercase tracking-wider">Catalog Compliance</span>
         <div class="mt-2 flex items-baseline justify-between text-sm">
-          <span class="font-bold text-indigo-700">Catalog: {{ kpis.on_catalog_pct }}%</span>
-          <span :class="kpis.off_catalog_pct > 20 ? 'text-rose-600 font-semibold' : 'text-ink-500'">
+          <span class="font-bold text-signal-info">Catalog: {{ kpis.on_catalog_pct }}%</span>
+          <span :class="kpis.off_catalog_pct > 20 ? 'text-signal-danger font-semibold' : 'text-ink-500'">
             Off-Catalog: {{ kpis.off_catalog_pct }}%
           </span>
         </div>
-        <div class="mt-2 w-full bg-slate-100 rounded-full h-2 overflow-hidden flex">
-          <div class="bg-indigo-600 h-full" :style="{ width: `${kpis.on_catalog_pct}%` }"></div>
-          <div class="bg-rose-400 h-full" :style="{ width: `${kpis.off_catalog_pct}%` }"></div>
+        <div class="mt-2 w-full bg-surface-100 rounded-full h-2 overflow-hidden flex">
+          <div class="bg-signal-info h-full" :style="{ width: `${kpis.on_catalog_pct}%` }"></div>
+          <div class="bg-signal-danger h-full" :style="{ width: `${kpis.off_catalog_pct}%` }"></div>
         </div>
         <div class="mt-1 text-xs text-ink-500">
           {{ kpis.off_catalog_pct > 20 ? '⚠️ Maverick spend exceeds 20%' : 'Compliant purchasing behavior' }}
@@ -296,7 +296,7 @@ const resetFilters = () => {
 
       <div class="p-4 bg-surface rounded-lg border border-border shadow-sm">
         <span class="text-xs font-medium text-ink-500 uppercase tracking-wider">Contract Coverage</span>
-        <div class="mt-2 text-2xl font-bold text-purple-700">{{ kpis.contract_coverage_pct }}%</div>
+        <div class="mt-2 text-2xl font-bold text-signal-info">{{ kpis.contract_coverage_pct }}%</div>
         <div class="mt-1 text-xs text-ink-500">{{ formatCurrency(kpis.contract_covered_spend) }} under master contracts</div>
       </div>
     </div>
@@ -334,7 +334,7 @@ const resetFilters = () => {
                 <td class="px-3 py-2.5 text-right">
                   <div class="flex items-center justify-end gap-2">
                     <span class="font-semibold text-ink-800 text-xs">{{ s.share_pct }}%</span>
-                    <div class="w-12 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                    <div class="w-12 bg-surface-100 rounded-full h-1.5 overflow-hidden">
                       <div class="bg-accent h-full" :style="{ width: `${Math.min(100, s.share_pct)}%` }"></div>
                     </div>
                   </div>
@@ -366,13 +366,13 @@ const resetFilters = () => {
                 <td class="px-3 py-2.5">
                   <span
                     class="inline-flex items-center px-1.5 py-0.5 rounded text-2xs font-semibold uppercase"
-                    :class="cat.spend_type === 'direct' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'"
+                    :class="cat.spend_type === 'direct' ? 'bg-signal-success/10 text-signal-success' : 'bg-surface-100 text-ink-700'"
                   >
                     {{ cat.spend_type }}
                   </span>
                   <span
                     class="inline-flex items-center px-1.5 py-0.5 rounded text-2xs font-semibold uppercase ml-1"
-                    :class="cat.capex_opex === 'capex' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'"
+                    :class="cat.capex_opex === 'capex' ? 'bg-signal-info/10 text-signal-info' : 'bg-signal-info/10 text-signal-info'"
                   >
                     {{ cat.capex_opex }}
                   </span>
@@ -381,8 +381,8 @@ const resetFilters = () => {
                 <td class="px-3 py-2.5 text-right">
                   <div class="flex items-center justify-end gap-2">
                     <span class="font-semibold text-ink-800 text-xs">{{ cat.share_pct }}%</span>
-                    <div class="w-12 bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                      <div class="bg-indigo-600 h-full" :style="{ width: `${Math.min(100, cat.share_pct)}%` }"></div>
+                    <div class="w-12 bg-surface-100 rounded-full h-1.5 overflow-hidden">
+                      <div class="bg-signal-info h-full" :style="{ width: `${Math.min(100, cat.share_pct)}%` }"></div>
                     </div>
                   </div>
                 </td>
@@ -423,9 +423,9 @@ const resetFilters = () => {
                     v-if="cc.budget_amount > 0"
                     class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold"
                     :class="{
-                      'bg-rose-100 text-rose-800': cc.budget_consumed_pct > 100,
-                      'bg-amber-100 text-amber-800': cc.budget_consumed_pct >= 80 && cc.budget_consumed_pct <= 100,
-                      'bg-emerald-100 text-emerald-800': cc.budget_consumed_pct < 80,
+                      'bg-signal-danger/10 text-signal-danger': cc.budget_consumed_pct > 100,
+                      'bg-signal-warning/10 text-signal-warning': cc.budget_consumed_pct >= 80 && cc.budget_consumed_pct <= 100,
+                      'bg-signal-success/10 text-signal-success': cc.budget_consumed_pct < 80,
                     }"
                   >
                     {{ cc.budget_consumed_pct }}%
@@ -433,7 +433,7 @@ const resetFilters = () => {
                   <span v-else class="text-xs text-ink-400">—</span>
                 </td>
                 <td class="px-3 py-2.5 text-right font-medium">
-                  <span v-if="cc.remaining_budget !== null" :class="cc.remaining_budget < 0 ? 'text-rose-600 font-bold' : 'text-emerald-700'">
+                  <span v-if="cc.remaining_budget !== null" :class="cc.remaining_budget < 0 ? 'text-signal-danger font-bold' : 'text-signal-success'">
                     {{ formatCurrency(cc.remaining_budget) }}
                   </span>
                   <span v-else class="text-ink-400">—</span>
@@ -478,16 +478,16 @@ const resetFilters = () => {
                     <span
                       class="px-2 py-0.5 rounded text-xs font-bold"
                       :class="{
-                        'bg-rose-100 text-rose-800': c.health_status === 'exceeded',
-                        'bg-amber-100 text-amber-800': c.health_status === 'warning',
-                        'bg-emerald-100 text-emerald-800': c.health_status === 'normal',
+                        'bg-signal-danger/10 text-signal-danger': c.health_status === 'exceeded',
+                        'bg-signal-warning/10 text-signal-warning': c.health_status === 'warning',
+                        'bg-signal-success/10 text-signal-success': c.health_status === 'normal',
                       }"
                     >
                       {{ c.utilization_pct }}%
                     </span>
                   </div>
                 </td>
-                <td class="px-3 py-2.5 text-right font-semibold" :class="c.remaining_headroom <= 0 ? 'text-rose-600' : 'text-ink-800'">
+                <td class="px-3 py-2.5 text-right font-semibold" :class="c.remaining_headroom <= 0 ? 'text-signal-danger' : 'text-ink-800'">
                   {{ formatCurrency(c.remaining_headroom) }}
                 </td>
                 <td class="px-3 py-2.5 text-center text-xs text-ink-500">{{ c.end_date }}</td>
@@ -517,8 +517,8 @@ const resetFilters = () => {
               <tr v-for="m in monthly_trend" :key="m.period" class="hover:bg-surface-sunken/40">
                 <td class="px-3 py-2.5 font-bold font-mono text-ink-900">{{ m.period }}</td>
                 <td class="px-3 py-2.5 text-center text-ink-600">{{ m.po_count }}</td>
-                <td class="px-3 py-2.5 text-right text-emerald-700">{{ formatCurrency(m.direct_spend) }}</td>
-                <td class="px-3 py-2.5 text-right text-indigo-700">{{ formatCurrency(m.indirect_spend) }}</td>
+                <td class="px-3 py-2.5 text-right text-signal-success">{{ formatCurrency(m.direct_spend) }}</td>
+                <td class="px-3 py-2.5 text-right text-signal-info">{{ formatCurrency(m.indirect_spend) }}</td>
                 <td class="px-3 py-2.5 text-right font-bold text-ink-900">{{ formatCurrency(m.total_spend) }}</td>
               </tr>
             </tbody>

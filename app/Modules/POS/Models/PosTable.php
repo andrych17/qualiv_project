@@ -14,11 +14,15 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class PosTable extends Model
 {
     protected $table = 'POS.pos_tables';
+
     public $timestamps = false;
 
     public const STATUS_AVAILABLE = 'available';
+
     public const STATUS_OCCUPIED = 'occupied';
+
     public const STATUS_RESERVED = 'reserved';
+
     public const STATUS_CLEANING = 'cleaning';
 
     protected $fillable = [

@@ -13,9 +13,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class PosModifierGroup extends Model
 {
     protected $table = 'POS.pos_modifier_groups';
+
     public $timestamps = false;
 
     public const TYPE_SINGLE = 'single';
+
     public const TYPE_MULTIPLE = 'multiple';
 
     protected $fillable = [

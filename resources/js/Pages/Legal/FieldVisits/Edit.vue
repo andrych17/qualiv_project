@@ -8,6 +8,9 @@ import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
+import FormInput from '@/Components/forms/FormInput.vue'
+import FormTextarea from '@/Components/forms/FormTextarea.vue'
+import Checkbox from '@/Components/Checkbox.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 
 interface ChecklistItem {
@@ -110,25 +113,24 @@ const submitComplete = () => completeForm.patch(route('legal.fieldVisits.complet
             <p class="text-sm font-medium text-ink-900">Checklist</p>
             <div v-for="(item, i) in completeForm.checklist_result" :key="i" class="rounded-sm border border-border p-2">
               <label class="flex items-center gap-2 text-sm text-ink-900">
-                <input v-model="item.done" type="checkbox" class="rounded border-border" />
+                <Checkbox v-model:checked="item.done" />
                 {{ item.label }}
               </label>
-              <input
+              <FormInput
                 v-model="item.note"
-                type="text"
+                :name="`checklist_note_${i}`"
                 placeholder="Note (optional)"
-                class="mt-1 w-full rounded-sm border border-border bg-surface-0 px-2 py-1 text-xs text-ink-900"
+                class="mt-1"
               />
             </div>
           </div>
-          <div class="space-y-1.5">
-            <label class="text-sm font-medium text-ink-900">Closing note</label>
-            <textarea
-              v-model="completeForm.notes"
-              rows="3"
-              class="w-full rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-            />
-          </div>
+          <FormTextarea
+            v-model="completeForm.notes"
+            name="notes"
+            label="Closing note"
+            :rows="3"
+            :error="completeForm.errors.notes"
+          />
           <PrimaryButton type="submit" :disabled="completeForm.processing">Complete visit</PrimaryButton>
         </form>
       </Panel>

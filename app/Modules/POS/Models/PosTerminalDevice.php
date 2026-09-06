@@ -11,13 +11,19 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PosTerminalDevice extends Model
 {
     protected $table = 'POS.pos_terminal_devices';
+
     public $timestamps = false;
 
     public const TYPE_RECEIPT_PRINTER = 'receipt_printer';
+
     public const TYPE_KITCHEN_PRINTER = 'kitchen_printer';
+
     public const TYPE_CASH_DRAWER = 'cash_drawer';
+
     public const TYPE_CUSTOMER_DISPLAY = 'customer_display';
+
     public const TYPE_WEIGHING_SCALE = 'weighing_scale';
+
     public const TYPE_CARD_TERMINAL = 'card_terminal';
 
     protected $fillable = [

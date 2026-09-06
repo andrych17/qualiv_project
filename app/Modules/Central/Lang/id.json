@@ -1,0 +1,11 @@
+{
+  "central.tenant": "Penyewa (Tenant)",
+  "central.tenants": "Daftar Penyewa",
+  "central.domain": "Domain",
+  "central.plan": "Paket Berlangganan",
+  "central.database": "Database Tenant",
+  "central.status": "Status Langganan",
+
+  "central.msg.tenant_created": "Tenant baru berhasil dibuat dan database telah disiapkan.",
+  "central.err.tenant_exists": "Tenant dengan ID atau domain ini sudah ada."
+}

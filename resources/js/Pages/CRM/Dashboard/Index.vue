@@ -1,15 +1,16 @@
-<!-- ponytail: CRM Main Dashboard (§3A) — summary cards + unified "my work" queue across
-     Leads/Tickets/Service Cases, row-click drawer mirrors the Central Admin Dashboard
-     pattern (resources/js/Pages/Central/Dashboard.vue). Ships last — aggregates §3B-§3G. -->
+<!-- ponytail: CRM Main Dashboard — summary cards + assigned work panels across
+     Leads/Tickets/Service Cases/Partners with quick inspection drawer -->
 <script setup lang="ts">
-import { ref } from 'vue'
-import { Link, useForm } from '@inertiajs/vue3'
+import { ref, computed } from 'vue'
+import { Link, useForm, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import StatCard from '@/Components/cards/StatCard.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
-import CrmSubNav from '@/Components/crm/CrmSubNav.vue'
+import FormSelect from '@/Components/forms/FormSelect.vue'
+import PrimaryButton from '@/Components/PrimaryButton.vue'
+import SecondaryButton from '@/Components/SecondaryButton.vue'
 
 interface LeadRow { id: number; name: string; company_name: string | null; stage: string; next_action_formatted: string | null }
 interface TicketRow { id: number; subject: string; requester_name: string; status: string; sla_state: string }
@@ -25,6 +26,8 @@ const props = defineProps<{
   canUpdate: boolean
 }>()
 
+const page = usePage()
+
 const railClass = (state: string) => {
   const map: Record<string, string> = {
     breached: 'border-l-[3px] border-l-signal-danger',
@@ -34,8 +37,22 @@ const railClass = (state: string) => {
   return map[state] ?? 'border-l-[3px] border-l-border'
 }
 
-const tabs = ['My Leads', 'My Tickets', 'My Service Cases', 'Recent Partners'] as const
-const activeTab = ref<(typeof tabs)[number]>('My Leads')
+/**
+ * Filter panels and metrics based on dynamic ConfigRight permissions in SYSCONFIG
+ */
+const crmMenuCodes = computed(() => {
+  const menus = (page.props.navMenus || []) as Array<{ code: string; children?: Array<{ code: string }> }>
+  const crm = menus.find(m => m.code === 'CRM')
+  if (!crm || !crm.children) {
+    return new Set<string>(['CRM_LEADS', 'CRM_TICKETS', 'CRM_CASES', 'CRM_COMPANIES', 'CRM_CONTACTS'])
+  }
+  return new Set<string>(crm.children.map(c => c.code))
+})
+
+const canAccessLeads = computed(() => crmMenuCodes.value.has('CRM_LEADS'))
+const canAccessTickets = computed(() => crmMenuCodes.value.has('CRM_TICKETS'))
+const canAccessCases = computed(() => crmMenuCodes.value.has('CRM_CASES'))
+const canAccessPartners = computed(() => crmMenuCodes.value.has('CRM_COMPANIES') || crmMenuCodes.value.has('CRM_CONTACTS'))
 
 type DrawerType = 'lead' | 'ticket' | 'case' | 'partner'
 type DrawerData = {
@@ -102,89 +119,135 @@ const changeStatus = () => {
   <AppLayout>
     <PageHeader title="CRM Dashboard" description="At-a-glance CRM health and your assigned work." />
 
-    <CrmSubNav active="dashboard" class="mt-6" />
-
+    <!-- Top KPI Cards -->
     <div class="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-      <StatCard title="Open Leads" :value="String(summary.open_leads)" icon="TrendingUp" href="/crm/leads" />
-      <StatCard title="Open Tickets" :value="String(summary.open_tickets)" icon="LifeBuoy" href="/crm/tickets" />
-      <StatCard title="Open Service Cases" :value="String(summary.open_service_cases)" icon="Wrench" href="/crm/service-cases" />
-      <StatCard title="Partners Added (30d)" :value="String(summary.partners_added_30d)" icon="UserPlus" href="/crm/contacts" />
+      <StatCard v-if="canAccessLeads" title="Open Leads" :value="String(summary.open_leads)" icon="TrendingUp" href="/crm/leads" />
+      <StatCard v-if="canAccessTickets" title="Open Tickets" :value="String(summary.open_tickets)" icon="LifeBuoy" href="/crm/tickets" />
+      <StatCard v-if="canAccessCases" title="Open Service Cases" :value="String(summary.open_service_cases)" icon="Wrench" href="/crm/service-cases" />
+      <StatCard v-if="canAccessPartners" title="Partners Added (30d)" :value="String(summary.partners_added_30d)" icon="UserPlus" href="/crm/contacts" />
     </div>
 
-    <Panel class="mt-6">
-      <div class="mb-4 flex gap-2 border-b border-border">
-        <button
-          v-for="tab in tabs"
-          :key="tab"
-          type="button"
-          class="border-b-2 px-3 py-2 text-sm font-medium"
-          :class="activeTab === tab ? 'border-accent text-ink-900' : 'border-transparent text-ink-600 hover:text-ink-900'"
-          @click="activeTab = tab"
-        >
-          {{ tab }}
-        </button>
-      </div>
+    <!-- Active Work Panels -->
+    <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <!-- My Leads -->
+      <Panel v-if="canAccessLeads" title="My Leads" subtitle="Open leads assigned to you">
+        <template #actions>
+          <Link href="/crm/leads" class="text-xs font-medium text-accent hover:underline">
+            View all →
+          </Link>
+        </template>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <tbody>
+              <tr v-for="l in myLeads" :key="l.id" class="border-b border-border hover:bg-surface-50">
+                <td class="py-2.5 pl-1">
+                  <button type="button" class="text-left font-medium text-ink-900 hover:text-accent hover:underline" @click="openDrawer('lead', l.id)">
+                    {{ l.name }}
+                  </button>
+                  <span v-if="l.company_name" class="text-xs text-ink-600"> — {{ l.company_name }}</span>
+                </td>
+                <td class="py-2.5 text-right"><StatusBadge :status="l.stage" /></td>
+                <td class="py-2.5 text-right text-xs text-ink-600">{{ l.next_action_formatted ?? '—' }}</td>
+              </tr>
+              <tr v-if="!myLeads.length">
+                <td colspan="3" class="py-4 text-center text-xs text-ink-600">No leads assigned to you.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </Panel>
 
-      <table v-if="activeTab === 'My Leads'" class="w-full text-sm">
-        <tbody>
-          <tr v-for="l in myLeads" :key="l.id" class="border-b border-border hover:bg-surface-50">
-            <td class="py-2 pl-3">
-              <button type="button" class="font-medium text-ink-900 hover:underline" @click="openDrawer('lead', l.id)">{{ l.name }}</button>
-              <span v-if="l.company_name" class="text-xs text-ink-600"> — {{ l.company_name }}</span>
-            </td>
-            <td class="py-2"><StatusBadge :status="l.stage" /></td>
-            <td class="py-2 text-xs text-ink-600">{{ l.next_action_formatted ?? '—' }}</td>
-          </tr>
-          <tr v-if="!myLeads.length"><td class="py-4 text-ink-600">No leads assigned to you.</td></tr>
-        </tbody>
-      </table>
+      <!-- My Tickets -->
+      <Panel v-if="canAccessTickets" title="My Tickets" subtitle="Tickets in your queue">
+        <template #actions>
+          <Link href="/crm/tickets" class="text-xs font-medium text-accent hover:underline">
+            View all →
+          </Link>
+        </template>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <tbody>
+              <tr v-for="t in myTickets" :key="t.id" class="border-b border-border hover:bg-surface-50" :class="railClass(t.sla_state)">
+                <td class="py-2.5 pl-2">
+                  <button type="button" class="text-left font-medium text-ink-900 hover:text-accent hover:underline" @click="openDrawer('ticket', t.id)">
+                    {{ t.subject }}
+                  </button>
+                  <span class="text-xs text-ink-600"> — {{ t.requester_name }}</span>
+                </td>
+                <td class="py-2.5 text-right"><StatusBadge :status="t.status" /></td>
+                <td class="py-2.5 text-right"><StatusBadge :status="t.sla_state" :label="t.sla_state.replace('_', ' ')" /></td>
+              </tr>
+              <tr v-if="!myTickets.length">
+                <td colspan="3" class="py-4 text-center text-xs text-ink-600">No tickets assigned to you.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </Panel>
 
-      <table v-else-if="activeTab === 'My Tickets'" class="w-full text-sm">
-        <tbody>
-          <tr v-for="t in myTickets" :key="t.id" class="border-b border-border hover:bg-surface-50" :class="railClass(t.sla_state)">
-            <td class="py-2 pl-3">
-              <button type="button" class="font-medium text-ink-900 hover:underline" @click="openDrawer('ticket', t.id)">{{ t.subject }}</button>
-              <span class="text-xs text-ink-600"> — {{ t.requester_name }}</span>
-            </td>
-            <td class="py-2"><StatusBadge :status="t.status" /></td>
-            <td class="py-2"><StatusBadge :status="t.sla_state" :label="t.sla_state.replace('_', ' ')" /></td>
-          </tr>
-          <tr v-if="!myTickets.length"><td class="py-4 text-ink-600">No tickets assigned to you.</td></tr>
-        </tbody>
-      </table>
+      <!-- My Service Cases -->
+      <Panel v-if="canAccessCases" title="My Service Cases" subtitle="Active field service cases">
+        <template #actions>
+          <Link href="/crm/service-cases" class="text-xs font-medium text-accent hover:underline">
+            View all →
+          </Link>
+        </template>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <tbody>
+              <tr v-for="c in myServiceCases" :key="c.id" class="border-b border-border hover:bg-surface-50" :class="railClass(c.sla_state)">
+                <td class="py-2.5 pl-2">
+                  <button type="button" class="text-left font-medium text-ink-900 hover:text-accent hover:underline" @click="openDrawer('case', c.id)">
+                    {{ c.subject }}
+                  </button>
+                  <span v-if="c.partner_name" class="text-xs text-ink-600"> — {{ c.partner_name }}</span>
+                </td>
+                <td class="py-2.5 text-right"><StatusBadge :status="c.status" /></td>
+                <td class="py-2.5 text-right"><StatusBadge :status="c.sla_state" :label="c.sla_state.replace('_', ' ')" /></td>
+              </tr>
+              <tr v-if="!myServiceCases.length">
+                <td colspan="3" class="py-4 text-center text-xs text-ink-600">No service cases assigned to you.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </Panel>
 
-      <table v-else-if="activeTab === 'My Service Cases'" class="w-full text-sm">
-        <tbody>
-          <tr v-for="c in myServiceCases" :key="c.id" class="border-b border-border hover:bg-surface-50" :class="railClass(c.sla_state)">
-            <td class="py-2 pl-3">
-              <button type="button" class="font-medium text-ink-900 hover:underline" @click="openDrawer('case', c.id)">{{ c.subject }}</button>
-              <span v-if="c.partner_name" class="text-xs text-ink-600"> — {{ c.partner_name }}</span>
-            </td>
-            <td class="py-2"><StatusBadge :status="c.status" /></td>
-            <td class="py-2"><StatusBadge :status="c.sla_state" :label="c.sla_state.replace('_', ' ')" /></td>
-          </tr>
-          <tr v-if="!myServiceCases.length"><td class="py-4 text-ink-600">No service cases assigned to you.</td></tr>
-        </tbody>
-      </table>
-
-      <table v-else class="w-full text-sm">
-        <tbody>
-          <tr v-for="p in recentPartners" :key="p.id" class="border-b border-border hover:bg-surface-50">
-            <td class="py-2 pl-3">
-              <button type="button" class="font-medium text-ink-900 hover:underline" @click="openDrawer('partner', p.id)">{{ p.name }}</button>
-            </td>
-            <td class="py-2 text-xs capitalize text-ink-600">{{ p.type }}</td>
-            <td class="py-2 text-xs text-ink-600">{{ p.created_at_formatted }}</td>
-          </tr>
-          <tr v-if="!recentPartners.length"><td class="py-4 text-ink-600">No partners yet.</td></tr>
-        </tbody>
-      </table>
-    </Panel>
+      <!-- Recent Partners -->
+      <Panel v-if="canAccessPartners" title="Recent Partners" subtitle="Recently registered partners">
+        <template #actions>
+          <Link href="/crm/contacts" class="text-xs font-medium text-accent hover:underline">
+            View all →
+          </Link>
+        </template>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <tbody>
+              <tr v-for="p in recentPartners" :key="p.id" class="border-b border-border hover:bg-surface-50">
+                <td class="py-2.5 pl-1">
+                  <button type="button" class="text-left font-medium text-ink-900 hover:text-accent hover:underline" @click="openDrawer('partner', p.id)">
+                    {{ p.name }}
+                  </button>
+                </td>
+                <td class="py-2.5 text-right text-xs capitalize text-ink-600">{{ p.type }}</td>
+                <td class="py-2.5 text-right text-xs text-ink-600">{{ p.created_at_formatted }}</td>
+              </tr>
+              <tr v-if="!recentPartners.length">
+                <td colspan="3" class="py-4 text-center text-xs text-ink-600">No partners yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </Panel>
+    </div>
 
     <!-- Record drawer -->
-    <div v-if="drawer || drawerLoading" class="fixed inset-0 z-50 flex justify-end bg-black/30" @click.self="drawer = null">
-      <div class="h-full w-full max-w-md overflow-y-auto bg-surface-0 p-6 shadow-xl">
-        <button type="button" class="text-sm text-ink-600 hover:text-ink-900" @click="drawer = null">Close</button>
+    <div v-if="drawer || drawerLoading" class="fixed inset-0 z-50 flex justify-end bg-black/40 backdrop-blur-xs" @click.self="drawer = null">
+      <div class="h-full w-full max-w-md overflow-y-auto border-l border-border bg-surface-0 p-6 shadow-xl">
+        <div class="flex items-center justify-between border-b border-border pb-3">
+          <span class="text-xs font-semibold uppercase tracking-wider text-ink-600">Quick Preview</span>
+          <SecondaryButton type="button" class="!py-1 !px-2.5 text-xs" @click="drawer = null">Close</SecondaryButton>
+        </div>
 
         <template v-if="drawerLoading">
           <p class="mt-4 text-sm text-ink-600">Loading…</p>
@@ -206,21 +269,24 @@ const changeStatus = () => {
             Open full record →
           </Link>
 
-          <div v-if="drawer.type !== 'partner' && canUpdate" class="mt-4 space-y-2 border-t border-border pt-4">
+          <div v-if="drawer.type !== 'partner' && canUpdate" class="mt-4 space-y-3 border-t border-border pt-4">
             <label class="text-sm font-medium text-ink-900">Quick status change</label>
-            <div class="flex gap-2">
-              <select v-model="statusForm.status" class="w-full rounded-md border border-border px-2 py-1.5 text-sm">
-                <option value="">Select…</option>
-                <option v-for="o in STATUS_OPTIONS[drawer.type]" :key="o.value" :value="o.value">{{ o.label }}</option>
-              </select>
-              <button
+            <div class="flex items-end gap-2">
+              <div class="flex-1">
+                <FormSelect
+                  v-model="statusForm.status"
+                  name="status"
+                  placeholder="Select status..."
+                  :options="STATUS_OPTIONS[drawer.type]"
+                />
+              </div>
+              <PrimaryButton
                 type="button"
-                class="rounded-md bg-ink-900 px-3 py-1.5 text-sm font-semibold text-surface-0 disabled:opacity-50"
                 :disabled="!statusForm.status || statusForm.processing"
                 @click="changeStatus"
               >
                 Set
-              </button>
+              </PrimaryButton>
             </div>
           </div>
 

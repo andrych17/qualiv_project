@@ -1,0 +1,41 @@
+{
+  "menu.PROJECTS_DASHBOARD": "Projects Dashboard",
+  "menu.PROJECTS_LIST": "Projects & Contracts",
+  "menu.PROJECTS_TASKS": "Tasks & Activities (WBS)",
+  "menu.PROJECTS_TIMESHEET": "Timesheets & Hours",
+  "menu.PROJECTS_BUDGET": "Project Budgeting & Cost",
+
+  "projects.project": "Project",
+  "projects.projects": "Project Management",
+  "projects.projects_subtitle": "Internal project & issue tracking across the workspace.",
+  "projects.new_project": "New Project",
+  "projects.code": "Project Code",
+  "projects.name": "Project Name",
+  "projects.lead": "Project Lead",
+  "projects.issues": "Issues",
+  "projects.created": "Created",
+  "projects.search_placeholder": "Search code or name…",
+  "projects.empty_projects_title": "No projects yet",
+  "projects.empty_projects_desc": "Create your first project to track workspace tasks.",
+
+  "projects.task": "Task",
+  "projects.tasks": "Tasks List",
+  "projects.milestone": "Milestone",
+  "projects.timesheet": "Timesheet",
+  "projects.budget": "Project Budget",
+  "projects.start_date": "Start Date",
+  "projects.end_date": "Target End Date",
+
+  "projects.status_planning": "Planning",
+  "projects.status_active": "Active",
+  "projects.status_on_hold": "On Hold",
+  "projects.status_completed": "Completed",
+  "projects.status_cancelled": "Cancelled",
+
+  "projects.confirm_delete": "Delete project :code?",
+  "projects.confirm_delete_desc": "Its issues, comments and attachments will be deleted too.",
+  "projects.confirm_bulk_delete": "Delete :count selected project(s)?",
+
+  "projects.msg.project_created": "New project created successfully.",
+  "projects.msg.task_completed": "Project task marked as completed."
+}

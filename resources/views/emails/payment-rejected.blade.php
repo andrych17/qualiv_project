@@ -18,6 +18,6 @@
         If you believe this was a mistake, please reply to this email.
     </p>
 
-    <p>Thanks,<br>Qualiv</p>
+    <p>Thanks,<br>{{ config('app.name', 'Nusaevo ERP') }}</p>
 </body>
 </html>

@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DesignSystemController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TenantSwitchController;
+use App\Modules\SysConfig\Controllers\UserPreferenceController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/login');
@@ -19,6 +20,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/tenant/switch', TenantSwitchController::class)->name('tenant.switch');
+
+    Route::post('/user/locale', [UserPreferenceController::class, 'updateLocale'])->name('user.locale.update');
+    Route::post('/user/theme', [UserPreferenceController::class, 'updateTheme'])->name('user.theme.update');
+    Route::post('/user/preferences', [UserPreferenceController::class, 'update'])->name('user.preferences.update');
 
     // CENTRAL_SPECS.md §3H — cross-boundary connection to the central DB, not a REST/API
     // surface. Deliberately not behind `module:` gating — billing must stay reachable

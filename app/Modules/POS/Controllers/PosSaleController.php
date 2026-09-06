@@ -11,7 +11,6 @@ use App\Modules\POS\Models\PosTxnHdr;
 use App\Modules\POS\Services\PosCartService;
 use App\Modules\POS\Services\PosPaymentService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;

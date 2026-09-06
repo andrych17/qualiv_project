@@ -16,6 +16,9 @@ import DataTableToolbar, { type FilterFieldDef } from '@/Components/tables/DataT
 import DataTableHeader from '@/Components/tables/DataTableHeader.vue'
 import DataTableBody from '@/Components/tables/DataTableBody.vue'
 import DataTableFooter from '@/Components/tables/DataTableFooter.vue'
+import { useI18n } from '@/Composables/useI18n'
+
+const { t } = useI18n()
 
 export type { FilterFieldDef, SortState, SavedView, FooterAggregate }
 
@@ -215,21 +218,21 @@ const exportCsv = () => {
     />
 
     <div v-if="selectable && selected.length > 0" class="flex items-center justify-between rounded-md border border-border bg-surface-50 px-4 py-2">
-      <span class="text-sm font-medium text-ink-900">{{ selected.length }} selected</span>
+      <span class="text-sm font-medium text-ink-900">{{ t('table.selected_count', { count: selected.length }) }}</span>
       <div class="flex items-center gap-3">
         <slot name="bulk-actions" :selected="selected" />
         <button type="button" class="text-sm text-ink-600 hover:text-ink-900" @click="selected = []">
-          Clear
+          {{ t('table.clear_selection') }}
         </button>
       </div>
     </div>
 
     <div v-if="groupBy" class="flex items-center justify-end gap-3 text-sm">
       <button type="button" class="text-ink-600 hover:text-ink-900" @click="bodyRef?.expandAllGroups()">
-        Expand all
+        {{ t('table.expand_all') }}
       </button>
       <button type="button" class="text-ink-600 hover:text-ink-900" @click="bodyRef?.collapseAllGroups()">
-        Collapse all
+        {{ t('table.collapse_all') }}
       </button>
     </div>
 
@@ -301,7 +304,7 @@ const exportCsv = () => {
             <tr>
               <td v-if="selectable" class="w-10 px-4 py-3" />
               <td v-if="expandable" class="w-8 px-2 py-3" />
-              <td class="px-4 py-3 text-sm font-semibold text-ink-900">Total</td>
+              <td class="px-4 py-3 text-sm font-semibold text-ink-900">{{ t('table.total') }}</td>
               <td
                 v-for="column in visibleColumns.slice(1)"
                 :key="column.key"

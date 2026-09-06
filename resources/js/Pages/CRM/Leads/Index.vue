@@ -1,5 +1,3 @@
-<!-- ponytail: Lead pipeline (§3D) — Board (Kanban, drag-to-advance) + List, same
-     flat-array-with-client-side-filter architecture as Projects' issue board. -->
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
@@ -13,6 +11,9 @@ import CrmSubNav from '@/Components/crm/CrmSubNav.vue'
 import LeadKanbanBoard, { type LeadItem } from '@/Components/crm/LeadKanbanBoard.vue'
 import ConvertLeadModal from '@/Components/crm/ConvertLeadModal.vue'
 import DisqualifyLeadModal from '@/Components/crm/DisqualifyLeadModal.vue'
+import { useI18n } from '@/Composables/useI18n'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   leads: LeadItem[]
@@ -41,17 +42,22 @@ const openDisqualify = (leadId: number) => {
   disqualifyLead.value = props.leads.find((l) => l.id === leadId) ?? null
 }
 
+const tabs = computed(() => [
+  { key: 'board', label: t('crm.board_view') },
+  { key: 'list', label: t('crm.list_view') },
+])
+
 // --- List view ---
-const columns = [
-  { key: 'name', label: 'Name', sortable: true },
-  { key: 'company_name', label: 'Company' },
-  { key: 'stage', label: 'Stage', sortable: true },
-  { key: 'source_name', label: 'Source' },
-  { key: 'owner_name', label: 'Owner' },
-  { key: 'next_action_formatted', label: 'Next action', sortKey: 'next_action_at' },
-  { key: 'estimated_value_formatted', label: 'Est. value' },
-  { key: 'actions', label: 'Actions', align: 'right' as const },
-]
+const columns = computed(() => [
+  { key: 'name', label: t('crm.lead'), sortable: true },
+  { key: 'company_name', label: t('crm.company') },
+  { key: 'stage', label: t('crm.stage'), sortable: true },
+  { key: 'source_name', label: t('crm.source') },
+  { key: 'owner_name', label: t('crm.owner') },
+  { key: 'next_action_formatted', label: t('crm.next_action'), sortKey: 'next_action_at' },
+  { key: 'estimated_value_formatted', label: t('crm.estimated_value') },
+  { key: 'actions', label: t('common.actions'), align: 'right' as const },
+])
 
 const filteredLeads = computed(() => {
   let list = props.leads
@@ -79,18 +85,18 @@ const isOpen = (lead: LeadItem) => lead.stage !== 'converted' && lead.stage !== 
 <template>
   <AppLayout>
     <PageHeader
-      title="Leads"
-      description="Pre-partner interest, qualified through a pipeline before becoming a Partner."
+      :title="t('crm.leads')"
+      :description="t('crm.leads_desc')"
     >
       <template #actions>
-        <PrimaryButton :href="route('crm.leads.create')">Add lead</PrimaryButton>
+        <PrimaryButton :href="route('crm.leads.create')">{{ t('crm.add_lead') }}</PrimaryButton>
       </template>
     </PageHeader>
 
     <CrmSubNav active="leads" class="mt-6" />
 
     <div class="mt-6">
-      <Tabs v-model="view" :tabs="[{ key: 'board', label: 'Board' }, { key: 'list', label: 'List' }]" />
+      <Tabs v-model="view" :tabs="tabs" />
     </div>
 
     <div v-if="view === 'board'" class="mt-4">
@@ -109,10 +115,10 @@ const isOpen = (lead: LeadItem) => lead.stage !== 'converted' && lead.stage !== 
         :items="filteredLeads"
         v-model:sort="sort"
         v-model:search="search"
-        search-placeholder="Search name or company…"
+        :search-placeholder="t('common.search')"
         status-rail-key="stage"
-        empty-title="No leads yet"
-        empty-description="Add your first lead to start the pipeline."
+        :empty-title="t('crm.empty_leads_title')"
+        :empty-description="t('crm.empty_leads_desc')"
       >
         <template #cell-name="{ item }">
           <Link :href="route('crm.leads.edit', item.id)" class="text-sm font-medium text-accent hover:underline">
@@ -133,22 +139,22 @@ const isOpen = (lead: LeadItem) => lead.stage !== 'converted' && lead.stage !== 
               :href="route('crm.leads.edit', item.id)"
               class="text-sm font-medium text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             >
-              Edit
+              {{ t('common.edit') }}
             </Link>
             <template v-if="isOpen(item as LeadItem)">
               <button
                 type="button"
-                class="text-sm font-medium text-signal-success hover:underline"
+                class="text-sm font-medium text-signal-success hover:underline cursor-pointer"
                 @click="openConvert((item as LeadItem).id)"
               >
-                Convert
+                {{ t('crm.convert') }}
               </button>
               <button
                 type="button"
-                class="text-sm font-medium text-signal-danger hover:underline"
+                class="text-sm font-medium text-signal-danger hover:underline cursor-pointer"
                 @click="openDisqualify((item as LeadItem).id)"
               >
-                Disqualify
+                {{ t('crm.disqualify') }}
               </button>
             </template>
           </div>

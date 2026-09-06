@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\POS;
 
-use App\Modules\POS\Models\PosProfile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\Concerns\SetsUpTenant;

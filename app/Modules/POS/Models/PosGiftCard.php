@@ -10,10 +10,13 @@ use Illuminate\Database\Eloquent\Model;
 class PosGiftCard extends Model
 {
     protected $table = 'POS.pos_gift_cards';
+
     public $timestamps = false;
 
     public const STATUS_ACTIVE = 'active';
+
     public const STATUS_REDEEMED = 'redeemed';
+
     public const STATUS_EXPIRED = 'expired';
 
     protected $fillable = [

@@ -1,11 +1,13 @@
 <!-- ponytail: Simple header linking user dropdown and responsive actions -->
 <script setup lang="ts">
 import { inject, type Ref } from 'vue'
+import { Link } from '@inertiajs/vue3'
 import { Menu, Search } from 'lucide-vue-next'
 import UserDropdown from './UserDropdown.vue'
 import AppBreadcrumb from './AppBreadcrumb.vue'
 import CompanySwitcher from './CompanySwitcher.vue'
 import ThemeSwitcher from './ThemeSwitcher.vue'
+import LanguageSwitcher from './LanguageSwitcher.vue'
 import { openMenuSearch } from '@/Composables/useMenuSearch'
 
 const mobileSidebar = inject<{
@@ -29,9 +31,12 @@ const mobileSidebar = inject<{
       </button>
 
       <!-- Mobile brand indicator -->
-      <div class="block sm:hidden text-xs font-bold uppercase tracking-wider text-ink-900 truncate">
-        Qualiv
-      </div>
+      <Link
+        :href="route('dashboard')"
+        class="block sm:hidden text-xs font-bold uppercase tracking-wider text-ink-900 hover:text-accent transition-colors truncate"
+      >
+        Nusaevo ERP
+      </Link>
 
       <div class="hidden sm:block truncate">
         <AppBreadcrumb />
@@ -72,6 +77,7 @@ const mobileSidebar = inject<{
 
     <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
       <CompanySwitcher />
+      <LanguageSwitcher />
       <ThemeSwitcher />
       <UserDropdown />
     </div>

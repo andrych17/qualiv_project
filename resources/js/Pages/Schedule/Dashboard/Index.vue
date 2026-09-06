@@ -17,6 +17,9 @@ import PrimaryButton from '@/Components/PrimaryButton.vue'
 import ScheduleSubNav from '@/Components/schedule/ScheduleSubNav.vue'
 import QuickCreateModal from '@/Components/schedule/QuickCreateModal.vue'
 import { debounce } from '@/Composables/debounce'
+import { useI18n } from '@/Composables/useI18n'
+
+const { t } = useI18n()
 
 interface CalendarItemRow {
   sched_item_id: number
@@ -228,11 +231,18 @@ const openQuickCreate = (date: string, time = '09:00') => {
   quickCreateDatetime.value = `${date}T${time}`
   showQuickCreate.value = true
 }
+
+const viewLabels: Record<string, string> = {
+  day: 'schedule.view_day',
+  week: 'schedule.view_week',
+  month: 'schedule.view_month',
+  agenda: 'schedule.view_agenda',
+}
 </script>
 
 <template>
   <AppLayout>
-    <PageHeader title="Schedule" description="Tasks and events together — day, week, month, or agenda." />
+    <PageHeader :title="t('schedule.title')" :description="t('schedule.subtitle')" />
 
     <ScheduleSubNav active="dashboard" class="mt-6" />
 
@@ -246,42 +256,42 @@ const openQuickCreate = (date: string, time = '09:00') => {
           :class="view === v ? 'border-accent bg-accent/10 text-accent' : 'border-border bg-surface-0 text-ink-600 hover:bg-surface-50'"
           @click="setView(v)"
         >
-          {{ v }}
+          {{ t(viewLabels[v] || v) }}
         </button>
       </div>
 
       <div class="flex items-center gap-2">
         <button type="button" class="rounded-md border border-border bg-surface-0 px-2 py-1.5 text-sm hover:bg-surface-50" @click="stepBack">‹</button>
-        <button type="button" class="rounded-md border border-border bg-surface-0 px-3 py-1.5 text-sm hover:bg-surface-50" @click="goToday">Today</button>
+        <button type="button" class="rounded-md border border-border bg-surface-0 px-3 py-1.5 text-sm hover:bg-surface-50" @click="goToday">{{ t('schedule.today') }}</button>
         <button type="button" class="rounded-md border border-border bg-surface-0 px-2 py-1.5 text-sm hover:bg-surface-50" @click="stepForward">›</button>
         <span class="ml-2 text-sm font-medium text-ink-900">{{ rangeLabel }}</span>
       </div>
 
-      <PrimaryButton type="button" @click="openQuickCreate(date)">+ New</PrimaryButton>
+      <PrimaryButton type="button" @click="openQuickCreate(date)">+ {{ t('common.create') }}</PrimaryButton>
     </div>
 
     <div class="mt-4 flex flex-wrap items-center gap-3">
       <label class="flex items-center gap-1.5 text-sm text-ink-900">
         <input v-model="mine" type="checkbox" />
-        My items
+        {{ t('schedule.my_items') }}
       </label>
       <FormSelect
         v-model="ownerId"
         name="owner_id"
-        placeholder="All owners"
+        :placeholder="t('schedule.all_owners')"
         :options="owners.map((o) => ({ label: o.name, value: String(o.id) }))"
       />
       <FormSelect
         v-model="resourceId"
         name="resource_id"
-        placeholder="All resources"
+        :placeholder="t('schedule.all_resources')"
         :options="resources.map((r) => ({ label: r.name, value: String(r.id) }))"
       />
       <FormSelect
         v-if="subjectTypes.length"
         v-model="subjectType"
         name="subject_type"
-        placeholder="All modules"
+        :placeholder="t('schedule.all_modules')"
         :options="subjectTypes.map((s) => ({ label: moduleLabel(s), value: s }))"
       />
     </div>
@@ -290,7 +300,7 @@ const openQuickCreate = (date: string, time = '09:00') => {
     <Panel v-if="view === 'month'" class="mt-4 overflow-x-auto">
       <div class="min-w-[840px]">
         <div class="grid grid-cols-7 border-b border-border text-xs font-semibold uppercase tracking-wide text-ink-600">
-          <div v-for="d in ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']" :key="d" class="px-2 py-2">{{ d }}</div>
+          <div v-for="d in [t('days.mon'), t('days.tue'), t('days.wed'), t('days.thu'), t('days.fri'), t('days.sat'), t('days.sun')]" :key="d" class="px-2 py-2">{{ d }}</div>
         </div>
         <div v-for="(week, wi) in monthWeeks" :key="wi" class="grid grid-cols-7 border-b border-border last:border-b-0">
           <div
@@ -396,10 +406,10 @@ const openQuickCreate = (date: string, time = '09:00') => {
     <!-- Item detail side panel -->
     <div v-if="drawer || drawerLoading" class="fixed inset-0 z-50 flex justify-end bg-black/30" @click.self="drawer = null">
       <div class="h-full w-full max-w-md overflow-y-auto bg-surface-0 p-6 shadow-xl">
-        <button type="button" class="text-sm text-ink-600 hover:text-ink-900" @click="drawer = null">Close</button>
+        <button type="button" class="text-sm text-ink-600 hover:text-ink-900" @click="drawer = null">{{ t('common.close') }}</button>
 
         <template v-if="drawerLoading">
-          <p class="mt-4 text-sm text-ink-600">Loading…</p>
+          <p class="mt-4 text-sm text-ink-600">{{ t('common.loading') }}</p>
         </template>
         <template v-else-if="drawer">
           <h2 class="mt-4 font-serif text-lg font-semibold text-ink-900">{{ drawer.title }}</h2>
@@ -410,37 +420,37 @@ const openQuickCreate = (date: string, time = '09:00') => {
           </div>
 
           <dl class="mt-4 space-y-1 text-sm">
-            <div v-if="drawer.due_at" class="flex justify-between"><dt class="text-ink-600">Due</dt><dd class="text-ink-900">{{ drawer.due_at }}</dd></div>
-            <div v-if="drawer.start_at" class="flex justify-between"><dt class="text-ink-600">Start</dt><dd class="text-ink-900">{{ drawer.start_at }}</dd></div>
-            <div v-if="drawer.end_at" class="flex justify-between"><dt class="text-ink-600">End</dt><dd class="text-ink-900">{{ drawer.end_at }}</dd></div>
-            <div v-if="drawer.owner_name" class="flex justify-between"><dt class="text-ink-600">Owner</dt><dd class="text-ink-900">{{ drawer.owner_name }}</dd></div>
-            <div v-if="drawer.location" class="flex justify-between"><dt class="text-ink-600">Location</dt><dd class="text-ink-900">{{ drawer.location }}</dd></div>
-            <div v-if="drawer.recurrence_rule" class="flex justify-between"><dt class="text-ink-600">Recurs</dt><dd class="text-ink-900 text-right">{{ drawer.recurrence_rule }}</dd></div>
+            <div v-if="drawer.due_at" class="flex justify-between"><dt class="text-ink-600">{{ t('schedule.due_date') }}</dt><dd class="text-ink-900">{{ drawer.due_at }}</dd></div>
+            <div v-if="drawer.start_at" class="flex justify-between"><dt class="text-ink-600">{{ t('schedule.start_time') }}</dt><dd class="text-ink-900">{{ drawer.start_at }}</dd></div>
+            <div v-if="drawer.end_at" class="flex justify-between"><dt class="text-ink-600">{{ t('schedule.end_time') }}</dt><dd class="text-ink-900">{{ drawer.end_at }}</dd></div>
+            <div v-if="drawer.owner_name" class="flex justify-between"><dt class="text-ink-600">{{ t('schedule.owner') }}</dt><dd class="text-ink-900">{{ drawer.owner_name }}</dd></div>
+            <div v-if="drawer.location" class="flex justify-between"><dt class="text-ink-600">{{ t('schedule.location') }}</dt><dd class="text-ink-900">{{ drawer.location }}</dd></div>
+            <div v-if="drawer.recurrence_rule" class="flex justify-between"><dt class="text-ink-600">{{ t('schedule.recurrence') }}</dt><dd class="text-ink-900 text-right">{{ drawer.recurrence_rule }}</dd></div>
           </dl>
 
           <div v-if="drawer.attendees.length" class="mt-4">
-            <h3 class="text-xs font-semibold uppercase tracking-wide text-ink-600">Attendees</h3>
+            <h3 class="text-xs font-semibold uppercase tracking-wide text-ink-600">{{ t('schedule.attendees') }}</h3>
             <ul class="mt-1 text-sm text-ink-900">
               <li v-for="(a, idx) in drawer.attendees" :key="idx">{{ a.name }} <span class="text-xs text-ink-600">({{ a.role }})</span></li>
             </ul>
           </div>
 
           <div v-if="drawer.resources.length" class="mt-4">
-            <h3 class="text-xs font-semibold uppercase tracking-wide text-ink-600">Resources</h3>
+            <h3 class="text-xs font-semibold uppercase tracking-wide text-ink-600">{{ t('schedule.booked_resources') }}</h3>
             <p class="mt-1 text-sm text-ink-900">{{ drawer.resources.join(', ') }}</p>
           </div>
 
           <div v-if="drawer.conference_link" class="mt-4">
-            <h3 class="text-xs font-semibold uppercase tracking-wide text-ink-600">Conference</h3>
+            <h3 class="text-xs font-semibold uppercase tracking-wide text-ink-600">{{ t('schedule.conference_link') }}</h3>
             <a :href="drawer.conference_link.join_url" target="_blank" rel="noopener" class="mt-1 block text-sm text-accent underline">
               {{ drawer.conference_link.provider_name }} — join link
             </a>
           </div>
 
           <div class="mt-6 flex flex-wrap items-center gap-3 border-t border-border pt-4">
-            <a :href="drawer.edit_url" class="text-sm font-medium text-accent hover:underline">Edit</a>
-            <button v-if="drawer.mark_done_url" type="button" class="text-sm font-medium text-signal-success hover:underline" @click="markDone">Mark done</button>
-            <button v-if="drawer.status !== 'cancelled'" type="button" class="text-sm font-medium text-signal-danger hover:underline" @click="cancelItem">Cancel</button>
+            <a :href="drawer.edit_url" class="text-sm font-medium text-accent hover:underline">{{ t('common.edit') }}</a>
+            <button v-if="drawer.mark_done_url" type="button" class="text-sm font-medium text-signal-success hover:underline" @click="markDone">{{ t('schedule.mark_done') }}</button>
+            <button v-if="drawer.status !== 'cancelled'" type="button" class="text-sm font-medium text-signal-danger hover:underline" @click="cancelItem">{{ t('common.cancel') }}</button>
           </div>
         </template>
       </div>

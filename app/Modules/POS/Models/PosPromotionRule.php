@@ -13,20 +13,31 @@ class PosPromotionRule extends Model
     protected $table = 'POS.pos_promotion_rules';
 
     public const TYPE_SIMPLE_DISCOUNT = 'simple_discount';
+
     public const TYPE_BUY_X_GET_Y = 'buy_x_get_y';
+
     public const TYPE_BUNDLE = 'bundle';
+
     public const TYPE_MIX_AND_MATCH = 'mix_and_match';
+
     public const TYPE_THRESHOLD = 'threshold';
+
     public const TYPE_TIME_WINDOW = 'time_window';
+
     public const TYPE_CUSTOMER_TIER = 'customer_tier';
+
     public const TYPE_PROMO_CODE_PASSTHROUGH = 'promo_code_passthrough';
 
     public const SCOPE_PRODUCT = 'product';
+
     public const SCOPE_CATEGORY = 'category';
+
     public const SCOPE_BASKET = 'basket';
 
     public const VALUE_TYPE_PERCENT = 'percent';
+
     public const VALUE_TYPE_FIXED = 'fixed';
+
     public const VALUE_TYPE_BUNDLE_PRICE = 'bundle_price';
 
     protected $fillable = [

@@ -17,7 +17,7 @@
      drawer on success (same "mutate then close, don't try to keep the drawer open with fresh
      data" convention CRM's own dashboard drawer uses for its status-change form). -->
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { Link, router, useForm } from '@inertiajs/vue3'
 import { UploadCloud } from 'lucide-vue-next'
 import AppLayout from '@/Components/layout/AppLayout.vue'
@@ -31,6 +31,7 @@ import FolderTreeNode, { type FolderNode } from '@/Components/dms/FolderTreeNode
 import FormAsyncSearchableSelect from '@/Components/forms/FormAsyncSearchableSelect.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
 import { debounce } from '@/Composables/debounce'
+import { useI18n } from '@/Composables/useI18n'
 
 interface DocumentRow {
   id: number
@@ -64,6 +65,8 @@ const props = defineProps<{
   docTypes: Array<{ id: number; name: string }>
 }>()
 
+const { t } = useI18n()
+
 // --- Table / filters ---
 const search = ref(props.filters.search ?? '')
 const filters = ref({
@@ -77,40 +80,40 @@ const sort = ref<SortState>(
 const perPage = ref(Number(props.filters.per_page) || props.documents.per_page)
 const activeFolderId = ref<number | null>(props.filters.folder_id ? Number(props.filters.folder_id) : null)
 
-const filterFields: FilterFieldDef[] = [
-  { key: 'doc_type_id', label: 'Doc type', type: 'select', options: props.docTypes.map((t) => ({ label: t.name, value: String(t.id) })) },
+const filterFields = computed<FilterFieldDef[]>(() => [
+  { key: 'doc_type_id', label: t('dms.doc_type'), type: 'select', options: props.docTypes.map((t) => ({ label: t.name, value: String(t.id) })) },
   {
     key: 'status',
-    label: 'Status',
+    label: t('common.status'),
     type: 'select',
     options: [
-      { label: 'Draft', value: 'draft' },
-      { label: 'Active', value: 'active' },
-      { label: 'Archived', value: 'archived' },
+      { label: t('status.draft'), value: 'draft' },
+      { label: t('status.active'), value: 'active' },
+      { label: t('legal.status_archived'), value: 'archived' },
       { label: 'Expired', value: 'expired' },
       { label: 'Purged', value: 'purged' },
     ],
   },
   {
     key: 'flag',
-    label: 'Flag',
+    label: t('dms.flag'),
     type: 'select',
     options: [
-      { label: 'Expiring soon', value: 'expiring_soon' },
-      { label: 'On legal hold', value: 'on_legal_hold' },
+      { label: t('dms.expiring_soon'), value: 'expiring_soon' },
+      { label: t('dms.on_legal_hold'), value: 'on_legal_hold' },
     ],
   },
-]
+])
 
-const columns = [
-  { key: 'title', label: 'Title', sortable: true },
-  { key: 'folder_name', label: 'Folder' },
-  { key: 'doc_type_name', label: 'Type' },
-  { key: 'status', label: 'Status' },
-  { key: 'current_filename', label: 'Current file' },
-  { key: 'version_count', label: 'Versions', align: 'right' as const },
-  { key: 'expiry_date_formatted', label: 'Expiry', sortable: true, sortKey: 'expiry_date' },
-]
+const columns = computed(() => [
+  { key: 'title', label: t('legal.matter_title'), sortable: true },
+  { key: 'folder_name', label: t('dms.folder') },
+  { key: 'doc_type_name', label: t('dms.doc_type') },
+  { key: 'status', label: t('common.status') },
+  { key: 'current_filename', label: t('dms.current_file') },
+  { key: 'version_count', label: t('dms.versions'), align: 'right' as const },
+  { key: 'expiry_date_formatted', label: t('dms.expiry'), sortable: true, sortKey: 'expiry_date' },
+])
 
 watch([search, filters, sort, perPage, activeFolderId], debounce(() => {
   router.get(route('dms.documents.index'), {
@@ -197,26 +200,26 @@ const removeRelation = (relationId: number) => {
 
 <template>
   <AppLayout>
-    <PageHeader title="Document Library" description="Browse, upload, and track every document across the tenant.">
+    <PageHeader :title="t('dms.document_library')" :description="t('dms.document_library_subtitle')">
       <template #actions>
         <Link :href="route('dms.audit-log')" class="mr-4 text-sm font-medium text-accent hover:underline">Audit trail →</Link>
         <PrimaryButton :href="route('dms.documents.create', activeFolderId ? { folder_id: activeFolderId } : {})">
-          <UploadCloud class="mr-1.5 h-4 w-4" /> Upload
+          <UploadCloud class="mr-1.5 h-4 w-4" /> {{ t('dms.upload_document') }}
         </PrimaryButton>
       </template>
     </PageHeader>
 
     <div class="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-      <StatCard title="Total Documents" :value="String(summary.total_documents)" icon="FileText" />
-      <StatCard title="Active" :value="String(summary.active_documents)" icon="CheckCircle2" />
-      <StatCard title="Expiring Soon" :value="String(summary.expiring_soon)" icon="Clock" />
-      <StatCard title="On Legal Hold" :value="String(summary.on_legal_hold)" icon="Lock" />
+      <StatCard :title="t('dms.total_documents')" :value="String(summary.total_documents)" icon="FileText" />
+      <StatCard :title="t('status.active')" :value="String(summary.active_documents)" icon="CheckCircle2" />
+      <StatCard :title="t('dms.expiring_soon')" :value="String(summary.expiring_soon)" icon="Clock" />
+      <StatCard :title="t('dms.on_legal_hold')" :value="String(summary.on_legal_hold)" icon="Lock" />
     </div>
 
     <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-4">
-      <Panel title="Folders" class="lg:col-span-1">
+      <Panel :title="t('dms.folders')" class="lg:col-span-1">
         <template #actions>
-          <Link :href="route('dms.folders.index')" class="text-xs font-medium text-accent hover:underline">Manage →</Link>
+          <Link :href="route('dms.folders.index')" class="text-xs font-medium text-accent hover:underline">{{ t('dms.manage_folders') }} →</Link>
         </template>
         <ul class="space-y-0.5">
           <li>
@@ -226,7 +229,7 @@ const removeRelation = (relationId: number) => {
               :class="activeFolderId === null ? 'bg-accent/10 font-medium text-accent' : 'text-ink-700'"
               @click="activeFolderId = null"
             >
-              All documents
+              {{ t('dms.all_folders') }}
             </button>
           </li>
           <FolderTreeNode
@@ -250,15 +253,15 @@ const removeRelation = (relationId: number) => {
           sticky-header
           status-rail-key="rail"
           storage-key="dms.documents"
-          search-placeholder="Search title, filename, description, or tags…"
+          :search-placeholder="t('dms.search_placeholder')"
           :filter-fields="filterFields"
           export-filename="dms-documents"
           :total="documents.total"
           :from="documents.from"
           :to="documents.to"
           :links="documents.links"
-          empty-title="No documents yet"
-          empty-description="Upload your first document to start building the library."
+          :empty-title="t('dms.empty_docs_title')"
+          :empty-description="t('dms.empty_docs_desc')"
         >
           <template #cell-title="{ item }">
             <button type="button" class="text-left font-medium text-ink-900 hover:underline" @click="openDrawer((item as DocumentRow).id)">

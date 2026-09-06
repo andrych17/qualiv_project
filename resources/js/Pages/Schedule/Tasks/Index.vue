@@ -7,9 +7,12 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import ScheduleSubNav from '@/Components/schedule/ScheduleSubNav.vue'
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { debounce } from '@/Composables/debounce'
 import { useConfirm } from '@/Composables/useConfirmDialog'
+import { useI18n } from '@/Composables/useI18n'
+
+const { t } = useI18n()
 
 interface TaskRow {
   id: number
@@ -43,44 +46,44 @@ const sort = ref<SortState>(
 const selected = ref<Array<string | number>>([])
 const perPage = ref(Number(props.filters.per_page) || props.tasks.per_page)
 
-const filterFields: FilterFieldDef[] = [
+const filterFields = computed<FilterFieldDef[]>(() => [
   {
     key: 'status',
-    label: 'Status',
+    label: t('common.status'),
     type: 'select',
     options: [
-      { label: 'Open', value: 'open' },
-      { label: 'In progress', value: 'in_progress' },
-      { label: 'Done', value: 'done' },
-      { label: 'Cancelled', value: 'cancelled' },
+      { label: t('status.open') !== 'status.open' ? t('status.open') : 'Open', value: 'open' },
+      { label: t('status.in_progress'), value: 'in_progress' },
+      { label: t('status.done') !== 'status.done' ? t('status.done') : 'Done', value: 'done' },
+      { label: t('status.cancelled'), value: 'cancelled' },
     ],
   },
   {
     key: 'priority',
-    label: 'Priority',
+    label: t('schedule.priority'),
     type: 'select',
     options: [
-      { label: 'Low', value: 'low' },
-      { label: 'Normal', value: 'normal' },
-      { label: 'High', value: 'high' },
+      { label: t('schedule.priority_low'), value: 'low' },
+      { label: t('schedule.priority_normal'), value: 'normal' },
+      { label: t('schedule.priority_high'), value: 'high' },
     ],
   },
   {
     key: 'owner_id',
-    label: 'Owner',
+    label: t('schedule.owner'),
     type: 'select',
     options: props.owners.map((o) => ({ label: o.name, value: String(o.id) })),
   },
-]
+])
 
-const columns = [
-  { key: 'title', label: 'Title', sortable: true },
-  { key: 'owner_name', label: 'Owner' },
-  { key: 'priority', label: 'Priority' },
-  { key: 'status', label: 'Status' },
-  { key: 'due_at_formatted', label: 'Due', sortable: true, sortKey: 'due_at' },
-  { key: 'actions', label: 'Actions', align: 'right' as const },
-]
+const columns = computed(() => [
+  { key: 'title', label: t('schedule.task_title'), sortable: true },
+  { key: 'owner_name', label: t('schedule.owner') },
+  { key: 'priority', label: t('schedule.priority') },
+  { key: 'status', label: t('common.status') },
+  { key: 'due_at_formatted', label: t('schedule.due_date'), sortable: true, sortKey: 'due_at' },
+  { key: 'actions', label: t('common.actions'), align: 'right' as const },
+])
 
 watch([search, filters, sort, perPage], debounce(() => {
   selected.value = []
@@ -100,9 +103,10 @@ const { confirm } = useConfirm()
 const confirmDelete = (item: TaskRow | Record<string, unknown>) => {
   const row = item as TaskRow
   confirm({
-    title: `Delete "${row.title}"?`,
+    title: t('common.confirm_delete_title'),
+    description: t('common.confirm_delete_desc'),
     variant: 'destructive',
-    confirmText: 'Delete',
+    confirmText: t('common.delete'),
     onConfirm: () => router.delete(route('schedule.tasks.destroy', row.id)),
   })
 }
@@ -115,9 +119,9 @@ const markDone = (item: TaskRow) => {
 
 <template>
   <AppLayout>
-    <PageHeader title="Tasks" description="To-dos with due dates — single-owner, no attendees required.">
+    <PageHeader :title="t('schedule.tasks')" :description="t('schedule.tasks_desc')">
       <template #actions>
-        <PrimaryButton :href="route('schedule.tasks.create')">Add task</PrimaryButton>
+        <PrimaryButton :href="route('schedule.tasks.create')">{{ t('schedule.add_task') }}</PrimaryButton>
       </template>
     </PageHeader>
 
@@ -135,15 +139,15 @@ const markDone = (item: TaskRow) => {
         selectable
         sticky-header
         storage-key="schedule.tasks"
-        search-placeholder="Search title…"
+        :search-placeholder="t('schedule.search_tasks')"
         :filter-fields="filterFields"
         export-filename="schedule-tasks"
         :total="tasks.total"
         :from="tasks.from"
         :to="tasks.to"
         :links="tasks.links"
-        empty-title="No tasks yet"
-        empty-description="Add your first task to start tracking to-dos."
+        :empty-title="t('schedule.no_tasks')"
+        :empty-description="t('schedule.no_tasks_desc')"
       >
         <template #cell-status="{ item }">
           <StatusBadge :status="(item as TaskRow).status" />
@@ -156,20 +160,20 @@ const markDone = (item: TaskRow) => {
               class="text-sm font-medium text-signal-success hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               @click="markDone(item as TaskRow)"
             >
-              Mark done
+              {{ t('schedule.mark_done') }}
             </button>
             <Link
               :href="route('schedule.tasks.edit', item.id)"
               class="text-sm font-medium text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             >
-              Edit
+              {{ t('common.edit') }}
             </Link>
             <button
               type="button"
               class="text-sm font-medium text-signal-danger hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               @click="confirmDelete(item)"
             >
-              Delete
+              {{ t('common.delete') }}
             </button>
           </div>
         </template>

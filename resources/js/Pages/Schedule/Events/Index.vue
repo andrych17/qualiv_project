@@ -7,9 +7,12 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import ScheduleSubNav from '@/Components/schedule/ScheduleSubNav.vue'
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { debounce } from '@/Composables/debounce'
 import { useConfirm } from '@/Composables/useConfirmDialog'
+import { useI18n } from '@/Composables/useI18n'
+
+const { t } = useI18n()
 
 interface EventRow {
   id: number
@@ -44,33 +47,33 @@ const sort = ref<SortState>(
 const selected = ref<Array<string | number>>([])
 const perPage = ref(Number(props.filters.per_page) || props.events.per_page)
 
-const filterFields: FilterFieldDef[] = [
+const filterFields = computed<FilterFieldDef[]>(() => [
   {
     key: 'status',
-    label: 'Status',
+    label: t('common.status'),
     type: 'select',
     options: [
-      { label: 'Scheduled', value: 'scheduled' },
-      { label: 'Cancelled', value: 'cancelled' },
+      { label: t('status.scheduled') !== 'status.scheduled' ? t('status.scheduled') : 'Scheduled', value: 'scheduled' },
+      { label: t('status.cancelled'), value: 'cancelled' },
     ],
   },
   {
     key: 'owner_id',
-    label: 'Owner',
+    label: t('schedule.owner'),
     type: 'select',
     options: props.owners.map((o) => ({ label: o.name, value: String(o.id) })),
   },
-]
+])
 
-const columns = [
-  { key: 'title', label: 'Title', sortable: true },
-  { key: 'owner_name', label: 'Owner' },
-  { key: 'location', label: 'Location' },
-  { key: 'status', label: 'Status' },
-  { key: 'start_at_formatted', label: 'Start', sortable: true, sortKey: 'start_at' },
-  { key: 'end_at_formatted', label: 'End' },
-  { key: 'actions', label: 'Actions', align: 'right' as const },
-]
+const columns = computed(() => [
+  { key: 'title', label: t('schedule.event_title'), sortable: true },
+  { key: 'owner_name', label: t('schedule.owner') },
+  { key: 'location', label: t('schedule.location') },
+  { key: 'status', label: t('common.status') },
+  { key: 'start_at_formatted', label: t('schedule.start_time'), sortable: true, sortKey: 'start_at' },
+  { key: 'end_at_formatted', label: t('schedule.end_time') },
+  { key: 'actions', label: t('common.actions'), align: 'right' as const },
+])
 
 watch([search, filters, sort, perPage], debounce(() => {
   selected.value = []
@@ -89,9 +92,10 @@ const { confirm } = useConfirm()
 const confirmDelete = (item: EventRow | Record<string, unknown>) => {
   const row = item as EventRow
   confirm({
-    title: `Delete "${row.title}"?`,
+    title: t('common.confirm_delete_title'),
+    description: t('common.confirm_delete_desc'),
     variant: 'destructive',
-    confirmText: 'Delete',
+    confirmText: t('common.delete'),
     onConfirm: () => router.delete(route('schedule.events.destroy', row.id)),
   })
 }
@@ -99,9 +103,9 @@ const confirmDelete = (item: EventRow | Record<string, unknown>) => {
 
 <template>
   <AppLayout>
-    <PageHeader title="Events" description="Time-blocked meetings — usually multi-attendee.">
+    <PageHeader :title="t('schedule.events')" :description="t('schedule.events_desc')">
       <template #actions>
-        <PrimaryButton :href="route('schedule.events.create')">Add event</PrimaryButton>
+        <PrimaryButton :href="route('schedule.events.create')">{{ t('schedule.add_event') }}</PrimaryButton>
       </template>
     </PageHeader>
 
@@ -119,15 +123,15 @@ const confirmDelete = (item: EventRow | Record<string, unknown>) => {
         selectable
         sticky-header
         storage-key="schedule.events"
-        search-placeholder="Search title…"
+        :search-placeholder="t('schedule.search_events')"
         :filter-fields="filterFields"
         export-filename="schedule-events"
         :total="events.total"
         :from="events.from"
         :to="events.to"
         :links="events.links"
-        empty-title="No events yet"
-        empty-description="Add your first event to start scheduling meetings."
+        :empty-title="t('schedule.no_events')"
+        :empty-description="t('schedule.no_events_desc')"
       >
         <template #cell-status="{ item }">
           <StatusBadge :status="(item as EventRow).status" />
@@ -138,14 +142,14 @@ const confirmDelete = (item: EventRow | Record<string, unknown>) => {
               :href="route('schedule.events.edit', item.id)"
               class="text-sm font-medium text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             >
-              Edit
+              {{ t('common.edit') }}
             </Link>
             <button
               type="button"
               class="text-sm font-medium text-signal-danger hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               @click="confirmDelete(item)"
             >
-              Delete
+              {{ t('common.delete') }}
             </button>
           </div>
         </template>

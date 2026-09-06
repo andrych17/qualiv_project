@@ -250,12 +250,12 @@ const resetFilters = () => {
       <div class="p-4 bg-surface rounded-lg border border-border shadow-sm">
         <span class="text-xs font-medium text-ink-500 uppercase tracking-wider">Weighted TKDN %</span>
         <div class="mt-2 flex items-baseline gap-2">
-          <div class="text-3xl font-extrabold" :class="tkdn_summary.compliant_target_met ? 'text-emerald-700' : 'text-amber-700'">
+          <div class="text-3xl font-extrabold" :class="tkdn_summary.compliant_target_met ? 'text-signal-success' : 'text-signal-warning'">
             {{ tkdn_summary.weighted_average_pct }}%
           </div>
           <span
             class="text-xs px-2 py-0.5 rounded font-bold"
-            :class="tkdn_summary.compliant_target_met ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'"
+            :class="tkdn_summary.compliant_target_met ? 'bg-signal-success/10 text-signal-success' : 'bg-signal-warning/10 text-signal-warning'"
           >
             {{ tkdn_summary.compliant_target_met ? 'Target Met (≥40%)' : 'Below 40% Target' }}
           </span>
@@ -271,20 +271,20 @@ const resetFilters = () => {
 
       <div class="p-4 bg-surface rounded-lg border border-border shadow-sm">
         <span class="text-xs font-medium text-ink-500 uppercase tracking-wider">TKDN Data Coverage</span>
-        <div class="mt-2 text-2xl font-bold text-indigo-700">{{ tkdn_summary.tkdn_coverage_pct }}%</div>
+        <div class="mt-2 text-2xl font-bold text-signal-info">{{ tkdn_summary.tkdn_coverage_pct }}%</div>
         <div class="mt-1 text-xs text-ink-500">{{ tkdn_summary.declared_lines }} of {{ tkdn_summary.total_lines }} lines declared</div>
       </div>
 
       <div class="p-4 bg-surface rounded-lg border border-border shadow-sm">
         <span class="text-xs font-medium text-ink-500 uppercase tracking-wider">Vendor Compliance Health</span>
-        <div class="mt-2 text-2xl font-bold" :class="vendor_compliance_summary.expired_vendors_count > 0 ? 'text-rose-700' : 'text-emerald-700'">
+        <div class="mt-2 text-2xl font-bold" :class="vendor_compliance_summary.expired_vendors_count > 0 ? 'text-signal-danger' : 'text-signal-success'">
           {{ vendor_compliance_summary.compliant_vendors_count }} / {{ vendor_compliance_summary.total_vendors }}
         </div>
         <div class="mt-1 text-xs text-ink-500">
-          <span v-if="vendor_compliance_summary.expiring_soon_vendors_count > 0" class="text-amber-700 font-semibold">
+          <span v-if="vendor_compliance_summary.expiring_soon_vendors_count > 0" class="text-signal-warning font-semibold">
             {{ vendor_compliance_summary.expiring_soon_vendors_count }} expiring soon
           </span>
-          <span v-else-if="vendor_compliance_summary.expired_vendors_count > 0" class="text-rose-700 font-semibold">
+          <span v-else-if="vendor_compliance_summary.expired_vendors_count > 0" class="text-signal-danger font-semibold">
             {{ vendor_compliance_summary.expired_vendors_count }} expired certs
           </span>
           <span v-else>All active vendors valid</span>
@@ -301,10 +301,10 @@ const resetFilters = () => {
           :key="tier.key"
           class="p-4 rounded-lg border shadow-sm bg-surface"
           :class="{
-            'border-emerald-300 bg-emerald-50/20': tier.key === 'high',
-            'border-amber-300 bg-amber-50/20': tier.key === 'medium',
-            'border-blue-300 bg-blue-50/20': tier.key === 'low',
-            'border-slate-200': tier.key === 'undeclared',
+            'border-signal-success/25 bg-signal-success/10/20': tier.key === 'high',
+            'border-signal-warning/25 bg-signal-warning/10/20': tier.key === 'medium',
+            'border-signal-info/25 bg-signal-info/10/20': tier.key === 'low',
+            'border-border': tier.key === 'undeclared',
           }"
         >
           <div class="text-xs font-bold text-ink-700">{{ tier.label }}</div>
@@ -313,14 +313,14 @@ const resetFilters = () => {
             <span>{{ tier.count }} lines ({{ tier.count_share_pct }}%)</span>
             <span class="font-bold text-ink-700">{{ tier.share_pct }}% of spend</span>
           </div>
-          <div class="mt-2 w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+          <div class="mt-2 w-full bg-surface-100 rounded-full h-1.5 overflow-hidden">
             <div
               class="h-full"
               :class="{
-                'bg-emerald-600': tier.key === 'high',
-                'bg-amber-500': tier.key === 'medium',
-                'bg-blue-500': tier.key === 'low',
-                'bg-slate-400': tier.key === 'undeclared',
+                'bg-signal-success': tier.key === 'high',
+                'bg-signal-warning': tier.key === 'medium',
+                'bg-signal-info': tier.key === 'low',
+                'bg-ink-400': tier.key === 'undeclared',
               }"
               :style="{ width: `${tier.share_pct}%` }"
             ></div>
@@ -350,7 +350,7 @@ const resetFilters = () => {
                 <td class="px-3 py-2.5 capitalize text-ink-700">{{ doc.doc_type.replace(/_/g, ' ') }}</td>
                 <td class="px-3 py-2.5 text-ink-600">{{ doc.expiry_date ?? '—' }}</td>
                 <td class="px-3 py-2.5 text-center font-semibold">
-                  <span v-if="doc.days_remaining !== null" :class="doc.days_remaining < 0 ? 'text-rose-600' : 'text-amber-700'">
+                  <span v-if="doc.days_remaining !== null" :class="doc.days_remaining < 0 ? 'text-signal-danger' : 'text-signal-warning'">
                     {{ doc.days_remaining < 0 ? `${Math.abs(doc.days_remaining)} days expired` : `${doc.days_remaining} days left` }}
                   </span>
                   <span v-else class="text-ink-400">—</span>
@@ -358,7 +358,7 @@ const resetFilters = () => {
                 <td class="px-3 py-2.5 text-center">
                   <span
                     class="px-2 py-0.5 rounded text-xs font-bold capitalize"
-                    :class="doc.status === 'expired' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'"
+                    :class="doc.status === 'expired' ? 'bg-signal-danger/10 text-signal-danger' : 'bg-signal-warning/10 text-signal-warning'"
                   >
                     {{ doc.status.replace(/_/g, ' ') }}
                   </span>
@@ -398,15 +398,15 @@ const resetFilters = () => {
                 </td>
                 <td class="px-3 py-2.5 text-right font-medium text-ink-900">{{ formatCurrency(sup.total_spend) }}</td>
                 <td class="px-3 py-2.5 text-center font-bold text-ink-900">{{ sup.avg_tkdn_pct }}%</td>
-                <td class="px-3 py-2.5 text-right font-semibold text-emerald-700">{{ formatCurrency(sup.local_content_value) }}</td>
+                <td class="px-3 py-2.5 text-right font-semibold text-signal-success">{{ formatCurrency(sup.local_content_value) }}</td>
                 <td class="px-3 py-2.5 text-center">
                   <span
                     class="px-2 py-0.5 rounded text-2xs font-extrabold uppercase tracking-wide"
                     :class="{
-                      'bg-emerald-100 text-emerald-800': sup.rating === 'high',
-                      'bg-amber-100 text-amber-800': sup.rating === 'medium',
-                      'bg-blue-100 text-blue-800': sup.rating === 'low',
-                      'bg-slate-100 text-slate-600': sup.rating === 'unrated',
+                      'bg-signal-success/10 text-signal-success': sup.rating === 'high',
+                      'bg-signal-warning/10 text-signal-warning': sup.rating === 'medium',
+                      'bg-signal-info/10 text-signal-info': sup.rating === 'low',
+                      'bg-surface-100 text-ink-600': sup.rating === 'unrated',
                     }"
                   >
                     {{ sup.rating }}
@@ -439,7 +439,7 @@ const resetFilters = () => {
                 </td>
                 <td class="px-3 py-2.5 text-right font-medium text-ink-900">{{ formatCurrency(cat.total_spend) }}</td>
                 <td class="px-3 py-2.5 text-center font-bold text-ink-900">{{ cat.avg_tkdn_pct }}%</td>
-                <td class="px-3 py-2.5 text-right font-semibold text-emerald-700">
+                <td class="px-3 py-2.5 text-right font-semibold text-signal-success">
                   {{ cat.high_tkdn_pct }}%
                   <div class="text-2xs text-ink-400 font-normal">{{ formatCurrency(cat.high_tkdn_spend) }}</div>
                 </td>
@@ -482,17 +482,17 @@ const resetFilters = () => {
                 <td class="px-3 py-2.5 text-xs text-ink-600">{{ l.category_name }}</td>
                 <td class="px-3 py-2.5 text-right font-medium text-ink-900">{{ formatCurrency(l.line_total) }}</td>
                 <td class="px-3 py-2.5 text-center font-bold">
-                  <span v-if="l.local_content_pct !== null" :class="l.local_content_pct >= 40 ? 'text-emerald-700' : 'text-amber-700'">
+                  <span v-if="l.local_content_pct !== null" :class="l.local_content_pct >= 40 ? 'text-signal-success' : 'text-signal-warning'">
                     {{ l.local_content_pct }}%
                   </span>
                   <span v-else class="text-ink-400">—</span>
                 </td>
-                <td class="px-3 py-2.5 text-right font-semibold text-emerald-700">{{ formatCurrency(l.local_content_value) }}</td>
+                <td class="px-3 py-2.5 text-right font-semibold text-signal-success">{{ formatCurrency(l.local_content_value) }}</td>
                 <td class="px-3 py-2.5 text-center">
                   <span
                     v-if="l.local_content_pct !== null"
                     class="px-2 py-0.5 rounded text-2xs font-extrabold uppercase"
-                    :class="l.is_compliant ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'"
+                    :class="l.is_compliant ? 'bg-signal-success/10 text-signal-success' : 'bg-surface-100 text-ink-700'"
                   >
                     {{ l.is_compliant ? 'Compliant' : 'Below 40%' }}
                   </span>

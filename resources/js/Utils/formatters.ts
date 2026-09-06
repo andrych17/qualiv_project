@@ -4,13 +4,37 @@
  */
 
 /**
- * Format a number or string as currency (default IDR).
- * Example: 1500000 -> "Rp 1.500.000"
+ * Resolve active system locale ('id-ID' vs 'en-US') dynamically from DOM or fallback.
+ */
+export function getActiveLocale(overrideLocale?: string): string {
+  if (overrideLocale) {
+    if (overrideLocale === 'id' || overrideLocale === 'id-ID' || overrideLocale === 'id_ID') return 'id-ID'
+    if (overrideLocale === 'en' || overrideLocale === 'en-US' || overrideLocale === 'en_US') return 'en-US'
+    return overrideLocale
+  }
+
+  if (typeof document !== 'undefined' && document.documentElement) {
+    const docLang = document.documentElement.getAttribute('lang') || document.documentElement.lang
+    if (docLang) {
+      const lower = docLang.toLowerCase()
+      if (lower.startsWith('en')) return 'en-US'
+      if (lower.startsWith('id')) return 'id-ID'
+    }
+  }
+
+  return 'id-ID'
+}
+
+/**
+ * Format a number or string as currency.
+ * Example (IDR / id-ID): 1500000 -> "Rp 1.500.000"
+ * Example (IDR / en-US): 1500000 -> "IDR 1,500,000"
+ * Example (USD / en-US): 1500000 -> "$1,500,000.00"
  */
 export function formatCurrency(
   value: number | string | null | undefined,
   currency: string = 'IDR',
-  locale: string = 'id-ID'
+  locale?: string
 ): string {
   if (value === null || value === undefined || value === '') {
     return '-'
@@ -21,8 +45,10 @@ export function formatCurrency(
     return '-'
   }
 
+  const resolvedLocale = getActiveLocale(locale)
+
   try {
-    return new Intl.NumberFormat(locale, {
+    return new Intl.NumberFormat(resolvedLocale, {
       style: 'currency',
       currency,
       maximumFractionDigits: currency.toUpperCase() === 'IDR' ? 0 : 2,
@@ -30,18 +56,19 @@ export function formatCurrency(
     }).format(num)
   } catch {
     // Fallback if invalid currency code passed
-    return `${currency} ${num.toLocaleString(locale)}`
+    return `${currency} ${num.toLocaleString(resolvedLocale)}`
   }
 }
 
 /**
  * Format a number with thousands separators and optional decimals.
- * Example: 12500.5 -> "12.500,5"
+ * Example (id-ID): 12500.5 -> "12.500,5"
+ * Example (en-US): 12500.5 -> "12,500.5"
  */
 export function formatNumber(
   value: number | string | null | undefined,
   decimals: number = 0,
-  locale: string = 'id-ID'
+  locale?: string
 ): string {
   if (value === null || value === undefined || value === '') {
     return '-'
@@ -52,7 +79,9 @@ export function formatNumber(
     return '-'
   }
 
-  return new Intl.NumberFormat(locale, {
+  const resolvedLocale = getActiveLocale(locale)
+
+  return new Intl.NumberFormat(resolvedLocale, {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   }).format(num)
@@ -60,17 +89,20 @@ export function formatNumber(
 
 /**
  * Format a date string or timestamp.
- * Example: "2026-08-26" -> "26 Agu 2026"
+ * Example (id-ID): "2026-08-26" -> "26 Agu 2026"
+ * Example (en-US): "2026-08-26" -> "Aug 26, 2026"
  */
 export function formatDate(
   value: string | Date | null | undefined,
   style: 'short' | 'medium' | 'long' = 'medium',
-  locale: string = 'id-ID'
+  locale?: string
 ): string {
   if (!value) return '-'
 
   const date = typeof value === 'string' ? new Date(value) : value
   if (isNaN(date.getTime())) return '-'
+
+  const resolvedLocale = getActiveLocale(locale)
 
   const options: Intl.DateTimeFormatOptions =
     style === 'short'
@@ -79,23 +111,26 @@ export function formatDate(
       ? { day: 'numeric', month: 'long', year: 'numeric' }
       : { day: 'numeric', month: 'short', year: 'numeric' }
 
-  return new Intl.DateTimeFormat(locale, options).format(date)
+  return new Intl.DateTimeFormat(resolvedLocale, options).format(date)
 }
 
 /**
  * Format a date with hours and minutes.
- * Example: "2026-08-26T14:30:00" -> "26 Agu 2026, 14:30"
+ * Example (id-ID): "2026-08-26T14:30:00" -> "26 Agu 2026, 14:30"
+ * Example (en-US): "2026-08-26T14:30:00" -> "Aug 26, 2026, 02:30 PM"
  */
 export function formatDateTime(
   value: string | Date | null | undefined,
-  locale: string = 'id-ID'
+  locale?: string
 ): string {
   if (!value) return '-'
 
   const date = typeof value === 'string' ? new Date(value) : value
   if (isNaN(date.getTime())) return '-'
 
-  return new Intl.DateTimeFormat(locale, {
+  const resolvedLocale = getActiveLocale(locale)
+
+  return new Intl.DateTimeFormat(resolvedLocale, {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
@@ -105,16 +140,78 @@ export function formatDateTime(
 }
 
 /**
- * Convert number to Indonesian words (Terbilang).
- * Example: 1500000 -> "Satu Juta Lima Ratus Ribu Rupiah"
+ * Convert number to English words.
+ * Example: 1500000 -> "One Million Five Hundred Thousand Dollars"
  */
-export function formatTerbilang(
+export function formatNumberToWords(
   value: number | string | null | undefined,
-  suffix: string = 'Rupiah'
+  suffix: string = 'Dollars'
 ): string {
   if (value === null || value === undefined || value === '') return ''
   const num = typeof value === 'string' ? parseFloat(value.replace(/[^\d.-]/g, '')) : value
   if (isNaN(num)) return ''
+  if (num === 0) return `Zero ${suffix}`.trim()
+
+  const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen']
+  const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety']
+  const scales = ['', 'Thousand', 'Million', 'Billion', 'Trillion']
+
+  function convertGroup(n: number): string {
+    let result = ''
+    if (n >= 100) {
+      result += ones[Math.floor(n / 100)] + ' Hundred '
+      n %= 100
+    }
+    if (n >= 20) {
+      result += tens[Math.floor(n / 10)] + ' '
+      n %= 10
+    }
+    if (n > 0) {
+      result += ones[n] + ' '
+    }
+    return result.trim()
+  }
+
+  const isNeg = num < 0
+  let integerPart = Math.floor(Math.abs(num))
+  let scaleIndex = 0
+  let words = ''
+
+  while (integerPart > 0) {
+    const chunk = integerPart % 1000
+    if (chunk !== 0) {
+      const groupStr = convertGroup(chunk)
+      const scaleStr = scales[scaleIndex] ? ' ' + scales[scaleIndex] : ''
+      words = groupStr + scaleStr + (words ? ' ' + words : '')
+    }
+    integerPart = Math.floor(integerPart / 1000)
+    scaleIndex++
+  }
+
+  const formatted = (isNeg ? 'Minus ' : '') + words.trim() + (suffix ? ` ${suffix}` : '')
+  return formatted.trim()
+}
+
+/**
+ * Convert number to words based on locale (Indonesian / English).
+ * Example (ID): 1500000 -> "Satu Juta Lima Ratus Ribu Rupiah"
+ * Example (EN): 1500000 -> "One Million Five Hundred Thousand Rupiah"
+ */
+export function formatTerbilang(
+  value: number | string | null | undefined,
+  suffix: string = 'Rupiah',
+  locale?: string
+): string {
+  if (value === null || value === undefined || value === '') return ''
+  const num = typeof value === 'string' ? parseFloat(value.replace(/[^\d.-]/g, '')) : value
+  if (isNaN(num)) return ''
+
+  const resolved = getActiveLocale(locale)
+
+  if (resolved === 'en-US' || resolved.startsWith('en')) {
+    return formatNumberToWords(num, suffix)
+  }
+
   if (num === 0) return `Nol ${suffix}`.trim()
 
   const units = ['', 'Satu', 'Dua', 'Tiga', 'Empat', 'Lima', 'Enam', 'Tujuh', 'Delapan', 'Sembilan', 'Sepuluh', 'Sebelas']
@@ -188,4 +285,3 @@ export function parseFormattedNumber(
 
   return isNegative ? -parsed : parsed
 }
-

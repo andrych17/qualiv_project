@@ -2,6 +2,8 @@
 
 namespace App\Modules\SysConfig\Services;
 
+use App\Models\User;
+
 class ThemeService
 {
     public const DEFAULT_THEME = 'classic-navy';
@@ -161,10 +163,17 @@ class ThemeService
     }
 
     /**
-     * Get the active theme key for the tenant (or fallback to default)
+     * Get the active theme key for the user/tenant (or fallback to default)
      */
     public function getCurrentTheme(?int $userId = null): string
     {
+        if ($userId !== null && tenancy()->initialized) {
+            $user = User::find($userId);
+            if ($user && ! empty($user->theme) && array_key_exists($user->theme, self::THEMES)) {
+                return $user->theme;
+            }
+        }
+
         $theme = $this->configService->get('THEME', 'active_theme', null, null, $userId);
 
         if (is_string($theme) && array_key_exists($theme, self::THEMES)) {
@@ -175,7 +184,23 @@ class ThemeService
     }
 
     /**
-     * Set the active theme key for the tenant
+     * Set the active theme key for a specific user.
+     */
+    public function setUserTheme(User $user, string $themeKey): void
+    {
+        if (! array_key_exists($themeKey, self::THEMES)) {
+            throw new \InvalidArgumentException("Tema tidak valid: {$themeKey}");
+        }
+
+        $user->update(['theme' => $themeKey]);
+
+        if (request()->hasSession()) {
+            request()->session()->put('theme', $themeKey);
+        }
+    }
+
+    /**
+     * Set the active theme key for the tenant (default)
      */
     public function setTenantTheme(string $themeKey, ?int $userId = null): void
     {

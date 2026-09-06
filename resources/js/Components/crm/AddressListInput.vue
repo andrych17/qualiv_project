@@ -1,7 +1,10 @@
 <!-- ponytail: repeatable Address rows — shared by Contact/Company Create+Edit -->
 <script setup lang="ts">
+import { computed } from 'vue'
 import { Plus, Trash2 } from 'lucide-vue-next'
 import FormSelect from '@/Components/forms/FormSelect.vue'
+import Checkbox from '@/Components/Checkbox.vue'
+import { useI18n } from '@/Composables/useI18n'
 
 export interface AddressRow {
   type: string
@@ -21,6 +24,15 @@ const props = defineProps<{
 const emit = defineEmits<{
   'update:modelValue': [value: AddressRow[]]
 }>()
+
+const { t } = useI18n()
+
+const addressTypeOptions = computed(() => [
+  { label: t('crm.address_office'), value: 'office' },
+  { label: t('crm.address_billing'), value: 'billing' },
+  { label: t('crm.address_shipping'), value: 'shipping' },
+  { label: t('crm.address_other'), value: 'other' },
+])
 
 const emptyRow = (): AddressRow => ({
   type: 'office',
@@ -44,86 +56,93 @@ const update = (index: number, patch: Partial<AddressRow>) => {
 <template>
   <div class="space-y-3">
     <div class="flex items-center justify-between">
-      <p class="text-xs font-semibold uppercase tracking-wide text-ink-600">Addresses</p>
+      <p class="text-xs font-semibold uppercase tracking-wide text-ink-600">
+        {{ t('crm.addresses') }}
+      </p>
       <button
         type="button"
-        class="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
+        class="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline cursor-pointer"
         @click="addRow"
       >
-        <Plus class="h-3.5 w-3.5" /> Add address
+        <Plus class="h-3.5 w-3.5" /> {{ t('crm.add_address') }}
       </button>
     </div>
 
-    <div v-if="modelValue.length === 0" class="text-sm text-ink-600">No addresses added.</div>
+    <div v-if="modelValue.length === 0" class="text-sm text-ink-500 italic">
+      {{ t('crm.no_addresses') }}
+    </div>
 
     <div
       v-for="(row, index) in modelValue"
       :key="index"
-      class="space-y-3 rounded-md border border-border p-3"
+      class="space-y-3 rounded-xl border border-border bg-surface-50/50 p-3.5 transition-colors"
     >
       <div class="flex items-center justify-between gap-3">
-        <div class="w-40">
+        <div class="w-44">
           <FormSelect
             :model-value="row.type"
             :name="`addresses.${index}.type`"
-            label="Type"
-            :options="[
-              { label: 'Office', value: 'office' },
-              { label: 'Billing', value: 'billing' },
-              { label: 'Shipping', value: 'shipping' },
-              { label: 'Other', value: 'other' },
-            ]"
+            :label="t('crm.address_type')"
+            :options="addressTypeOptions"
             @update:model-value="update(index, { type: String($event) })"
           />
         </div>
-        <label class="flex items-center gap-2 text-xs text-ink-600">
-          <input
-            type="checkbox"
-            :checked="row.is_primary"
-            @change="update(index, { is_primary: ($event.target as HTMLInputElement).checked })"
-          />
-          Primary
-        </label>
-        <button type="button" class="text-signal-danger" @click="removeRow(index)">
-          <Trash2 class="h-4 w-4" />
-        </button>
+
+        <div class="flex items-center gap-4">
+          <label class="flex items-center gap-2 text-xs font-medium text-ink-700 cursor-pointer select-none">
+            <Checkbox
+              :checked="row.is_primary"
+              @update:checked="update(index, { is_primary: $event })"
+            />
+            <span>{{ t('crm.is_primary') }}</span>
+          </label>
+
+          <button
+            type="button"
+            class="text-signal-danger hover:text-signal-danger/80 p-1 rounded-md transition-colors cursor-pointer"
+            :title="t('common.delete')"
+            @click="removeRow(index)"
+          >
+            <Trash2 class="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
       <input
         :value="row.line1"
-        placeholder="Address line 1"
-        class="w-full rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+        :placeholder="t('crm.address_line1')"
+        class="w-full rounded-lg border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-2xs placeholder:text-ink-400 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
         @input="update(index, { line1: ($event.target as HTMLInputElement).value })"
       />
       <input
         :value="row.line2"
-        placeholder="Address line 2 (optional)"
-        class="w-full rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+        :placeholder="t('crm.address_line2')"
+        class="w-full rounded-lg border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-2xs placeholder:text-ink-400 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
         @input="update(index, { line2: ($event.target as HTMLInputElement).value })"
       />
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <input
           :value="row.city"
-          placeholder="City"
-          class="w-full rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+          :placeholder="t('crm.city')"
+          class="w-full rounded-lg border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-2xs placeholder:text-ink-400 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
           @input="update(index, { city: ($event.target as HTMLInputElement).value })"
         />
         <input
           :value="row.state_province"
-          placeholder="State/Province"
-          class="w-full rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+          :placeholder="t('crm.state_province')"
+          class="w-full rounded-lg border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-2xs placeholder:text-ink-400 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
           @input="update(index, { state_province: ($event.target as HTMLInputElement).value })"
         />
         <input
           :value="row.postal_code"
-          placeholder="Postal code"
-          class="w-full rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+          :placeholder="t('crm.postal_code')"
+          class="w-full rounded-lg border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-2xs placeholder:text-ink-400 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
           @input="update(index, { postal_code: ($event.target as HTMLInputElement).value })"
         />
         <input
           :value="row.country"
-          placeholder="Country"
-          class="w-full rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+          :placeholder="t('crm.country')"
+          class="w-full rounded-lg border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-2xs placeholder:text-ink-400 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
           @input="update(index, { country: ($event.target as HTMLInputElement).value })"
         />
       </div>

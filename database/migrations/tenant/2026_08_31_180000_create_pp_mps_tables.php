@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
@@ -38,7 +39,7 @@ return new class extends Migration
             $table->unique(['mps_hdr_id', 'period_start']);
         });
 
-        \Illuminate\Support\Facades\DB::statement('ALTER TABLE "PP".pp_mps_lines ADD CONSTRAINT chk_pp_mps_lines_period_order CHECK (period_end >= period_start)');
+        DB::statement('ALTER TABLE "PP".pp_mps_lines ADD CONSTRAINT chk_pp_mps_lines_period_order CHECK (period_end >= period_start)');
     }
 
     public function down(): void

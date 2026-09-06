@@ -1,0 +1,21 @@
+{
+  "menu.PP_DASHBOARD": "Dashboard Perencanaan Produksi",
+  "menu.PP_DEMAND": "Peramalan Permintaan",
+  "menu.PP_BOM": "Struktur Produk & Resep (BOM)",
+  "menu.PP_MRP": "Kebutuhan Material (MRP)",
+  "menu.PP_MPS": "Jadwal Induk Produksi (MPS)",
+  "menu.PP_CAPACITY": "Kapasitas Mesin & Stasiun Kerja",
+
+  "pp.bom": "Bill of Materials (BOM)",
+  "pp.recipe": "Resep & Formula",
+  "pp.batch_size": "Ukuran Batch Produksi",
+  "pp.mrp": "Material Requirement Planning (MRP)",
+  "pp.demand_forecast": "Peramalan Permintaan",
+  "pp.work_center": "Pusat Kerja",
+  "pp.lead_time": "Waktu Tunggu (Lead Time)",
+
+  "pp.msg.bom_saved": "Struktur BOM berhasil disimpan.",
+  "pp.msg.mrp_executed": "Perhitungan MRP berhasil dijalankan.",
+
+  "pp.err.circular_bom": "Terdeteksi struktur BOM sirkular yang tidak valid."
+}

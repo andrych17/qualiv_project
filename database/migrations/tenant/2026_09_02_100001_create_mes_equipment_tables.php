@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
@@ -43,7 +44,7 @@ return new class extends Migration
 
         // §3D: "the physical spot an operator executes at" — must hang off a work center or a
         // machine (or both), never neither.
-        \Illuminate\Support\Facades\DB::statement(
+        DB::statement(
             'ALTER TABLE "MES".mes_stations ADD CONSTRAINT chk_mes_stations_owner CHECK (work_center_id IS NOT NULL OR machine_id IS NOT NULL)'
         );
     }

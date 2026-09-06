@@ -5,13 +5,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title inertia>{{ config('app.name', 'Qualiv Project') }}</title>
+        <title inertia>{{ config('app.name', 'Nusaevo ERP') }}</title>
 
-        <link rel="icon" type="image/webp" href="/logos/qualiv-logo-icon.webp" />
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" href="/logos/SysConfig1.png" />
+        <link rel="apple-touch-icon" href="/logos/SysConfig1.png" />
 
         <!-- Fonts — DESIGN.md: Source Serif 4 (display), Inter (UI), IBM Plex Mono (data) -->
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=source-serif-4:400,600,700|inter:400,500,600|ibm-plex-mono:400,500&display=swap" rel="stylesheet" />
+        <link href="https://fonts.bunny.net/css?family=source-serif-4:400,600,700|inter:400,500,600,700|ibm-plex-mono:400,500&display=swap" rel="stylesheet" />
 
         <!-- Scripts -->
         @routes

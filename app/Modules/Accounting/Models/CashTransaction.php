@@ -41,4 +41,9 @@ class CashTransaction extends Model
     {
         return $this->belongsTo(Account::class, 'offset_account_id');
     }
+
+    public function journal()
+    {
+        return $this->belongsTo(GlJournal::class);
+    }
 }

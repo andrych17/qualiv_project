@@ -1,19 +1,15 @@
-<!-- ponytail: Dashboard — UI/UX Pro Max Executive Cockpit & Modular App Launcher -->
+<!-- ponytail: Dashboard — Executive KPI summary, Adaptive Dynamic Modular Launcher from SysConfig, and real-time activity feed -->
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { Head, Link } from '@inertiajs/vue3'
+import { Head, Link, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
+import DataTable from '@/Components/tables/DataTable.vue'
+import FormInput from '@/Components/forms/FormInput.vue'
+import EmptyState from '@/Components/feedback/EmptyState.vue'
+import { useI18n } from '@/Composables/useI18n'
 import * as icons from 'lucide-vue-next'
-
-type Card = {
-  title: string
-  value: string
-  description: string
-  icon: string
-  href: string | null
-}
 
 type Activity = {
   id: string
@@ -29,295 +25,371 @@ type Shortcut = {
   icon: string
 }
 
-type AppItem = {
+type NavMenuChild = {
   code: string
-  title: string
-  description: string
-  icon: string
+  label: string
   href: string
-  badge: string
-  badgeColor?: string
-  links: Array<{ label: string; href: string }>
+  icon: string | null
+  seq: number
+  children?: NavMenuChild[]
 }
 
-type AppSection = {
-  title: string
-  description: string
-  apps: AppItem[]
+type NavMenuItem = {
+  code: string
+  label: string
+  href: string
+  icon: string | null
+  header: string | null
+  seq: number
+  children?: NavMenuChild[]
 }
 
-const props = defineProps<{
+defineProps<{
   firm: string
   plan?: string
-  cards: Card[]
-  appSections?: AppSection[]
+  cards?: unknown[]
+  totalModules?: number
   activities: Activity[]
   shortcuts: Shortcut[]
 }>()
 
+const page = usePage()
+const { t } = useI18n()
 const searchQuery = ref('')
+const selectedCategory = ref<string>('ALL')
 
-const filteredAppSections = computed(() => {
-  if (!props.appSections) return []
-  if (!searchQuery.value.trim()) return props.appSections
+const activityColumns = computed(() => [
+  { key: 'module', label: t('dashboard.col_module') },
+  { key: 'action', label: t('dashboard.col_action') },
+  { key: 'user', label: t('dashboard.col_user') },
+  { key: 'time', label: t('dashboard.col_time'), align: 'right' as const },
+])
 
-  const q = searchQuery.value.toLowerCase().trim()
-  return props.appSections
-    .map(section => {
-      const matchingApps = section.apps.filter(app =>
-        app.title.toLowerCase().includes(q) ||
-        app.description.toLowerCase().includes(q) ||
-        app.links.some(l => l.label.toLowerCase().includes(q))
-      )
+const menuLabel = (code: string, fallback: string) => {
+  const key = `menu.${code}`
+  const translated = t(key)
+  return translated !== key ? translated : fallback
+}
+
+const sectionHeader = (header: string) => {
+  const map: Record<string, string> = {
+    Main: 'nav.main',
+    Core: 'nav.core',
+    Operations: 'nav.operations',
+    People: 'nav.people',
+    System: 'nav.system',
+    Vertical: 'nav.vertical',
+  }
+  const key = map[header] || `nav.${header.toLowerCase()}`
+  const translated = t(key)
+  return translated !== key ? translated : header
+}
+
+const getIcon = (name: string | null | undefined) => {
+  if (!name) return icons.LayoutGrid
+  const iconDict = icons as Record<string, unknown>
+  if (iconDict[name]) return iconDict[name] as typeof icons.HelpCircle
+
+  const pascal = name
+    .split(/[-_]/)
+    .map((s) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase())
+    .join('')
+  return (iconDict[pascal] as typeof icons.HelpCircle) || icons.LayoutGrid
+}
+
+const moduleStatus = (module: string) => {
+  switch (module) {
+    case 'Accounting':
+      return 'active'
+    case 'Projects':
+      return 'open'
+    case 'CRM':
+      return 'info'
+    default:
+      return 'draft'
+  }
+}
+
+/**
+ * 100% Dynamic Module Resolution from PostgreSQL SYSCONFIG.config_menus via navMenus.
+ * Respects tenant plan entitlement, role-based access permissions, and custom menu ordering.
+ */
+const dynamicModules = computed(() => {
+  const rawMenus = (page.props.navMenus || []) as NavMenuItem[]
+
+  return rawMenus
+    .filter(m => m.code !== 'DASHBOARD')
+    .map(m => {
+      // Flatten direct submenus (L2 and L3) to produce actionable quick deep-links
+      const quickLinks: Array<{ label: string; href: string }> = []
+
+      if (m.children && m.children.length > 0) {
+        for (const child of m.children) {
+          if (child.href && child.href !== '#' && child.href !== m.href) {
+            quickLinks.push({ label: menuLabel(child.code, child.label), href: child.href })
+          } else if (child.children && child.children.length > 0) {
+            for (const subChild of child.children) {
+              if (subChild.href && subChild.href !== '#') {
+                quickLinks.push({ label: menuLabel(subChild.code, subChild.label), href: subChild.href })
+              }
+            }
+          }
+        }
+      }
+
       return {
-        ...section,
-        apps: matchingApps,
+        code: m.code,
+        name: menuLabel(m.code, m.label),
+        href: m.href || '#',
+        icon: m.icon,
+        category: sectionHeader(m.header || 'Main'),
+        quickLinks: quickLinks.slice(0, 3), // Top 3 quick shortcuts
       }
     })
-    .filter(section => section.apps.length > 0)
 })
 
-const getIcon = (name: string) => {
-  return (icons as Record<string, unknown>)[name] as typeof icons.HelpCircle || icons.HelpCircle
-}
+/**
+ * Dynamically discover unique category groups from database headers.
+ */
+const availableCategories = computed(() => {
+  const map = new Map<string, number>()
 
-const getBadgeClasses = (color?: string) => {
-  switch (color) {
-    case 'indigo':
-      return 'bg-indigo-50 text-indigo-700 ring-1 ring-inset ring-indigo-600/20'
-    case 'purple':
-      return 'bg-purple-50 text-purple-700 ring-1 ring-inset ring-purple-600/20'
-    case 'blue':
-      return 'bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-600/20'
-    case 'sky':
-      return 'bg-sky-50 text-sky-700 ring-1 ring-inset ring-sky-600/20'
-    case 'emerald':
-      return 'bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20'
-    case 'amber':
-      return 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/20'
-    case 'teal':
-      return 'bg-teal-50 text-teal-700 ring-1 ring-inset ring-teal-600/20'
-    case 'cyan':
-      return 'bg-cyan-50 text-cyan-700 ring-1 ring-inset ring-cyan-600/20'
-    case 'rose':
-      return 'bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-600/20'
-    case 'violet':
-      return 'bg-violet-50 text-violet-700 ring-1 ring-inset ring-violet-600/20'
-    case 'orange':
-      return 'bg-orange-50 text-orange-700 ring-1 ring-inset ring-orange-600/20'
-    default:
-      return 'bg-surface-100 text-ink-700 ring-1 ring-inset ring-border'
+  for (const mod of dynamicModules.value) {
+    const cat = mod.category
+    map.set(cat, (map.get(cat) || 0) + 1)
   }
-}
 
-const getIconBgClasses = (color?: string) => {
-  switch (color) {
-    case 'indigo':
-      return 'bg-indigo-500/10 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white'
-    case 'purple':
-      return 'bg-purple-500/10 text-purple-600 group-hover:bg-purple-600 group-hover:text-white'
-    case 'blue':
-      return 'bg-blue-500/10 text-blue-600 group-hover:bg-blue-600 group-hover:text-white'
-    case 'sky':
-      return 'bg-sky-500/10 text-sky-600 group-hover:bg-sky-600 group-hover:text-white'
-    case 'emerald':
-      return 'bg-emerald-500/10 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white'
-    case 'amber':
-      return 'bg-amber-500/10 text-amber-600 group-hover:bg-amber-600 group-hover:text-white'
-    case 'teal':
-      return 'bg-teal-500/10 text-teal-600 group-hover:bg-teal-600 group-hover:text-white'
-    case 'cyan':
-      return 'bg-cyan-500/10 text-cyan-600 group-hover:bg-cyan-600 group-hover:text-white'
-    case 'rose':
-      return 'bg-rose-500/10 text-rose-600 group-hover:bg-rose-600 group-hover:text-white'
-    case 'violet':
-      return 'bg-violet-500/10 text-violet-600 group-hover:bg-violet-600 group-hover:text-white'
-    case 'orange':
-      return 'bg-orange-500/10 text-orange-600 group-hover:bg-orange-600 group-hover:text-white'
-    default:
-      return 'bg-surface-100 text-ink-700 group-hover:bg-ink-900 group-hover:text-surface-0'
+  return Array.from(map.entries()).map(([name, count]) => ({
+    name,
+    count,
+  }))
+})
+
+/**
+ * Filtered and Clustered Module Groups based on active category & instant search query.
+ */
+const dynamicClusters = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase()
+
+  const filtered = dynamicModules.value.filter(mod => {
+    if (selectedCategory.value !== 'ALL' && mod.category !== selectedCategory.value) {
+      return false
+    }
+
+    if (!query) return true
+
+    return (
+      mod.name.toLowerCase().includes(query) ||
+      mod.code.toLowerCase().includes(query) ||
+      mod.category.toLowerCase().includes(query) ||
+      mod.quickLinks.some(ql => ql.label.toLowerCase().includes(query))
+    )
+  })
+
+  // Group by category header
+  const groups: Record<string, typeof filtered> = {}
+  for (const mod of filtered) {
+    if (!groups[mod.category]) {
+      groups[mod.category] = []
+    }
+    groups[mod.category].push(mod)
   }
-}
+
+  return Object.entries(groups).map(([name, items]) => ({
+    name,
+    modules: items,
+  }))
+})
+
+const isSingleOrFewModules = computed(() => {
+  return dynamicModules.value.length <= 4
+})
 </script>
 
 <template>
   <Head title="Dashboard" />
 
   <AppLayout>
-    <!-- Executive Workspace Banner -->
-    <div class="rounded-xl border border-border bg-gradient-to-r from-surface-0 via-surface-50 to-surface-0 p-6 shadow-xs sm:p-8">
-      <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <!-- Executive Hero Banner -->
+    <div class="relative overflow-hidden rounded-xl border border-border bg-surface-0 p-6 shadow-xs sm:p-8">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <div class="flex items-center gap-2">
+          <div class="flex flex-wrap items-center gap-2.5">
             <h1 class="text-2xl font-bold tracking-tight text-ink-900 sm:text-3xl">
               {{ firm }}
             </h1>
-            <span class="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-700 ring-1 ring-inset ring-indigo-600/20">
-              {{ (plan || 'Enterprise').toUpperCase() }} SUITE
+            <span class="inline-flex items-center rounded-full border border-border bg-surface-50 px-2.5 py-0.5 text-xs font-semibold text-ink-600">
+              {{ (plan || 'Enterprise').toUpperCase() }} {{ t('dashboard.suite') }}
+            </span>
+            <span class="inline-flex items-center rounded-full border border-accent/20 bg-accent/5 px-2.5 py-0.5 text-xs font-semibold text-accent">
+              {{ t('dashboard.modules_installed', { count: dynamicModules.length }) }}
             </span>
           </div>
-          <p class="mt-1 text-sm text-ink-600">
-            Pusat operasional manajemen klien, pengadaan vendor AI & server, finansial, dan sprint project.
+          <p class="mt-1.5 text-sm text-ink-600">
+            {{ t('dashboard.subtitle') }}
           </p>
         </div>
 
-        <!-- Quick Module Search Filter -->
-        <div class="relative w-full max-w-xs">
-          <icons.Search class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="Cari modul atau menu…"
-            class="w-full rounded-lg border border-border bg-surface-0 py-2 pl-9 pr-3 text-sm text-ink-900 placeholder-ink-400 shadow-xs transition-colors focus:border-accent focus:outline-hidden focus:ring-1 focus:ring-accent"
-          />
+        <!-- Quick Search Hint / Global Action Badge -->
+        <div class="flex items-center gap-2 self-start rounded-lg border border-border bg-surface-50 px-3 py-2 text-xs text-ink-600 sm:self-auto">
+          <icons.Command class="h-4 w-4 text-accent shrink-0" />
+          <span>{{ t('dashboard.nav_shortcut') }}</span>
+          <kbd class="rounded border border-border bg-surface-0 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-ink-900 shadow-2xs">Ctrl</kbd>
+          <span>+</span>
+          <kbd class="rounded border border-border bg-surface-0 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-ink-900 shadow-2xs">Space</kbd>
         </div>
       </div>
     </div>
 
     <div class="mt-6 space-y-8">
-      <!-- Top Bento KPI Summary Cards -->
-      <div>
-        <div class="mb-3 flex items-center justify-between">
-          <h2 class="text-xs font-bold uppercase tracking-wider text-ink-500">Ringkasan Operasional & Finansial</h2>
+      <!-- Dynamic Modular App Launcher (Clustered from Database SYSCONFIG) -->
+      <div v-if="dynamicModules.length > 0" class="space-y-4">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 class="text-xs font-bold uppercase tracking-wider text-ink-500">
+              {{ t('dashboard.catalog_title') }}
+            </h2>
+            <p class="text-xs text-ink-600 mt-0.5">
+              {{ t('dashboard.catalog_subtitle') }}
+            </p>
+          </div>
+
+          <!-- Search Filter Bar -->
+          <div class="w-full sm:w-72">
+            <FormInput
+              v-model="searchQuery"
+              name="module-search"
+              :placeholder="t('dashboard.search_placeholder')"
+            />
+          </div>
         </div>
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <component
-            :is="card.href ? Link : 'div'"
-            v-for="card in cards"
-            :key="card.title"
-            :href="card.href || undefined"
-            class="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-border bg-surface-0 p-5 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-md"
-            :class="card.href ? 'cursor-pointer' : ''"
+
+        <!-- Dynamic Category Filter Chips (Hidden when in few-modules mode) -->
+        <div v-if="!isSingleOrFewModules && availableCategories.length > 1" class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+          <button
+            type="button"
+            class="rounded-lg px-3 py-1.5 font-medium transition-colors shrink-0"
+            :class="selectedCategory === 'ALL' ? 'bg-accent text-accent-text shadow-xs' : 'bg-surface-0 border border-border text-ink-700 hover:bg-surface-100'"
+            @click="selectedCategory = 'ALL'"
           >
-            <div class="flex items-start justify-between">
-              <div>
-                <p class="text-xs font-medium text-ink-500">{{ card.title }}</p>
-                <p class="mt-1.5 font-serif text-3xl font-bold tracking-tight text-ink-900">{{ card.value }}</p>
-              </div>
-              <div class="flex h-11 w-11 items-center justify-center rounded-lg border border-border/80 bg-surface-50 text-ink-600 transition-colors group-hover:bg-accent group-hover:text-white">
-                <component :is="getIcon(card.icon)" class="h-5 w-5" />
-              </div>
-            </div>
-            <div class="mt-3 flex items-center justify-between border-t border-border/60 pt-3">
-              <span class="truncate text-xs text-ink-500">{{ card.description }}</span>
-              <span v-if="card.href" class="inline-flex items-center text-xs font-semibold text-accent group-hover:underline">
-                Buka
-                <icons.ArrowRight class="ml-1 h-3 w-3" />
+            {{ t('dashboard.all_modules') }} ({{ dynamicModules.length }})
+          </button>
+          <button
+            v-for="c in availableCategories"
+            :key="c.name"
+            type="button"
+            class="rounded-lg px-3 py-1.5 font-medium transition-colors shrink-0"
+            :class="selectedCategory === c.name ? 'bg-accent text-accent-text shadow-xs' : 'bg-surface-0 border border-border text-ink-700 hover:bg-surface-100'"
+            @click="selectedCategory = c.name"
+          >
+            {{ c.name }} ({{ c.count }})
+          </button>
+        </div>
+
+        <!-- Clustered Grid Content -->
+        <div v-if="dynamicClusters.length > 0" class="space-y-6">
+          <div
+            v-for="cluster in dynamicClusters"
+            :key="cluster.name"
+            class="space-y-3"
+          >
+            <div class="flex items-center gap-2">
+              <span class="h-1.5 w-1.5 rounded-full bg-accent"></span>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-ink-600">
+                {{ cluster.name }}
+              </h3>
+              <span class="text-[11px] font-medium text-ink-500">
+                ({{ cluster.modules.length }})
               </span>
             </div>
-          </component>
-        </div>
-      </div>
 
-      <!-- App Launcher & Modular Cards Suite -->
-      <div v-if="filteredAppSections.length > 0" class="space-y-8">
-        <div v-for="section in filteredAppSections" :key="section.title" class="space-y-3">
-          <div class="border-b border-border/70 pb-2">
-            <h2 class="text-sm font-bold text-ink-900">{{ section.title }}</h2>
-            <p class="text-xs text-ink-500">{{ section.description }}</p>
-          </div>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
+              <div
+                v-for="mod in cluster.modules"
+                :key="mod.code"
+                class="group relative flex flex-col justify-between rounded-xl border border-border bg-surface-0 p-4 shadow-2xs transition-all duration-150 hover:border-accent/40 hover:bg-surface-50 hover:shadow-xs"
+              >
+                <!-- Card Top: Icon, Name & Direct Jump -->
+                <div>
+                  <div class="flex items-start justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                      <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-100 text-ink-700 shadow-2xs transition-colors duration-150 group-hover:bg-accent group-hover:text-accent-text">
+                        <component :is="getIcon(mod.icon)" class="h-5 w-5" />
+                      </div>
+                      <div>
+                        <Link
+                          :href="mod.href"
+                          class="font-semibold text-ink-900 group-hover:text-accent transition-colors flex items-center gap-1.5"
+                        >
+                          <span>{{ mod.name }}</span>
+                        </Link>
+                        <span class="font-mono text-[10px] uppercase tracking-wider text-ink-500">
+                          {{ mod.code }}
+                        </span>
+                      </div>
+                    </div>
 
-          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div
-              v-for="app in section.apps"
-              :key="app.code"
-              class="group relative flex flex-col justify-between rounded-xl border border-border bg-surface-0 p-5 shadow-xs transition-all duration-200 hover:border-accent/50 hover:shadow-md"
-            >
-              <div>
-                <!-- Card Header -->
-                <div class="flex items-start justify-between gap-3">
-                  <div class="flex items-center gap-3">
-                    <div
-                      class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors"
-                      :class="getIconBgClasses(app.badgeColor)"
+                    <Link
+                      :href="mod.href"
+                      class="text-ink-400 group-hover:text-accent transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 p-1"
+                      :aria-label="t('dashboard.open_module', { name: mod.name })"
                     >
-                      <component :is="getIcon(app.icon)" class="h-5 w-5" />
-                    </div>
-                    <div>
-                      <Link :href="app.href" class="text-base font-semibold text-ink-900 group-hover:text-accent focus:outline-hidden">
-                        {{ app.title }}
-                      </Link>
-                    </div>
+                      <icons.ArrowUpRight class="h-4 w-4" />
+                    </Link>
                   </div>
-                  <span
-                    class="inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[11px] font-medium"
-                    :class="getBadgeClasses(app.badgeColor)"
-                  >
-                    {{ app.badge }}
-                  </span>
                 </div>
 
-                <!-- Description -->
-                <p class="mt-3 text-xs leading-relaxed text-ink-600">
-                  {{ app.description }}
-                </p>
-              </div>
-
-              <!-- Quick Links Footer -->
-              <div class="mt-4 border-t border-border/70 pt-3">
-                <div class="flex flex-wrap items-center gap-1.5">
-                  <span class="text-[11px] font-medium text-ink-400">Pintas:</span>
+                <!-- Card Bottom: Quick Sub-Action Links -->
+                <div v-if="mod.quickLinks && mod.quickLinks.length > 0" class="mt-3.5 pt-2.5 border-t border-border flex items-center gap-1.5 flex-wrap">
+                  <span class="text-[10px] uppercase font-semibold text-ink-500 mr-1">{{ t('dashboard.actions') }}</span>
                   <Link
-                    v-for="link in app.links"
-                    :key="link.href"
-                    :href="link.href"
-                    class="inline-flex items-center rounded-md bg-surface-50 px-2 py-1 text-xs font-medium text-ink-700 transition-colors hover:bg-surface-150 hover:text-ink-900"
+                    v-for="ql in mod.quickLinks"
+                    :key="ql.href"
+                    :href="ql.href"
+                    class="inline-flex items-center gap-1 rounded bg-surface-100 hover:bg-surface-200 px-2 py-0.5 text-[11px] font-medium text-ink-700 hover:text-accent transition-colors"
                   >
-                    {{ link.label }}
-                  </Link>
-                  <Link
-                    :href="app.href"
-                    class="ml-auto inline-flex items-center text-xs font-semibold text-accent hover:underline"
-                  >
-                    Masuk
-                    <icons.ChevronRight class="ml-0.5 h-3.5 w-3.5" />
+                    <span>{{ ql.label }}</span>
                   </Link>
                 </div>
               </div>
             </div>
           </div>
         </div>
+
+        <!-- Empty State for Filter Search -->
+        <EmptyState
+          v-else
+          :title="t('dashboard.empty_modules_title')"
+          :description="t('dashboard.empty_modules_desc')"
+          :action-label="t('common.reset_filter')"
+          @action="searchQuery = ''; selectedCategory = 'ALL'"
+        />
       </div>
 
-      <!-- Bottom Layout: Recent Activities & Fast Actions -->
+      <!-- Activity Feed & Quick Actions (Bottom Section) -->
       <div class="grid gap-6 lg:grid-cols-3">
-        <!-- Recent Activities Feed -->
-        <Panel title="Aktivitas & Transaksi Terkini" subtitle="Log perubahan real-time tenant Qualiv" class="lg:col-span-2">
-          <div v-if="activities.length === 0" class="py-12 text-center">
-            <icons.Inbox class="mx-auto h-8 w-8 text-ink-400" />
-            <p class="mt-2 text-sm font-medium text-ink-900">Belum ada aktivitas terbaru</p>
-            <p class="text-xs text-ink-500">Transaksi tagihan atau task project akan muncul di sini.</p>
-          </div>
-
-          <div v-else class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-border text-sm">
-              <thead>
-                <tr class="text-left text-xs font-semibold uppercase tracking-wide text-ink-500">
-                  <th class="py-2.5 pr-3">Modul</th>
-                  <th class="py-2.5 pr-3">Rincian Aktivitas</th>
-                  <th class="py-2.5 pr-3">Pelaksana</th>
-                  <th class="py-2.5 text-right font-mono text-[11px] normal-case tracking-normal">Waktu</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-border text-ink-900">
-                <tr v-for="act in activities" :key="act.id" class="transition-colors hover:bg-surface-50">
-                  <td class="py-3 pr-3">
-                    <StatusBadge
-                      :status="act.module === 'Accounting' ? 'active' : (act.module === 'Projects' ? 'open' : 'info')"
-                      :label="act.module"
-                    />
-                  </td>
-                  <td class="py-3 pr-3 text-xs font-medium text-ink-900">{{ act.action }}</td>
-                  <td class="py-3 pr-3 text-xs text-ink-500">{{ act.user }}</td>
-                  <td class="py-3 text-right font-mono text-xs text-ink-500">{{ act.time }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+        <Panel
+          :title="t('dashboard.recent_activities')"
+          :subtitle="t('dashboard.recent_activities_sub')"
+          class="lg:col-span-2"
+        >
+          <DataTable
+            :columns="activityColumns"
+            :items="activities"
+            row-key="id"
+            :empty-title="t('dashboard.no_activities_title')"
+            :empty-description="t('dashboard.no_activities_desc')"
+          >
+            <template #cell-module="{ item }">
+              <StatusBadge :status="moduleStatus(item.module)" :label="item.module" />
+            </template>
+            <template #cell-time="{ item }">
+              <span class="font-mono text-xs text-ink-500">{{ item.time }}</span>
+            </template>
+          </DataTable>
         </Panel>
 
-        <!-- Fast Actions -->
-        <Panel title="Aksi Cepat (Quick Actions)" subtitle="Akses langsung transaksi umum">
+        <Panel :title="t('dashboard.quick_actions')" :subtitle="t('dashboard.quick_actions_sub')">
           <div class="grid gap-2.5">
             <Link
               v-for="s in shortcuts"
@@ -326,12 +398,12 @@ const getIconBgClasses = (color?: string) => {
               class="group flex items-center justify-between rounded-lg border border-border bg-surface-0 px-3.5 py-3 shadow-2xs transition-all hover:border-accent/40 hover:bg-surface-50 hover:shadow-xs focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
             >
               <div class="flex items-center gap-3">
-                <div class="flex h-8 w-8 items-center justify-center rounded-md bg-surface-100 text-ink-600 group-hover:bg-accent group-hover:text-white transition-colors">
+                <div class="flex h-8 w-8 items-center justify-center rounded-md bg-surface-100 text-ink-600 transition-colors group-hover:bg-accent group-hover:text-accent-text">
                   <component :is="getIcon(s.icon)" class="h-4 w-4" />
                 </div>
                 <span class="text-sm font-medium text-ink-900 group-hover:text-accent">{{ s.label }}</span>
               </div>
-              <icons.ChevronRight class="h-4 w-4 text-ink-400 group-hover:translate-x-0.5 transition-transform group-hover:text-accent" />
+              <icons.ChevronRight class="h-4 w-4 text-ink-400 transition-transform group-hover:translate-x-0.5 group-hover:text-accent" />
             </Link>
           </div>
         </Panel>

@@ -12,12 +12,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PosKdsTicketEvent extends Model
 {
     protected $table = 'POS.pos_kds_ticket_events';
+
     public $timestamps = false;
 
     public const STATUS_NEW = 'new';
+
     public const STATUS_PREPARING = 'preparing';
+
     public const STATUS_READY = 'ready';
+
     public const STATUS_SERVED = 'served';
+
     public const STATUS_REFIRED = 'refired';
 
     protected $fillable = [

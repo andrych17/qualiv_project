@@ -71,7 +71,7 @@ class FiscalYearService
                 $hasSubsequentClosedYear = FiscalYear::query()
                     ->where('company_id', $period->company_id)
                     ->where('year', '>', $fiscalYear->year)
-                    ->where('status', FiscalYear::STATUS_CLOSED)
+                    ->where('status', '!=', FiscalYear::STATUS_OPEN)
                     ->exists();
 
                 if ($hasSubsequentClosedYear) {

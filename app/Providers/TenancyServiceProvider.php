@@ -7,6 +7,7 @@ namespace App\Providers;
 use App\Jobs\CreateModuleSchemas;
 use App\Jobs\SeedTenantSysConfig;
 use Illuminate\Contracts\Http\Kernel;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -70,11 +71,17 @@ class TenancyServiceProvider extends ServiceProvider
             Events\InitializingTenancy::class => [],
             Events\TenancyInitialized::class => [
                 Listeners\BootstrapTenancy::class,
+                function () {
+                    DB::purge('tenant');
+                },
             ],
 
             Events\EndingTenancy::class => [],
             Events\TenancyEnded::class => [
                 Listeners\RevertToCentralContext::class,
+                function () {
+                    DB::purge('tenant');
+                },
             ],
 
             Events\BootstrappingTenancy::class => [],

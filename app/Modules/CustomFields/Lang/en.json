@@ -1,0 +1,7 @@
+{
+  "customfields.field_name": "Custom Field Name",
+  "customfields.field_type": "Data Type",
+  "customfields.entity_type": "Entity Type",
+  "customfields.is_required": "Required",
+  "customfields.options": "Options List"
+}

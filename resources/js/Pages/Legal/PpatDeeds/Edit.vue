@@ -6,6 +6,7 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import Panel from '@/Components/cards/Panel.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
 import FormInput from '@/Components/forms/FormInput.vue'
+import FormTextarea from '@/Components/forms/FormTextarea.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import CustomFieldInputs, { type CustomFieldDef } from '@/Components/forms/CustomFieldInputs.vue'
 import DeedPartyList, { type DeedPartyRow } from '@/Components/legal/DeedPartyList.vue'
@@ -170,14 +171,13 @@ const requestTransition = (toStatus: string) => {
           />
           <FormInput v-model="form.signing_date" name="signing_date" type="date" label="Signing date" :error="form.errors.signing_date" />
           <FormInput v-model="form.minuta_reference" name="minuta_reference" label="Minuta reference" :error="form.errors.minuta_reference" />
-          <div class="space-y-1.5">
-            <label class="text-sm font-medium text-ink-900">Summary</label>
-            <textarea
-              v-model="form.summary"
-              rows="3"
-              class="w-full rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm text-ink-900 shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-            />
-          </div>
+          <FormTextarea
+            v-model="form.summary"
+            name="summary"
+            label="Summary"
+            :rows="3"
+            :error="form.errors.summary"
+          />
           <CustomFieldInputs
             v-model="form.custom_fields"
             :fields="customFields"

@@ -1,0 +1,29 @@
+{
+  "menu.PAYROLL_DASHBOARD": "Payroll Dashboard",
+  "menu.PAYROLL_RUN": "Payroll Runs",
+  "menu.PAYROLL_SLIPS": "Employee Payslips",
+  "menu.PAYROLL_COMPONENTS": "Salary Components",
+  "menu.PAYROLL_TAX": "Income Tax (PPh 21) & BPJS",
+
+  "payroll.run": "Payroll Run",
+  "payroll.runs": "Payroll Runs",
+  "payroll.runs_subtitle": "Monthly salary calculation, tax withholdings, social security deductions, and payslips.",
+  "payroll.new_run": "Run New Payroll",
+  "payroll.empty_runs_title": "No payroll runs recorded",
+  "payroll.empty_runs_desc": "Initiate your first monthly payroll processing for staff.",
+
+  "payroll.slip": "Payslip",
+  "payroll.slips": "Employee Payslips",
+  "payroll.basic_salary": "Base Salary",
+  "payroll.allowance": "Allowance",
+  "payroll.deduction": "Deduction",
+  "payroll.net_salary": "Take Home Pay",
+  "payroll.tax_pph21": "Income Tax (PPh 21)",
+  "payroll.bpjs_tk": "Employment Insurance (BPJS TK)",
+  "payroll.bpjs_kes": "Health Insurance (BPJS Kes)",
+
+  "payroll.msg.run_calculated": "Payroll calculation completed successfully.",
+  "payroll.msg.run_paid": "Payroll paid and general ledger entries recorded.",
+
+  "payroll.err.run_already_paid": "This payroll run is already paid and locked."
+}

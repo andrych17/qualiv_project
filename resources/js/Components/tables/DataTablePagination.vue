@@ -1,6 +1,9 @@
 <!-- ponytail: Simple pagination component for Inertia links matching Laravel standard link structure -->
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3'
+import { useI18n } from '@/Composables/useI18n'
+
+const { t } = useI18n()
 
 defineProps<{
   links: Array<{
@@ -20,21 +23,21 @@ defineProps<{
         :class="[!links[0].url ? 'pointer-events-none opacity-50' : '']"
         class="relative inline-flex items-center rounded-md border border-border bg-surface-0 px-4 py-2 text-sm font-medium text-ink-900 shadow-xs hover:bg-surface-50"
       >
-        Previous
+        {{ t('common.previous') }}
       </Link>
       <Link
         :href="links[links.length - 1].url || '#'"
         :class="[!links[links.length - 1].url ? 'pointer-events-none opacity-50' : '']"
         class="relative ml-3 inline-flex items-center rounded-md border border-border bg-surface-0 px-4 py-2 text-sm font-medium text-ink-900 shadow-xs hover:bg-surface-50"
       >
-        Next
+        {{ t('common.next') }}
       </Link>
     </div>
     
     <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
       <div>
         <p class="text-sm text-ink-600">
-          Showing pagination pages
+          {{ t('table.page') }}
         </p>
       </div>
       <div>

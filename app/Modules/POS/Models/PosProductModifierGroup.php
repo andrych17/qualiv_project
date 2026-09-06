@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PosProductModifierGroup extends Model
 {
     protected $table = 'POS.pos_product_modifier_groups';
+
     public $timestamps = false;
 
     protected $fillable = [

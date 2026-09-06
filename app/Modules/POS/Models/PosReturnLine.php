@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PosReturnLine extends Model
 {
     protected $table = 'POS.pos_return_lines';
+
     public $timestamps = false;
 
     protected $fillable = [

@@ -1,0 +1,27 @@
+{
+  "menu.POS_DASHBOARD": "Dashboard Kasir",
+  "menu.POS_TERMINALS": "Terminal Kasir",
+  "menu.POS_SESSIONS": "Sesi Buka/Tutup Kasir",
+  "menu.POS_CART": "Layar Transaksi Kasir",
+  "menu.POS_PROMOTIONS": "Diskon & Program Loyalitas",
+
+  "pos.terminal": "Terminal Kasir",
+  "pos.session": "Sesi Kasir",
+  "pos.cashier": "Kasir",
+  "pos.opening_cash": "Modal Kas Awal",
+  "pos.closing_cash": "Kas Akhir",
+  "pos.receipt": "Struk Belanja",
+  "pos.payment_method": "Metode Pembayaran",
+  "pos.cash": "Tunai",
+  "pos.qris": "QRIS",
+  "pos.debit_card": "Kartu Debit",
+  "pos.credit_card": "Kartu Kredit",
+  "pos.change": "Kembalian",
+
+  "pos.msg.session_opened": "Sesi kasir berhasil dibuka.",
+  "pos.msg.session_closed": "Sesi kasir berhasil ditutup.",
+  "pos.msg.transaction_completed": "Transaksi pembayaran berhasil diproses.",
+
+  "pos.err.session_already_open": "Terminal ini telah memiliki sesi kasir yang sedang aktif.",
+  "pos.err.no_active_session": "Harap buka sesi kasir terlebih dahulu sebelum memulai transaksi."
+}

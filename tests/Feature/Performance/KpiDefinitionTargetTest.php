@@ -140,7 +140,7 @@ class KpiDefinitionTargetTest extends TestCase
         });
 
         $this->get("/performance/targets/{$targetId}/edit")->assertOk()
-            ->assertInertia(fn ($page) => $page->component('Performance/Targets/Edit')->where('target.target_value', 100.0));
+            ->assertInertia(fn ($page) => $page->component('Performance/Targets/Edit')->where('target.target_value', 100));
 
         $this->put("/performance/targets/{$targetId}", [
             'kpi_id' => $kpiId,

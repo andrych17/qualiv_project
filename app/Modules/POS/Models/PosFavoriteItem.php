@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PosFavoriteItem extends Model
 {
     protected $table = 'POS.pos_favorite_items';
+
     public $timestamps = false;
 
     protected $fillable = [

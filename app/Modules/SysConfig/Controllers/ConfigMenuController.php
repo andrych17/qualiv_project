@@ -28,9 +28,10 @@ class ConfigMenuController extends Controller
         $filters = $request->only('search', 'status', 'header', 'sort', 'direction', 'per_page');
 
         $menus = ConfigMenu::query()
+            ->with('parent:id,code,menu_caption')
             ->filter($filters)
             ->tap(fn ($query) => TableQuery::applySort($query, $filters['sort'] ?? null, $filters['direction'] ?? null, self::SORTABLE, 'seq'))
-            ->paginate(TableQuery::perPage(isset($filters['per_page']) ? (int) $filters['per_page'] : null, 20))
+            ->paginate(TableQuery::perPage(isset($filters['per_page']) ? (int) $filters['per_page'] : null, 24))
             ->withQueryString()
             ->through(fn (ConfigMenu $m) => [
                 'id' => $m->id,
@@ -43,6 +44,9 @@ class ConfigMenuController extends Controller
                 'status_code' => $m->status_code,
                 'status_label' => $m->status_code === 'A' ? 'active' : 'inactive',
                 'module_code' => $m->module_code,
+                'parent_id' => $m->parent_id,
+                'parent_code' => $m->parent?->code,
+                'parent_caption' => $m->parent?->menu_caption,
             ]);
 
         $headers = ConfigMenu::query()
@@ -54,10 +58,19 @@ class ConfigMenuController extends Controller
             ->values()
             ->all();
 
+        $stats = [
+            'total' => ConfigMenu::count(),
+            'active' => ConfigMenu::where('status_code', 'A')->count(),
+            'inactive' => ConfigMenu::where('status_code', '!=', 'A')->count(),
+            'top_level' => ConfigMenu::whereNull('parent_id')->count(),
+            'headers_count' => count($headers),
+        ];
+
         return Inertia::render('Config/Menus/Index', [
             'items' => $menus,
             'filters' => $filters,
             'headers' => $headers,
+            'stats' => $stats,
         ]);
     }
 

@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class PosKdsStation extends Model
 {
     protected $table = 'POS.pos_kds_stations';
+
     public $timestamps = false;
 
     protected $fillable = [

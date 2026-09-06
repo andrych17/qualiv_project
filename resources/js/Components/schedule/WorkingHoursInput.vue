@@ -2,6 +2,9 @@
      toggle enables/disables that day. No rows at all = available 24/7. -->
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from '@/Composables/useI18n'
+
+const { t } = useI18n()
 
 export interface WorkingHourRow {
   day_of_week: number
@@ -17,15 +20,15 @@ const emit = defineEmits<{
   'update:modelValue': [value: WorkingHourRow[]]
 }>()
 
-const DAYS = [
-  { value: 0, label: 'Sunday' },
-  { value: 1, label: 'Monday' },
-  { value: 2, label: 'Tuesday' },
-  { value: 3, label: 'Wednesday' },
-  { value: 4, label: 'Thursday' },
-  { value: 5, label: 'Friday' },
-  { value: 6, label: 'Saturday' },
-]
+const DAYS = computed(() => [
+  { value: 0, label: t('days.sun') },
+  { value: 1, label: t('days.mon') },
+  { value: 2, label: t('days.tue') },
+  { value: 3, label: t('days.wed') },
+  { value: 4, label: t('days.thu') },
+  { value: 5, label: t('days.fri') },
+  { value: 6, label: t('days.sat') },
+])
 
 const rowFor = (day: number) => props.modelValue.find((r) => r.day_of_week === day)
 
@@ -46,8 +49,8 @@ const updateTime = (day: number, field: 'start_time' | 'end_time', value: string
 
 <template>
   <div class="space-y-2">
-    <p class="text-xs font-semibold uppercase tracking-wide text-ink-600">Working hours</p>
-    <p class="text-xs text-ink-600">Leave every day off to treat this resource as available 24/7.</p>
+    <p class="text-xs font-semibold uppercase tracking-wide text-ink-600">{{ t('schedule.working_hours') }}</p>
+    <p class="text-xs text-ink-600">{{ t('schedule.working_hours_desc') }}</p>
     <div class="space-y-2">
       <div v-for="d in DAYS" :key="d.value" class="flex items-center gap-3">
         <label class="flex w-32 items-center gap-2 text-sm text-ink-900">
@@ -65,7 +68,7 @@ const updateTime = (day: number, field: 'start_time' | 'end_time', value: string
             class="rounded-md border border-border bg-surface-0 text-ink-900 px-2 py-1 text-sm shadow-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
             @input="updateTime(d.value, 'start_time', ($event.target as HTMLInputElement).value)"
           />
-          <span class="text-sm text-ink-600">to</span>
+          <span class="text-sm text-ink-600">–</span>
           <input
             type="time"
             :value="rowFor(d.value)?.end_time"

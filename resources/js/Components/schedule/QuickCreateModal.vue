@@ -10,6 +10,9 @@ import FormInput from '@/Components/forms/FormInput.vue'
 import FormRadioGroup from '@/Components/forms/FormRadioGroup.vue'
 import FormSelect from '@/Components/forms/FormSelect.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
+import { useI18n } from '@/Composables/useI18n'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   show: boolean
@@ -67,34 +70,33 @@ const submit = () => {
 <template>
   <Modal :show="show" max-width="sm" @close="emit('close')">
     <div class="p-6">
-      <h2 class="font-serif text-lg font-semibold text-ink-900">Quick add</h2>
-      <p class="mt-1 text-sm text-ink-600">Add a task or event without leaving the calendar.</p>
+      <h2 class="font-serif text-lg font-semibold text-ink-900">{{ t('schedule.quick_add') }}</h2>
+      <p class="mt-1 text-sm text-ink-600">{{ t('schedule.quick_add_desc') }}</p>
 
       <form class="mt-4 space-y-4" @submit.prevent="submit">
         <FormRadioGroup
           v-model="form.type"
           name="type"
-          label="Type"
+          :label="t('schedule.resource_type')"
           inline
           :options="[
-            { label: 'Task', value: 'task' },
-            { label: 'Event', value: 'event' },
+            { label: t('schedule.tasks'), value: 'task' },
+            { label: t('schedule.events'), value: 'event' },
           ]"
         />
-        <FormInput v-model="form.title" name="title" label="Title" :error="form.errors.title" required />
+        <FormInput v-model="form.title" name="title" :label="t('schedule.task_title')" :error="form.errors.title" required />
         <FormInput
           v-model="form.datetime"
           name="datetime"
           type="datetime-local"
-          :label="form.type === 'task' ? 'Due' : 'Start'"
+          :label="form.type === 'task' ? t('schedule.due_date') : t('schedule.start_time')"
           required
         />
         <FormSelect
           v-if="form.type === 'event'"
           v-model="form.resource_id"
           name="resource_id"
-          label="Resource"
-          placeholder="None"
+          :label="t('schedule.resources')"
           :options="resources.map((r) => ({ label: r.name, value: r.id }))"
         />
 
@@ -109,9 +111,9 @@ const submit = () => {
             class="inline-flex items-center justify-center rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm font-semibold text-ink-900 shadow-sm transition hover:bg-surface-50"
             @click="emit('close')"
           >
-            Cancel
+            {{ t('common.cancel') }}
           </button>
-          <PrimaryButton type="submit" :disabled="form.processing">Create</PrimaryButton>
+          <PrimaryButton type="submit" :disabled="form.processing">{{ t('common.create') }}</PrimaryButton>
         </div>
       </form>
     </div>

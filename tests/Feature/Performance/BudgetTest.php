@@ -307,7 +307,7 @@ class BudgetTest extends TestCase
         $response = $this->get("/performance/budgets/{$budgetId}/edit")->assertOk();
         $response->assertInertia(fn ($page) => $page
             ->where('budget.lines.0.variance.actual_source', 'gl')
-            ->where('budget.lines.0.variance.actual_value', 1200000.0));
+            ->where('budget.lines.0.variance.actual_value', 1200000));
     }
 
     public function test_variance_falls_back_to_manual_actual_when_no_mapping_exists(): void
@@ -325,7 +325,7 @@ class BudgetTest extends TestCase
         $this->get("/performance/budgets/{$budgetId}/edit")->assertOk()
             ->assertInertia(fn ($page) => $page
                 ->where('budget.lines.0.variance.actual_source', 'manual')
-                ->where('budget.lines.0.variance.actual_value', 900.0));
+                ->where('budget.lines.0.variance.actual_value', 900));
     }
 
     public function test_variance_is_null_when_neither_gl_nor_manual_actual_exists(): void

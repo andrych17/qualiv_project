@@ -107,21 +107,35 @@ class MesDashboardTest extends TestCase
 
             ProductionOutput::query()->create(['order_id' => $order->id, 'operation_ref' => $op->id, 'output_type' => ProductionOutput::TYPE_FINISHED, 'product_id' => $product->id, 'qty' => 7, 'uom_code' => 'PCS', 'created_at' => $day->copy()->addHours(9)]);
             ProductionOutput::query()->create(['order_id' => $order->id, 'operation_ref' => $op->id, 'output_type' => ProductionOutput::TYPE_WASTE, 'product_id' => $product->id, 'qty' => 3, 'uom_code' => 'PCS', 'reason_code' => 'test', 'disposition' => 'scrap', 'created_at' => $day->copy()->addHours(9)]);
+
+            // lineRunningState()'s other three branches: no machines => idle, a down machine =>
+            // stopped, a maintenance machine (and no down/running machine) => maintenance.
+            WorkCenter::query()->create(['code' => 'WC-LINE-EMPTY', 'name' => 'Line Empty', 'type' => 'discrete']);
+            $downWc = WorkCenter::query()->create(['code' => 'WC-LINE-DOWN', 'name' => 'Line Down', 'type' => 'discrete']);
+            Machine::query()->create(['work_center_id' => $downWc->id, 'code' => 'M-LINE-DOWN', 'name' => 'Down Press', 'status' => Machine::STATUS_DOWN]);
+            $maintWc = WorkCenter::query()->create(['code' => 'WC-LINE-MAINT', 'name' => 'Line Maint', 'type' => 'discrete']);
+            Machine::query()->create(['work_center_id' => $maintWc->id, 'code' => 'M-LINE-MAINT', 'name' => 'Maint Press', 'status' => Machine::STATUS_MAINTENANCE]);
+            // A machine present but in neither down/maintenance/running status — the final "idle" fallback.
+            $setupWc = WorkCenter::query()->create(['code' => 'WC-LINE-SETUP', 'name' => 'Line Setup', 'type' => 'discrete']);
+            Machine::query()->create(['work_center_id' => $setupWc->id, 'code' => 'M-LINE-SETUP', 'name' => 'Setup Press', 'status' => Machine::STATUS_SETUP]);
         });
 
         $this->get("/mes/dashboards/line?date={$day->toDateString()}")
             ->assertOk()
             ->assertInertia(fn ($page) => $page->component('MES/Dashboards/Line')
                 ->where('lines', function ($lines) {
-                    $row = collect($lines)->firstWhere('code', 'WC-LINE');
+                    $byCode = collect($lines)->keyBy('code');
 
                     // Whole-number floats round-trip through JSON as bare integers (no
                     // JSON_PRESERVE_ZERO_FRACTION), so compare loosely here.
-                    return $row !== null
-                        && $row['running_state'] === 'running'
-                        && $row['target_qty'] == 10
-                        && $row['actual_qty'] == 7
-                        && $row['reject_qty'] == 3;
+                    return $byCode['WC-LINE']['running_state'] === 'running'
+                        && $byCode['WC-LINE']['target_qty'] == 10
+                        && $byCode['WC-LINE']['actual_qty'] == 7
+                        && $byCode['WC-LINE']['reject_qty'] == 3
+                        && $byCode['WC-LINE-EMPTY']['running_state'] === 'idle'
+                        && $byCode['WC-LINE-DOWN']['running_state'] === 'stopped'
+                        && $byCode['WC-LINE-MAINT']['running_state'] === 'maintenance'
+                        && $byCode['WC-LINE-SETUP']['running_state'] === 'idle';
                 })
             );
     }

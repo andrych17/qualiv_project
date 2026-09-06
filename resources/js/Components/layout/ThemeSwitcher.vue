@@ -19,18 +19,18 @@ const handleSelect = (themeId: string) => {
 </script>
 
 <template>
-  <!-- Only render for administrators/users with theme management permission -->
-  <div v-if="canManageTheme" class="relative z-50">
+  <!-- Render for all authenticated users without access restriction -->
+  <div class="relative z-50">
     <!-- Single Palette Button -->
     <button
       type="button"
       @click="isOpen = !isOpen"
       class="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-surface-0 text-ink-600 shadow-xs transition-colors hover:bg-surface-50 hover:text-ink-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
-      title="Palet Warna & Tema Tenant (Admin)"
+      title="Palet Warna & Tema Tampilan"
       :aria-expanded="isOpen"
     >
       <Palette class="h-4 w-4" />
-      <span class="sr-only">Palet Warna Tenant</span>
+      <span class="sr-only">Palet Warna & Tema</span>
     </button>
 
     <!-- Backdrop Click-catcher -->
@@ -46,8 +46,8 @@ const handleSelect = (themeId: string) => {
       class="absolute right-0 z-50 mt-2 w-80 max-w-[calc(100vw-1.5rem)] rounded-lg border border-border bg-surface-0 p-2 shadow-2xl ring-1 ring-black/10"
     >
       <div class="border-b border-border px-3 py-2">
-        <p class="text-xs font-semibold uppercase tracking-wider text-ink-600">Palet Warna Tenant</p>
-        <p class="mt-0.5 text-xs text-ink-600">Pilih skema warna visual perusahaan:</p>
+        <p class="text-xs font-semibold uppercase tracking-wider text-ink-600">Palet Warna & Tema</p>
+        <p class="mt-0.5 text-xs text-ink-600">Pilih skema warna visual favorit Anda:</p>
       </div>
 
       <div class="py-1 max-h-80 overflow-y-auto space-y-1">
@@ -56,7 +56,7 @@ const handleSelect = (themeId: string) => {
           :key="theme.id"
           type="button"
           @click="handleSelect(theme.id)"
-          class="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-xs transition-colors"
+          class="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-xs transition-colors cursor-pointer"
           :class="activeTheme === theme.id ? 'bg-surface-50 font-semibold text-ink-900 ring-1 ring-border' : 'text-ink-600 hover:bg-surface-50 hover:text-ink-900'"
         >
           <div class="flex items-center gap-2.5">
@@ -80,7 +80,8 @@ const handleSelect = (themeId: string) => {
         </button>
       </div>
 
-      <div class="border-t border-border pt-1 mt-1">
+      <!-- Admin link if user has tenant theme management permission -->
+      <div v-if="canManageTheme" class="border-t border-border pt-1 mt-1">
         <Link
           :href="route('config.theme.index')"
           @click="isOpen = false"
@@ -88,7 +89,7 @@ const handleSelect = (themeId: string) => {
         >
           <span class="flex items-center gap-2">
             <Settings class="h-3.5 w-3.5" />
-            <span>Pengaturan Tema Lengkap</span>
+            <span>Pengaturan Tema Tenant (Admin)</span>
           </span>
           <ChevronRight class="h-3.5 w-3.5 text-ink-600" />
         </Link>

@@ -37,4 +37,9 @@ class CashTransfer extends Model
     {
         return $this->belongsTo(BankAccount::class, 'to_bank_account_id');
     }
+
+    public function journal()
+    {
+        return $this->belongsTo(GlJournal::class);
+    }
 }

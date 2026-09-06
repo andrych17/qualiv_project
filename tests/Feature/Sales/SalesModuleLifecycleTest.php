@@ -5,9 +5,11 @@ namespace Tests\Feature\Sales;
 use App\Models\User;
 use App\Modules\Accounting\Models\Account;
 use App\Modules\Accounting\Models\ArCreditNote;
+use App\Modules\Accounting\Models\ArInvoice;
 use App\Modules\Accounting\Models\Company;
 use App\Modules\Accounting\Models\Currency;
 use App\Modules\Accounting\Services\AccountService;
+use App\Modules\Accounting\Services\ArInvoiceService;
 use App\Modules\CRM\Models\Partner;
 use App\Modules\CRM\Models\PartnerRoleType;
 use App\Modules\Sales\Models\Contract;
@@ -389,7 +391,7 @@ class SalesModuleLifecycleTest extends TestCase
                 'line_total' => 1000000,
             ]);
 
-            $invoice = app(\App\Modules\Accounting\Services\ArInvoiceService::class)->create([
+            $invoice = app(ArInvoiceService::class)->create([
                 'company_id' => $company->id,
                 'partner_id' => $partner->id,
                 'currency_code' => 'IDR',
@@ -467,7 +469,7 @@ class SalesModuleLifecycleTest extends TestCase
                 'status' => SalesOrder::STATUS_CONFIRMED,
             ]);
 
-            $invoice = app(\App\Modules\Accounting\Services\ArInvoiceService::class)->create([
+            $invoice = app(ArInvoiceService::class)->create([
                 'company_id' => $company->id,
                 'partner_id' => $partner->id,
                 'currency_code' => 'IDR',
@@ -485,7 +487,7 @@ class SalesModuleLifecycleTest extends TestCase
             // outer HTTP round-trip below only proves the route/page/auth wiring, since
             // asserting exact paginated data across that boundary is flaky under the full
             // suite (session-tenancy resolution timing, unrelated to this query's correctness).
-            $matching = \App\Modules\Accounting\Models\ArInvoice::whereIn('subject_type', ['sales.so_hdrs', 'sales.contr_subscriptions'])->get();
+            $matching = ArInvoice::whereIn('subject_type', ['sales.so_hdrs', 'sales.contr_subscriptions'])->get();
             $this->assertCount(1, $matching);
             $this->assertEquals($invoiceId, $matching->first()->id);
         });

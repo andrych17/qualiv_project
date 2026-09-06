@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { Head } from '@inertiajs/vue3';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
+import { computed } from 'vue'
+import { Head } from '@inertiajs/vue3'
+import PrimaryButton from '@/Components/PrimaryButton.vue'
+import { useI18n } from '@/Composables/useI18n'
 import {
   ShieldAlert,
   FileQuestion,
@@ -9,33 +10,35 @@ import {
   Hammer,
   AlertTriangle,
   ArrowLeft
-} from 'lucide-vue-next';
+} from 'lucide-vue-next'
+
+const { t } = useI18n()
 
 const props = defineProps<{
-  status: number;
-}>();
+  status: number
+}>()
 
 const title = computed(() => {
   return (
     {
-      403: 'Akses Ditolak',
-      404: 'Halaman Tidak Ditemukan',
-      500: 'Terjadi Kesalahan Server',
-      503: 'Layanan Sedang Pemeliharaan',
-    }[props.status] || 'Terjadi Kesalahan'
-  );
-});
+      403: t('error.403_title'),
+      404: t('error.404_title'),
+      500: t('error.500_title'),
+      503: t('error.503_title'),
+    }[props.status] || t('error.generic_title')
+  )
+})
 
 const description = computed(() => {
   return (
     {
-      403: 'Maaf, Anda tidak memiliki izin untuk mengakses halaman atau modul ini.',
-      404: 'Halaman yang Anda tuju tidak ditemukan atau URL mungkin telah berubah.',
-      500: 'Terjadi kendala pada sistem kami. Tim teknis sedang menangani masalah ini.',
-      503: 'Sistem sedang dalam proses pemeliharaan atau peningkatan performa. Silakan coba beberapa saat lagi.',
-    }[props.status] || 'Terjadi kesalahan yang tidak terduga pada aplikasi.'
-  );
-});
+      403: t('error.403_desc'),
+      404: t('error.404_desc'),
+      500: t('error.500_desc'),
+      503: t('error.503_desc'),
+    }[props.status] || t('error.generic_desc')
+  )
+})
 
 const iconComponent = computed(() => {
   return (
@@ -45,8 +48,8 @@ const iconComponent = computed(() => {
       500: ServerCrash,
       503: Hammer,
     }[props.status] || AlertTriangle
-  );
-});
+  )
+})
 </script>
 
 <template>
@@ -65,9 +68,9 @@ const iconComponent = computed(() => {
       </div>
 
       <div class="pt-4 flex flex-col sm:flex-row gap-3 justify-center">
-        <PrimaryButton href="/projects/1" class="w-full justify-center">
+        <PrimaryButton href="/dashboard" class="w-full justify-center">
           <ArrowLeft class="w-4 h-4 mr-1.5" />
-          Kembali ke Projects
+          {{ t('error.back_to_dashboard') }}
         </PrimaryButton>
       </div>
     </div>

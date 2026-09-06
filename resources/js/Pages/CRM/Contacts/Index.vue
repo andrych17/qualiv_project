@@ -1,4 +1,3 @@
-<!-- ponytail: CRM Contacts (§3B) — Status Rail + design-system components, mirrors Legal Cases -->
 <script setup lang="ts">
 import { Link, router } from '@inertiajs/vue3'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
@@ -7,9 +6,12 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import CrmSubNav from '@/Components/crm/CrmSubNav.vue'
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { debounce } from '@/Composables/debounce'
 import { useConfirm } from '@/Composables/useConfirmDialog'
+import { useI18n } from '@/Composables/useI18n'
+
+const { t } = useI18n()
 
 interface ContactRow {
   id: number
@@ -43,26 +45,26 @@ const sort = ref<SortState>(
 const selected = ref<Array<string | number>>([])
 const perPage = ref(Number(props.filters.per_page) || props.contacts.per_page)
 
-const filterFields: FilterFieldDef[] = [
+const filterFields = computed<FilterFieldDef[]>(() => [
   {
     key: 'status',
-    label: 'Status',
+    label: t('common.status'),
     type: 'select',
     options: [
-      { label: 'Active', value: 'active' },
-      { label: 'Inactive', value: 'inactive' },
+      { label: t('common.active'), value: 'active' },
+      { label: t('common.inactive'), value: 'inactive' },
     ],
   },
-]
+])
 
-const columns = [
-  { key: 'name', label: 'Name', sortable: true },
-  { key: 'title_position', label: 'Title' },
-  { key: 'parent_name', label: 'Company' },
-  { key: 'is_active', label: 'Status' },
-  { key: 'created_at_formatted', label: 'Added', sortable: true, sortKey: 'created_at' },
-  { key: 'actions', label: 'Actions', align: 'right' as const },
-]
+const columns = computed(() => [
+  { key: 'name', label: t('crm.contact'), sortable: true },
+  { key: 'title_position', label: t('crm.position_title') },
+  { key: 'parent_name', label: t('crm.company') },
+  { key: 'is_active', label: t('common.status') },
+  { key: 'created_at_formatted', label: t('crm.added'), sortable: true, sortKey: 'created_at' },
+  { key: 'actions', label: t('common.actions'), align: 'right' as const },
+])
 
 watch([search, filters, sort, perPage], debounce(() => {
   selected.value = []
@@ -80,18 +82,18 @@ const { confirm } = useConfirm()
 const confirmDeactivate = (item: ContactRow | Record<string, unknown>) => {
   const row = item as ContactRow
   confirm({
-    title: `Deactivate ${row.name}?`,
+    title: t('crm.deactivate_contact_title', { name: row.name }),
     variant: 'destructive',
-    confirmText: 'Deactivate',
+    confirmText: t('crm.deactivate'),
     onConfirm: () => router.delete(route('crm.contacts.destroy', row.id)),
   })
 }
 
 const confirmBulkDeactivate = () => {
   confirm({
-    title: `Deactivate ${selected.value.length} selected contact(s)?`,
+    title: t('crm.deactivate_bulk_contacts_title', { count: selected.value.length }),
     variant: 'destructive',
-    confirmText: 'Deactivate',
+    confirmText: t('crm.deactivate'),
     onConfirm: () =>
       router.delete(route('crm.contacts.bulkDestroy'), {
         data: { ids: selected.value },
@@ -104,11 +106,11 @@ const confirmBulkDeactivate = () => {
 <template>
   <AppLayout>
     <PageHeader
-      title="Contacts"
-      description="People — whether or not they're tied to a company."
+      :title="t('crm.contacts')"
+      :description="t('crm.contacts_desc')"
     >
       <template #actions>
-        <PrimaryButton :href="route('crm.contacts.create')">Add contact</PrimaryButton>
+        <PrimaryButton :href="route('crm.contacts.create')">{{ t('crm.add_contact') }}</PrimaryButton>
       </template>
     </PageHeader>
 
@@ -126,23 +128,23 @@ const confirmBulkDeactivate = () => {
         selectable
         sticky-header
         storage-key="crm.contacts"
-        search-placeholder="Search name…"
+        :search-placeholder="t('common.search')"
         :filter-fields="filterFields"
         export-filename="crm-contacts"
         :total="contacts.total"
         :from="contacts.from"
         :to="contacts.to"
         :links="contacts.links"
-        empty-title="No contacts yet"
-        empty-description="Add your first contact to start building the partner registry."
+        :empty-title="t('crm.empty_contacts_title')"
+        :empty-description="t('crm.empty_contacts_desc')"
       >
         <template #bulk-actions>
           <button
             type="button"
-            class="text-sm font-medium text-signal-danger hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            class="text-sm font-medium text-signal-danger hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent cursor-pointer"
             @click="confirmBulkDeactivate"
           >
-            Deactivate selected
+            {{ t('crm.deactivate_selected') }}
           </button>
         </template>
         <template #cell-is_active="{ item }">
@@ -157,14 +159,14 @@ const confirmBulkDeactivate = () => {
               :href="route('crm.contacts.edit', item.id)"
               class="text-sm font-medium text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             >
-              Edit
+              {{ t('common.edit') }}
             </Link>
             <button
               type="button"
-              class="text-sm font-medium text-signal-danger hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              class="text-sm font-medium text-signal-danger hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent cursor-pointer"
               @click="confirmDeactivate(item)"
             >
-              Deactivate
+              {{ t('crm.deactivate') }}
             </button>
           </div>
         </template>

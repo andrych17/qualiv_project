@@ -1,4 +1,3 @@
-<!-- ponytail: WNE §3B — workflow definition list. Landing page until §3A's dashboard ships. -->
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { Link } from '@inertiajs/vue3'
@@ -8,6 +7,9 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import DataTable, { type SortState } from '@/Components/tables/DataTable.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import WneSubNav from '@/Components/wne/WneSubNav.vue'
+import { useI18n } from '@/Composables/useI18n'
+
+const { t } = useI18n()
 
 type DefinitionRow = {
   id: number
@@ -24,13 +26,13 @@ const props = defineProps<{ definitions: DefinitionRow[] }>()
 const search = ref('')
 const sort = ref<SortState>(null)
 
-const columns = [
-  { key: 'name', label: 'Name', sortable: true },
-  { key: 'code', label: 'Code', sortable: true },
-  { key: 'category', label: 'Category' },
-  { key: 'status', label: 'Status' },
-  { key: 'version', label: 'Version' },
-]
+const columns = computed(() => [
+  { key: 'name', label: t('wne.name'), sortable: true },
+  { key: 'code', label: t('wne.code'), sortable: true },
+  { key: 'category', label: t('wne.category') },
+  { key: 'status', label: t('common.status') },
+  { key: 'version', label: t('wne.version') },
+])
 
 const filtered = computed(() => {
   let list = props.definitions
@@ -53,11 +55,11 @@ const filtered = computed(() => {
 <template>
   <AppLayout>
     <PageHeader
-      title="Workflows"
-      description="Process definitions — steps, transitions, and who does what (WNE §3B)."
+      :title="t('wne.workflows')"
+      :description="t('wne.workflows_desc')"
     >
       <template #actions>
-        <PrimaryButton :href="route('wne.workflows.create')">New workflow</PrimaryButton>
+        <PrimaryButton :href="route('wne.workflows.create')">{{ t('wne.new_workflow') }}</PrimaryButton>
       </template>
     </PageHeader>
 
@@ -69,10 +71,10 @@ const filtered = computed(() => {
         :items="filtered"
         v-model:sort="sort"
         v-model:search="search"
-        search-placeholder="Search name or code…"
+        :search-placeholder="t('common.search')"
         status-rail-key="status"
-        empty-title="No workflows yet"
-        empty-description="Create your first workflow definition to get started."
+        :empty-title="t('wne.empty_workflows_title')"
+        :empty-description="t('wne.empty_workflows_desc')"
       >
         <template #cell-name="{ item }">
           <Link :href="route('wne.workflows.edit', item.id)" class="text-sm font-medium text-accent hover:underline">

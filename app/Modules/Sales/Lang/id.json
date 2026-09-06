@@ -1,0 +1,68 @@
+{
+  "menu.SALES_DASHBOARD": "Dashboard Penjualan",
+  "menu.SALES_QUOTATIONS": "Penawaran Harga (Quotation)",
+  "menu.SALES_ORDERS": "Pesanan Penjualan (SO)",
+  "menu.SALES_INVOICES": "Faktur Penjualan (Invoice)",
+  "menu.SALES_COMMISSIONS": "Komisi Sales",
+  "menu.SALES_PRICE_LISTS": "Daftar Harga & Promo",
+  "menu.SALES_DELIVERIES": "Pengiriman Pesanan (DO)",
+  "menu.SALES_RETURNS": "Retur Penjualan",
+  "menu.SALES_CONTRACTS": "Kontrak Penjualan",
+
+  "sales.quotation": "Penawaran Harga",
+  "sales.quotations": "Penawaran Harga (Quotation)",
+  "sales.quotations_subtitle": "Kelola estimasi harga, negosiasi pelanggan, dan konversi ke pesanan penjualan.",
+  "sales.new_quotation": "Buat Penawaran Baru",
+  "sales.empty_quotations_title": "Belum ada penawaran harga",
+  "sales.empty_quotations_desc": "Buat penawaran harga pertama untuk prospek atau pelanggan.",
+
+  "sales.order": "Pesanan Penjualan (SO)",
+  "sales.orders": "Pesanan Penjualan (Sales Orders)",
+  "sales.orders_subtitle": "Kelola pemenuhan pesanan, pengiriman barang, dan orkestrasi penagihan.",
+  "sales.new_order": "Buat Pesanan Baru",
+  "sales.empty_orders_title": "Belum ada pesanan penjualan",
+  "sales.empty_orders_desc": "Buat pesanan penjualan baru atau konversikan dari penawaran harga.",
+
+  "sales.invoice": "Faktur Penjualan",
+  "sales.invoices": "Faktur Penjualan (Invoices)",
+  "sales.order_number": "Nomor SO",
+  "sales.order_date": "Tanggal Pesanan",
+  "sales.quote_number": "Nomor Penawaran",
+  "sales.customer": "Pelanggan",
+  "sales.salesperson": "Tenaga Penjual",
+  "sales.source": "Sumber",
+  "sales.fulfillment": "Pemenuhan",
+  "sales.subtotal": "Subtotal Penjualan",
+  "sales.tax": "PPN / Pajak",
+  "sales.discount": "Potongan Harga",
+  "sales.total_amount": "Total Nilai",
+  "sales.credit_limit": "Batas Kredit",
+  "sales.credit_used": "Kredit Terpakai",
+  "sales.search_orders_placeholder": "Cari berdasarkan nomor SO atau pelanggan...",
+  "sales.search_quotes_placeholder": "Cari berdasarkan nomor penawaran atau pelanggan...",
+
+  "sales.deliveries": "Pengiriman Pesanan",
+  "sales.deliveries_subtitle": "Surat jalan pengiriman, tracking ekspedisi, dan bukti serah terima barang.",
+  "sales.new_delivery": "Buat Surat Jalan",
+  "sales.empty_deliveries_title": "Belum ada surat jalan pengiriman",
+  "sales.empty_deliveries_desc": "Terbitkan surat jalan dari pesanan penjualan yang telah dikonfirmasi.",
+
+  "sales.returns": "Retur Penjualan",
+  "sales.returns_subtitle": "Penerimaan kembali barang retur, nota retur, dan penyesuaian saldo piutang.",
+  "sales.new_return": "Buat Retur Penjualan",
+  "sales.empty_returns_title": "Belum ada transaksi retur",
+  "sales.empty_returns_desc": "Catat pengembalian barang dari pelanggan yang diverifikasi.",
+
+  "sales.commissions": "Komisi Sales",
+  "sales.commissions_subtitle": "Perhitungan insentif dan komisi tim penjualan berbasis target dan pencapaian.",
+
+  "sales.price_lists": "Daftar Harga & Promo",
+  "sales.price_lists_subtitle": "Skema harga khusus tiering pelanggan, diskon grosir, dan kode promo.",
+
+  "sales.msg.quotation_created": "Penawaran harga berhasil dibuat.",
+  "sales.msg.order_confirmed": "Pesanan penjualan berhasil dikonfirmasi.",
+  "sales.msg.invoice_generated": "Faktur penjualan berhasil diterbitkan.",
+
+  "sales.err.credit_limit_exceeded": "Transaksi melebihi batas kredit pelanggan yang diizinkan.",
+  "sales.err.order_locked": "Pesanan penjualan sudah dikonfirmasi dan tidak dapat diubah."
+}

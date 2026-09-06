@@ -1,10 +1,33 @@
-// True module-scope state — unlike a `<script setup>` block (which compiles into the
-// component's setup() function and therefore re-initializes on every mount), a plain .ts
-// module is only evaluated once per browser session, so state kept here survives every
-// remount AppSidebar.vue goes through on Inertia navigation (AppLayout is wrapped inline
-// per-page, not a persistent layout — see AppSidebar.vue's own docblock).
+// ponytail: Module-scope sidebar state for scroll position, accordion state, and collapse toggle.
+// openMenus and isCollapsed are shared refs rather than plain values because the desktop nav
+// and the mobile drawer are two separate SidebarNav instances that must agree on what is open.
+import { ref, watch } from 'vue'
+
+const STORAGE_KEY = 'erp_sidebar_collapsed'
+
+const readCollapsed = (): boolean => {
+  try {
+    return localStorage.getItem(STORAGE_KEY) === 'true'
+  } catch {
+    // Private mode or blocked storage — fall back to expanded.
+    return false
+  }
+}
+
+export const openMenus = ref<Record<string, boolean>>({})
+export const isCollapsed = ref(readCollapsed())
+
+watch(isCollapsed, (value) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, String(value))
+  } catch {
+    // Ignore localStorage errors
+  }
+})
+
+// Scroll is deliberately not persisted to localStorage: it should survive an Inertia page
+// swap within a session, not come back stale on a fresh load.
 let scrollTop = 0
-let openMenus: Record<string, boolean> = {}
 
 export function getSavedScroll(): number {
   return scrollTop
@@ -12,12 +35,4 @@ export function getSavedScroll(): number {
 
 export function setSavedScroll(value: number): void {
   scrollTop = value
-}
-
-export function getSavedOpenMenus(): Record<string, boolean> {
-  return openMenus
-}
-
-export function setSavedOpenMenus(value: Record<string, boolean>): void {
-  openMenus = { ...value }
 }

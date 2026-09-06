@@ -1,0 +1,10 @@
+{
+  "menu.AIINSIGHT_DASHBOARD": "AI Insight Dashboard",
+  "menu.AIINSIGHT_ANOMALIES": "Anomaly Detection",
+  "menu.AIINSIGHT_FORECASTS": "Forecasts & Projections",
+
+  "aiinsight.anomaly": "Detected Anomaly",
+  "aiinsight.confidence": "Confidence Score",
+  "aiinsight.recommendation": "Recommended Action",
+  "aiinsight.summary": "AI Executive Summary"
+}

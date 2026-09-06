@@ -1,0 +1,31 @@
+{
+  "menu.HCM_DASHBOARD": "Dashboard SDM (HCM)",
+  "menu.HCM_EMPLOYEES": "Direktori Karyawan",
+  "menu.HCM_ORG": "Struktur Organisasi & Jabatan",
+  "menu.HCM_ATTENDANCE": "Presensi & Shift Kerja",
+  "menu.HCM_LEAVE": "Manajemen Cuti & Izin",
+
+  "hcm.employee": "Karyawan",
+  "hcm.employees": "Direktori Karyawan",
+  "hcm.employees_subtitle": "Direktori staf, posisi jabatan, status kontrak, dan riwayat karyawan.",
+  "hcm.new_employee": "Tambah Karyawan Baru",
+  "hcm.search_employees_placeholder": "Cari NIK, nama, atau departemen...",
+  "hcm.empty_employees_title": "Belum ada data karyawan",
+  "hcm.empty_employees_desc": "Tambahkan data staf atau karyawan pertama perusahaan.",
+
+  "hcm.employee_no": "Nomor Induk Karyawan (NIK)",
+  "hcm.job_title": "Jabatan",
+  "hcm.department": "Departemen",
+  "hcm.join_date": "Tanggal Bergabung",
+  "hcm.employment_status": "Status Kepegawaian",
+  "hcm.attendance": "Presensi",
+  "hcm.check_in": "Waktu Masuk",
+  "hcm.check_out": "Waktu Keluar",
+  "hcm.leave_balance": "Sisa Hak Cuti",
+
+  "hcm.msg.employee_created": "Data karyawan baru berhasil ditambahkan.",
+  "hcm.msg.attendance_recorded": "Presensi berhasil dicatat.",
+  "hcm.msg.leave_approved": "Pengajuan cuti telah disetujui.",
+
+  "hcm.err.insufficient_leave": "Hak cuti karyawan tidak mencukupi untuk pengajuan ini."
+}

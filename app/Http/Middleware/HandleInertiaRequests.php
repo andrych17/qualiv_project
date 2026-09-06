@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Modules\Accounting\Services\CompanyContextService;
 use App\Modules\SysConfig\Services\ConfigService;
+use App\Modules\SysConfig\Services\LocaleService;
 use App\Modules\SysConfig\Services\ThemeService;
 use App\Services\TenantFeatureService;
 use App\Services\TenantMembershipService;
@@ -85,15 +86,20 @@ class HandleInertiaRequests extends Middleware
             'accountingCompanyContext' => fn () => ($user && tenancy()->initialized && $request->routeIs('accounting.*'))
                 ? app(CompanyContextService::class)->contextFor($request)
                 : null,
+            'locale' => fn () => app(LocaleService::class)->resolveLocale($request),
+            'availableLocales' => fn () => app(LocaleService::class)->getAvailableLocales(),
+            'translations' => fn () => app(LocaleService::class)->getTranslations(
+                app(LocaleService::class)->resolveLocale($request)
+            ),
             'theme' => fn () => ($user && tenancy()->initialized)
                 ? app(ThemeService::class)->getCurrentTheme((int) $user->id)
-                : ThemeService::DEFAULT_THEME,
+                : ($request->hasSession() ? ($request->session()->get('theme') ?? ThemeService::DEFAULT_THEME) : ThemeService::DEFAULT_THEME),
             'availableThemes' => fn () => app(ThemeService::class)->getAvailableThemes(),
             'flash' => [
-                'success' => fn () => $request->session()->get('success'),
-                'error' => fn () => $request->session()->get('error'),
-                'warning' => fn () => $request->session()->get('warning'),
-                'info' => fn () => $request->session()->get('info'),
+                'success' => fn () => ($s = $request->session()->get('success')) ? __($s) : null,
+                'error' => fn () => ($e = $request->session()->get('error')) ? __($e) : null,
+                'warning' => fn () => ($w = $request->session()->get('warning')) ? __($w) : null,
+                'info' => fn () => ($i = $request->session()->get('info')) ? __($i) : null,
                 // One-time reveal of an admin-provisioned password (see ConfigUserService::
                 // create/resetPassword) — never persisted, gone after this single request.
                 'credentials' => fn () => $request->session()->get('generated_credentials'),

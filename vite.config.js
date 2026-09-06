@@ -17,4 +17,20 @@ export default defineConfig({
             },
         }),
     ],
+    build: {
+        chunkSizeWarningLimit: 1000,
+        rollupOptions: {
+            output: {
+                manualChunks(id) {
+                    if (id.includes('node_modules/vue') || id.includes('node_modules/@vue') || id.includes('node_modules/@inertiajs')) {
+                        return 'vendor-core';
+                    }
+                    if (id.includes('node_modules/lucide-vue-next')) {
+                        return 'vendor-icons';
+                    }
+                },
+            },
+        },
+    },
 });
+

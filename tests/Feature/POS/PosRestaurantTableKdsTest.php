@@ -12,7 +12,6 @@ use App\Modules\POS\Models\PosKdsTicketEvent;
 use App\Modules\POS\Models\PosProfile;
 use App\Modules\POS\Models\PosTable;
 use App\Modules\POS\Models\PosTerminal;
-use App\Modules\POS\Models\PosTxnHdr;
 use App\Modules\POS\Models\PosTxnLine;
 use App\Modules\POS\Services\PosCartService;
 use App\Modules\POS\Services\PosRestaurantService;

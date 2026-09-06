@@ -21,6 +21,17 @@ return [
             'SCHEDULE',
             'DESIGN_SYSTEM',
         ],
+        'qualiv' => [
+            'PROJECTS',
+            'ACCOUNTING',
+            'CRM',
+            'SALES',
+            'PURCHASE',
+            'INVENTORY',
+            'DMS',
+            'SCHEDULE',
+            'DESIGN_SYSTEM',
+        ],
         'legal' => [
             'INVENTORY',
             'LEGAL',

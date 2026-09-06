@@ -85,6 +85,8 @@ trait SetsUpTenant
 
         DB::purge('tenant');
         DB::disconnect('tenant');
+        DB::purge('pgsql');
+        DB::disconnect('pgsql');
 
         $host = config('database.connections.pgsql.host', 'postgres');
         $port = config('database.connections.pgsql.port', 5432);
@@ -97,6 +99,20 @@ trait SetsUpTenant
         ]);
         $pdo->exec("SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '{$dbName}' AND pid <> pg_backend_pid()");
         $pdo->exec('DROP DATABASE IF EXISTS "'.$dbName.'" WITH (FORCE)');
+
+        for ($i = 0; $i < 40; $i++) {
+            $stmt = $pdo->query("SELECT 1 FROM pg_database WHERE datname = '{$dbName}'");
+            if (! $stmt->fetchColumn()) {
+                break;
+            }
+            usleep(25000);
+        }
+        usleep(150000);
         $pdo = null;
+
+        DB::purge('tenant');
+        DB::disconnect('tenant');
+        DB::purge('pgsql');
+        DB::disconnect('pgsql');
     }
 }

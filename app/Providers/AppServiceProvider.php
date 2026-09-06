@@ -48,6 +48,7 @@ use App\Modules\Sales\Listeners\ProcessCommissionOnPaymentRecorded;
 use App\Modules\Sales\Listeners\UpdateSalesOrderOnInvoicePosted;
 use App\Modules\Sales\Models\CustomerCreditProfile;
 use App\Modules\Sales\Models\CustomerSalesProfile;
+use App\Modules\SysConfig\Services\LocaleService;
 use App\Modules\WNE\Events\NotificationRequested;
 use App\Modules\WNE\Listeners\DeliverRequestedNotification;
 use App\Services\AsyncSearchRegistry;
@@ -73,6 +74,9 @@ class AppServiceProvider extends ServiceProvider
         if (app()->environment('production')) {
             URL::forceScheme('https');
         }
+
+        // Register modular JSON translation directories for backend and frontend parity
+        LocaleService::registerModuleJsonPaths();
 
         // WNE_SPECS.md §3I — no EventServiceProvider/auto-discovery exists in this app yet;
         // explicit registration is the first (and only, for now) listener wiring in the codebase.

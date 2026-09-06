@@ -1,0 +1,54 @@
+{
+  "menu.PURCHASE_DASHBOARD": "Dashboard Pembelian",
+  "menu.PURCHASE_REQS": "Permintaan Pembelian (PR)",
+  "menu.PURCHASE_ORDERS": "Pesanan Pembelian (PO)",
+  "menu.PURCHASE_BILLS": "Faktur Pembelian (Bill)",
+  "menu.PURCHASE_VENDORS": "Pemasok / Vendor",
+  "menu.PURCHASE_RECEIPTS": "Penerimaan Barang (GRN)",
+  "menu.PURCHASE_CONTRACTS": "Kontrak Pengadaan",
+  "menu.PURCHASE_CATALOG": "Katalog Pengadaan",
+
+  "purchase.requisition": "Permintaan Pembelian (PR)",
+  "purchase.requisitions": "Permintaan Pembelian (PR)",
+  "purchase.requisitions_subtitle": "Pengajuan kebutuhan barang dan jasa internal sebelum proses pengadaan.",
+  "purchase.new_requisition": "Buat Permintaan Baru",
+  "purchase.empty_reqs_title": "Belum ada permintaan pembelian",
+  "purchase.empty_reqs_desc": "Ajukan permintaan pembelian pertama untuk diproses tim purchasing.",
+
+  "purchase.order": "Pesanan Pembelian (PO)",
+  "purchase.orders": "Pesanan Pembelian (PO)",
+  "purchase.orders_subtitle": "Kelola pemesanan barang ke vendor, tracking penerimaan, dan pengawasan biaya.",
+  "purchase.new_order": "Buat Pesanan Pembelian",
+  "purchase.empty_orders_title": "Belum ada pesanan pembelian",
+  "purchase.empty_orders_desc": "Buat pesanan pembelian baru atau konversikan dari PR yang disetujui.",
+
+  "purchase.bill": "Faktur Pembelian (Bill)",
+  "purchase.bills": "Faktur Pembelian (Bills)",
+  "purchase.vendor": "Pemasok / Vendor",
+  "purchase.vendors": "Pemasok & Vendor",
+  "purchase.vendors_subtitle": "Direktori rekanan pengadaan, evaluasi vendor, dan syarat pembayaran.",
+  "purchase.new_vendor": "Tambah Vendor Baru",
+
+  "purchase.po_number": "Nomor PO",
+  "purchase.pr_number": "Nomor PR",
+  "purchase.order_date": "Tanggal Pesanan",
+  "purchase.expected_delivery": "Estimasi Pengiriman",
+  "purchase.total_cost": "Total Biaya",
+  "purchase.total_amount": "Total Nilai",
+  "purchase.linked_pr": "Tautan PR",
+  "purchase.acknowledgment": "Konfirmasi Vendor",
+  "purchase.revision": "Revisi",
+  "purchase.search_orders_placeholder": "Cari nomor PO, vendor, atau nomor PR...",
+  "purchase.search_reqs_placeholder": "Cari nomor PR atau departemen...",
+
+  "purchase.receipts": "Penerimaan Barang (GRN)",
+  "purchase.receipts_subtitle": "Pencatatan penerimaan fisik barang di gudang dan inspeksi kualitas.",
+  "purchase.new_receipt": "Catat Penerimaan Barang",
+
+  "purchase.msg.pr_approved": "Permintaan pembelian disetujui.",
+  "purchase.msg.po_sent": "Pesanan pembelian berhasil dikirim ke vendor.",
+  "purchase.msg.bill_recorded": "Faktur pembelian berhasil dicatat.",
+
+  "purchase.err.vendor_inactive": "Vendor sedang non-aktif dan tidak dapat menerima PO baru.",
+  "purchase.err.budget_exceeded": "Pengajuan pembelian melebihi anggaran departemen."
+}

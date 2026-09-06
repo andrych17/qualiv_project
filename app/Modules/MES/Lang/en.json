@@ -1,0 +1,22 @@
+{
+  "menu.MES_DASHBOARD": "Shop Floor Dashboard",
+  "menu.MES_WORK_CENTERS": "Work Centers & Machines",
+  "menu.MES_ROUTING": "Routings & Operations",
+  "menu.MES_PROD_ORDERS": "Manufacturing Orders (MO)",
+  "menu.MES_QC": "Quality Control & Inspection",
+  "menu.MES_DOWNTIME": "Machine Downtime & OEE",
+  "menu.MES_ANDON": "Andon Alerts Board",
+
+  "mes.work_order": "Manufacturing Order (MO)",
+  "mes.routing": "Operation Routing",
+  "mes.qc_inspection": "Quality Inspection",
+  "mes.downtime": "Machine Downtime",
+  "mes.oee": "Overall Equipment Effectiveness (OEE)",
+  "mes.andon_board": "Andon Board",
+
+  "mes.msg.mo_started": "Production order started successfully.",
+  "mes.msg.mo_completed": "Production order completed and finished goods recorded.",
+  "mes.msg.qc_passed": "Quality inspection passed.",
+
+  "mes.err.machine_down": "Machine is currently marked as down/under maintenance."
+}

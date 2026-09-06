@@ -6,7 +6,10 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { SlidersHorizontal, Bookmark, Columns3, Download, X } from 'lucide-vue-next'
 import SearchInput from '@/Components/filters/SearchInput.vue'
+import { useI18n } from '@/Composables/useI18n'
 import type { SavedView, SortState } from '@/Composables/useDataTable'
+
+const { t } = useI18n()
 
 export type FilterFieldDef = {
   key: string
@@ -71,7 +74,7 @@ const submitSaveView = () => {
 <template>
   <div class="flex flex-wrap items-center gap-2">
     <div class="w-full sm:max-w-xs">
-      <SearchInput v-model="search" :placeholder="searchPlaceholder ?? 'Search…'" />
+      <SearchInput v-model="search" :placeholder="searchPlaceholder ?? t('common.search')" />
     </div>
 
     <div v-if="filterFields?.length" class="relative" data-dt-popover>
@@ -81,7 +84,7 @@ const submitSaveView = () => {
         @click="togglePopover('filters')"
       >
         <SlidersHorizontal class="h-3.5 w-3.5" />
-        Filters
+        {{ t('table.filters') }}
         <span v-if="activeFilterCount > 0" class="ml-0.5 rounded-full bg-accent px-1.5 text-[10px] font-semibold text-accent-text">
           {{ activeFilterCount }}
         </span>
@@ -97,7 +100,7 @@ const submitSaveView = () => {
             v-model="filters[field.key]"
             class="w-full rounded-md border border-border bg-surface-0 py-1.5 px-2 text-sm text-ink-900 outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
           >
-            <option value="" class="bg-surface-0 text-ink-900">All</option>
+            <option value="" class="bg-surface-0 text-ink-900">{{ t('common.all') }}</option>
             <option v-for="opt in field.options" :key="opt.value" :value="opt.value" class="bg-surface-0 text-ink-900">{{ opt.label }}</option>
           </select>
           <input
@@ -120,7 +123,7 @@ const submitSaveView = () => {
           @click="clearFilters"
         >
           <X class="h-3 w-3" />
-          Clear filters
+          {{ t('table.clear_filters') }}
         </button>
       </div>
     </div>
@@ -132,13 +135,13 @@ const submitSaveView = () => {
         @click="togglePopover('views')"
       >
         <Bookmark class="h-3.5 w-3.5" />
-        Views
+        {{ t('table.views') }}
       </button>
       <div
         v-if="openPopover === 'views'"
         class="absolute left-0 z-20 mt-1 w-56 space-y-2 rounded-md border border-border bg-surface-0 p-3 shadow-lg"
       >
-        <div v-if="!savedViews?.length" class="text-xs text-ink-600">No saved views yet.</div>
+        <div v-if="!savedViews?.length" class="text-xs text-ink-600">{{ t('table.no_saved_views') }}</div>
         <div v-for="view in savedViews" :key="view.name" class="flex items-center justify-between gap-2">
           <button type="button" class="truncate text-sm text-ink-900 hover:text-accent" @click="emit('apply-view', view)">
             {{ view.name }}
@@ -151,11 +154,11 @@ const submitSaveView = () => {
           <input
             v-model="newViewName"
             type="text"
-            placeholder="Save current as…"
+            :placeholder="t('table.save_current_view')"
             class="w-full rounded-md border border-border bg-surface-0 py-1 px-2 text-xs text-ink-900 placeholder:text-ink-600/60 outline-none focus:border-accent focus:ring-1 focus:ring-accent/20"
             @keyup.enter="submitSaveView"
           />
-          <button type="button" class="text-xs font-medium text-accent" @click="submitSaveView">Save</button>
+          <button type="button" class="text-xs font-medium text-accent" @click="submitSaveView">{{ t('common.save') }}</button>
         </div>
       </div>
     </div>
@@ -167,7 +170,7 @@ const submitSaveView = () => {
         @click="togglePopover('columns')"
       >
         <Columns3 class="h-3.5 w-3.5" />
-        Columns
+        {{ t('table.columns') }}
       </button>
       <div
         v-if="openPopover === 'columns'"
@@ -196,7 +199,7 @@ const submitSaveView = () => {
       @click="emit('export')"
     >
       <Download class="h-3.5 w-3.5" />
-      Export
+      {{ t('common.export') }}
     </button>
   </div>
 </template>

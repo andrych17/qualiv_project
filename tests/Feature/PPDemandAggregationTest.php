@@ -3,8 +3,8 @@
 namespace Tests\Feature;
 
 use App\Modules\CRM\Models\Partner;
-use App\Modules\Inventory\Models\Product;
 use App\Modules\Inventory\Models\Location;
+use App\Modules\Inventory\Models\Product;
 use App\Modules\Inventory\Models\StockBalance;
 use App\Modules\Inventory\Models\Uom;
 use App\Modules\Inventory\Models\Warehouse;
@@ -16,6 +16,7 @@ use App\Modules\Sales\Events\SalesOrderConfirmed;
 use App\Modules\Sales\Models\SalesOrder;
 use App\Modules\Sales\Models\SalesOrderLine;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\Concerns\SetsUpTenant;
 use Tests\TestCase;
 
@@ -107,7 +108,7 @@ class PPDemandAggregationTest extends TestCase
         ])->assertRedirect('/pp/demand');
 
         $headerId = null;
-        $tenant->run(function () use (&$headerId, $productId) {
+        $tenant->run(function () use (&$headerId) {
             $header = DemandHeader::query()->where('source_type', DemandHeader::SOURCE_MANUAL)->first();
             $this->assertNotNull($header);
             $this->assertSame(1, $header->lines()->count());
@@ -148,10 +149,10 @@ class PPDemandAggregationTest extends TestCase
                 'sku' => 'DEM-SO-01', 'name' => 'SO Widget', 'base_uom_id' => $uom->id,
                 'costing_method' => Product::COSTING_FIFO, 'tracking_mode' => Product::TRACKING_NONE,
             ]);
-            $customer = Partner::query()->create(['uuid' => (string) \Illuminate\Support\Str::uuid(), 'type' => 'organization', 'name' => 'Acme Co']);
+            $customer = Partner::query()->create(['uuid' => (string) Str::uuid(), 'type' => 'organization', 'name' => 'Acme Co']);
 
             $order = SalesOrder::query()->create([
-                'uuid' => (string) \Illuminate\Support\Str::uuid(),
+                'uuid' => (string) Str::uuid(),
                 'so_number' => 'SO-DEM-0001',
                 'customer_id' => $customer->id,
                 'status' => SalesOrder::STATUS_CONFIRMED,
@@ -190,7 +191,7 @@ class PPDemandAggregationTest extends TestCase
         // No stock on hand — shortfall of 20 should generate a demand line.
         $this->post('/pp/demand/recalculate-safety-stock')->assertRedirect('/pp/demand');
 
-        $tenant->run(function () use ($productId) {
+        $tenant->run(function () {
             $header = DemandHeader::query()->where('subject_type', ItemPlanningParam::class)->first();
             $this->assertNotNull($header);
             $this->assertSame(DemandHeader::SOURCE_SAFETY_STOCK, $header->source_type);

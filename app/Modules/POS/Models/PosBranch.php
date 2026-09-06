@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class PosBranch extends Model
 {
     protected $table = 'POS.pos_branches';
+
     public $timestamps = false;
 
     protected $fillable = [

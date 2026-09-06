@@ -6,6 +6,9 @@ import { computed, ref, useSlots, watch } from 'vue'
 import { ChevronRight } from 'lucide-vue-next'
 import DataTableRow from '@/Components/tables/DataTableRow.vue'
 import { aggregateColumn, formatAggregate, type FooterAggregate } from '@/Composables/useDataTable'
+import { useI18n } from '@/Composables/useI18n'
+
+const { t } = useI18n()
 
 type Column = {
   key: string
@@ -132,7 +135,7 @@ const visibleRows = computed<RenderRow[]>(() => {
   <tbody class="divide-y divide-border bg-surface-0">
     <tr v-if="loading">
       <td :colspan="colspan()" class="px-4 py-8 text-center text-sm text-ink-600">
-        Loading…
+        {{ t('common.loading') }}
       </td>
     </tr>
 
@@ -141,10 +144,10 @@ const visibleRows = computed<RenderRow[]>(() => {
         <slot name="empty">
           <div class="space-y-1">
             <p class="text-sm font-medium text-ink-900">
-              {{ emptyTitle ?? 'Nothing here yet' }}
+              {{ emptyTitle ?? t('table.empty_title') }}
             </p>
             <p class="text-sm text-ink-600">
-              {{ emptyDescription ?? 'Add the first item to get started.' }}
+              {{ emptyDescription ?? t('table.empty_desc') }}
             </p>
           </div>
         </slot>

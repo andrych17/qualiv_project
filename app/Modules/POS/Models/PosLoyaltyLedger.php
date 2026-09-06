@@ -11,11 +11,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PosLoyaltyLedger extends Model
 {
     protected $table = 'POS.pos_loyalty_ledger';
+
     public $timestamps = false;
 
     public const TYPE_EARN = 'earn';
+
     public const TYPE_REDEEM = 'redeem';
+
     public const TYPE_EXPIRE = 'expire';
+
     public const TYPE_ADJUST = 'adjust';
 
     protected $fillable = [

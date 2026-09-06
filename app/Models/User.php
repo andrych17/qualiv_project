@@ -26,6 +26,8 @@ class User extends Authenticatable
         'password',
         'is_active',
         'must_change_password',
+        'locale',
+        'theme',
     ];
 
     /**

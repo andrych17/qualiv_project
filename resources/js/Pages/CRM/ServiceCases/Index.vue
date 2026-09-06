@@ -1,4 +1,3 @@
-<!-- ponytail: CRM Service Cases (§3E) — Status Rail colored by SLA state, not workflow status -->
 <script setup lang="ts">
 import { Link, router } from '@inertiajs/vue3'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
@@ -7,8 +6,11 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import CrmSubNav from '@/Components/crm/CrmSubNav.vue'
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { debounce } from '@/Composables/debounce'
+import { useI18n } from '@/Composables/useI18n'
+
+const { t } = useI18n()
 
 interface ServiceCaseRow {
   id: number
@@ -50,58 +52,58 @@ const sort = ref<SortState>(
 )
 const perPage = ref(Number(props.filters.per_page) || props.cases.per_page)
 
-const filterFields: FilterFieldDef[] = [
+const filterFields = computed<FilterFieldDef[]>(() => [
   {
     key: 'status',
-    label: 'Status',
+    label: t('common.status'),
     type: 'select',
     options: [
-      { label: 'Open', value: 'open' },
-      { label: 'In progress', value: 'in_progress' },
+      { label: t('status.open'), value: 'open' },
+      { label: t('status.in_progress'), value: 'in_progress' },
       { label: 'Waiting on partner', value: 'waiting_on_partner' },
-      { label: 'Resolved', value: 'resolved' },
-      { label: 'Closed', value: 'closed' },
+      { label: t('status.completed'), value: 'resolved' },
+      { label: t('status.closed'), value: 'closed' },
     ],
   },
   {
     key: 'priority',
-    label: 'Priority',
+    label: t('crm.priority'),
     type: 'select',
     options: [
-      { label: 'Low', value: 'low' },
-      { label: 'Normal', value: 'normal' },
-      { label: 'High', value: 'high' },
-      { label: 'Urgent', value: 'urgent' },
+      { label: t('crm.priority_low'), value: 'low' },
+      { label: t('crm.priority_normal'), value: 'normal' },
+      { label: t('crm.priority_high'), value: 'high' },
+      { label: t('crm.priority_urgent'), value: 'urgent' },
     ],
   },
   {
     key: 'sla_state',
-    label: 'SLA state',
+    label: t('crm.sla_state'),
     type: 'select',
     options: [
-      { label: 'Breached', value: 'breached' },
-      { label: 'Due soon', value: 'due_soon' },
-      { label: 'On track', value: 'on_track' },
+      { label: t('wne.sla_breached'), value: 'breached' },
+      { label: t('wne.sla_due_soon'), value: 'due_soon' },
+      { label: t('wne.sla_on_track'), value: 'on_track' },
     ],
   },
   {
     key: 'assigned_to',
-    label: 'Assigned to',
+    label: t('crm.assigned_to'),
     type: 'select',
     options: props.assignees.map((a) => ({ label: a.name, value: String(a.id) })),
   },
-]
+])
 
-const columns = [
-  { key: 'subject', label: 'Subject', sortable: true },
-  { key: 'partner_name', label: 'Partner' },
-  { key: 'category_name', label: 'Category' },
-  { key: 'priority', label: 'Priority' },
-  { key: 'status', label: 'Status' },
-  { key: 'assigned_to_name', label: 'Assigned to' },
-  { key: 'sla_due_at_formatted', label: 'SLA due', sortable: true, sortKey: 'sla_due_at' },
-  { key: 'actions', label: 'Actions', align: 'right' as const },
-]
+const columns = computed(() => [
+  { key: 'subject', label: t('crm.subject'), sortable: true },
+  { key: 'partner_name', label: t('crm.partner') },
+  { key: 'category_name', label: t('crm.category') },
+  { key: 'priority', label: t('crm.priority') },
+  { key: 'status', label: t('common.status') },
+  { key: 'assigned_to_name', label: t('crm.assigned_to') },
+  { key: 'sla_due_at_formatted', label: t('crm.sla_due'), sortable: true, sortKey: 'sla_due_at' },
+  { key: 'actions', label: t('common.actions'), align: 'right' as const },
+])
 
 watch([search, filters, sort, perPage], debounce(() => {
   router.get(route('crm.serviceCases.index'), {
@@ -120,11 +122,11 @@ watch([search, filters, sort, perPage], debounce(() => {
 <template>
   <AppLayout>
     <PageHeader
-      title="Service Cases"
-      description="Support cases tied to a partner, tracked against an SLA."
+      :title="t('crm.service_cases')"
+      :description="t('crm.service_cases_desc')"
     >
       <template #actions>
-        <PrimaryButton :href="route('crm.serviceCases.create')">Open case</PrimaryButton>
+        <PrimaryButton :href="route('crm.serviceCases.create')">{{ t('crm.open_case') }}</PrimaryButton>
       </template>
     </PageHeader>
 
@@ -141,15 +143,15 @@ watch([search, filters, sort, perPage], debounce(() => {
         sticky-header
         status-rail-key="sla_state"
         storage-key="crm.serviceCases"
-        search-placeholder="Search subject…"
+        :search-placeholder="t('common.search')"
         :filter-fields="filterFields"
         export-filename="crm-service-cases"
         :total="cases.total"
         :from="cases.from"
         :to="cases.to"
         :links="cases.links"
-        empty-title="No service cases yet"
-        empty-description="Open your first case to start tracking support work."
+        :empty-title="t('crm.empty_cases_title')"
+        :empty-description="t('crm.empty_cases_desc')"
       >
         <template #cell-priority="{ item }">
           <span class="text-sm capitalize text-ink-900">{{ (item as ServiceCaseRow).priority }}</span>
@@ -165,7 +167,7 @@ watch([search, filters, sort, perPage], debounce(() => {
             :href="route('crm.serviceCases.edit', item.id)"
             class="text-sm font-medium text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           >
-            Open
+            {{ t('common.open') }}
           </Link>
         </template>
       </DataTable>

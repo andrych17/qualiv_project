@@ -3,6 +3,7 @@
 namespace App\Modules\PP\Requests;
 
 use App\Modules\Inventory\Models\Product;
+use App\Modules\PP\Models\Recipe;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
@@ -35,7 +36,7 @@ class UpdateRecipeRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator) {
-            /** @var \App\Modules\PP\Models\Recipe $recipe */
+            /** @var Recipe $recipe */
             $recipe = $this->route('recipe');
 
             foreach ((array) $this->input('ingredients', []) as $i => $ingredient) {

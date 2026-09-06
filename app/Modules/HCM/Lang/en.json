@@ -1,0 +1,31 @@
+{
+  "menu.HCM_DASHBOARD": "HCM Dashboard",
+  "menu.HCM_EMPLOYEES": "Employee Directory",
+  "menu.HCM_ORG": "Organization & Job Titles",
+  "menu.HCM_ATTENDANCE": "Attendance & Shifts",
+  "menu.HCM_LEAVE": "Leave & Time Off",
+
+  "hcm.employee": "Employee",
+  "hcm.employees": "Employee Directory",
+  "hcm.employees_subtitle": "Staff directory, positions, contracts, and employment records.",
+  "hcm.new_employee": "Add Employee",
+  "hcm.search_employees_placeholder": "Search employee no., name, or department…",
+  "hcm.empty_employees_title": "No employees found",
+  "hcm.empty_employees_desc": "Add your first employee to start building staff directory.",
+
+  "hcm.employee_no": "Employee ID (NIK)",
+  "hcm.job_title": "Job Title",
+  "hcm.department": "Department",
+  "hcm.join_date": "Join Date",
+  "hcm.employment_status": "Employment Status",
+  "hcm.attendance": "Attendance",
+  "hcm.check_in": "Check In Time",
+  "hcm.check_out": "Check Out Time",
+  "hcm.leave_balance": "Remaining Leave Balance",
+
+  "hcm.msg.employee_created": "New employee profile created successfully.",
+  "hcm.msg.attendance_recorded": "Attendance clocking recorded successfully.",
+  "hcm.msg.leave_approved": "Leave application approved.",
+
+  "hcm.err.insufficient_leave": "Insufficient leave entitlement for this request."
+}

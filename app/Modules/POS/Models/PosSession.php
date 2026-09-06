@@ -14,16 +14,18 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class PosSession extends Model
 {
     protected $table = 'POS.pos_sessions';
+
     public $timestamps = false;
 
     public const STATUS_OPEN = 'open';
+
     public const STATUS_CLOSED = 'closed';
 
     protected $appends = ['session_no'];
 
     public function getSessionNoAttribute(): string
     {
-        return 'SES-' . str_pad((string) $this->id, 5, '0', STR_PAD_LEFT);
+        return 'SES-'.str_pad((string) $this->id, 5, '0', STR_PAD_LEFT);
     }
 
     protected $fillable = [

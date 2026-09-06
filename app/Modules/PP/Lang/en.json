@@ -1,0 +1,21 @@
+{
+  "menu.PP_DASHBOARD": "Production Planning Dashboard",
+  "menu.PP_DEMAND": "Demand Forecasting",
+  "menu.PP_BOM": "Bills of Materials (BOM)",
+  "menu.PP_MRP": "Material Requirements Planning (MRP)",
+  "menu.PP_MPS": "Master Production Schedule (MPS)",
+  "menu.PP_CAPACITY": "Workstation & Machine Capacity",
+
+  "pp.bom": "Bill of Materials (BOM)",
+  "pp.recipe": "Recipe & Formula",
+  "pp.batch_size": "Production Batch Size",
+  "pp.mrp": "Material Requirement Planning (MRP)",
+  "pp.demand_forecast": "Demand Forecast",
+  "pp.work_center": "Work Center",
+  "pp.lead_time": "Lead Time",
+
+  "pp.msg.bom_saved": "BOM structure saved successfully.",
+  "pp.msg.mrp_executed": "MRP calculation completed successfully.",
+
+  "pp.err.circular_bom": "Invalid circular BOM reference detected."
+}

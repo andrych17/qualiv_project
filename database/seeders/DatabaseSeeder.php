@@ -93,6 +93,7 @@ class DatabaseSeeder extends Seeder
         // Central admin + plan catalog + dummy invoice/payment history — needs 001/002
         // to already exist above.
         $this->call(CentralSeeder::class);
+        $this->call(QualivMigrateExcelSeeder::class);
     }
 
     private function dropOrphanTenantDatabase(string $tenantId): void

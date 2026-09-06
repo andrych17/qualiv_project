@@ -16,15 +16,23 @@ class PosTxnHdr extends Model
     protected $table = 'POS.pos_txn_hdrs';
 
     public const STATUS_DRAFT = 'draft';
+
     public const STATUS_PARKED = 'parked';
+
     public const STATUS_COMPLETED = 'completed';
+
     public const STATUS_VOIDED = 'voided';
+
     public const STATUS_CANCELLED = 'cancelled';
+
     public const STATUS_REFUNDED = 'refunded';
 
     public const DINING_SALE = 'sale';
+
     public const DINING_DINE_IN = 'dine_in';
+
     public const DINING_TAKEAWAY = 'takeaway';
+
     public const DINING_DELIVERY = 'delivery';
 
     protected $fillable = [

@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
@@ -41,10 +42,10 @@ return new class extends Migration
             $table->index('product_id');
         });
 
-        \Illuminate\Support\Facades\DB::statement(
+        DB::statement(
             'ALTER TABLE "MES".mes_prod_order_hdrs ADD CONSTRAINT chk_mes_prod_order_hdrs_bom CHECK (production_model <> \'assembly\' OR bom_id IS NOT NULL)'
         );
-        \Illuminate\Support\Facades\DB::statement(
+        DB::statement(
             'ALTER TABLE "MES".mes_prod_order_hdrs ADD CONSTRAINT chk_mes_prod_order_hdrs_recipe CHECK (production_model <> \'process\' OR recipe_id IS NOT NULL)'
         );
     }

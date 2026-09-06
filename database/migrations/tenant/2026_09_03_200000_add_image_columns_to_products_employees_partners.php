@@ -10,7 +10,7 @@ return new class extends Migration
     {
         if (Schema::hasTable('INVENTORY.products')) {
             Schema::table('INVENTORY.products', function (Blueprint $table) {
-                if (!Schema::hasColumn('INVENTORY.products', 'image_url')) {
+                if (! Schema::hasColumn('INVENTORY.products', 'image_url')) {
                     $table->text('image_url')->nullable();
                 }
             });
@@ -18,7 +18,7 @@ return new class extends Migration
 
         if (Schema::hasTable('HCM.employees')) {
             Schema::table('HCM.employees', function (Blueprint $table) {
-                if (!Schema::hasColumn('HCM.employees', 'avatar_url')) {
+                if (! Schema::hasColumn('HCM.employees', 'avatar_url')) {
                     $table->text('avatar_url')->nullable();
                 }
             });
@@ -26,7 +26,7 @@ return new class extends Migration
 
         if (Schema::hasTable('CRM.partners')) {
             Schema::table('CRM.partners', function (Blueprint $table) {
-                if (!Schema::hasColumn('CRM.partners', 'logo_url')) {
+                if (! Schema::hasColumn('CRM.partners', 'logo_url')) {
                     $table->text('logo_url')->nullable();
                 }
             });

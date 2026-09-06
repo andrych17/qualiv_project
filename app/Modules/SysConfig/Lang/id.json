@@ -1,0 +1,29 @@
+{
+  "menu.SYSCONFIG_USERS": "Manajemen Pengguna",
+  "menu.SYSCONFIG_GROUPS": "Grup & Peran Akses",
+  "menu.SYSCONFIG_MENUS": "Hierarki Menu Sistem",
+  "menu.SYSCONFIG_CONSTS": "Konstanta & Parameter Sistem",
+  "menu.SYSCONFIG_SERIALS": "Penomoran Serial Otomatis",
+  "menu.SYSCONFIG_MODULES": "Aktivasi Modul Tenant",
+  "menu.SYSCONFIG_FIELDS": "Field Kustom Dinamis",
+  "menu.SYSCONFIG_THEME": "Pengaturan Tema Tenant",
+
+  "sysconfig.user": "Pengguna",
+  "sysconfig.users": "Daftar Pengguna",
+  "sysconfig.group": "Grup Peran",
+  "sysconfig.groups": "Daftar Grup Peran",
+  "sysconfig.permission": "Hak Akses",
+  "sysconfig.permissions": "Daftar Hak Akses",
+  "sysconfig.constant": "Konstanta Konfigurasi",
+  "sysconfig.serial": "Serial Nomor Urut",
+  "sysconfig.module": "Modul Sistem",
+  "sysconfig.theme": "Tema Tampilan",
+
+  "sysconfig.msg.user_created": "Pengguna baru berhasil ditambahkan.",
+  "sysconfig.msg.user_updated": "Data pengguna berhasil diperbarui.",
+  "sysconfig.msg.permissions_saved": "Hak akses grup berhasil disimpan.",
+  "sysconfig.msg.config_saved": "Pengaturan konfigurasi sistem berhasil disimpan.",
+
+  "sysconfig.err.cannot_delete_self": "Anda tidak dapat menghapus akun pengguna Anda sendiri.",
+  "sysconfig.err.admin_group_immutable": "Grup Administrator Sistem tidak dapat dihapus."
+}

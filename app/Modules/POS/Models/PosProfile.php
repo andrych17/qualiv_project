@@ -14,7 +14,9 @@ class PosProfile extends Model
     protected $table = 'POS.pos_profiles';
 
     public const TYPE_RETAIL = 'retail';
+
     public const TYPE_RESTAURANT = 'restaurant';
+
     public const TYPE_SERVICE = 'service';
 
     protected $fillable = [

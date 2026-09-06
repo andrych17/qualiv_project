@@ -3,11 +3,13 @@
 import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
+import PrimaryButton from '@/Components/PrimaryButton.vue'
 import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { debounce } from '@/Composables/debounce'
 import { useConfirm } from '@/Composables/useConfirmDialog'
+import { useI18n } from '@/Composables/useI18n'
 
 interface InventoryItem {
   id: number
@@ -41,6 +43,7 @@ const props = defineProps<{
   }
 }>()
 
+const { t } = useI18n()
 const search = ref(props.filters.search ?? '')
 const filters = ref({ status: props.filters.status ?? '' })
 const sort = ref<SortState>(
@@ -49,35 +52,29 @@ const sort = ref<SortState>(
 const selected = ref<Array<string | number>>([])
 const perPage = ref(Number(props.filters.per_page) || props.items.per_page)
 
-const filterFields: FilterFieldDef[] = [
+const filterFields = computed<FilterFieldDef[]>(() => [
   {
     key: 'status',
-    label: 'Status',
+    label: t('common.status'),
     type: 'select',
     options: [
-      { label: 'Active', value: 'active' },
-      { label: 'Inactive', value: 'inactive' },
-      { label: 'Archived', value: 'archived' },
+      { label: t('common.active'), value: 'active' },
+      { label: t('common.inactive'), value: 'inactive' },
+      { label: t('legal.status_archived'), value: 'archived' },
     ],
   },
-]
+])
 
-const columns: Array<{
-  key: string
-  label: string
-  align?: 'left' | 'center' | 'right'
-  sortable?: boolean
-  sortKey?: string
-}> = [
-  { key: 'code', label: 'Code', sortable: true },
-  { key: 'name', label: 'Name', sortable: true },
-  { key: 'category_name', label: 'Category' },
-  { key: 'stock', label: 'Stock', align: 'right', sortable: true },
-  { key: 'unit', label: 'Unit', sortable: true },
-  { key: 'status', label: 'Status', sortable: true },
-  { key: 'created_at_formatted', label: 'Created Date', sortable: true, sortKey: 'created_at' },
-  { key: 'actions', label: 'Actions', align: 'right' },
-]
+const columns = computed(() => [
+  { key: 'code', label: t('inventory.sku'), sortable: true },
+  { key: 'name', label: t('inventory.item_name'), sortable: true },
+  { key: 'category_name', label: t('inventory.category') },
+  { key: 'stock', label: t('inventory.stock'), align: 'right' as const, sortable: true },
+  { key: 'unit', label: t('inventory.uom'), sortable: true },
+  { key: 'status', label: t('common.status'), sortable: true },
+  { key: 'created_at_formatted', label: t('inventory.created_date'), sortable: true, sortKey: 'created_at' },
+  { key: 'actions', label: t('common.actions'), align: 'right' as const },
+])
 
 watch([search, filters, sort, perPage], debounce(() => {
   selected.value = []
@@ -97,18 +94,18 @@ const { confirm } = useConfirm()
 
 const confirmDelete = (item: any) => {
   confirm({
-    title: `Delete item ${item.name}?`,
+    title: t('inventory.confirm_delete_item', { name: item.name }),
     variant: 'destructive',
-    confirmText: 'Delete',
+    confirmText: t('common.delete'),
     onConfirm: () => router.delete(route('inventory.items.destroy', item.id)),
   })
 }
 
 const confirmBulkDelete = () => {
   confirm({
-    title: `Delete ${selected.value.length} selected item(s)?`,
+    title: t('inventory.confirm_bulk_delete_items', { count: selected.value.length }),
     variant: 'destructive',
-    confirmText: 'Delete',
+    confirmText: t('common.delete'),
     onConfirm: () =>
       router.delete(route('inventory.items.bulkDestroy'), {
         data: { ids: selected.value },
@@ -121,13 +118,13 @@ const confirmBulkDelete = () => {
 <template>
   <AppLayout>
     <PageHeader
-      title="Inventory Items"
-      description="Manage inventory items, stock, category, and status."
+      :title="t('inventory.products')"
+      :description="t('inventory.products_subtitle')"
     >
       <template #actions>
-        <Link :href="route('inventory.items.create')" class="inline-flex items-center rounded-md bg-gray-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900">
-          Create Item
-        </Link>
+        <PrimaryButton :href="route('inventory.items.create')">
+          {{ t('inventory.new_product') }}
+        </PrimaryButton>
       </template>
     </PageHeader>
 
@@ -138,20 +135,20 @@ const confirmBulkDelete = () => {
         v-model:sort="sort"
         v-model:selected="selected"
         v-model:search="search"
+        :search-placeholder="t('inventory.search_placeholder')"
+        :filter-fields="filterFields"
+        :empty-title="t('inventory.empty_products_title')"
+        :empty-description="t('inventory.empty_products_desc')"
         v-model:filters="filters"
         v-model:per-page="perPage"
         selectable
         sticky-header
         storage-key="inventory.items"
-        search-placeholder="Search by code or name..."
-        :filter-fields="filterFields"
         export-filename="inventory-items"
         :total="items.total"
         :from="items.from"
         :to="items.to"
         :links="items.links"
-        empty-title="No inventory items"
-        empty-description="Create your first inventory item to start tracking stock."
       >
         <template #bulk-actions>
           <button type="button" class="text-sm font-medium text-red-600 hover:text-red-950" @click="confirmBulkDelete">

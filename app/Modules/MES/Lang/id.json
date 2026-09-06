@@ -1,0 +1,22 @@
+{
+  "menu.MES_DASHBOARD": "Dashboard Monitoring Pabrik",
+  "menu.MES_WORK_CENTERS": "Pusat Kerja & Mesin",
+  "menu.MES_ROUTING": "Rute & Operasi Produksi",
+  "menu.MES_PROD_ORDERS": "Perintah Kerja Produksi (MO)",
+  "menu.MES_QC": "Kontrol Kualitas & Inspeksi",
+  "menu.MES_DOWNTIME": "Catatan Downtime & OEE",
+  "menu.MES_ANDON": "Papan Peringatan Andon",
+
+  "mes.work_order": "Perintah Kerja (MO)",
+  "mes.routing": "Rute Operasi",
+  "mes.qc_inspection": "Inspeksi Kualitas",
+  "mes.downtime": "Downtime Mesin",
+  "mes.oee": "Efektivitas Mesin Keseluruhan (OEE)",
+  "mes.andon_board": "Papan Peringatan Andon",
+
+  "mes.msg.mo_started": "Proses produksi berhasil dimulai.",
+  "mes.msg.mo_completed": "Proses produksi selesai dan barang hasil jadi telah dicatat.",
+  "mes.msg.qc_passed": "Inspeksi kualitas disetujui (Passed).",
+
+  "mes.err.machine_down": "Mesin sedang dalam status perbaikan (downtime)."
+}

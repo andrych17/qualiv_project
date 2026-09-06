@@ -9,7 +9,6 @@ use App\Modules\Inventory\Models\Warehouse;
 use App\Modules\POS\Models\PosProfile;
 use App\Modules\POS\Models\PosReturnHdr;
 use App\Modules\POS\Models\PosTerminal;
-use App\Modules\POS\Models\PosTxnHdr;
 use App\Modules\POS\Services\PosCartService;
 use App\Modules\POS\Services\PosPaymentService;
 use App\Modules\POS\Services\PosReturnService;

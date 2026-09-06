@@ -12,6 +12,9 @@ import FormSwitch from '@/Components/forms/FormSwitch.vue'
 import CheckboxMultiSelect from '@/Components/schedule/CheckboxMultiSelect.vue'
 import ScheduleSubNav from '@/Components/schedule/ScheduleSubNav.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
+import { useI18n } from '@/Composables/useI18n'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   owners: Array<{ id: number; name: string }>
@@ -50,20 +53,20 @@ const submit = () => form.post(route('schedule.events.store'))
 
 <template>
   <AppLayout>
-    <PageHeader title="Add event" description="A time-blocked meeting — add attendees and resources below." />
+    <PageHeader :title="t('schedule.add_event')" :description="t('schedule.add_event_desc')" />
 
     <ScheduleSubNav active="events" class="mt-6" />
 
     <Panel class="mt-6 max-w-2xl">
       <form class="space-y-4" @submit.prevent="submit">
-        <FormInput v-model="form.title" name="title" label="Title" :error="form.errors.title" required />
-        <FormTextarea v-model="form.description" name="description" label="Description" :error="form.errors.description" />
+        <FormInput v-model="form.title" name="title" :label="t('schedule.event_title')" :error="form.errors.title" required />
+        <FormTextarea v-model="form.description" name="description" :label="t('schedule.event_desc')" :error="form.errors.description" />
         <div class="grid grid-cols-2 gap-4">
           <FormInput
             v-model="form.start_at"
             name="start_at"
             type="datetime-local"
-            label="Start"
+            :label="t('schedule.start_time')"
             :error="form.errors.start_at"
             required
           />
@@ -71,39 +74,38 @@ const submit = () => form.post(route('schedule.events.store'))
             v-model="form.end_at"
             name="end_at"
             type="datetime-local"
-            label="End"
+            :label="t('schedule.end_time')"
             :error="form.errors.end_at"
             required
           />
         </div>
-        <FormSwitch v-model="form.all_day" label="All day" description="Time-block the whole day rather than a specific window." />
-        <FormInput v-model="form.location" name="location" label="Location" placeholder="e.g. Conference Room A (optional)" :error="form.errors.location" />
+        <FormSwitch v-model="form.all_day" :label="t('schedule.all_day')" :description="t('schedule.all_day_desc')" />
+        <FormInput v-model="form.location" name="location" :label="t('schedule.location')" :error="form.errors.location" />
         <FormSelect
           v-model="form.owner_id"
           name="owner_id"
-          label="Owner"
-          placeholder="Me"
+          :label="t('schedule.owner')"
           :options="owners.map((o) => ({ label: o.name, value: o.id }))"
           :error="form.errors.owner_id"
         />
         <FormInput
           v-model="form.recurrence_rule"
           name="recurrence_rule"
-          label="Recurrence rule"
+          :label="t('schedule.recurrence')"
           placeholder="e.g. FREQ=WEEKLY;BYDAY=MO;COUNT=10 (optional)"
           :error="form.errors.recurrence_rule"
         />
 
-        <CheckboxMultiSelect v-model="form.attendee_ids" :options="owners" label="Attendees" />
+        <CheckboxMultiSelect v-model="form.attendee_ids" :options="owners" :label="t('schedule.attendees')" />
         <CheckboxMultiSelect
           v-model="form.resource_ids"
           :options="resources"
-          label="Resources"
-          empty-text="No resources yet — add one under Schedule → Resources."
+          :label="t('schedule.booked_resources')"
+          :empty-text="t('schedule.no_resources')"
         />
         <p v-if="form.errors.resource_ids" class="text-sm text-signal-danger">{{ form.errors.resource_ids }}</p>
 
-        <FormSwitch v-model="addConference" label="Conference link" description="Attach a video/audio join link to this event." />
+        <FormSwitch v-model="addConference" :label="t('schedule.conference_link')" />
         <template v-if="addConference">
           <FormSelect
             v-model="form.conference_provider_code"
@@ -120,9 +122,6 @@ const submit = () => form.post(route('schedule.events.store'))
             placeholder="https://…"
             :error="form.errors.conference_manual_url"
           />
-          <p v-else-if="form.conference_provider_code" class="text-xs text-ink-600">
-            A meeting link will be created automatically via the selected provider.
-          </p>
         </template>
 
         <div class="flex items-center justify-end gap-3 border-t border-border pt-4">
@@ -130,9 +129,9 @@ const submit = () => form.post(route('schedule.events.store'))
             :href="route('schedule.events.index')"
             class="inline-flex items-center justify-center rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm font-semibold text-ink-900 shadow-sm transition hover:bg-surface-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           >
-            Cancel
+            {{ t('common.cancel') }}
           </Link>
-          <PrimaryButton type="submit" :disabled="form.processing">Save event</PrimaryButton>
+          <PrimaryButton type="submit" :disabled="form.processing">{{ t('common.save') }}</PrimaryButton>
         </div>
       </form>
     </Panel>

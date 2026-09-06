@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class PosLoyaltyTier extends Model
 {
     protected $table = 'POS.pos_loyalty_tiers';
+
     public $timestamps = false;
 
     protected $fillable = [

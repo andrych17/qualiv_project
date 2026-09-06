@@ -1,6 +1,3 @@
-<!-- ponytail: WNE §3L — template list + coverage warnings. Client-side filter/sort is fine
-     here (template counts stay small — one row per category×channel×locale), same choice
-     already made for Workflows/Index.vue. -->
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { Link } from '@inertiajs/vue3'
@@ -10,6 +7,9 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import DataTable, { type SortState } from '@/Components/tables/DataTable.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import WneSubNav from '@/Components/wne/WneSubNav.vue'
+import { useI18n } from '@/Composables/useI18n'
+
+const { t } = useI18n()
 
 type TemplateRow = {
   id: number
@@ -28,13 +28,13 @@ const props = defineProps<{
 const search = ref('')
 const sort = ref<SortState>(null)
 
-const columns = [
-  { key: 'category_code', label: 'Category', sortable: true },
-  { key: 'channel', label: 'Channel', sortable: true },
-  { key: 'locale', label: 'Locale' },
-  { key: 'subject', label: 'Subject' },
-  { key: 'is_active', label: 'Status' },
-]
+const columns = computed(() => [
+  { key: 'category_code', label: t('wne.category'), sortable: true },
+  { key: 'channel', label: t('wne.channel'), sortable: true },
+  { key: 'locale', label: t('wne.locale') },
+  { key: 'subject', label: t('wne.subject') },
+  { key: 'is_active', label: t('common.status') },
+])
 
 const filtered = computed(() => {
   let list = props.templates
@@ -56,9 +56,9 @@ const filtered = computed(() => {
 
 <template>
   <AppLayout>
-    <PageHeader title="Templates" description="Subject/body per category × channel × locale (WNE §3L).">
+    <PageHeader :title="t('wne.templates')" :description="t('wne.templates_desc')">
       <template #actions>
-        <PrimaryButton :href="route('wne.templates.create')">New template</PrimaryButton>
+        <PrimaryButton :href="route('wne.templates.create')">{{ t('wne.new_template') }}</PrimaryButton>
       </template>
     </PageHeader>
 
@@ -80,9 +80,9 @@ const filtered = computed(() => {
         :items="filtered"
         v-model:sort="sort"
         v-model:search="search"
-        search-placeholder="Search category or channel…"
-        empty-title="No templates yet"
-        empty-description="Create a template so a category's notifications render more than the generic fallback text."
+        :search-placeholder="t('common.search')"
+        :empty-title="t('wne.empty_templates_title')"
+        :empty-description="t('wne.empty_templates_desc')"
       >
         <template #cell-category_code="{ item }">
           <Link :href="route('wne.templates.edit', item.id)" class="text-sm font-medium text-accent hover:underline">

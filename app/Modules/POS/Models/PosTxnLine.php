@@ -15,11 +15,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class PosTxnLine extends Model
 {
     protected $table = 'POS.pos_txn_lines';
+
     public $timestamps = false;
 
     public const KDS_NEW = 'new';
+
     public const KDS_PREPARING = 'preparing';
+
     public const KDS_READY = 'ready';
+
     public const KDS_SERVED = 'served';
 
     protected $fillable = [

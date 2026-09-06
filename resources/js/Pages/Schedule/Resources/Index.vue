@@ -7,9 +7,12 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import ScheduleSubNav from '@/Components/schedule/ScheduleSubNav.vue'
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { debounce } from '@/Composables/debounce'
 import { useConfirm } from '@/Composables/useConfirmDialog'
+import { useI18n } from '@/Composables/useI18n'
+
+const { t } = useI18n()
 
 interface ResourceRow {
   id: number
@@ -43,32 +46,32 @@ const sort = ref<SortState>(
 const selected = ref<Array<string | number>>([])
 const perPage = ref(Number(props.filters.per_page) || props.resources.per_page)
 
-const filterFields: FilterFieldDef[] = [
+const filterFields = computed<FilterFieldDef[]>(() => [
   {
     key: 'resource_type_id',
-    label: 'Type',
+    label: t('schedule.resource_type'),
     type: 'select',
-    options: props.resourceTypes.map((t) => ({ label: t.name, value: String(t.id) })),
+    options: props.resourceTypes.map((tItem) => ({ label: tItem.name, value: String(tItem.id) })),
   },
   {
     key: 'status',
-    label: 'Status',
+    label: t('common.status'),
     type: 'select',
     options: [
-      { label: 'Active', value: 'active' },
-      { label: 'Inactive', value: 'inactive' },
+      { label: t('common.active'), value: 'active' },
+      { label: t('common.inactive'), value: 'inactive' },
     ],
   },
-]
+])
 
-const columns = [
-  { key: 'name', label: 'Name', sortable: true },
-  { key: 'resource_type_name', label: 'Type' },
-  { key: 'location_notes', label: 'Location / notes' },
-  { key: 'capacity', label: 'Capacity' },
-  { key: 'is_active', label: 'Status' },
-  { key: 'actions', label: 'Actions', align: 'right' as const },
-]
+const columns = computed(() => [
+  { key: 'name', label: t('schedule.resource_name'), sortable: true },
+  { key: 'resource_type_name', label: t('schedule.resource_type') },
+  { key: 'location_notes', label: t('schedule.location_notes') },
+  { key: 'capacity', label: t('schedule.capacity') },
+  { key: 'is_active', label: t('common.status') },
+  { key: 'actions', label: t('common.actions'), align: 'right' as const },
+])
 
 watch([search, filters, sort, perPage], debounce(() => {
   selected.value = []
@@ -87,9 +90,9 @@ const { confirm } = useConfirm()
 const confirmDeactivate = (item: ResourceRow | Record<string, unknown>) => {
   const row = item as ResourceRow
   confirm({
-    title: `Deactivate ${row.name}?`,
+    title: t('schedule.deactivate_confirm', { name: row.name }),
     variant: 'destructive',
-    confirmText: 'Deactivate',
+    confirmText: t('schedule.deactivate_resource'),
     onConfirm: () => router.delete(route('schedule.resources.destroy', row.id)),
   })
 }
@@ -97,9 +100,9 @@ const confirmDeactivate = (item: ResourceRow | Record<string, unknown>) => {
 
 <template>
   <AppLayout>
-    <PageHeader title="Resources" description="Bookable rooms, equipment, vehicles, and staff.">
+    <PageHeader :title="t('schedule.resources')" :description="t('schedule.resources_desc')">
       <template #actions>
-        <PrimaryButton :href="route('schedule.resources.create')">Add resource</PrimaryButton>
+        <PrimaryButton :href="route('schedule.resources.create')">{{ t('schedule.add_resource') }}</PrimaryButton>
       </template>
     </PageHeader>
 
@@ -117,15 +120,15 @@ const confirmDeactivate = (item: ResourceRow | Record<string, unknown>) => {
         selectable
         sticky-header
         storage-key="schedule.resources"
-        search-placeholder="Search name…"
+        :search-placeholder="t('schedule.search_resources')"
         :filter-fields="filterFields"
         export-filename="schedule-resources"
         :total="resources.total"
         :from="resources.from"
         :to="resources.to"
         :links="resources.links"
-        empty-title="No resources yet"
-        empty-description="Add a room, vehicle, or piece of equipment to start booking it on events."
+        :empty-title="t('schedule.no_resources')"
+        :empty-description="t('schedule.no_resources_desc')"
       >
         <template #cell-is_active="{ item }">
           <StatusBadge :status="(item as ResourceRow).is_active ? 'active' : 'inactive'" />
@@ -136,14 +139,14 @@ const confirmDeactivate = (item: ResourceRow | Record<string, unknown>) => {
               :href="route('schedule.resources.edit', item.id)"
               class="text-sm font-medium text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             >
-              Edit
+              {{ t('common.edit') }}
             </Link>
             <button
               type="button"
               class="text-sm font-medium text-signal-danger hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               @click="confirmDeactivate(item)"
             >
-              Deactivate
+              {{ t('schedule.deactivate_resource') }}
             </button>
           </div>
         </template>

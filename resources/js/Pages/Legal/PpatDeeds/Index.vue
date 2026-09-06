@@ -7,9 +7,10 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import LegalSubNav from '@/Components/legal/LegalSubNav.vue'
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { debounce } from '@/Composables/debounce'
 import { useConfirm } from '@/Composables/useConfirmDialog'
+import { useI18n } from '@/Composables/useI18n'
 
 interface PpatDeedRow {
   id: number
@@ -36,6 +37,7 @@ const props = defineProps<{
   filters: { search?: string; status?: string; sort?: string; direction?: string; per_page?: string }
 }>()
 
+const { t } = useI18n()
 const search = ref(props.filters.search ?? '')
 const filters = ref({ status: props.filters.status ?? '' })
 const sort = ref<SortState>(
@@ -44,28 +46,28 @@ const sort = ref<SortState>(
 const selected = ref<Array<string | number>>([])
 const perPage = ref(Number(props.filters.per_page) || props.deeds.per_page)
 
-const filterFields: FilterFieldDef[] = [
+const filterFields = computed<FilterFieldDef[]>(() => [
   {
     key: 'status',
-    label: 'Status',
+    label: t('common.status'),
     type: 'select',
     options: [
-      { label: 'Draft', value: 'draft' },
-      { label: 'Ready for signing', value: 'ready_for_signing' },
-      { label: 'Signed', value: 'signed' },
-      { label: 'Archived', value: 'archived' },
+      { label: t('legal.status_draft'), value: 'draft' },
+      { label: t('legal.status_ready_for_signing'), value: 'ready_for_signing' },
+      { label: t('legal.status_signed'), value: 'signed' },
+      { label: t('legal.status_archived'), value: 'archived' },
     ],
   },
-]
+])
 
-const columns = [
-  { key: 'deed_number', label: 'Deed no.', sortable: true },
-  { key: 'deed_type_name', label: 'Type' },
-  { key: 'land_object_certificate', label: 'Land object' },
-  { key: 'transaction_value', label: 'Value' },
-  { key: 'status', label: 'Status', sortable: true },
-  { key: 'actions', label: 'Actions', align: 'right' as const },
-]
+const columns = computed(() => [
+  { key: 'deed_number', label: t('legal.deed_no'), sortable: true },
+  { key: 'deed_type_name', label: t('legal.deed_type') },
+  { key: 'land_object_certificate', label: t('legal.land_objects') },
+  { key: 'transaction_value', label: t('common.details') },
+  { key: 'status', label: t('common.status'), sortable: true },
+  { key: 'actions', label: t('common.actions'), align: 'right' as const },
+])
 
 watch([search, filters, sort, perPage], debounce(() => {
   selected.value = []
@@ -83,9 +85,9 @@ const { confirm } = useConfirm()
 const confirmDelete = (item: PpatDeedRow | Record<string, unknown>) => {
   const row = item as PpatDeedRow
   confirm({
-    title: 'Delete this draft PPAT deed?',
+    title: t('legal.confirm_delete_deed'),
     variant: 'destructive',
-    confirmText: 'Delete',
+    confirmText: t('common.delete'),
     onConfirm: () => router.delete(route('legal.ppatDeeds.destroy', row.id)),
   })
 }
@@ -93,9 +95,9 @@ const confirmDelete = (item: PpatDeedRow | Record<string, unknown>) => {
 
 <template>
   <AppLayout>
-    <PageHeader title="PPAT Deeds" description="AJB, Hibah, and other statutory land-transfer acts — gated on due diligence and tax clearance.">
+    <PageHeader :title="t('legal.ppat_deeds')" :description="t('legal.ppat_deeds_subtitle')">
       <template #actions>
-        <PrimaryButton :href="route('legal.ppatDeeds.create')">Draft PPAT deed</PrimaryButton>
+        <PrimaryButton :href="route('legal.ppatDeeds.create')">{{ t('legal.new_ppat_deed') }}</PrimaryButton>
       </template>
     </PageHeader>
 
@@ -113,15 +115,15 @@ const confirmDelete = (item: PpatDeedRow | Record<string, unknown>) => {
         sticky-header
         storage-key="legal.ppat_deeds"
         status-rail-key="status"
-        search-placeholder="Search deed no. or minuta reference…"
+        :search-placeholder="t('legal.search_placeholder')"
         :filter-fields="filterFields"
         export-filename="legal-ppat-deeds"
         :total="deeds.total"
         :from="deeds.from"
         :to="deeds.to"
         :links="deeds.links"
-        empty-title="No PPAT deeds yet"
-        empty-description="Draft your first PPAT deed."
+        :empty-title="t('legal.empty_ppat_deeds_title')"
+        :empty-description="t('legal.empty_ppat_deeds_desc')"
       >
         <template #cell-deed_number="{ item }">
           <span class="font-mono text-sm text-ink-900">{{ item.deed_number || '—' }}</span>
@@ -135,7 +137,7 @@ const confirmDelete = (item: PpatDeedRow | Record<string, unknown>) => {
               :href="route('legal.ppatDeeds.edit', item.id)"
               class="text-sm font-medium text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             >
-              Open
+              {{ t('common.open') }}
             </Link>
             <button
               v-if="item.status === 'draft'"
@@ -143,7 +145,7 @@ const confirmDelete = (item: PpatDeedRow | Record<string, unknown>) => {
               class="text-sm font-medium text-signal-danger hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               @click="confirmDelete(item)"
             >
-              Delete
+              {{ t('common.delete') }}
             </button>
           </div>
         </template>

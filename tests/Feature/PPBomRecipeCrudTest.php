@@ -6,6 +6,7 @@ use App\Modules\Inventory\Models\Product;
 use App\Modules\Inventory\Models\Uom;
 use App\Modules\PP\Models\Bom;
 use App\Modules\PP\Models\Recipe;
+use App\Modules\PP\Services\RecipeService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\SetsUpTenant;
 use Tests\TestCase;
@@ -89,7 +90,7 @@ class PPBomRecipeCrudTest extends TestCase
             $this->assertNotNull($recipe);
             $recipeId = $recipe->id;
 
-            $scaled = app(\App\Modules\PP\Services\RecipeService::class)->scale($recipe->load('ingredients'), 250);
+            $scaled = app(RecipeService::class)->scale($recipe->load('ingredients'), 250);
             $this->assertCount(1, $scaled);
             $this->assertSame($ingredientId, $scaled[0]['product_id']);
             // 10 per 100L batch, scaled to 250L => 25

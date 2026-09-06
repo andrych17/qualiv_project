@@ -12,14 +12,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PosOverrideLog extends Model
 {
     protected $table = 'POS.pos_override_logs';
+
     public $timestamps = false;
 
     public const ACTION_DISCOUNT = 'discount_above_threshold';
+
     public const ACTION_ITEM_VOID = 'item_void';
+
     public const ACTION_SALE_VOID = 'sale_void';
+
     public const ACTION_REFUND = 'refund';
+
     public const ACTION_PRICE_OVERRIDE = 'price_override';
+
     public const ACTION_DRAWER_OPEN = 'drawer_open';
+
     public const ACTION_SESSION_REOPEN = 'session_reopen';
 
     protected $fillable = [

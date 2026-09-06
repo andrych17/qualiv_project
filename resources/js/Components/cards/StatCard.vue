@@ -9,6 +9,8 @@ const props = defineProps<{
   description?: string
   icon?: string
   href?: string | null
+  /** Rows added in the trailing 30 days. Omit when the source table has no created_at. */
+  delta?: number | null
 }>()
 
 const getIcon = (name?: string) => {
@@ -26,7 +28,18 @@ const getIcon = (name?: string) => {
   >
     <div class="space-y-1">
       <p class="text-sm font-medium text-ink-600">{{ title }}</p>
-      <p class="font-serif text-3xl font-semibold tabular-nums text-ink-900">{{ value }}</p>
+      <div class="flex items-baseline gap-2">
+        <p class="font-serif text-3xl font-semibold tabular-nums text-ink-900">{{ value }}</p>
+        <span
+          v-if="delta !== undefined && delta !== null"
+          class="text-xs font-semibold tabular-nums"
+          :class="delta > 0 ? 'text-signal-success' : 'text-ink-500'"
+          :title="`${delta} baru dalam 30 hari terakhir`"
+        >
+          {{ delta > 0 ? `+${delta}` : delta }}
+          <span class="font-normal text-ink-500">/30h</span>
+        </span>
+      </div>
       <p v-if="description" class="text-xs text-ink-600">{{ description }}</p>
     </div>
     <div

@@ -10,6 +10,7 @@ import SalesSubNav from '@/Components/sales/SalesSubNav.vue'
 import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
 import { debounce } from '@/Composables/debounce'
 import { formatCurrency } from '@/Utils/formatters'
+import { useI18n } from '@/Composables/useI18n'
 
 interface OrderLine {
   line_total: number
@@ -47,6 +48,7 @@ const props = defineProps<{
   customers: Array<{ id: number; name: string }>
 }>()
 
+const { t } = useI18n()
 const search = ref(props.filters.search ?? '')
 const filters = ref({
   status: props.filters.status ?? '',
@@ -58,30 +60,30 @@ const sort = ref<SortState>(
 const selected = ref<Array<string | number>>([])
 const perPage = ref(Number(props.filters.per_page) || props.orders.per_page)
 
-const filterFields: FilterFieldDef[] = [
+const filterFields = computed<FilterFieldDef[]>(() => [
   {
     key: 'status',
-    label: 'Status',
+    label: t('common.status'),
     type: 'select',
     options: props.statuses.map((st) => ({ label: st.toUpperCase(), value: st })),
   },
   {
     key: 'customer_id',
-    label: 'Customer',
+    label: t('sales.customer'),
     type: 'select',
     options: props.customers.map((c) => ({ label: c.name, value: String(c.id) })),
   },
-]
+])
 
-const columns = [
-  { key: 'so_number', label: 'SO Number', sortable: true },
-  { key: 'customer', label: 'Customer' },
-  { key: 'source', label: 'Source' },
-  { key: 'total_amount', label: 'Total Amount', align: 'right' as const },
-  { key: 'fulfillment', label: 'Fulfillment' },
-  { key: 'status', label: 'Status', sortable: true },
-  { key: 'actions', label: 'Actions', align: 'right' as const },
-]
+const columns = computed(() => [
+  { key: 'so_number', label: t('sales.order_number'), sortable: true },
+  { key: 'customer', label: t('sales.customer') },
+  { key: 'source', label: t('sales.source') },
+  { key: 'total_amount', label: t('sales.total_amount'), align: 'right' as const },
+  { key: 'fulfillment', label: t('sales.fulfillment') },
+  { key: 'status', label: t('common.status'), sortable: true },
+  { key: 'actions', label: t('common.actions'), align: 'right' as const },
+])
 
 const calculateOrderTotal = (lines: OrderLine[]) => {
   const subtotal = lines.reduce((acc, l) => acc + Number(l.line_total), 0)
@@ -106,11 +108,11 @@ watch([search, filters, sort, perPage], debounce(() => {
 <template>
   <AppLayout>
     <PageHeader
-      title="Sales Orders"
-      description="Manage order fulfillment, delivery handoff, and billing request orchestration (§3F)."
+      :title="t('sales.orders')"
+      :description="t('sales.orders_subtitle')"
     >
       <template #actions>
-        <PrimaryButton :href="route('sales.orders.create')">New Sales Order</PrimaryButton>
+        <PrimaryButton :href="route('sales.orders.create')">{{ t('sales.new_order') }}</PrimaryButton>
       </template>
     </PageHeader>
 
@@ -129,7 +131,7 @@ watch([search, filters, sort, perPage], debounce(() => {
         v-model:per-page="perPage"
         sticky-header
         storage-key="sales.orders"
-        search-placeholder="Search by SO number or customer…"
+        :search-placeholder="t('sales.search_orders_placeholder')"
         :filter-fields="filterFields"
         export-filename="sales-orders"
         status-rail-key="status"
@@ -137,8 +139,8 @@ watch([search, filters, sort, perPage], debounce(() => {
         :from="orders.from"
         :to="orders.to"
         :links="orders.links"
-        empty-title="No sales orders found"
-        empty-description="Create your first sales order or convert from an approved quotation."
+        :empty-title="t('sales.empty_orders_title')"
+        :empty-description="t('sales.empty_orders_desc')"
       >
         <template #cell-so_number="{ item }">
           <Link

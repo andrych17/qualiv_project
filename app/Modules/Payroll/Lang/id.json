@@ -1,0 +1,29 @@
+{
+  "menu.PAYROLL_DASHBOARD": "Dashboard Payroll",
+  "menu.PAYROLL_RUN": "Proses Penggajian (Payroll Run)",
+  "menu.PAYROLL_SLIPS": "Slip Gaji Karyawan",
+  "menu.PAYROLL_COMPONENTS": "Komponen Gaji & Tunjangan",
+  "menu.PAYROLL_TAX": "Perhitungan PPh 21 & BPJS",
+
+  "payroll.run": "Periode Penggajian",
+  "payroll.runs": "Proses Penggajian (Payroll Run)",
+  "payroll.runs_subtitle": "Kalkulasi gaji bulanan, pemotongan PPh 21, iuran BPJS, dan penerbitan slip.",
+  "payroll.new_run": "Jalankan Payroll Baru",
+  "payroll.empty_runs_title": "Belum ada riwayat penggajian",
+  "payroll.empty_runs_desc": "Mulai proses kalkulasi payroll bulanan untuk staf perusahaan.",
+
+  "payroll.slip": "Slip Gaji",
+  "payroll.slips": "Slip Gaji Karyawan",
+  "payroll.basic_salary": "Gaji Pokok",
+  "payroll.allowance": "Tunjangan",
+  "payroll.deduction": "Potongan",
+  "payroll.net_salary": "Gaji Bersih (Take Home Pay)",
+  "payroll.tax_pph21": "PPh 21",
+  "payroll.bpjs_tk": "BPJS Ketenagakerjaan",
+  "payroll.bpjs_kes": "BPJS Kesehatan",
+
+  "payroll.msg.run_calculated": "Kalkulasi penggajian berhasil diproses.",
+  "payroll.msg.run_paid": "Penggajian telah dibayarkan dan jurnal terbit.",
+
+  "payroll.err.run_already_paid": "Periode penggajian ini sudah dibayarkan dan dikunci."
+}

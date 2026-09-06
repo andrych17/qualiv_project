@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class PosFloor extends Model
 {
     protected $table = 'POS.pos_floors';
+
     public $timestamps = false;
 
     protected $fillable = [

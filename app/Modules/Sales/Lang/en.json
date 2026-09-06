@@ -1,0 +1,68 @@
+{
+  "menu.SALES_DASHBOARD": "Sales Dashboard",
+  "menu.SALES_QUOTATIONS": "Quotations",
+  "menu.SALES_ORDERS": "Sales Orders (SO)",
+  "menu.SALES_INVOICES": "Sales Invoices",
+  "menu.SALES_COMMISSIONS": "Sales Commissions",
+  "menu.SALES_PRICE_LISTS": "Price Lists & Discounts",
+  "menu.SALES_DELIVERIES": "Deliveries (DO)",
+  "menu.SALES_RETURNS": "Sales Returns",
+  "menu.SALES_CONTRACTS": "Sales Contracts",
+
+  "sales.quotation": "Quotation",
+  "sales.quotations": "Sales Quotations",
+  "sales.quotations_subtitle": "Manage price estimates, customer negotiations, and conversion to sales orders.",
+  "sales.new_quotation": "New Quotation",
+  "sales.empty_quotations_title": "No quotations found",
+  "sales.empty_quotations_desc": "Create your first quotation for prospects or customers.",
+
+  "sales.order": "Sales Order (SO)",
+  "sales.orders": "Sales Orders",
+  "sales.orders_subtitle": "Manage order fulfillment, delivery handoff, and billing request orchestration.",
+  "sales.new_order": "New Sales Order",
+  "sales.empty_orders_title": "No sales orders found",
+  "sales.empty_orders_desc": "Create a new sales order or convert one from a quotation.",
+
+  "sales.invoice": "Sales Invoice",
+  "sales.invoices": "Sales Invoices",
+  "sales.order_number": "SO Number",
+  "sales.order_date": "Order Date",
+  "sales.quote_number": "Quote Number",
+  "sales.customer": "Customer",
+  "sales.salesperson": "Salesperson",
+  "sales.source": "Source",
+  "sales.fulfillment": "Fulfillment",
+  "sales.subtotal": "Subtotal",
+  "sales.tax": "Tax (VAT)",
+  "sales.discount": "Discount",
+  "sales.total_amount": "Total Amount",
+  "sales.credit_limit": "Credit Limit",
+  "sales.credit_used": "Credit Used",
+  "sales.search_orders_placeholder": "Search by SO number or customer…",
+  "sales.search_quotes_placeholder": "Search by quotation number or customer…",
+
+  "sales.deliveries": "Deliveries",
+  "sales.deliveries_subtitle": "Delivery orders, carrier tracking, and proof of receipt.",
+  "sales.new_delivery": "New Delivery Order",
+  "sales.empty_deliveries_title": "No delivery orders found",
+  "sales.empty_deliveries_desc": "Generate delivery orders from confirmed sales orders.",
+
+  "sales.returns": "Sales Returns",
+  "sales.returns_subtitle": "Returned item receipts, credit memos, and receivables adjustments.",
+  "sales.new_return": "New Sales Return",
+  "sales.empty_returns_title": "No return transactions found",
+  "sales.empty_returns_desc": "Record verified customer return items.",
+
+  "sales.commissions": "Sales Commissions",
+  "sales.commissions_subtitle": "Incentive calculation and sales representative commission tracking.",
+
+  "sales.price_lists": "Price Lists & Discounts",
+  "sales.price_lists_subtitle": "Customer tiering pricing rules, wholesale discounts, and promotional codes.",
+
+  "sales.msg.quotation_created": "Quotation created successfully.",
+  "sales.msg.order_confirmed": "Sales order confirmed successfully.",
+  "sales.msg.invoice_generated": "Sales invoice generated successfully.",
+
+  "sales.err.credit_limit_exceeded": "Transaction exceeds customer credit limit.",
+  "sales.err.order_locked": "Sales order is already confirmed and cannot be modified."
+}

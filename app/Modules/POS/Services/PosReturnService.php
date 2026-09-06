@@ -137,7 +137,7 @@ class PosReturnService
                         'lines' => $restockLines,
                     ]);
                 } catch (\Throwable $e) {
-                    Log::warning("POS return stock reversal deferred/warning: ".$e->getMessage());
+                    Log::warning('POS return stock reversal deferred/warning: '.$e->getMessage());
                 }
             }
 

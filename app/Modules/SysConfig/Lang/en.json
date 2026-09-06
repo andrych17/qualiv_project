@@ -1,0 +1,29 @@
+{
+  "menu.SYSCONFIG_USERS": "Users Management",
+  "menu.SYSCONFIG_GROUPS": "Groups & Roles",
+  "menu.SYSCONFIG_MENUS": "Menu Hierarchy",
+  "menu.SYSCONFIG_CONSTS": "System Constants",
+  "menu.SYSCONFIG_SERIALS": "Auto Serial Numbers",
+  "menu.SYSCONFIG_MODULES": "Tenant Module Activation",
+  "menu.SYSCONFIG_FIELDS": "Custom Field Definitions",
+  "menu.SYSCONFIG_THEME": "Tenant Theme Settings",
+
+  "sysconfig.user": "User",
+  "sysconfig.users": "Users List",
+  "sysconfig.group": "Role Group",
+  "sysconfig.groups": "Role Groups List",
+  "sysconfig.permission": "Permission",
+  "sysconfig.permissions": "Permissions List",
+  "sysconfig.constant": "System Constant",
+  "sysconfig.serial": "Serial Number Pattern",
+  "sysconfig.module": "System Module",
+  "sysconfig.theme": "Display Theme",
+
+  "sysconfig.msg.user_created": "New user added successfully.",
+  "sysconfig.msg.user_updated": "User details updated successfully.",
+  "sysconfig.msg.permissions_saved": "Group permissions saved successfully.",
+  "sysconfig.msg.config_saved": "Configuration parameters saved successfully.",
+
+  "sysconfig.err.cannot_delete_self": "You cannot delete your own user account.",
+  "sysconfig.err.admin_group_immutable": "The System Administrator group is immutable and cannot be deleted."
+}

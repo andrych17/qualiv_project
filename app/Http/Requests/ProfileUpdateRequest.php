@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use App\Models\User;
+use App\Modules\SysConfig\Services\LocaleService;
+use App\Modules\SysConfig\Services\ThemeService;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -26,6 +28,8 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            'locale' => ['nullable', 'string', 'in:'.implode(',', array_keys(LocaleService::SUPPORTED_LOCALES))],
+            'theme' => ['nullable', 'string', 'in:'.implode(',', array_keys(ThemeService::THEMES))],
         ];
     }
 }

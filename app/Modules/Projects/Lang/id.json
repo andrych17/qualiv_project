@@ -1,0 +1,41 @@
+{
+  "menu.PROJECTS_DASHBOARD": "Dashboard Proyek",
+  "menu.PROJECTS_LIST": "Daftar Proyek & Kontrak",
+  "menu.PROJECTS_TASKS": "Tugas & Aktivitas (WBS)",
+  "menu.PROJECTS_TIMESHEET": "Pencatatan Waktu (Timesheet)",
+  "menu.PROJECTS_BUDGET": "Anggaran & Biaya Proyek",
+
+  "projects.project": "Proyek",
+  "projects.projects": "Manajemen Proyek",
+  "projects.projects_subtitle": "Pelacakan proyek internal, penugasan isu/tugas, dan milestone tim.",
+  "projects.new_project": "Buat Proyek Baru",
+  "projects.code": "Kode Proyek",
+  "projects.name": "Nama Proyek",
+  "projects.lead": "Pemimpin Proyek",
+  "projects.issues": "Isu & Tugas",
+  "projects.created": "Tanggal Dibuat",
+  "projects.search_placeholder": "Cari kode atau nama proyek...",
+  "projects.empty_projects_title": "Belum ada proyek",
+  "projects.empty_projects_desc": "Buat proyek pertama untuk mulai melacak tugas dan isu tim.",
+
+  "projects.task": "Tugas Proyek",
+  "projects.tasks": "Daftar Tugas",
+  "projects.milestone": "Tahapan / Milestone",
+  "projects.timesheet": "Timesheet Kerja",
+  "projects.budget": "Anggaran Proyek",
+  "projects.start_date": "Tanggal Mulai",
+  "projects.end_date": "Target Selesai",
+
+  "projects.status_planning": "Perencanaan",
+  "projects.status_active": "Aktif",
+  "projects.status_on_hold": "Ditunda",
+  "projects.status_completed": "Selesai",
+  "projects.status_cancelled": "Dibatalkan",
+
+  "projects.confirm_delete": "Hapus proyek :code?",
+  "projects.confirm_delete_desc": "Seluruh isu, komentar, dan lampiran terkait proyek ini akan ikut terhapus.",
+  "projects.confirm_bulk_delete": "Hapus :count proyek terpilih?",
+
+  "projects.msg.project_created": "Proyek baru berhasil didaftarkan.",
+  "projects.msg.task_completed": "Tugas proyek telah selesai."
+}

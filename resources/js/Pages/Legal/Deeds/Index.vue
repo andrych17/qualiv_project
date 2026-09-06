@@ -7,9 +7,10 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import LegalSubNav from '@/Components/legal/LegalSubNav.vue'
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { debounce } from '@/Composables/debounce'
 import { useConfirm } from '@/Composables/useConfirmDialog'
+import { useI18n } from '@/Composables/useI18n'
 
 interface DeedRow {
   id: number
@@ -38,6 +39,7 @@ const props = defineProps<{
   filters: { search?: string; status?: string; sort?: string; direction?: string; per_page?: string }
 }>()
 
+const { t } = useI18n()
 const search = ref(props.filters.search ?? '')
 const filters = ref({ status: props.filters.status ?? '' })
 const sort = ref<SortState>(
@@ -46,28 +48,28 @@ const sort = ref<SortState>(
 const selected = ref<Array<string | number>>([])
 const perPage = ref(Number(props.filters.per_page) || props.deeds.per_page)
 
-const filterFields: FilterFieldDef[] = [
+const filterFields = computed<FilterFieldDef[]>(() => [
   {
     key: 'status',
-    label: 'Status',
+    label: t('common.status'),
     type: 'select',
     options: [
-      { label: 'Draft', value: 'draft' },
-      { label: 'Ready for signing', value: 'ready_for_signing' },
-      { label: 'Signed', value: 'signed' },
-      { label: 'Archived', value: 'archived' },
+      { label: t('legal.status_draft'), value: 'draft' },
+      { label: t('legal.status_ready_for_signing'), value: 'ready_for_signing' },
+      { label: t('legal.status_signed'), value: 'signed' },
+      { label: t('legal.status_archived'), value: 'archived' },
     ],
   },
-]
+])
 
-const columns = [
-  { key: 'deed_number', label: 'Deed no.', sortable: true },
-  { key: 'deed_type_name', label: 'Type' },
-  { key: 'matter_code', label: 'Matter' },
-  { key: 'status', label: 'Status', sortable: true },
-  { key: 'signing_date_formatted', label: 'Signed', sortable: true, sortKey: 'signing_date' },
-  { key: 'actions', label: 'Actions', align: 'right' as const },
-]
+const columns = computed(() => [
+  { key: 'deed_number', label: t('legal.deed_no'), sortable: true },
+  { key: 'deed_type_name', label: t('legal.deed_type') },
+  { key: 'matter_code', label: t('legal.matter') },
+  { key: 'status', label: t('common.status'), sortable: true },
+  { key: 'signing_date_formatted', label: t('legal.signed'), sortable: true, sortKey: 'signing_date' },
+  { key: 'actions', label: t('common.actions'), align: 'right' as const },
+])
 
 watch([search, filters, sort, perPage], debounce(() => {
   selected.value = []
@@ -85,18 +87,18 @@ const { confirm } = useConfirm()
 const confirmDelete = (item: DeedRow | Record<string, unknown>) => {
   const row = item as DeedRow
   confirm({
-    title: `Delete this draft deed?`,
+    title: t('legal.confirm_delete_deed'),
     variant: 'destructive',
-    confirmText: 'Delete',
+    confirmText: t('common.delete'),
     onConfirm: () => router.delete(route('legal.deeds.destroy', row.id)),
   })
 }
 
 const confirmBulkDelete = () => {
   confirm({
-    title: `Delete ${selected.value.length} selected deed(s)?`,
+    title: t('legal.confirm_bulk_delete_deeds', { count: selected.value.length }),
     variant: 'destructive',
-    confirmText: 'Delete',
+    confirmText: t('common.delete'),
     onConfirm: () =>
       router.delete(route('legal.deeds.bulkDestroy'), {
         data: { ids: selected.value },
@@ -109,11 +111,11 @@ const confirmBulkDelete = () => {
 <template>
   <AppLayout>
     <PageHeader
-      title="Notarial deeds"
-      description="Akta Umum — agreements, powers of attorney, corporate deeds."
+      :title="t('legal.deeds')"
+      :description="t('legal.deeds_subtitle')"
     >
       <template #actions>
-        <PrimaryButton :href="route('legal.deeds.create')">Draft deed</PrimaryButton>
+        <PrimaryButton :href="route('legal.deeds.create')">{{ t('legal.new_deed') }}</PrimaryButton>
       </template>
     </PageHeader>
 
@@ -132,15 +134,15 @@ const confirmBulkDelete = () => {
         sticky-header
         storage-key="legal.deeds"
         status-rail-key="status"
-        search-placeholder="Search deed no. or minuta reference…"
+        :search-placeholder="t('legal.search_placeholder')"
         :filter-fields="filterFields"
         export-filename="legal-deeds"
         :total="deeds.total"
         :from="deeds.from"
         :to="deeds.to"
         :links="deeds.links"
-        empty-title="No deeds yet"
-        empty-description="Draft your first notarial deed."
+        :empty-title="t('legal.empty_deeds_title')"
+        :empty-description="t('legal.empty_deeds_desc')"
       >
         <template #bulk-actions>
           <button

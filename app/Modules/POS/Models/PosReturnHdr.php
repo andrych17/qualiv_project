@@ -16,8 +16,11 @@ class PosReturnHdr extends Model
     protected $table = 'POS.pos_return_hdrs';
 
     public const STATUS_REQUESTED = 'requested';
+
     public const STATUS_APPROVED = 'approved';
+
     public const STATUS_COMPLETED = 'completed';
+
     public const STATUS_REJECTED = 'rejected';
 
     protected $fillable = [

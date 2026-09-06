@@ -13,6 +13,9 @@ import WorkingHoursInput, { type WorkingHourRow } from '@/Components/schedule/Wo
 import ScheduleSubNav from '@/Components/schedule/ScheduleSubNav.vue'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
 import { useConfirm } from '@/Composables/useConfirmDialog'
+import { useI18n } from '@/Composables/useI18n'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   resource: {
@@ -41,9 +44,9 @@ const submit = () => form.put(route('schedule.resources.update', props.resource.
 const { confirm } = useConfirm()
 const confirmDeactivate = () => {
   confirm({
-    title: `Deactivate ${props.resource.name}?`,
+    title: t('schedule.deactivate_confirm', { name: props.resource.name }),
     variant: 'destructive',
-    confirmText: 'Deactivate',
+    confirmText: t('schedule.deactivate_resource'),
     onConfirm: () => router.delete(route('schedule.resources.destroy', props.resource.id)),
   })
 }
@@ -51,7 +54,7 @@ const confirmDeactivate = () => {
 
 <template>
   <AppLayout>
-    <PageHeader :title="resource.name" description="Resource details">
+    <PageHeader :title="resource.name" :description="t('common.details')">
       <template #actions>
         <StatusBadge :status="resource.is_active ? 'active' : 'inactive'" />
       </template>
@@ -64,22 +67,22 @@ const confirmDeactivate = () => {
         <FormSelect
           v-model="form.resource_type_id"
           name="resource_type_id"
-          label="Type"
-          :options="resourceTypes.map((t) => ({ label: t.name, value: t.id }))"
+          :label="t('schedule.resource_type')"
+          :options="resourceTypes.map((tItem) => ({ label: tItem.name, value: tItem.id }))"
           :error="form.errors.resource_type_id"
           required
         />
-        <FormInput v-model="form.name" name="name" label="Name" :error="form.errors.name" required />
-        <FormTextarea v-model="form.location_notes" name="location_notes" label="Location / notes" :error="form.errors.location_notes" />
+        <FormInput v-model="form.name" name="name" :label="t('schedule.resource_name')" :error="form.errors.name" required />
+        <FormTextarea v-model="form.location_notes" name="location_notes" :label="t('schedule.location_notes')" :error="form.errors.location_notes" />
         <FormInput
           v-model="form.capacity"
           name="capacity"
           type="number"
-          label="Capacity"
-          placeholder="Optional — informational only"
+          :label="t('schedule.capacity')"
+          :placeholder="t('schedule.capacity_placeholder')"
           :error="form.errors.capacity"
         />
-        <FormSwitch v-model="form.is_active" label="Active" description="Inactive resources can't be booked on new events." />
+        <FormSwitch v-model="form.is_active" :label="t('common.active')" :description="t('schedule.active_resource_desc')" />
 
         <WorkingHoursInput v-model="form.working_hours" />
 
@@ -89,16 +92,16 @@ const confirmDeactivate = () => {
             class="text-sm font-medium text-signal-danger hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             @click="confirmDeactivate"
           >
-            Deactivate resource
+            {{ t('schedule.deactivate_resource') }}
           </button>
           <div class="flex items-center gap-3">
             <Link
               :href="route('schedule.resources.index')"
               class="inline-flex items-center justify-center rounded-sm border border-border bg-surface-0 px-3 py-2 text-sm font-semibold text-ink-900 shadow-sm transition hover:bg-surface-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             >
-              Cancel
+              {{ t('common.cancel') }}
             </Link>
-            <PrimaryButton type="submit" :disabled="form.processing">Save resource</PrimaryButton>
+            <PrimaryButton type="submit" :disabled="form.processing">{{ t('schedule.save_resource') }}</PrimaryButton>
           </div>
         </div>
       </form>

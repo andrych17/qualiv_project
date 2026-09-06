@@ -1,0 +1,27 @@
+{
+  "menu.POS_DASHBOARD": "POS Dashboard",
+  "menu.POS_TERMINALS": "POS Terminals",
+  "menu.POS_SESSIONS": "Cashier Sessions",
+  "menu.POS_CART": "Checkout Screen",
+  "menu.POS_PROMOTIONS": "Promotions & Loyalty",
+
+  "pos.terminal": "POS Terminal",
+  "pos.session": "Cashier Session",
+  "pos.cashier": "Cashier",
+  "pos.opening_cash": "Opening Cash Float",
+  "pos.closing_cash": "Closing Cash Count",
+  "pos.receipt": "Receipt",
+  "pos.payment_method": "Payment Method",
+  "pos.cash": "Cash",
+  "pos.qris": "QRIS",
+  "pos.debit_card": "Debit Card",
+  "pos.credit_card": "Credit Card",
+  "pos.change": "Change Due",
+
+  "pos.msg.session_opened": "Cashier session opened successfully.",
+  "pos.msg.session_closed": "Cashier session closed successfully.",
+  "pos.msg.transaction_completed": "Payment transaction processed successfully.",
+
+  "pos.err.session_already_open": "This terminal already has an active open session.",
+  "pos.err.no_active_session": "Please open a cashier session before processing transactions."
+}

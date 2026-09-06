@@ -103,7 +103,7 @@ class OkrTest extends TestCase
         });
     }
 
-    public function test_objective_update_replaces_key_results_and_skips_incomplete_rows(): void
+    public function test_objective_update_via_http_replaces_key_results(): void
     {
         $tenant = $this->loginAsPerformanceAdmin();
 
@@ -123,7 +123,6 @@ class OkrTest extends TestCase
                 'objective_text' => 'Updated objective',
                 'key_results' => [
                     ['description' => 'New KR', 'metric_type' => OkrKeyResult::METRIC_NUMERIC, 'current_value' => 5, 'target_value' => 10],
-                    ['description' => '', 'metric_type' => OkrKeyResult::METRIC_NUMERIC, 'target_value' => 10], // incomplete — skipped
                 ],
             ])->assertRedirect(route('performance.okrObjectives.index'));
         });
@@ -132,6 +131,38 @@ class OkrTest extends TestCase
             $keyResults = OkrKeyResult::query()->where('okr_id', $objectiveId)->get();
             $this->assertCount(1, $keyResults);
             $this->assertSame('New KR', $keyResults->first()->description);
+        });
+    }
+
+    /**
+     * StoreOkrObjectiveRequest/UpdateOkrObjectiveRequest both require description/metric_type/
+     * target_value whenever key_results is present, so OkrObjectiveService::syncKeyResults()'s
+     * own "skip an incomplete row" guard is unreachable via HTTP — only reachable by calling the
+     * service directly (e.g. a future non-HTTP caller, or a FormRequest change that loosens the
+     * per-field `required_with`).
+     */
+    public function test_service_layer_skips_incomplete_key_result_rows(): void
+    {
+        $tenant = $this->loginAsPerformanceAdmin();
+
+        $tenant->run(function () {
+            $service = app(OkrObjectiveService::class);
+            $cycle = $this->makeOkrCycle();
+            $objective = $this->makeOkrObjective($cycle);
+
+            $updated = $service->update($objective, [
+                'cycle_id' => $cycle->id,
+                'subject_type' => OkrObjective::SUBJECT_COMPANY,
+                'objective_text' => 'Direct service update',
+                'key_results' => [
+                    ['description' => 'Complete Row', 'metric_type' => OkrKeyResult::METRIC_NUMERIC, 'target_value' => 10],
+                    ['description' => '', 'metric_type' => OkrKeyResult::METRIC_NUMERIC, 'target_value' => 10], // incomplete — skipped
+                    ['description' => 'Missing Target', 'metric_type' => OkrKeyResult::METRIC_NUMERIC], // incomplete — skipped
+                ],
+            ]);
+
+            $this->assertCount(1, $updated->keyResults);
+            $this->assertSame('Complete Row', $updated->keyResults->first()->description);
         });
     }
 
@@ -333,7 +364,7 @@ class OkrTest extends TestCase
             $this->makeKeyResult($weighted, ['current_value' => 100, 'target_value' => 100, 'weight' => 75]); // 100% progress
             $this->makeKeyResult($weighted, ['current_value' => 0, 'target_value' => 100, 'weight' => 25]);   // 0% progress
             // A no-range KR is excluded entirely, not counted as 0 weight-wise.
-            $this->makeKeyResult($weighted, ['start_value' => 5, 'current_value' => 5, 'target_value' => 5, 'weight' => 1000]);
+            $this->makeKeyResult($weighted, ['start_value' => 5, 'current_value' => 5, 'target_value' => 5, 'weight' => 500]);
 
             $this->assertEqualsWithDelta(75.0, $service->objectiveProgress($weighted), 0.001);
         });

@@ -2,8 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use App\Modules\Inventory\Models\Product;
 use App\Modules\Inventory\Models\Uom;
+use App\Modules\MES\Contracts\IotProtocolAdapter;
+use App\Modules\MES\Data\IotReading;
+use App\Modules\MES\Jobs\ProcessIotIngestionJob;
 use App\Modules\MES\Models\BatchParameterReading;
 use App\Modules\MES\Models\BatchPhase;
 use App\Modules\MES\Models\Machine;
@@ -13,9 +17,13 @@ use App\Modules\MES\Models\ProcessPhase;
 use App\Modules\MES\Models\ProdEvent;
 use App\Modules\MES\Models\ProdOrder;
 use App\Modules\MES\Models\WorkCenter;
+use App\Modules\MES\Services\IotAdapters\RestWebhookAdapter;
+use App\Modules\MES\Services\IotIngestionService;
 use App\Modules\PP\Models\Bom;
 use App\Modules\PP\Models\Recipe;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Tests\Concerns\SetsUpTenant;
 use Tests\TestCase;
 
@@ -153,5 +161,81 @@ class MesIotIngestionTest extends TestCase
 
         $this->postJson('/api/v1/mes/iot/ingest', ['readings' => []], ['X-Tenant-Id' => '001'])
             ->assertUnauthorized();
+    }
+
+    public function test_ingestion_rejects_an_invalid_machine_batch_phase_parameter_and_order_id(): void
+    {
+        $tenant = $this->provisionTenant();
+        $tenant->update(['plan' => 'full']);
+
+        $headers = $this->bearerHeaders();
+
+        $this->postJson('/api/v1/mes/iot/ingest', [
+            'machine_id' => 999999,
+            'readings' => [['batch_phase_id' => 999999, 'process_parameter_id' => 999999, 'value' => 1]],
+        ], $headers)
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['machine_id', 'readings.0.batch_phase_id', 'readings.0.process_parameter_id']);
+
+        $this->postJson('/api/v1/mes/iot/ingest', [
+            'events' => [['order_id' => 999999, 'event_type' => 'downtime_started']],
+        ], $headers)
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['events.0.order_id']);
+    }
+
+    /**
+     * IotIngestionService's own "no items" and "neither a reading nor an event shape" guards are
+     * unreachable via HTTP — IngestIotDataRequest already requires at least one non-empty
+     * readings/events entry with every sub-field present, so RestWebhookAdapter::normalize()
+     * always returns well-formed items. Reachable only by calling the service directly.
+     */
+    public function test_ingestion_service_guards_are_unreachable_via_http_and_covered_directly(): void
+    {
+        $tenant = $this->provisionTenant();
+        $tenant->update(['plan' => 'full']);
+
+        $tenant->run(function () {
+            $service = app(IotIngestionService::class);
+            $adapter = new RestWebhookAdapter;
+            $userId = User::query()->where('email', 'admin@nusaevo.com')->value('id');
+
+            $this->expectException(ValidationException::class);
+            $service->ingest([], $adapter, $userId);
+        });
+    }
+
+    public function test_ingestion_service_rejects_a_malformed_item_directly(): void
+    {
+        $tenant = $this->provisionTenant();
+        $tenant->update(['plan' => 'full']);
+
+        $tenant->run(function () {
+            $service = app(IotIngestionService::class);
+            $userId = User::query()->where('email', 'admin@nusaevo.com')->value('id');
+
+            // Bypasses RestWebhookAdapter's own field mapping entirely — a bare stub adapter that
+            // hands back one item with none of the reading/event fields set.
+            $adapter = new class implements IotProtocolAdapter
+            {
+                public function normalize(array $raw): array
+                {
+                    return [new IotReading(machineId: null, batchPhaseId: null, processParameterId: null, value: null, orderId: null, eventType: null)];
+                }
+            };
+
+            $this->expectException(ValidationException::class);
+            $service->ingest(['probe' => true], $adapter, $userId);
+        });
+    }
+
+    /** ProcessIotIngestionJob::failed() is Laravel's own queue-failure callback — never invoked by a normal successful dispatch, only by the queue worker after retries are exhausted. Call it directly to cover the log line. */
+    public function test_the_job_logs_a_failure_when_it_gives_up(): void
+    {
+        $job = new ProcessIotIngestionJob(['readings' => []], RestWebhookAdapter::class, 1);
+
+        Log::shouldReceive('error')->once()->with('MES IoT ingestion job failed', \Mockery::type('array'));
+
+        $job->failed(new \Exception('simulated failure'));
     }
 }

@@ -5,6 +5,7 @@ namespace Tests\Concerns;
 use App\Models\Tenant;
 use App\Modules\Accounting\Models\Account;
 use App\Modules\Accounting\Models\Company;
+use App\Modules\Accounting\Models\Currency;
 use App\Modules\Accounting\Models\FiscalPeriod;
 use App\Modules\Accounting\Models\FiscalYear;
 use App\Modules\Accounting\Models\GlJournal;
@@ -250,6 +251,11 @@ trait SetsUpPerformance
 
     protected function makeCompany(array $attrs = []): Company
     {
+        // AccountingSeeder (which normally seeds IDR/USD) only runs via the full DatabaseSeeder,
+        // not SetsUpTenant::provisionTenant() — gl_journals.currency_code FKs to this table, so
+        // any test posting a journal needs it seeded itself.
+        Currency::query()->firstOrCreate(['code' => 'IDR'], ['name' => 'Indonesian Rupiah', 'is_enabled' => true]);
+
         return Company::query()->create([
             'legal_name' => $attrs['legal_name'] ?? 'Acme Corp',
             'base_currency' => $attrs['base_currency'] ?? 'IDR',

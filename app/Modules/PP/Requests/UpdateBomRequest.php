@@ -3,6 +3,7 @@
 namespace App\Modules\PP\Requests;
 
 use App\Modules\Inventory\Models\Product;
+use App\Modules\PP\Models\Bom;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
@@ -32,7 +33,7 @@ class UpdateBomRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator) {
-            /** @var \App\Modules\PP\Models\Bom $bom */
+            /** @var Bom $bom */
             $bom = $this->route('bom');
 
             foreach ((array) $this->input('lines', []) as $i => $line) {

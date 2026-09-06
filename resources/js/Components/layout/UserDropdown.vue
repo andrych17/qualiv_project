@@ -1,11 +1,12 @@
-<!-- ponytail: Minimal user dropdown wrapper using native HTML/Inertia link for simpler code -->
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3'
 import { ref } from 'vue'
 import { LogOut, User as UserIcon, ChevronDown } from 'lucide-vue-next'
+import { useI18n } from '@/Composables/useI18n'
 
 const page = usePage()
-const user = page.props.auth.user
+const user = (page.props as any).auth?.user
+const { t } = useI18n()
 
 const isOpen = ref(false)
 </script>
@@ -43,7 +44,7 @@ const isOpen = ref(false)
       class="absolute right-0 z-50 mt-2 w-56 max-w-[calc(100vw-1.5rem)] rounded-md border border-border bg-surface-0 py-1 shadow-2xl ring-1 ring-black/10"
     >
       <div class="border-b border-border px-4 py-3">
-        <p class="text-[11px] font-semibold uppercase tracking-wider text-ink-600">Terhubung sebagai</p>
+        <p class="text-[11px] font-semibold uppercase tracking-wider text-ink-600">{{ t('header.connected_as') }}</p>
         <p class="mt-0.5 text-sm font-semibold text-ink-900 truncate">{{ user?.name }}</p>
         <p class="text-xs text-ink-600 truncate">{{ user?.email }}</p>
       </div>
@@ -55,7 +56,7 @@ const isOpen = ref(false)
           class="flex w-full items-center gap-2.5 px-4 py-2 text-left text-sm text-ink-900 transition-colors hover:bg-surface-50"
         >
           <UserIcon class="h-4 w-4 text-ink-600" />
-          <span>Pengaturan Profil</span>
+          <span>{{ t('header.profile_settings') }}</span>
         </Link>
       </div>
 
@@ -67,7 +68,7 @@ const isOpen = ref(false)
           class="flex w-full items-center gap-2.5 px-4 py-2 text-left text-sm text-signal-danger transition-colors hover:bg-signal-danger/10 cursor-pointer"
         >
           <LogOut class="h-4 w-4" />
-          <span>Keluar (Log Out)</span>
+          <span>{{ t('header.logout') }}</span>
         </Link>
       </div>
     </div>

@@ -1,4 +1,3 @@
-<!-- ponytail: CRM Helpdesk Tickets (§3F) — mirrors ServiceCases Index (shared list-view components) -->
 <script setup lang="ts">
 import { Link, router } from '@inertiajs/vue3'
 import PrimaryButton from '@/Components/PrimaryButton.vue'
@@ -7,8 +6,11 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import DataTable, { type FilterFieldDef, type SortState } from '@/Components/tables/DataTable.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import CrmSubNav from '@/Components/crm/CrmSubNav.vue'
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { debounce } from '@/Composables/debounce'
+import { useI18n } from '@/Composables/useI18n'
+
+const { t } = useI18n()
 
 interface TicketRow {
   id: number
@@ -52,43 +54,43 @@ const sort = ref<SortState>(
 )
 const perPage = ref(Number(props.filters.per_page) || props.tickets.per_page)
 
-const filterFields: FilterFieldDef[] = [
+const filterFields = computed<FilterFieldDef[]>(() => [
   {
     key: 'status',
-    label: 'Status',
+    label: t('common.status'),
     type: 'select',
     options: [
-      { label: 'Open', value: 'open' },
-      { label: 'In progress', value: 'in_progress' },
+      { label: t('status.open'), value: 'open' },
+      { label: t('status.in_progress'), value: 'in_progress' },
       { label: 'Waiting on partner', value: 'waiting_on_partner' },
-      { label: 'Resolved', value: 'resolved' },
-      { label: 'Closed', value: 'closed' },
+      { label: t('status.completed'), value: 'resolved' },
+      { label: t('status.closed'), value: 'closed' },
     ],
   },
   {
     key: 'priority',
-    label: 'Priority',
+    label: t('crm.priority'),
     type: 'select',
     options: [
-      { label: 'Low', value: 'low' },
-      { label: 'Normal', value: 'normal' },
-      { label: 'High', value: 'high' },
-      { label: 'Urgent', value: 'urgent' },
+      { label: t('crm.priority_low'), value: 'low' },
+      { label: t('crm.priority_normal'), value: 'normal' },
+      { label: t('crm.priority_high'), value: 'high' },
+      { label: t('crm.priority_urgent'), value: 'urgent' },
     ],
   },
   {
     key: 'sla_state',
-    label: 'SLA state',
+    label: t('crm.sla_state'),
     type: 'select',
     options: [
-      { label: 'Breached', value: 'breached' },
-      { label: 'Due soon', value: 'due_soon' },
-      { label: 'On track', value: 'on_track' },
+      { label: t('wne.sla_breached'), value: 'breached' },
+      { label: t('wne.sla_due_soon'), value: 'due_soon' },
+      { label: t('wne.sla_on_track'), value: 'on_track' },
     ],
   },
   {
     key: 'channel',
-    label: 'Channel',
+    label: t('crm.channel'),
     type: 'select',
     options: [
       { label: 'Email', value: 'email' },
@@ -99,22 +101,22 @@ const filterFields: FilterFieldDef[] = [
   },
   {
     key: 'assigned_to',
-    label: 'Assigned to',
+    label: t('crm.assigned_to'),
     type: 'select',
     options: props.assignees.map((a) => ({ label: a.name, value: String(a.id) })),
   },
-]
+])
 
-const columns = [
-  { key: 'subject', label: 'Subject', sortable: true },
-  { key: 'requester_name', label: 'Requester' },
-  { key: 'category_name', label: 'Category' },
-  { key: 'priority', label: 'Priority' },
-  { key: 'status', label: 'Status' },
-  { key: 'assigned_to_name', label: 'Assigned to' },
-  { key: 'sla_due_at_formatted', label: 'SLA due', sortable: true, sortKey: 'sla_due_at' },
-  { key: 'actions', label: 'Actions', align: 'right' as const },
-]
+const columns = computed(() => [
+  { key: 'subject', label: t('crm.subject'), sortable: true },
+  { key: 'requester_name', label: t('crm.requester') },
+  { key: 'category_name', label: t('crm.category') },
+  { key: 'priority', label: t('crm.priority') },
+  { key: 'status', label: t('common.status') },
+  { key: 'assigned_to_name', label: t('crm.assigned_to') },
+  { key: 'sla_due_at_formatted', label: t('crm.sla_due'), sortable: true, sortKey: 'sla_due_at' },
+  { key: 'actions', label: t('common.actions'), align: 'right' as const },
+])
 
 watch([search, filters, sort, perPage], debounce(() => {
   router.get(route('crm.tickets.index'), {
@@ -134,11 +136,11 @@ watch([search, filters, sort, perPage], debounce(() => {
 <template>
   <AppLayout>
     <PageHeader
-      title="Helpdesk"
-      description="Support requests, inquiries, and complaints — for any partner, or none yet."
+      :title="t('crm.helpdesk')"
+      :description="t('crm.helpdesk_desc')"
     >
       <template #actions>
-        <PrimaryButton :href="route('crm.tickets.create')">Open ticket</PrimaryButton>
+        <PrimaryButton :href="route('crm.tickets.create')">{{ t('crm.open_ticket') }}</PrimaryButton>
       </template>
     </PageHeader>
 
@@ -155,15 +157,15 @@ watch([search, filters, sort, perPage], debounce(() => {
         sticky-header
         status-rail-key="sla_state"
         storage-key="crm.tickets"
-        search-placeholder="Search subject…"
+        :search-placeholder="t('common.search')"
         :filter-fields="filterFields"
         export-filename="crm-tickets"
         :total="tickets.total"
         :from="tickets.from"
         :to="tickets.to"
         :links="tickets.links"
-        empty-title="No tickets yet"
-        empty-description="Open your first ticket to start tracking support requests."
+        :empty-title="t('crm.empty_tickets_title')"
+        :empty-description="t('crm.empty_tickets_desc')"
       >
         <template #cell-priority="{ item }">
           <span class="text-sm capitalize text-ink-900">{{ (item as TicketRow).priority }}</span>
@@ -179,7 +181,7 @@ watch([search, filters, sort, perPage], debounce(() => {
             :href="route('crm.tickets.edit', item.id)"
             class="text-sm font-medium text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           >
-            Open
+            {{ t('common.open') }}
           </Link>
         </template>
       </DataTable>

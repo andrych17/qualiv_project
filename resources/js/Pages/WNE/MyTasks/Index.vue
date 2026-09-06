@@ -3,7 +3,7 @@
      resolution both happen server-side (TaskInboxService) — this page just renders what
      comes back. -->
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Components/layout/AppLayout.vue'
 import PageHeader from '@/Components/layout/PageHeader.vue'
@@ -12,6 +12,9 @@ import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import WneSubNav from '@/Components/wne/WneSubNav.vue'
 import CompleteTaskModal from '@/Components/wne/CompleteTaskModal.vue'
 import { debounce } from '@/Composables/debounce'
+import { useI18n } from '@/Composables/useI18n'
+
+const { t } = useI18n()
 
 interface TaskRow {
   id: number
@@ -52,34 +55,34 @@ const sort = ref<SortState>(
 )
 const perPage = ref(Number(props.filters.per_page) || props.tasks.per_page)
 
-const filterFields: FilterFieldDef[] = [
+const filterFields = computed<FilterFieldDef[]>(() => [
   {
     key: 'subject_type',
-    label: 'Source module',
+    label: t('wne.source_module'),
     type: 'select',
-    options: props.subjectTypes.map((t) => ({ label: t, value: t })),
+    options: props.subjectTypes.map((item) => ({ label: item, value: item })),
   },
   {
     key: 'sla_state',
-    label: 'Urgency',
+    label: t('wne.urgency'),
     type: 'select',
     options: [
-      { label: 'Breached', value: 'breached' },
-      { label: 'Due soon', value: 'due_soon' },
-      { label: 'On track', value: 'on_track' },
-      { label: 'No SLA', value: 'none' },
+      { label: t('wne.sla_breached'), value: 'breached' },
+      { label: t('wne.sla_due_soon'), value: 'due_soon' },
+      { label: t('wne.sla_on_track'), value: 'on_track' },
+      { label: t('wne.sla_none'), value: 'none' },
     ],
   },
-]
+])
 
-const columns = [
-  { key: 'workflow_name', label: 'Workflow' },
-  { key: 'step_code', label: 'Step' },
-  { key: 'subject_type', label: 'Source' },
-  { key: 'status', label: 'Status' },
-  { key: 'due_at_formatted', label: 'Due', sortable: true, sortKey: 'due_at' },
-  { key: 'actions', label: 'Actions', align: 'right' as const },
-]
+const columns = computed(() => [
+  { key: 'workflow_name', label: t('wne.workflow') },
+  { key: 'step_code', label: t('wne.step') },
+  { key: 'subject_type', label: t('wne.source') },
+  { key: 'status', label: t('common.status') },
+  { key: 'due_at_formatted', label: t('wne.due'), sortable: true, sortKey: 'due_at' },
+  { key: 'actions', label: t('common.actions'), align: 'right' as const },
+])
 
 watch([search, filters, sort, perPage], debounce(() => {
   router.get(route('wne.my-tasks.index'), {
@@ -102,7 +105,7 @@ const openTask = (task: TaskRow) => {
 
 <template>
   <AppLayout>
-    <PageHeader title="My Approvals" description="Tasks waiting on you — direct, role, or team assignment (WNE §3H)." />
+    <PageHeader :title="t('wne.my_approvals')" :description="t('wne.my_approvals_desc')" />
 
     <WneSubNav active="my-tasks" class="mt-6" />
 
@@ -116,14 +119,14 @@ const openTask = (task: TaskRow) => {
         v-model:per-page="perPage"
         status-rail-key="sla_state"
         storage-key="wne.my-tasks"
-        search-placeholder="Search workflow or step…"
+        :search-placeholder="t('common.search')"
         :filter-fields="filterFields"
         :total="tasks.total"
         :from="tasks.from"
         :to="tasks.to"
         :links="tasks.links"
-        empty-title="Nothing waiting on you"
-        empty-description="Tasks assigned to you, your role, or your team will show up here."
+        :empty-title="t('wne.empty_tasks_title')"
+        :empty-description="t('wne.empty_tasks_desc')"
       >
         <template #cell-subject_type="{ item }">
           <span class="text-sm text-ink-600">
@@ -139,10 +142,10 @@ const openTask = (task: TaskRow) => {
         <template #cell-actions="{ item }">
           <button
             type="button"
-            class="text-sm font-medium text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            class="text-sm font-medium text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent cursor-pointer"
             @click="openTask(item as TaskRow)"
           >
-            Act
+            {{ t('wne.act') }}
           </button>
         </template>
       </DataTable>

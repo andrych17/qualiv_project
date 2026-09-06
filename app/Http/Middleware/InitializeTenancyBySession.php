@@ -23,7 +23,12 @@ class InitializeTenancyBySession
                 $tenant = Tenant::query()->find((string) $tenantId);
 
                 if ($tenant) {
-                    tenancy()->initialize($tenant);
+                    try {
+                        tenancy()->initialize($tenant);
+                    } catch (\Throwable $e) {
+                        // Tenant DB might be missing or corrupted.
+                        // Allow falling through to drop orphan session.
+                    }
                 }
             }
         }

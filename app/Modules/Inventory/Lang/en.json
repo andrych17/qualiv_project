@@ -1,0 +1,60 @@
+{
+  "menu.INVENTORY_DASHBOARD": "Inventory Dashboard",
+  "menu.INVENTORY_PRODUCTS": "Products & Services",
+  "menu.INVENTORY_WAREHOUSES": "Warehouses & Bin Locations",
+  "menu.INVENTORY_MOVEMENTS": "Stock Movements & Cards",
+  "menu.INVENTORY_ADJUSTMENTS": "Stock Adjustments",
+  "menu.INVENTORY_TRANSFERS": "Warehouse Transfers",
+  "menu.INVENTORY_BATCHES": "Batches, Lots & Serials",
+  "menu.INVENTORY_STOCK_OPNAME": "Physical Stock Taking",
+  "menu.INVENTORY_UOMS": "Units of Measure (UOM)",
+  "menu.INVENTORY_CATEGORIES": "Product Categories",
+  "menu.INVENTORY_SHIPMENTS": "Warehouse Shipments",
+
+  "inventory.product": "Product",
+  "inventory.products": "Products & Inventory Master",
+  "inventory.products_subtitle": "Manage inventory items, stock levels, categories, and active status.",
+  "inventory.new_product": "Create Item",
+  "inventory.empty_products_title": "No items found",
+  "inventory.empty_products_desc": "Add your first item to begin tracking stock across warehouses.",
+
+  "inventory.sku": "Code / SKU",
+  "inventory.item_name": "Name",
+  "inventory.barcode": "Barcode / EAN",
+  "inventory.category": "Category",
+  "inventory.warehouse": "Warehouse",
+  "inventory.warehouses": "Warehouses List",
+  "inventory.stock": "Stock",
+  "inventory.stock_on_hand": "Stock on Hand",
+  "inventory.stock_allocated": "Allocated Stock",
+  "inventory.min_stock": "Minimum Stock Level",
+  "inventory.batch_number": "Batch Number",
+  "inventory.expiry_date": "Expiry Date",
+  "inventory.uom": "Unit",
+  "inventory.goods_receipt": "Goods Receipt (GR)",
+  "inventory.goods_issue": "Goods Issue (GI)",
+  "inventory.created_date": "Created Date",
+  "inventory.search_placeholder": "Search code, name, or category…",
+
+  "inventory.stock_card": "Stock Card",
+  "inventory.stock_card_subtitle": "Ledger of stock movements, receipts, dispatches, and running balances.",
+
+  "inventory.transfers": "Warehouse Transfers",
+  "inventory.transfers_subtitle": "Relocate stock across different warehouse locations and company branches.",
+  "inventory.new_transfer": "New Warehouse Transfer",
+
+  "inventory.adjustments": "Stock Adjustments",
+  "inventory.adjustments_subtitle": "Reconcile physical discrepancies and correct inventory valuations.",
+  "inventory.new_adjustment": "New Stock Adjustment",
+
+  "inventory.confirm_delete_item": "Delete item :name?",
+  "inventory.confirm_bulk_delete_items": "Delete :count selected item(s)?",
+
+  "inventory.msg.stock_adjusted": "Stock adjustment saved and recorded.",
+  "inventory.msg.transfer_completed": "Warehouse stock transfer completed successfully.",
+  "inventory.msg.stock_opname_posted": "Stock opname counts posted successfully.",
+
+  "inventory.err.insufficient_stock": "Insufficient stock available for this operation.",
+  "inventory.err.batch_expired": "This stock batch has expired and cannot be issued.",
+  "inventory.err.warehouse_locked": "Warehouse is locked for physical inventory counting."
+}

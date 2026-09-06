@@ -12,10 +12,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PosCashMovement extends Model
 {
     protected $table = 'POS.pos_cash_movements';
+
     public $timestamps = false;
 
     public const TYPE_CASH_IN = 'cash_in';
+
     public const TYPE_CASH_OUT = 'cash_out';
+
     public const TYPE_PETTY_CASH = 'petty_cash';
 
     protected $fillable = [

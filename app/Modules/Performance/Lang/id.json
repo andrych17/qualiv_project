@@ -1,0 +1,18 @@
+{
+  "menu.PERFORMANCE_DASHBOARD": "Dashboard Performa",
+  "menu.PERFORMANCE_KPIS": "Key Performance Indicators (KPI)",
+  "menu.PERFORMANCE_OKRS": "Sasaran & Hasil Utama (OKR)",
+
+  "performance.kpi": "Indikator Kinerja Utama (KPI)",
+  "performance.kpis": "Daftar KPI",
+  "performance.target": "Nilai Target",
+  "performance.actual": "Nilai Aktual",
+  "performance.variance": "Varians / Selisih",
+  "performance.okr": "Objectives & Key Results (OKR)",
+  "performance.objective": "Sasaran Strategis",
+  "performance.key_result": "Hasil Utama",
+  "performance.progress": "Kemajuan",
+
+  "performance.msg.kpi_recorded": "Nilai aktual KPI berhasil dicatat.",
+  "performance.msg.okr_completed": "Sasaran strategis OKR berhasil diselesaikan!"
+}

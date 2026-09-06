@@ -699,7 +699,7 @@ const triggerConfirmDemo = (variant: 'default' | 'destructive') => {
               <h3 class="text-sm font-semibold">ApplicationLogo</h3>
               <p class="text-xs text-ink-600">Logo resmi NusaEvo ERP yang digunakan pada halaman Login, Auth shell, dan Header navigation.</p>
               <div class="flex items-center justify-center p-6 border border-border rounded bg-surface-50">
-                <ApplicationLogo class="h-12 w-auto text-accent" />
+                <ApplicationLogo size="lg" />
               </div>
             </div>
 

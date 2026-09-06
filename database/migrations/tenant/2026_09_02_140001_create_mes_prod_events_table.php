@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
@@ -29,7 +30,7 @@ return new class extends Migration
             $table->foreignId('machine_id')->nullable()->constrained('MES.mes_machines');
         });
 
-        \Illuminate\Support\Facades\DB::statement(<<<'SQL'
+        DB::statement(<<<'SQL'
             ALTER TABLE "MES".mes_prod_events ADD CONSTRAINT chk_mes_prod_events_event_type CHECK (event_type IN (
                 'order_released', 'material_issued', 'material_returned',
                 'operation_started', 'operation_paused', 'operation_completed',

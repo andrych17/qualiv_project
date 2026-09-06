@@ -1,4 +1,4 @@
-<!-- ponytail: Global Command Palette & Menu Search Modal with Ctrl+Space shortcut and category filters -->
+<!-- ponytail: Global Command Palette & Menu Search Modal with UI/UX Pro Max Cards & List views, Ctrl+Space shortcut and category filters -->
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch, type Component } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
@@ -12,8 +12,13 @@ import {
   Sparkles,
   HelpCircle,
   Compass,
+  LayoutGrid,
+  List,
+  FolderTree,
+  ArrowRight,
 } from 'lucide-vue-next'
 import { useMenuSearch } from '@/Composables/useMenuSearch'
+import { useI18n } from '@/Composables/useI18n'
 
 interface Level3MenuItem {
   code: string
@@ -46,15 +51,40 @@ export interface FlatMenuItem {
   id: string
   code: string
   label: string
+  rawLabel: string
   href: string
   icon: string | null
   section: string
+  rawSection: string
   breadcrumbText: string
   level: number
 }
 
 const page = usePage()
 const { isMenuSearchOpen, closeMenuSearch } = useMenuSearch()
+const { t } = useI18n()
+
+const getMenuLabel = (code: string, fallback: string): string => {
+  const key = `menu.${code}`
+  const translated = t(key)
+  return translated !== key ? translated : fallback
+}
+
+const getSectionLabel = (section: string): string => {
+  const key = `nav.${section.toLowerCase()}`
+  const translated = t(key)
+  return translated !== key ? translated : section
+}
+
+const STORAGE_PALETTE_VIEW_KEY = 'nusaevo_palette_view_mode'
+const modalViewMode = ref<'card' | 'list'>(
+  (localStorage.getItem(STORAGE_PALETTE_VIEW_KEY) as 'card' | 'list') || 'card'
+)
+
+const setModalViewMode = (mode: 'card' | 'list') => {
+  modalViewMode.value = mode
+  localStorage.setItem(STORAGE_PALETTE_VIEW_KEY, mode)
+}
 
 const searchQuery = ref('')
 const selectedCategory = ref<string>('ALL')
@@ -80,21 +110,28 @@ const allMenuItems = computed((): FlatMenuItem[] => {
   const flat: FlatMenuItem[] = []
 
   for (const item of rawMenus) {
-    const section = (item.header || 'General').trim() || 'General'
+    const rawSection = (item.header || 'General').trim() || 'General'
+    const section = getSectionLabel(rawSection)
+    const itemLabel = getMenuLabel(item.code, item.label)
 
     if (item.children && item.children.length > 0) {
       for (const child of item.children) {
+        const childLabel = getMenuLabel(child.code, child.label)
+
         if (child.children && child.children.length > 0) {
           for (const grandchild of child.children) {
             if (grandchild.href && grandchild.href !== '#') {
+              const grandchildLabel = getMenuLabel(grandchild.code, grandchild.label)
               flat.push({
                 id: `${item.code}_${child.code}_${grandchild.code}`,
                 code: grandchild.code,
-                label: grandchild.label,
+                label: grandchildLabel,
+                rawLabel: grandchild.label,
                 href: grandchild.href,
                 icon: grandchild.icon || child.icon || item.icon,
                 section,
-                breadcrumbText: `${item.label} › ${child.label}`,
+                rawSection,
+                breadcrumbText: `${itemLabel} › ${childLabel}`,
                 level: 3,
               })
             }
@@ -103,11 +140,13 @@ const allMenuItems = computed((): FlatMenuItem[] => {
           flat.push({
             id: `${item.code}_${child.code}`,
             code: child.code,
-            label: child.label,
+            label: childLabel,
+            rawLabel: child.label,
             href: child.href,
             icon: child.icon || item.icon,
             section,
-            breadcrumbText: item.label,
+            rawSection,
+            breadcrumbText: itemLabel,
             level: 2,
           })
         }
@@ -116,10 +155,12 @@ const allMenuItems = computed((): FlatMenuItem[] => {
       flat.push({
         id: item.code,
         code: item.code,
-        label: item.label,
+        label: itemLabel,
+        rawLabel: item.label,
         href: item.href,
         icon: item.icon,
         section,
+        rawSection,
         breadcrumbText: section,
         level: 1,
       })
@@ -139,10 +180,12 @@ const categories = computed(() => {
 
   const list = Array.from(map.entries()).map(([name, count]) => ({
     name,
+    label: name,
     count,
   }))
 
-  return [{ name: 'ALL', label: 'Semua Menu', count: allMenuItems.value.length }, ...list.map((c) => ({ ...c, label: c.name }))]
+  const allLabel = t('common.all') !== 'common.all' ? `${t('common.all')} (${t('nav.main_menu')})` : 'Semua Menu'
+  return [{ name: 'ALL', label: allLabel, count: allMenuItems.value.length }, ...list]
 })
 
 // Filter items based on active search query and category filter
@@ -159,15 +202,15 @@ const filteredItems = computed((): FlatMenuItem[] => {
   }
 
   return list.filter((item) => {
-    const labelMatch = item.label.toLowerCase().includes(query)
+    const labelMatch = item.label.toLowerCase().includes(query) || item.rawLabel.toLowerCase().includes(query)
     const codeMatch = item.code.toLowerCase().includes(query)
     const breadcrumbMatch = item.breadcrumbText.toLowerCase().includes(query)
-    const sectionMatch = item.section.toLowerCase().includes(query)
+    const sectionMatch = item.section.toLowerCase().includes(query) || item.rawSection.toLowerCase().includes(query)
     return labelMatch || codeMatch || breadcrumbMatch || sectionMatch
   })
 })
 
-// Grouped items for "Show All" empty-query browsing
+// Grouped items for Section browsing
 const groupedItems = computed(() => {
   const groups: Record<string, FlatMenuItem[]> = {}
   for (const item of filteredItems.value) {
@@ -216,7 +259,7 @@ const clearSearch = () => {
   searchInputRef.value?.focus()
 }
 
-// Keyboard navigation in modal list
+// Keyboard navigation in modal list/grid
 const handleKeydown = (e: KeyboardEvent) => {
   if (!isMenuSearchOpen.value) return
 
@@ -276,15 +319,15 @@ onUnmounted(() => {
     >
       <div
         v-if="isMenuSearchOpen"
-        class="fixed inset-0 z-50 flex items-start justify-center p-3 sm:p-6 md:pt-20 bg-ink-900/60 backdrop-blur-sm overflow-y-auto"
+        class="fixed inset-0 z-50 flex items-start justify-center p-3 sm:p-6 md:pt-16 bg-ink-900/60 backdrop-blur-sm overflow-y-auto"
         @click.self="closeMenuSearch"
       >
         <!-- Modal Card Dialog -->
         <div
-          class="relative w-full max-w-2xl bg-surface-0 rounded-xl shadow-2xl border border-border overflow-hidden flex flex-col max-h-[85vh] transition-all transform animate-in fade-in zoom-in-95 duration-150"
+          class="relative w-full max-w-3xl bg-surface-0 rounded-2xl shadow-2xl border border-border overflow-hidden flex flex-col max-h-[85vh] transition-all transform animate-enter"
           role="dialog"
           aria-modal="true"
-          aria-label="Search Menu ERP"
+          :aria-label="t('header.search_placeholder')"
           @click.stop
         >
           <!-- Search Header Input Bar -->
@@ -295,17 +338,47 @@ onUnmounted(() => {
               v-model="searchQuery"
               type="text"
               class="flex-1 bg-transparent text-sm sm:text-base text-ink-900 placeholder:text-ink-600/60 outline-none border-none p-0 focus:ring-0 font-medium"
-              placeholder="Cari semua menu, modul, atau halaman... (Ctrl + Space)"
+              :placeholder="t('header.search_placeholder')"
               autocomplete="off"
               spellcheck="false"
             />
+
+            <!-- View Mode Switcher (Card vs List) -->
+            <div class="hidden sm:flex items-center p-1 bg-surface-50 border border-border rounded-lg mr-2">
+              <button
+                type="button"
+                class="p-1 rounded-md transition-all cursor-pointer"
+                :class="
+                  modalViewMode === 'card'
+                    ? 'bg-surface-0 text-accent shadow-2xs border border-border'
+                    : 'text-ink-500 hover:text-ink-900'
+                "
+                :title="t('header.card_view')"
+                @click="setModalViewMode('card')"
+              >
+                <LayoutGrid class="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                class="p-1 rounded-md transition-all cursor-pointer"
+                :class="
+                  modalViewMode === 'list'
+                    ? 'bg-surface-0 text-accent shadow-2xs border border-border'
+                    : 'text-ink-500 hover:text-ink-900'
+                "
+                :title="t('header.list_view')"
+                @click="setModalViewMode('list')"
+              >
+                <List class="h-4 w-4" />
+              </button>
+            </div>
 
             <!-- Clear button / Escape badge -->
             <button
               v-if="searchQuery"
               type="button"
               class="p-1 rounded-md text-ink-600 hover:text-ink-900 hover:bg-surface-50 transition-colors cursor-pointer"
-              title="Hapus pencarian"
+              :title="t('common.cancel')"
               @click="clearSearch"
             >
               <X class="h-4 w-4" />
@@ -345,80 +418,136 @@ onUnmounted(() => {
             </button>
           </div>
 
-          <!-- Menu Items List -->
-          <div class="flex-1 overflow-y-auto p-2 sm:p-3 space-y-1 divide-y divide-border/30 min-h-[220px]">
-            <!-- When Search Query matches results -->
+          <!-- Menu Items Body (Card View vs List View) -->
+          <div class="flex-1 overflow-y-auto p-3 sm:p-4 min-h-[260px] max-h-[60vh]">
+            <!-- Results Found -->
             <template v-if="filteredItems.length > 0">
-              <!-- If searching with query: flat list with count badge -->
-              <div v-if="searchQuery.trim()" class="pb-1 px-2 pt-1 flex items-center justify-between text-xs text-ink-600 font-medium">
-                <span>Hasil Pencarian ({{ filteredItems.length }})</span>
-                <span class="text-[11px] text-ink-500">Gunakan ↑↓ untuk navigasi</span>
-              </div>
-
-              <!-- Item Entries -->
-              <div
-                v-for="(item, index) in filteredItems"
-                :key="item.id"
-                :ref="(el) => { if (el) itemRefs[index] = el as HTMLElement }"
-                class="group flex items-center justify-between p-2.5 sm:p-3 rounded-lg text-left transition-all duration-100 cursor-pointer select-none"
-                :class="
-                  selectedIndex === index
-                    ? 'bg-accent/10 border border-accent/40 text-ink-900 shadow-2xs ring-1 ring-accent/30 font-semibold'
-                    : 'hover:bg-surface-50 border border-transparent text-ink-700'
-                "
-                @mouseenter="selectedIndex = index"
-                @click="navigateToItem(item)"
-              >
-                <div class="flex items-center gap-3 min-w-0 flex-1">
+              <!-- CARD GRID MODE (DEFAULT) -->
+              <div v-if="modalViewMode === 'card'" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                   <div
-                    class="h-9 w-9 rounded-lg flex items-center justify-center border shrink-0 transition-colors"
+                    v-for="(item, index) in filteredItems"
+                    :key="item.id"
+                    :ref="(el) => { if (el) itemRefs[index] = el as HTMLElement }"
+                    class="group relative rounded-xl border bg-surface-0 p-3.5 transition-all duration-150 hover:border-accent/50 hover:shadow-md cursor-pointer select-none flex flex-col justify-between"
                     :class="
                       selectedIndex === index
-                        ? 'bg-accent text-accent-text border-accent shadow-2xs'
-                        : 'bg-surface-50 border-border text-ink-600 group-hover:border-accent/40 group-hover:text-accent'
+                        ? 'border-accent ring-2 ring-accent/30 bg-accent/5 font-semibold shadow-2xs'
+                        : 'border-border'
                     "
+                    @mouseenter="selectedIndex = index"
+                    @click="navigateToItem(item)"
                   >
-                    <component :is="getIcon(item.icon)" class="h-4 w-4" />
-                  </div>
+                    <div>
+                      <!-- Top: Icon & Section Badge -->
+                      <div class="flex items-center justify-between gap-2">
+                        <div
+                          class="h-10 w-10 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:bg-accent group-hover:text-accent-text group-hover:scale-105 transition-all shrink-0 shadow-2xs"
+                        >
+                          <component :is="getIcon(item.icon)" class="h-5 w-5" />
+                        </div>
 
-                  <div class="min-w-0 flex-1">
-                    <div class="flex items-center gap-2">
-                      <p
-                        class="text-sm truncate"
-                        :class="selectedIndex === index ? 'font-bold text-ink-900' : 'font-medium text-ink-900'"
-                      >
-                        {{ item.label }}
-                      </p>
+                        <span
+                          class="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md border"
+                          :class="
+                            selectedIndex === index
+                              ? 'bg-accent/15 text-accent border-accent/30'
+                              : 'bg-surface-50 text-ink-600 border-border'
+                          "
+                        >
+                          {{ item.section }}
+                        </span>
+                      </div>
+
+                      <!-- Middle: Label & Hierarchy -->
+                      <div class="mt-3">
+                        <h3 class="text-sm font-bold text-ink-900 group-hover:text-accent transition-colors truncate">
+                          {{ item.label }}
+                        </h3>
+                        <p class="text-[11px] text-ink-500 truncate mt-0.5 flex items-center gap-1">
+                          <span class="truncate">{{ item.breadcrumbText }}</span>
+                        </p>
+                      </div>
                     </div>
 
-                    <p class="text-[11px] text-ink-600 flex items-center gap-1 truncate mt-0.5">
-                      <span class="font-medium text-ink-600/80">{{ item.section }}</span>
-                      <ChevronRight class="h-3 w-3 text-ink-400 shrink-0" />
-                      <span class="truncate">{{ item.breadcrumbText }}</span>
-                    </p>
+                    <!-- Bottom: Quick Launch Indicator -->
+                    <div class="mt-3 pt-2 border-t border-border/50 flex items-center justify-between text-[11px] text-ink-500">
+                      <span class="font-mono text-[10px] text-ink-400 truncate">{{ item.code }}</span>
+                      <div class="flex items-center gap-1 text-accent font-semibold group-hover:translate-x-0.5 transition-transform">
+                        <span>{{ t('common.open') }}</span>
+                        <ArrowRight class="h-3 w-3" />
+                      </div>
+                    </div>
                   </div>
                 </div>
+              </div>
 
-                <div class="flex items-center gap-2 pl-2 shrink-0">
-                  <span
-                    class="hidden sm:inline-block text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded border"
-                    :class="
-                      selectedIndex === index
-                        ? 'bg-accent/15 text-accent border-accent/30'
-                        : 'bg-surface-50 text-ink-600 border-border'
-                    "
-                  >
-                    {{ item.section }}
-                  </span>
+              <!-- COMPACT LIST MODE -->
+              <div v-else class="space-y-1 divide-y divide-border/30">
+                <div
+                  v-for="(item, index) in filteredItems"
+                  :key="item.id"
+                  :ref="(el) => { if (el) itemRefs[index] = el as HTMLElement }"
+                  class="group flex items-center justify-between p-2.5 sm:p-3 rounded-lg text-left transition-all duration-100 cursor-pointer select-none"
+                  :class="
+                    selectedIndex === index
+                      ? 'bg-accent/10 border border-accent/40 text-ink-900 shadow-2xs ring-1 ring-accent/30 font-semibold'
+                      : 'hover:bg-surface-50 border border-transparent text-ink-700'
+                  "
+                  @mouseenter="selectedIndex = index"
+                  @click="navigateToItem(item)"
+                >
+                  <div class="flex items-center gap-3 min-w-0 flex-1">
+                    <div
+                      class="h-9 w-9 rounded-lg flex items-center justify-center border shrink-0 transition-colors"
+                      :class="
+                        selectedIndex === index
+                          ? 'bg-accent text-accent-text border-accent shadow-2xs'
+                          : 'bg-surface-50 border-border text-ink-600 group-hover:border-accent/40 group-hover:text-accent'
+                      "
+                    >
+                      <component :is="getIcon(item.icon)" class="h-4 w-4" />
+                    </div>
 
-                  <CornerDownLeft
-                    class="h-4 w-4 transition-transform duration-100"
-                    :class="
-                      selectedIndex === index
-                        ? 'text-accent translate-x-0.5 opacity-100'
-                        : 'text-ink-400 opacity-0 group-hover:opacity-60'
-                    "
-                  />
+                    <div class="min-w-0 flex-1">
+                      <div class="flex items-center gap-2">
+                        <p
+                          class="text-sm truncate"
+                          :class="selectedIndex === index ? 'font-bold text-ink-900' : 'font-medium text-ink-900'"
+                        >
+                          {{ item.label }}
+                        </p>
+                      </div>
+
+                      <p class="text-[11px] text-ink-600 flex items-center gap-1 truncate mt-0.5">
+                        <span class="font-medium text-ink-600/80">{{ item.section }}</span>
+                        <ChevronRight class="h-3 w-3 text-ink-400 shrink-0" />
+                        <span class="truncate">{{ item.breadcrumbText }}</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-2 pl-2 shrink-0">
+                    <span
+                      class="hidden sm:inline-block text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded border"
+                      :class="
+                        selectedIndex === index
+                          ? 'bg-accent/15 text-accent border-accent/30'
+                          : 'bg-surface-50 text-ink-600 border-border'
+                      "
+                    >
+                      {{ item.section }}
+                    </span>
+
+                    <CornerDownLeft
+                      class="h-4 w-4 transition-transform duration-100"
+                      :class="
+                        selectedIndex === index
+                          ? 'text-accent translate-x-0.5 opacity-100'
+                          : 'text-ink-400 opacity-0 group-hover:opacity-60'
+                      "
+                    />
+                  </div>
                 </div>
               </div>
             </template>
@@ -431,9 +560,9 @@ onUnmounted(() => {
               <div class="h-12 w-12 rounded-full bg-surface-50 border border-border flex items-center justify-center text-ink-400 mb-3">
                 <SearchX class="h-6 w-6" />
               </div>
-              <p class="text-sm font-semibold text-ink-900">Menu tidak ditemukan</p>
+              <p class="text-sm font-semibold text-ink-900">{{ t('common.no_results') }}</p>
               <p class="text-xs text-ink-600 mt-1 max-w-sm">
-                Tidak ada menu yang sesuai dengan kata kunci
+                {{ t('common.no_results_desc') }}
                 <span class="font-medium text-ink-900">"{{ searchQuery }}"</span>.
               </p>
               <button
@@ -441,7 +570,7 @@ onUnmounted(() => {
                 class="mt-4 px-3 py-1.5 rounded-lg border border-border bg-surface-50 text-xs font-medium text-ink-700 hover:text-ink-900 hover:bg-surface-100 transition-colors cursor-pointer"
                 @click="clearSearch"
               >
-                Lihat Semua Menu
+                {{ t('common.view_all_menus') }}
               </button>
             </div>
           </div>
@@ -452,21 +581,21 @@ onUnmounted(() => {
               <span class="inline-flex items-center gap-1">
                 <kbd class="px-1.5 py-0.5 rounded bg-surface-0 border border-border font-mono shadow-2xs text-[10px]">↑</kbd>
                 <kbd class="px-1.5 py-0.5 rounded bg-surface-0 border border-border font-mono shadow-2xs text-[10px]">↓</kbd>
-                <span>Navigasi</span>
+                <span>{{ t('common.navigate') }}</span>
               </span>
               <span class="inline-flex items-center gap-1">
                 <kbd class="px-1.5 py-0.5 rounded bg-surface-0 border border-border font-mono shadow-2xs text-[10px]">↵</kbd>
-                <span>Buka</span>
+                <span>{{ t('common.open') }}</span>
               </span>
               <span class="hidden sm:inline-flex items-center gap-1">
                 <kbd class="px-1.5 py-0.5 rounded bg-surface-0 border border-border font-mono shadow-2xs text-[10px]">Esc</kbd>
-                <span>Tutup</span>
+                <span>{{ t('common.close') }}</span>
               </span>
             </div>
 
             <div class="flex items-center gap-1.5 font-medium text-ink-600">
               <Compass class="h-3.5 w-3.5 text-accent" />
-              <span>{{ allMenuItems.length }} Menu Tersedia</span>
+              <span>{{ allMenuItems.length }} {{ t('nav.main_menu') }}</span>
             </div>
           </div>
         </div>
@@ -484,3 +613,4 @@ onUnmounted(() => {
   scrollbar-width: none;
 }
 </style>
+

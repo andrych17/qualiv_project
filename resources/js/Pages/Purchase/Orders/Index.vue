@@ -8,6 +8,7 @@ import PageHeader from '@/Components/layout/PageHeader.vue'
 import DataTable, { type SortState } from '@/Components/tables/DataTable.vue'
 import StatusBadge from '@/Components/feedback/StatusBadge.vue'
 import PurchaseSubNav from '@/Components/purchase/PurchaseSubNav.vue'
+import { useI18n } from '@/Composables/useI18n'
 
 interface OrderItem {
   id: number
@@ -27,20 +28,21 @@ interface OrderItem {
 
 const props = defineProps<{ orders: OrderItem[] }>()
 
+const { t } = useI18n()
 const search = ref('')
 const sort = ref<SortState>(null)
 
-const columns = [
-  { key: 'po_no', label: 'PO Number', sortable: true },
-  { key: 'supplier_name', label: 'Supplier / Vendor', sortable: true },
-  { key: 'pr_no', label: 'Linked PR' },
-  { key: 'expected_delivery_date', label: 'Delivery Date', sortable: true },
-  { key: 'total_amount', label: 'Total Amount', align: 'right' as const, sortable: true },
-  { key: 'status', label: 'Status', sortable: true },
-  { key: 'ack_status', label: 'Acknowledgment' },
-  { key: 'revision_no', label: 'Rev.', align: 'center' as const },
-  { key: 'actions', label: 'Actions', align: 'right' as const },
-]
+const columns = computed(() => [
+  { key: 'po_no', label: t('purchase.po_number'), sortable: true },
+  { key: 'supplier_name', label: t('purchase.vendor'), sortable: true },
+  { key: 'pr_no', label: t('purchase.linked_pr') },
+  { key: 'expected_delivery_date', label: t('purchase.expected_delivery'), sortable: true },
+  { key: 'total_amount', label: t('purchase.total_amount'), align: 'right' as const, sortable: true },
+  { key: 'status', label: t('common.status'), sortable: true },
+  { key: 'ack_status', label: t('purchase.acknowledgment') },
+  { key: 'revision_no', label: t('purchase.revision'), align: 'center' as const },
+  { key: 'actions', label: t('common.actions'), align: 'right' as const },
+])
 
 const formatCurrency = (val: number, curr = 'IDR') => {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: curr, maximumFractionDigits: 0 }).format(val)
@@ -75,9 +77,9 @@ const filteredOrders = computed(() => {
 
 <template>
   <AppLayout>
-    <PageHeader title="Purchase Orders" description="Manage vendor purchase orders, amendments, and delivery tracking (§3D).">
+    <PageHeader :title="t('purchase.orders')" :description="t('purchase.orders_subtitle')">
       <template #actions>
-        <PrimaryButton :href="route('purchase.orders.create')">New purchase order</PrimaryButton>
+        <PrimaryButton :href="route('purchase.orders.create')">{{ t('purchase.new_order') }}</PrimaryButton>
       </template>
     </PageHeader>
 
@@ -91,10 +93,10 @@ const filteredOrders = computed(() => {
         :items="filteredOrders"
         v-model:sort="sort"
         v-model:search="search"
-        search-placeholder="Search PO number, supplier, or PR…"
+        :search-placeholder="t('purchase.search_orders_placeholder')"
         status-rail-key="status"
-        empty-title="No purchase orders yet"
-        empty-description="Create a purchase order or generate one directly from an approved requisition."
+        :empty-title="t('purchase.empty_orders_title')"
+        :empty-description="t('purchase.empty_orders_desc')"
       >
         <template #cell-po_no="{ item }">
           <Link :href="route('purchase.orders.show', item.id)" class="text-sm font-semibold text-accent hover:underline">

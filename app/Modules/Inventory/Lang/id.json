@@ -1,0 +1,60 @@
+{
+  "menu.INVENTORY_DASHBOARD": "Dashboard Inventori",
+  "menu.INVENTORY_PRODUCTS": "Master Barang & Jasa",
+  "menu.INVENTORY_WAREHOUSES": "Gudang & Lokasi Rak",
+  "menu.INVENTORY_MOVEMENTS": "Mutasi Stok & Kartu Stok",
+  "menu.INVENTORY_ADJUSTMENTS": "Penyesuaian Stok (Adjustment)",
+  "menu.INVENTORY_TRANSFERS": "Transfer Antar Gudang",
+  "menu.INVENTORY_BATCHES": "Batch / Lot & Serial",
+  "menu.INVENTORY_STOCK_OPNAME": "Stok Opname Fisik",
+  "menu.INVENTORY_UOMS": "Satuan Ukuran (UOM)",
+  "menu.INVENTORY_CATEGORIES": "Kategori Barang",
+  "menu.INVENTORY_SHIPMENTS": "Pengiriman Gudang",
+
+  "inventory.product": "Barang / Produk",
+  "inventory.products": "Master Barang & Inventori",
+  "inventory.products_subtitle": "Katalog barang, tingkat persediaan, kategori, dan status.",
+  "inventory.new_product": "Tambah Barang Baru",
+  "inventory.empty_products_title": "Belum ada master barang",
+  "inventory.empty_products_desc": "Tambahkan barang pertama untuk mulai melacak persediaan gudang.",
+
+  "inventory.sku": "Kode SKU / Kode",
+  "inventory.item_name": "Nama Barang",
+  "inventory.barcode": "Barcode / EAN",
+  "inventory.category": "Kategori",
+  "inventory.warehouse": "Gudang",
+  "inventory.warehouses": "Daftar Gudang",
+  "inventory.stock": "Jumlah Stok",
+  "inventory.stock_on_hand": "Stok Tersedia",
+  "inventory.stock_allocated": "Stok Dialokasikan",
+  "inventory.min_stock": "Stok Minimum",
+  "inventory.batch_number": "Nomor Batch",
+  "inventory.expiry_date": "Tanggal Kedaluwarsa",
+  "inventory.uom": "Satuan (Unit)",
+  "inventory.goods_receipt": "Penerimaan Barang (GR)",
+  "inventory.goods_issue": "Pengeluaran Barang (GI)",
+  "inventory.created_date": "Tanggal Dibuat",
+  "inventory.search_placeholder": "Cari kode, nama, atau kategori...",
+
+  "inventory.stock_card": "Kartu Stok",
+  "inventory.stock_card_subtitle": "Buku besar pergerakan mutasi stok barang masuk, keluar, dan saldo berjalan.",
+
+  "inventory.transfers": "Transfer Antar Gudang",
+  "inventory.transfers_subtitle": "Pemindahan stok antar lokasi gudang dan cabang perusahaan.",
+  "inventory.new_transfer": "Buat Transfer Stok",
+
+  "inventory.adjustments": "Penyesuaian Stok (Adjustment)",
+  "inventory.adjustments_subtitle": "Penyesuaian selisih stok fisik vs sistem dan koreksi nilai inventori.",
+  "inventory.new_adjustment": "Buat Penyesuaian Stok",
+
+  "inventory.confirm_delete_item": "Hapus barang :name?",
+  "inventory.confirm_bulk_delete_items": "Hapus :count barang terpilih?",
+
+  "inventory.msg.stock_adjusted": "Penyesuaian stok berhasil disimpan dan dibukukan.",
+  "inventory.msg.transfer_completed": "Transfer stok antar gudang berhasil diselesaikan.",
+  "inventory.msg.stock_opname_posted": "Hasil stok opname berhasil diposting.",
+
+  "inventory.err.insufficient_stock": "Stok fisik barang tidak mencukupi untuk transaksi ini.",
+  "inventory.err.batch_expired": "Batch barang telah kedaluwarsa dan tidak dapat dikeluarkan.",
+  "inventory.err.warehouse_locked": "Gudang sedang dalam proses stok opname dan terkunci."
+}

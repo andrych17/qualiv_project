@@ -184,7 +184,7 @@ export function useTheme() {
 
     if (persist) {
       router.post(
-        route('config.theme.update'),
+        route('user.theme.update'),
         { theme: themeKey },
         {
           preserveScroll: true,

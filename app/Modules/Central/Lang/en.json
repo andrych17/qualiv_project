@@ -1,0 +1,11 @@
+{
+  "central.tenant": "Tenant",
+  "central.tenants": "Tenants List",
+  "central.domain": "Domain",
+  "central.plan": "Subscription Plan",
+  "central.database": "Tenant Database",
+  "central.status": "Subscription Status",
+
+  "central.msg.tenant_created": "New tenant created and database initialized successfully.",
+  "central.err.tenant_exists": "A tenant with this ID or domain already exists."
+}

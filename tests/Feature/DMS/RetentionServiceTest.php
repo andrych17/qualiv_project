@@ -23,8 +23,8 @@ class RetentionServiceTest extends TestCase
 
     public function test_expired_document_with_no_policy_defaults_to_notify_only(): void
     {
-        Event::fake([NotificationRequested::class]);
         $tenant = $this->loginAsDmsAdmin();
+        Event::fake([NotificationRequested::class]);
 
         $documentId = null;
         $tenant->run(function () use (&$documentId) {
@@ -45,8 +45,8 @@ class RetentionServiceTest extends TestCase
 
     public function test_expired_document_with_archive_policy_is_archived(): void
     {
-        Event::fake([NotificationRequested::class]);
         $tenant = $this->loginAsDmsAdmin();
+        Event::fake([NotificationRequested::class]);
 
         $documentId = null;
         $tenant->run(function () use (&$documentId) {
@@ -68,8 +68,8 @@ class RetentionServiceTest extends TestCase
 
     public function test_expired_document_with_delete_policy_requests_approval_and_falls_back_to_notify(): void
     {
-        Event::fake([NotificationRequested::class]);
         $tenant = $this->loginAsDmsAdmin();
+        Event::fake([NotificationRequested::class]);
 
         $documentId = null;
         $tenant->run(function () use (&$documentId) {
@@ -96,8 +96,8 @@ class RetentionServiceTest extends TestCase
 
     public function test_legal_hold_blocks_the_scheduled_action_by_default(): void
     {
-        Event::fake([NotificationRequested::class]);
         $tenant = $this->loginAsDmsAdmin();
+        Event::fake([NotificationRequested::class]);
 
         $documentId = null;
         $tenant->run(function () use (&$documentId) {
@@ -121,8 +121,8 @@ class RetentionServiceTest extends TestCase
 
     public function test_legal_hold_overridable_false_lets_the_action_proceed(): void
     {
-        Event::fake([NotificationRequested::class]);
         $tenant = $this->loginAsDmsAdmin();
+        Event::fake([NotificationRequested::class]);
 
         $documentId = null;
         $tenant->run(function () use (&$documentId) {
@@ -141,8 +141,8 @@ class RetentionServiceTest extends TestCase
 
     public function test_sweep_via_console_command(): void
     {
-        Event::fake([NotificationRequested::class]);
         $tenant = $this->loginAsDmsAdmin();
+        Event::fake([NotificationRequested::class]);
 
         $tenant->run(function () {
             $this->makeDocument(['expiry_date' => now()->subDay()->toDateString()]);
@@ -155,8 +155,8 @@ class RetentionServiceTest extends TestCase
 
     public function test_sweep_ignores_documents_not_yet_expired_or_already_inactive(): void
     {
-        Event::fake([NotificationRequested::class]);
         $tenant = $this->loginAsDmsAdmin();
+        Event::fake([NotificationRequested::class]);
 
         $tenant->run(function () {
             $this->makeDocument(['title' => 'Not expired yet', 'expiry_date' => now()->addDays(10)->toDateString()]);
@@ -170,8 +170,8 @@ class RetentionServiceTest extends TestCase
 
     public function test_notification_targets_the_versions_uploader_when_known(): void
     {
-        Event::fake([NotificationRequested::class]);
         $tenant = $this->loginAsDmsAdmin();
+        Event::fake([NotificationRequested::class]);
 
         $tenant->run(function () {
             $uploaderId = User::query()->where('email', 'admin@nusaevo.com')->value('id');
